@@ -122,7 +122,7 @@ const TABS: Tab[] = [
       { icon: <Clock4 className="h-4 w-4 text-sky-600" />, text: "Echtzeit‑Zeiterfassung & DSGVO‑konforme Nachweise" },
       { icon: <FileCheck2 className="h-4 w-4 text-purple-600" />, text: "Bei DB‑Projekten zählen Nachvollziehbarkeit, Formatvorgaben und fristgerechte Meldungen. Gleistrix bündelt alle Prozesse – von der Einsatz‑ und Leistungsdoku über Auftraggebermeldungen bis zur X‑Rechnung – damit Ihre Abläufe sicher, prüffähig und effizient bleiben." },
     ],
-    image: "/next.svg",
+    image: "/subunternehmen.png",
   },
 ];
 
