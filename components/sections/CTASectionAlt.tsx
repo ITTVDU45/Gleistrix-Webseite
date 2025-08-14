@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 
 const DotGrid = dynamic(() => import("@/components/visuals/DotGrid"), { ssr: false });
 
@@ -32,16 +33,16 @@ export default function CTASectionAlt() {
               Gleistrix bündelt Planung, Zeiterfassung und Abrechnung in einem System – transparent, effizient, mobil.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a href="/demo-buchen">
+              <Link href="/demo-buchen">
                 <Button className="h-11 px-6 bg-gradient-to-r from-sky-400 via-blue-600 to-violet-600 text-white hover:brightness-110">
                   Kostenlose Demo buchen
                 </Button>
-              </a>
-              <a href="/#loesungen">
+              </Link>
+              <Link href="/#loesungen">
                 <Button variant="outline" className="h-11 px-6 bg-transparent text-white border border-white/40 hover:bg-white/10">
                   Funktionen ansehen
                 </Button>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

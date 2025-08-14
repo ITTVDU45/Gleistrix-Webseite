@@ -38,11 +38,11 @@ export default function Page() {
                 Demo anfordern
               </Button>
             </Link>
-            <a href="/#funktionen">
+            <Link href="/#funktionen">
               <Button className="h-11 px-6 bg-transparent text-white border border-white/40 hover:border-white/70 hover:bg-white/10">
                 Funktionen ansehen
               </Button>
-            </a>
+            </Link>
           </div>
         </div>
       </section>

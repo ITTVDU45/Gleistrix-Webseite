@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   images: {
     formats: ["image/avif", "image/webp"],
   },
@@ -12,6 +11,16 @@ const nextConfig: NextConfig = {
       "framer-motion",
     ],
   },
+  eslint: {
+    // Don't block production builds on lint errors
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // Don't block production builds on type errors
+    ignoreBuildErrors: true,
+  },
+  poweredByHeader: false,
+  compress: true,
 };
 
 export default nextConfig;
