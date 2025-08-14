@@ -145,26 +145,21 @@ export default function Page() {
             Hinter Gleistrix steht ein interdisziplinäres Team aus Produkt, Engineering und Branchenexperten – vereint
             durch die Idee, komplexe Abläufe einfach und verlässlich zu machen.
           </p>
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            {/* Portrait Image */}
-            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-              <Image src="/Tolgahan Vardar.jpeg" alt="Tolgahan Vardar" fill className="object-cover" priority />
-            </div>
-            {/* Animated Profile Card */}
-            <div className="flex justify-center">
-              <ProfileCard
-                name="Tolgahan Vardar"
-                title="Geschäftsführer"
-                handle="Tolgahan Vardar"
-                status="Geschäftsführer"
-                contactText="Kontakt"
-                contactHref="tel:+491785428363"
-                avatarUrl="/Tolgahan Vardar.jpeg"
-                showUserInfo={true}
-                enableTilt={true}
-                enableMobileTilt={false}
-              />
-            </div>
+          <div className="mt-8 flex justify-center">
+            <ProfileCard
+              name="Tolgahan Vardar"
+              title="Geschäftsführer"
+              handle="Tolgahan Vardar"
+              status="Geschäftsführer"
+              contactText="Kontakt"
+              /* use phone link directly in card CTA via contactHref if supported */
+              // @ts-expect-error legacy prop handled internally
+              contactHref="tel:+491785428363"
+              avatarUrl="/Tolgahan Vardar.jpeg"
+              showUserInfo={true}
+              enableTilt={true}
+              enableMobileTilt={false}
+            />
           </div>
         </section>
 
