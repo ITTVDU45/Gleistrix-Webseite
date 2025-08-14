@@ -55,7 +55,7 @@ const ITEMS: AccordionItem[] = [
     id: "zeit",
     title: "Zeiterfassung & Zettel",
     subtitle: "Digital, mobil, prüffähig.",
-    imageSrc: "/zeit.png",
+    imageSrc: "/Zeiterfassung.png",
   },
   {
     id: "reports",
