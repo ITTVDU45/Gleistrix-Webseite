@@ -20,8 +20,11 @@ interface ProfileCardProps {
   handle?: string;
   status?: string;
   contactText?: string;
-  contactHref?: string; // new: use URL instead of a function
   showUserInfo?: boolean;
+  onContactClick?: () => void;
+  /** Optional fine‑tuning for portrait rendering */
+  avatarScale?: number; // default 1
+  avatarBottomPx?: number; // default -80
 }
 
 const DEFAULT_BEHIND_GRADIENT =
@@ -72,9 +75,11 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
   title = "Software Engineer",
   handle = "javicodes",
   status = "Online",
-  contactText = "Kontakt",
-  contactHref,
+  contactText = "Contact",
   showUserInfo = true,
+  onContactClick,
+  avatarScale = 1,
+  avatarBottomPx = -80,
 }) => {
   const wrapRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -299,9 +304,15 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
           ? (behindGradient ?? DEFAULT_BEHIND_GRADIENT)
           : "none",
         "--inner-gradient": innerGradient ?? DEFAULT_INNER_GRADIENT,
+        "--avatar-scale": String(avatarScale),
+        "--avatar-bottom": `${avatarBottomPx}px`,
       }) as React.CSSProperties,
-    [iconUrl, grainUrl, showBehindGradient, behindGradient, innerGradient]
+    [iconUrl, grainUrl, showBehindGradient, behindGradient, innerGradient, avatarScale, avatarBottomPx]
   );
+
+  const handleContactClick = useCallback(() => {
+    onContactClick?.();
+  }, [onContactClick]);
 
   return (
     <div
@@ -344,20 +355,15 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
                     <div className="pc-status">{status}</div>
                   </div>
                 </div>
-                {contactHref ? (
-                  <a
-                    className="pc-contact-btn"
-                    href={contactHref}
-                    style={{ pointerEvents: "auto" }}
-                    aria-label={`Contact ${name || "user"}`}
-                  >
-                    {contactText}
-                  </a>
-                ) : (
-                  <span className="pc-contact-btn" style={{ pointerEvents: "none", opacity: 0.75 }}>
-                    {contactText}
-                  </span>
-                )}
+                <button
+                  className="pc-contact-btn"
+                  onClick={handleContactClick}
+                  style={{ pointerEvents: "auto" }}
+                  type="button"
+                  aria-label={`Contact ${name || "user"}`}
+                >
+                  {contactText}
+                </button>
               </div>
             )}
           </div>

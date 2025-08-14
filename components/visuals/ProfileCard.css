@@ -26,6 +26,9 @@
   --sunpillar-clr-5: var(--sunpillar-5);
   --sunpillar-clr-6: var(--sunpillar-6);
   --card-radius: 30px;
+  /* avatar tuning */
+  --avatar-scale: 1;
+  --avatar-bottom: -80px;
 }
 
 .pc-card-wrapper {
@@ -185,8 +188,8 @@
   width: 100%;
   position: absolute;
   left: 50%;
-  transform: translateX(-50%) scale(1);
-  bottom: -80px;
+  transform: translateX(-50%) scale(var(--avatar-scale));
+  bottom: var(--avatar-bottom);
   opacity: calc(1.75 - var(--pointer-from-center));
 }
 
