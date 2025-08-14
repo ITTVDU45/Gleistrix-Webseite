@@ -10,7 +10,7 @@ export default function Page() {
       <FeatureDetail
         title="Rechnungsstellung"
         description="Schnell, korrekt und auf Wunsch automatisiert erstellen."
-        imageSrc="/Rechnungsstellung & X‑Rechnung.png"
+        imageSrc="/Rechnungen.png"
       />
     </main>
   );

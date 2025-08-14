@@ -10,7 +10,7 @@ export default function Page() {
       <FeatureDetail
         title="Zeiterfassung & Stundenzettel"
         description="Digital, mobil und prüffähig – direkt mit Projekten verknüpft."
-        imageSrc="/zeit.png"
+        imageSrc="/Sicherungspersonal gleis.png"
       />
     </main>
   );
