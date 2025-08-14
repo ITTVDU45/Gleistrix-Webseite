@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 
 const Aurora = dynamic(() => import("@/components/visuals/Aurora"), { ssr: false });
@@ -44,19 +45,19 @@ export function HeroSection() {
           Von der ersten Planung bis zur finalen Abnahme: Gleistrix vereint Projektplanung, Ressourcensteuerung und Echtzeit-Zeiterfassung in einem zentralen Tool. Behalte den Überblick über Trupps, Maschinen, Fahrzeuge und Bauabschnitte – transparent, koordiniert und immer auf Kurs.
           </p>
           <div className="mt-10 flex items-center justify-center gap-4">
-            <a href="/demo-buchen">
+            <Link href="/demo-buchen" prefetch>
               <Button className="bg-gradient-to-tr from-sky-400 via-blue-600 to-violet-600 text-white hover:brightness-110">
                 Kostenlose Demo Anfragen
               </Button>
-            </a>
-            <a href="#loesungen">
+            </Link>
+            <Link href="#loesungen" prefetch={false}>
               <Button
                 variant="outline"
                 className="bg-transparent text-white hover:text-white border border-white/40 hover:border-white/70 hover:bg-white/10 rounded-md"
               >
                 Mehr dazu
               </Button>
-            </a>
+            </Link>
           </div>
           
           {/* Image below buttons */}
@@ -66,6 +67,7 @@ export function HeroSection() {
                 src="/Gleisbauunternehmen.png" 
                 alt="Gleisbauunternehmen bei der Arbeit" 
                 fill 
+                sizes="(max-width: 768px) 100vw, 896px"
                 className="object-cover"
                 priority
               />

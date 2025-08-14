@@ -3,6 +3,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 const Squares = dynamic(() => import("@/components/visuals/Squares"), { ssr: false });
 import Image from "next/image";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, Clock4, PlugZap, Tractor, TrafficCone, FileCheck2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -191,11 +192,11 @@ export default function ZielgruppenSection() {
           </div>
         </motion.div>
         <div className="mt-8 text-center">
-          <a href="/branchen">
+          <Link href="/branchen" prefetch>
             <Button className="bg-gradient-to-tr from-sky-400 via-blue-600 to-violet-600 text-white hover:brightness-110">
               Mehr zu den Branchen
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </section>

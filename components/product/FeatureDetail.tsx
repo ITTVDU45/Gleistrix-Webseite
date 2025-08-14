@@ -5,11 +5,10 @@ export type FeatureDetailProps = {
   title: string;
   description: string;
   imageSrc: string;
-  videoSrc?: string;
   backHref?: string;
 };
 
-export default function FeatureDetail({ title, description, imageSrc, videoSrc = "/Video1.mp4", backHref = "/produkt#features" }: FeatureDetailProps) {
+export default function FeatureDetail({ title, description, imageSrc, backHref = "/produkt#features" }: FeatureDetailProps) {
   return (
     <div className="relative z-10">
       {/* Back link */}
@@ -36,12 +35,7 @@ export default function FeatureDetail({ title, description, imageSrc, videoSrc =
         </div>
       </section>
 
-      {/* Video section */}
-      <section className="page-container pb-16">
-        <div className="relative aspect-video overflow-hidden rounded-2xl ring-1 ring-white/20 shadow-2xl">
-          <video className="h-full w-full object-cover" src={videoSrc} controls playsInline preload="metadata" />
-        </div>
-      </section>
+
     </div>
   );
 }

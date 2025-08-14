@@ -110,7 +110,7 @@ export default function VorteileSection() {
 
       <div className="page-container relative z-10">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-semibold text-white">Die wichtigsten Vorteile der eassy App</h2>
+          <h2 className="text-3xl font-semibold text-white">Die wichtigsten Vorteile der Gleistrix App</h2>
           <p className="text-white/80">Warum Teams Gleistrix in Produktion einsetzen</p>
         </div>
 

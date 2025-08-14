@@ -1,5 +1,3 @@
-"use client";
-
 import Squares from "@/components/visuals/Squares";
 import CTASection from "@/components/sections/CTASection";
 import { Cpu, Target, Sparkles, History } from "lucide-react";
@@ -147,19 +145,26 @@ export default function Page() {
             Hinter Gleistrix steht ein interdisziplinäres Team aus Produkt, Engineering und Branchenexperten – vereint
             durch die Idee, komplexe Abläufe einfach und verlässlich zu machen.
           </p>
-          <div className="mt-8 flex justify-center">
-            <ProfileCard
-              name="Tolgahan Vardar"
-              title="Geschäftsführer"
-              handle="Tolgahan Vardar"
-              status="Geschäftsführer"
-              contactText="Kontakt"
-              avatarUrl="/Tolgahan Vardar.jpeg"
-              showUserInfo={true}
-              enableTilt={true}
-              enableMobileTilt={false}
-              onContactClick={() => window.open('tel:+491785428363', '_self')}
-            />
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            {/* Portrait Image */}
+            <div className="relative w-full aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+              <Image src="/Tolgahan Vardar.jpeg" alt="Tolgahan Vardar" fill className="object-cover" priority />
+            </div>
+            {/* Animated Profile Card */}
+            <div className="flex justify-center">
+              <ProfileCard
+                name="Tolgahan Vardar"
+                title="Geschäftsführer"
+                handle="Tolgahan Vardar"
+                status="Geschäftsführer"
+                contactText="Kontakt"
+                contactHref="tel:+491785428363"
+                avatarUrl="/Tolgahan Vardar.jpeg"
+                showUserInfo={true}
+                enableTilt={true}
+                enableMobileTilt={false}
+              />
+            </div>
           </div>
         </section>
 
