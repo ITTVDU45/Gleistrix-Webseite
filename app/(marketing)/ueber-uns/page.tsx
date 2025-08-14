@@ -152,13 +152,12 @@ export default function Page() {
               handle="Tolgahan Vardar"
               status="Geschäftsführer"
               contactText="Kontakt"
-              /* use phone link directly in card CTA via contactHref if supported */
-              // @ts-expect-error legacy prop handled internally
-              contactHref="tel:+491785428363"
-              avatarUrl="/Tolgahan Vardar.jpeg"
-              showUserInfo={true}
+              avatarUrl="/Tolgahan%20Vardar.jpeg"
+              avatarScale={1.05}
+              avatarBottomPx={-60}
               enableTilt={true}
               enableMobileTilt={false}
+              showUserInfo={true}
             />
           </div>
         </section>

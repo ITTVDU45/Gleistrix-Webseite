@@ -40,7 +40,7 @@ export const INDUSTRIES: Industry[] = [
       "Effiziente Rechnungsstellung",
     ],
     icon: Briefcase,
-    image: "/globe.svg",
+    image: "/Auftragsbasierter dienstleister.png",
   },
   {
     id: "sicherungsunternehmen",

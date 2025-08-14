@@ -60,9 +60,9 @@ const easeInOutCubic = (x: number): number =>
   x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 
 const ProfileCardComponent: React.FC<ProfileCardProps> = ({
-  avatarUrl = "<Placeholder for avatar URL>",
-  iconUrl = "<Placeholder for icon URL>",
-  grainUrl = "<Placeholder for grain URL>",
+  avatarUrl,
+  iconUrl,
+  grainUrl,
   behindGradient,
   innerGradient,
   showBehindGradient = true,
@@ -114,6 +114,9 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
         "--pointer-from-left": `${percentX / 100}`,
         "--rotate-x": `${round(-(centerX / 5))}deg`,
         "--rotate-y": `${round(centerY / 4)}deg`,
+        "--avatar": `url(${avatarUrl})`,
+        "--avatar-scale": String(avatarScale),
+        "--avatar-bottom": `${avatarBottomPx}px`,
       } as Record<string, string>;
 
       Object.entries(properties).forEach(([property, value]) => {
@@ -160,7 +163,7 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
         }
       },
     };
-  }, [enableTilt]);
+  }, [enableTilt, avatarUrl, avatarScale, avatarBottomPx]);
 
   const handlePointerMove = useCallback(
     (event: PointerEvent) => {
@@ -304,10 +307,11 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
           ? (behindGradient ?? DEFAULT_BEHIND_GRADIENT)
           : "none",
         "--inner-gradient": innerGradient ?? DEFAULT_INNER_GRADIENT,
+        "--avatar": `url(${avatarUrl})`,
         "--avatar-scale": String(avatarScale),
         "--avatar-bottom": `${avatarBottomPx}px`,
       }) as React.CSSProperties,
-    [iconUrl, grainUrl, showBehindGradient, behindGradient, innerGradient, avatarScale, avatarBottomPx]
+    [iconUrl, grainUrl, showBehindGradient, behindGradient, innerGradient, avatarUrl, avatarScale, avatarBottomPx]
   );
 
   const handleContactClick = useCallback(() => {
@@ -325,30 +329,12 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
           <div className="pc-shine" />
           <div className="pc-glare" />
           <div className="pc-content pc-avatar-content">
-            <img
-              className="avatar"
-              src={avatarUrl}
-              alt={`${name || "User"} avatar`}
-              loading="lazy"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.style.display = "none";
-              }}
-            />
+            {/* background portrait via CSS */}
             {showUserInfo && (
               <div className="pc-user-info">
                 <div className="pc-user-details">
                   <div className="pc-mini-avatar">
-                    <img
-                      src={miniAvatarUrl || avatarUrl}
-                      alt={`${name || "User"} mini avatar`}
-                      loading="lazy"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.opacity = "0.5";
-                        target.src = avatarUrl;
-                      }}
-                    />
+                    <img src={miniAvatarUrl || avatarUrl} alt={`${name || "User"} mini avatar`} loading="lazy" />
                   </div>
                   <div className="pc-user-text">
                     <div className="pc-handle">{handle}</div>

@@ -26,9 +26,9 @@
   --sunpillar-clr-5: var(--sunpillar-5);
   --sunpillar-clr-6: var(--sunpillar-6);
   --card-radius: 30px;
-  /* avatar tuning */
-  --avatar-scale: 1;
-  --avatar-bottom: -80px;
+  --avatar: none;
+  --avatar-zoom: 0.9;
+  --avatar-offset-y: 50%;
 }
 
 .pc-card-wrapper {
@@ -72,12 +72,17 @@
   position: relative;
   background-blend-mode: color-dodge, normal, normal, normal;
   animation: glow-bg 12s linear infinite;
-  box-shadow: rgba(0, 0, 0, 0.8) calc((var(--pointer-from-left) * 10px) - 3px) calc((var(--pointer-from-top) * 20px) - 6px) 20px -5px;
+  box-shadow: rgba(0, 0, 0, 0.6) calc((var(--pointer-from-left) * 10px) - 3px) calc((var(--pointer-from-top) * 20px) - 6px) 18px -6px;
   transition: transform 1s ease;
   transform: translate3d(0, 0, 0.1px) rotateX(0deg) rotateY(0deg);
   background-size: 100% 100%;
   background-position: 0 0, 0 0, 50% 50%, 0 0;
-  background-image: radial-gradient(farthest-side circle at var(--pointer-x) var(--pointer-y), hsla(220, 60%, 80%, var(--card-opacity)) 4%, hsla(220, 40%, 70%, calc(var(--card-opacity) * 0.75)) 10%, hsla(220, 25%, 60%, calc(var(--card-opacity) * 0.5)) 50%, hsla(220, 0%, 50%, 0) 100%), radial-gradient(35% 52% at 55% 20%, #3b82f620 0%, #1e40af00 100%), radial-gradient(100% 100% at 50% 50%, #60a5fa20 1%, #1e40af00 76%), conic-gradient(from 124deg at 50% 50%, #6366f120 0%, #06b6d420 40%, #06b6d420 60%, #6366f120 100%);
+  /* deutlich dezentere Gradients */
+  background-image:
+    radial-gradient(farthest-side circle at var(--pointer-x) var(--pointer-y), hsla(220, 60%, 80%, 0.06) 4%, hsla(220, 40%, 70%, 0.04) 10%, hsla(220, 25%, 60%, 0.02) 50%, hsla(220, 0%, 50%, 0) 100%),
+    radial-gradient(35% 52% at 55% 20%, rgba(59,130,246,0.03) 0%, rgba(30,64,175,0) 100%),
+    radial-gradient(100% 100% at 50% 50%, rgba(96,165,250,0.04) 1%, rgba(30,64,175,0) 76%),
+    conic-gradient(from 124deg at 50% 50%, rgba(99,102,241,0.04) 0%, rgba(6,182,212,0.04) 40%, rgba(6,182,212,0.04) 60%, rgba(99,102,241,0.04) 100%);
   overflow: hidden;
 }
 
@@ -110,7 +115,7 @@
   mask-size: 150%;
   mask-position: top calc(200% - (var(--background-y) * 5)) left calc(100% - var(--background-x));
   transition: filter 0.6s ease;
-  filter: brightness(0.66) contrast(1.33) saturate(0.33) opacity(0.5);
+  filter: brightness(0.6) contrast(1.1) saturate(0.25) opacity(0.25);
   animation: holo-bg 18s linear infinite;
   mix-blend-mode: color-dodge;
 }
@@ -173,24 +178,22 @@
 .pc-glare {
   transform: translate3d(0, 0, 1.1px);
   overflow: hidden;
-  background-image: radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y), hsl(220, 50%, 75%) 12%, hsla(220, 40%, 35%, 0.15) 90%);
+  background-image: radial-gradient(farthest-corner circle at var(--pointer-x) var(--pointer-y), hsl(220, 50%, 75%, 0.08) 12%, hsla(220, 40%, 35%, 0.03) 90%);
   mix-blend-mode: overlay;
-  filter: brightness(0.98) contrast(1.05);
+  filter: brightness(1) contrast(1);
   z-index: 4;
 }
 
 .pc-avatar-content {
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
   overflow: hidden;
+  background-image: var(--avatar);
+  background-size: calc(100% * var(--avatar-zoom));
+  background-position: center var(--avatar-offset-y);
 }
 
 .pc-avatar-content .avatar {
-  width: 100%;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%) scale(var(--avatar-scale));
-  bottom: var(--avatar-bottom);
-  opacity: calc(1.75 - var(--pointer-from-center));
+  display: none;
 }
 
 .pc-avatar-content::before {
@@ -198,13 +201,9 @@
   position: absolute;
   inset: 0;
   z-index: 1;
-  backdrop-filter: blur(20px);
-  mask: linear-gradient(to bottom,
-      rgba(0, 0, 0, 0) 0%,
-      rgba(0, 0, 0, 0) 5%,
-      rgba(0, 0, 0, 0.1) 30%,
-      rgba(0, 0, 0, 0.4) 60%,
-      rgba(0, 0, 0, 1) 100%);
+  /* remove strong blur overlay so the portrait stays crisp */
+  backdrop-filter: none;
+  mask: none;
   pointer-events: none;
 }
 

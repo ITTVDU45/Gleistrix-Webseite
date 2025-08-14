@@ -54,7 +54,7 @@ export default function ProduktPage() {
               </div>
             </div>
             <div className="relative w-full aspect-[4/3] md:aspect-video rounded-2xl border border-white/10 bg-white/5 backdrop-blur">
-              <Image src="/window.svg" alt="Mockup" fill className="object-contain p-8" />
+              <Image src="/Standortbezogene Disposition.png" alt="Mockup" fill className="object-contain p-8" />
             </div>
           </div>
         </div>
