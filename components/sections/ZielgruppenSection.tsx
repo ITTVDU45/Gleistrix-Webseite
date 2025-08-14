@@ -108,7 +108,7 @@ const TABS: Tab[] = [
       { icon: <CheckCircle2 className="h-4 w-4 text-emerald-600" />, text: "Automatisierte Lohnabrechnung" },
       { icon: <CheckCircle2 className="h-4 w-4 text-emerald-600" />, text: "Effiziente Rechnungsstellung" },
     ],
-    image: "/globe.svg",
+    image: "/Auftragsbasierter dienstleister.png",
   },
   // removed: ECM / Werkstätten
   {
