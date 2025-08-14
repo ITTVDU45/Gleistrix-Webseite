@@ -43,7 +43,7 @@ const ITEMS: AccordionItem[] = [
     id: "rechnungen",
     title: "Rechnungsstellung",
     subtitle: "Schnell, korrekt, optional automatisiert.",
-    imageSrc: "/Rechnungsstellung%20&%20X‑Rechnung.png",
+    imageSrc: "/Rechnungen.png",
   },
   {
     id: "dokumente",
