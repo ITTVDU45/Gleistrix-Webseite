@@ -61,7 +61,7 @@ const ITEMS: AccordionItem[] = [
     id: "reports",
     title: "Reports & Forecasts",
     subtitle: "Echtzeitdaten für klare Entscheidungen.",
-    imageSrc: "/globe.svg",
+    imageSrc: "/reports.png",
   },
 ];
 
