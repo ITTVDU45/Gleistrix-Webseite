@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function ProduktPage() {
   return (
-    <main className="relative min-h-screen text-white overflow-hidden">
+    <main className="relative min-h-screen text-white overflow-hidden bg-gradient-to-b from-gray-900 to-slate-900">
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-gray-900 to-slate-900">
         <div className="absolute inset-0 z-0 pointer-events-none">

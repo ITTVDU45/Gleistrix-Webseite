@@ -1,65 +1,98 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 
+const MODULE_LINKS = [
+  { href: "/produkt/projektplanung-disposition", label: "Projektmanagement" },
+  { href: "/produkt/kalender-einsatzuebersicht", label: "Plantafel & Einsatzplanung" },
+  { href: "/produkt/mitarbeiterverwaltung", label: "Mitarbeiter & Fahrzeuge" },
+  { href: "/produkt/dokumentenmanagement", label: "Dokumentenmanagement" },
+  { href: "/produkt/rechnungsstellung", label: "Abrechnung" },
+  { href: "/#ki-agenten", label: "KI-Agenten" },
+] as const;
+
+const COMPANY_LINKS = [
+  { href: "/produkt", label: "Plattform" },
+  { href: "/branchen", label: "Branchen" },
+  { href: "/preise", label: "Preise" },
+  { href: "/ueber-uns", label: "Über uns" },
+  { href: "/demo-buchen", label: "Demo anfragen" },
+] as const;
+
+const LEGAL_LINKS = [
+  { href: "/#impressum", label: "Impressum" },
+  { href: "/#datenschutz", label: "Datenschutz" },
+] as const;
+
 export default function SiteFooter() {
   return (
-    <footer className="w-full border-t border-white/10 bg-gradient-to-b from-gray-900 to-slate-900 text-white">
-      <div className="page-container py-12 grid gap-8 md:grid-cols-12 text-sm text-white/90">
-        {/* Brand */}
+    <footer className="border-t border-slate-900/8 bg-white">
+      <div className="page-container grid gap-10 py-14 text-sm md:grid-cols-12">
+        {/* Marke */}
         <div className="md:col-span-5">
-          <Link href="/" className="flex items-center gap-2" aria-label="Gleistrix Home">
+          <Link href="/" className="inline-flex items-center" aria-label="Gleistrix Startseite">
             <Image
               src="/Gleistrix Logo (500 x 300 px).png"
               alt="Gleistrix Logo"
               width={500}
               height={300}
-              className="h-14 md:h-16 w-auto"
+              className="h-12 w-auto"
             />
           </Link>
-          <p className="mt-4 text-white/70 max-w-[46ch]">
-            Gleistrix ist die zentrale Planungs- und Zeiterfassungsplattform für Bahndienstleister –
-            effizient, sicher und skalierbar.
+          <p className="mt-4 max-w-[46ch] leading-relaxed text-slate-500">
+            Gleistrix bündelt Projektmanagement, Einsatzplanung, Dokumente, Lager, Abrechnung
+            und KI-Agenten in einer zentralen SaaS-Lösung für Bahndienstleister.
           </p>
-          <p className="mt-6 text-white/60">© {new Date().getFullYear()} Gleistrix</p>
         </div>
 
-        {/* Quick Links */}
-        <div className="md:col-span-3">
-          <h4 className="font-semibold mb-3 text-white">Quicklinks</h4>
+        {/* Module */}
+        <nav aria-label="Module" className="md:col-span-3">
+          <h4 className="mb-3 font-semibold text-slate-900">Module</h4>
           <ul className="space-y-2">
-            <li><Link href="/produkt" className="text-white/80 hover:text-white hover:underline">Produkt</Link></li>
-            <li><Link href="/#loesungen" className="text-white/80 hover:text-white hover:underline">Unsere Lösungen</Link></li>
-            <li><Link href="/#vorteile" className="text-white/80 hover:text-white hover:underline">Vorteile</Link></li>
-            <li><Link href="/#einsatzmoeglichkeiten" className="text-white/80 hover:text-white hover:underline">Einsatzmöglichkeiten</Link></li>
-            <li><Link href="/#zielgruppe" className="text-white/80 hover:text-white hover:underline">Zielgruppen</Link></li>
+            {MODULE_LINKS.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-slate-500 transition-colors hover:text-indigo-600">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
-        </div>
+        </nav>
 
-        {/* Resources */}
-        <div className="md:col-span-2">
-          <h4 className="font-semibold mb-3 text-white">Ressourcen</h4>
+        {/* Unternehmen */}
+        <nav aria-label="Unternehmen" className="md:col-span-2">
+          <h4 className="mb-3 font-semibold text-slate-900">Unternehmen</h4>
           <ul className="space-y-2">
-            <li><Link href="/demo-buchen" className="text-white/80 hover:text-white hover:underline">Demo anfragen</Link></li>
+            {COMPANY_LINKS.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-slate-500 transition-colors hover:text-indigo-600">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
-        </div>
+        </nav>
 
-        {/* Legal + CTA */}
-        <div className="md:col-span-2">
-          <h4 className="font-semibold mb-3 text-white">Rechtliches</h4>
+        {/* Rechtliches */}
+        <nav aria-label="Rechtliches" className="md:col-span-2">
+          <h4 className="mb-3 font-semibold text-slate-900">Rechtliches</h4>
           <ul className="space-y-2">
-            <li><Link href="/#impressum" className="text-white/80 hover:text-white hover:underline">Impressum</Link></li>
-            <li><Link href="/#datenschutz" className="text-white/80 hover:text-white hover:underline">Datenschutz</Link></li>
+            {LEGAL_LINKS.map((link) => (
+              <li key={link.label}>
+                <Link href={link.href} className="text-slate-500 transition-colors hover:text-indigo-600">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
           </ul>
-          <div className="mt-6">
-            <Link href="/demo-buchen" className="inline-flex items-center rounded-md bg-gradient-to-tr from-yellow-400 via-yellow-500 to-orange-400 text-black px-4 py-2 text-sm font-medium hover:brightness-105">
-              Kostenlose Demo
-            </Link>
-          </div>
+        </nav>
+      </div>
+
+      <div className="border-t border-slate-900/8">
+        <div className="page-container flex flex-col items-center justify-between gap-2 py-5 text-xs text-slate-400 sm:flex-row">
+          <p>© {new Date().getFullYear()} Gleistrix. Alle Rechte vorbehalten.</p>
+          <p>Die ERP-Plattform für den Bahn- und Infrastrukturbereich.</p>
         </div>
       </div>
     </footer>
   );
 }
-
-

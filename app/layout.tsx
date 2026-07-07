@@ -19,8 +19,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: SITE.name,
+  title: {
+    default: `${SITE.name} – Die moderne ERP-Plattform für Bahndienstleister`,
+    template: `%s | ${SITE.name}`,
+  },
   description: SITE.description,
+  openGraph: {
+    title: `${SITE.name} – Die moderne ERP-Plattform für Bahndienstleister`,
+    description: SITE.description,
+    locale: "de_DE",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -58,9 +67,9 @@ export default function RootLayout({
           id="FCVbQpF4fRXpkXb2"
           strategy="afterInteractive"
         />
-        <style jsx global>{`
+        <style>{`
           #dify-chatbot-bubble-button {
-            background-color: #1C64F2 !important;
+            background-color: #4F46E5 !important;
           }
           #dify-chatbot-bubble-window {
             width: 24rem !important;
@@ -68,8 +77,7 @@ export default function RootLayout({
           }
         `}</style>
       </head>
-      <body className={`${inter.variable} ${geistMono.variable} antialiased overflow-x-hidden`}>
-        <div className="fixed inset-0 -z-10 bg-gradient-to-b from-gray-900 to-slate-900" aria-hidden />
+      <body className={`${inter.variable} ${geistMono.variable} antialiased overflow-x-hidden bg-background text-foreground`}>
         <Providers>
           <AppChrome>{children}</AppChrome>
         </Providers>

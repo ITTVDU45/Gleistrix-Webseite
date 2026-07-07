@@ -1,13 +1,14 @@
 export const COLORS = {
-  primary: "#f5c518",
-  secondary: "#1f2937",
-  background: "#ffffff",
-  text: "#111827",
+  primary: "#4f46e5",
+  secondary: "#8b5cf6",
+  background: "#f8fafc",
+  text: "#0f172a",
 } as const;
 
 export const SITE = {
   name: "Gleistrix",
-  description: "Intelligente Gleis- und Anlagenplanung für die Bahnindustrie.",
+  description:
+    "Gleistrix bündelt Projektmanagement, Einsatzplanung, Dokumente, Lager, Abrechnung und KI-Agenten in einer zentralen SaaS-Lösung für Bahndienstleister.",
 } as const;
 
 

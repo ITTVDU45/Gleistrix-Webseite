@@ -1,40 +1,25 @@
-import HeroSection from "@/components/sections/HeroSection";
-import FeaturesSection from "@/components/sections/FeaturesSection";
-import VorteileSection from "@/components/sections/VorteileSection";
-import ZielgruppenSection from "@/components/sections/ZielgruppenSection";
-import SecuritySection from "@/components/sections/SecuritySection";
-// import ComingSoonSection from "@/components/sections/ComingSoonSection";
-import EinsatzmoeglichkeitenSection from "@/components/sections/EinsatzmoeglichkeitenSection";
-import TestimonialsSection from "@/components/sections/TestimonialsSection";
-import CTASection from "@/components/sections/CTASection";
-import FunktionenSection from "@/components/sections/FunktionenSection";
+import Hero from "@/components/landing/Hero";
+import TrustBand from "@/components/landing/TrustBand";
+import ProblemSection from "@/components/landing/ProblemSection";
+import ModulesSection from "@/components/landing/ModulesSection";
+import AgentsSection from "@/components/landing/AgentsSection";
+import WorkflowSection from "@/components/landing/WorkflowSection";
+import AudienceSection from "@/components/landing/AudienceSection";
+import CTABanner from "@/components/landing/CTABanner";
+import FAQSection from "@/components/landing/FAQSection";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-transparent">
-      <div id="hero">
-        <HeroSection />
-      </div>
-      {/* Dashboard wird nun innerhalb der HeroSection gerendert */}
-      <div id="loesungen">
-        <FeaturesSection />
-      </div>
-      <div id="vorteile">
-        <VorteileSection />
-      </div>
-      <div id="cta">
-        <CTASection />
-      </div>
-      <div id="einsatzmoeglichkeiten">
-        <EinsatzmoeglichkeitenSection />
-      </div>
-      <div id="zielgruppe">
-        <ZielgruppenSection />
-      </div>
-      <FunktionenSection />
-      {/* <ComingSoonSection /> */}
-      <TestimonialsSection />
-      <CTASection />
+    <main>
+      <Hero />
+      <TrustBand />
+      <ProblemSection />
+      <ModulesSection />
+      <AgentsSection />
+      <WorkflowSection />
+      <AudienceSection />
+      <CTABanner />
+      <FAQSection />
     </main>
   );
 }
