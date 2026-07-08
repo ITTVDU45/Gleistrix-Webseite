@@ -1,7 +1,7 @@
 import { Users, Wrench, KanbanSquare, Calendar, FileText, Folder, Clock, BarChart3 } from "lucide-react";
-import type { ComponentType } from "react";
+import type { LucideIcon } from "lucide-react";
 
-export type Feature = { id: string; title: string; desc: string; icon: ComponentType<unknown> };
+export type Feature = { id: string; title: string; desc: string; icon: LucideIcon };
 
 export const FEATURES: Feature[] = [
   { id: 'mitarbeiter', title:'Mitarbeiterverwaltung', desc:'Anlegen, Abwesenheiten, Qualifikationen.' , icon: Users },

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, type ReactElement } from "react";
 import dynamic from "next/dynamic";
 const Squares = dynamic(() => import("@/components/visuals/Squares"), { ssr: false });
 import Image from "next/image";
@@ -13,7 +13,7 @@ type Tab = {
   label: string;
   heading: string;
   subheading: string;
-  bullets: { icon: JSX.Element; text: string }[];
+  bullets: { icon: ReactElement; text: string }[];
   image: string;
 };
 

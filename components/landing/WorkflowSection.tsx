@@ -1,6 +1,7 @@
 import { BarChart3, CalendarRange, ClipboardList, FileCheck2, Receipt, TrainTrack } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Reveal from "./Reveal";
+import ScreensGallery from "./ScreensGallery";
 import SectionHeading from "./SectionHeading";
 
 type WorkflowStep = {
@@ -73,6 +74,24 @@ export default function WorkflowSection() {
             );
           })}
         </ol>
+
+        {/* Einblicke: Gleistrix in Action */}
+        <div className="mt-20 md:mt-24">
+          <Reveal className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex items-center rounded-full border border-indigo-200/70 bg-indigo-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-indigo-700">
+              Einblicke
+            </span>
+            <h3 className="mt-4 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+              Gleistrix in Action
+            </h3>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg">
+              Ein Blick auf Oberflächen und Workflows aus dem echten Betrieb.
+            </p>
+          </Reveal>
+          <div className="mt-12 md:mt-14">
+            <ScreensGallery />
+          </div>
+        </div>
       </div>
     </section>
   );

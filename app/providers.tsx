@@ -17,7 +17,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 
     return () => {
       cancelAnimationFrame(rafId);
-      // @ts-expect-error lenis may not have destroy when mocked
       if (lenis?.destroy) lenis.destroy();
     };
   }, []);
