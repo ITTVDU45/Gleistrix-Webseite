@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
 const NAV_ITEMS = [
-  { href: "/produkt", label: "Plattform" },
+  { href: "/", label: "Home" },
   { href: "/#module", label: "Module" },
   { href: "/#ki-agenten", label: "KI-Agenten" },
-  { href: "/#vorteile", label: "Vorteile" },
   { href: "/preise", label: "Preise" },
+  { href: "/#blog", label: "News & Ratgeber" },
   { href: "/ueber-uns", label: "Kontakt" },
 ] as const;
 

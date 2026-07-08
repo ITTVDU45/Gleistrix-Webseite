@@ -105,7 +105,7 @@ export default function BlogSection() {
   }, [scrollCarousel]);
 
   return (
-    <section aria-labelledby="blog-heading" className="overflow-hidden bg-[#f8fafc] py-20 md:py-28">
+    <section id="blog" aria-labelledby="blog-heading" className="scroll-mt-24 overflow-hidden bg-[#f8fafc] py-20 md:py-28">
       <div className="page-container">
         <SectionHeading
           eyebrow="Blog"
