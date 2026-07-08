@@ -1,23 +1,24 @@
-import Squares from "@/components/visuals/Squares";
+import type { Metadata } from "next";
 import FeatureDetail from "@/components/product/FeatureDetail";
+
+export const metadata: Metadata = {
+  title: "Zeiterfassung & Stundenzettel",
+  description: "Digital, mobil und prüffähig – direkt mit Projekten verknüpft.",
+};
 
 export default function Page() {
   return (
-    <main className="relative text-white overflow-hidden bg-gradient-to-b from-gray-900 to-slate-900">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Squares direction="diagonal" speed={0.35} squareSize={52} borderColor="#223" hoverFillColor="#0b1020" />
-      </div>
+    <main className="bg-white">
       <FeatureDetail
         title="Zeiterfassung & Stundenzettel"
-        description="Digital, mobil und prüffähig – direkt mit Projekten verknüpft."
-        imageSrc="/Sicherungspersonal gleis.png"
+        description="Zeiten digital, mobil und prüffähig erfassen – direkt mit Projekten verknüpft und ohne Abtippen."
+        imageSrc="/Zeiterfassung.png"
+        features={[
+          "Mobile Zeiterfassung direkt auf der Baustelle",
+          "Prüffähige Stundenzettel ohne Nacharbeit",
+          "Nahtlose Verknüpfung mit Projekten und Abrechnung",
+        ]}
       />
     </main>
   );
 }
-
-
-
-
-
-

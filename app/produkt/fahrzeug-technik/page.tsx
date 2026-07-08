@@ -1,23 +1,24 @@
-import Squares from "@/components/visuals/Squares";
+import type { Metadata } from "next";
 import FeatureDetail from "@/components/product/FeatureDetail";
+
+export const metadata: Metadata = {
+  title: "Fahrzeug- & Technikmanagement",
+  description: "Fahrzeuge und Geräte zentral erfassen, warten und Einsätzen zuordnen.",
+};
 
 export default function Page() {
   return (
-    <main className="relative text-white overflow-hidden bg-gradient-to-b from-gray-900 to-slate-900">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Squares direction="diagonal" speed={0.35} squareSize={52} borderColor="#223" hoverFillColor="#0b1020" />
-      </div>
+    <main className="bg-white">
       <FeatureDetail
         title="Fahrzeug- & Technikmanagement"
-        description="Fahrzeuge und Geräte zentral erfassen, warten und Einsätzen zuordnen."
+        description="Fahrzeuge und Geräte zentral erfassen, warten und Einsätzen zuordnen – inklusive Prüffristen und Wartungshistorie."
         imageSrc="/Fahrzeugplanung.png"
+        features={[
+          "Fahrzeuge, HU- und Prüftermine mit Fristenwarnung",
+          "Geräte- und Wartungshistorie dokumentiert",
+          "Direkte Zuordnung zu Projekten und Einsätzen",
+        ]}
       />
     </main>
   );
 }
-
-
-
-
-
-

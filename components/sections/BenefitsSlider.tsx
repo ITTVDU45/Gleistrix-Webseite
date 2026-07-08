@@ -17,18 +17,18 @@ export default function BenefitsSlider({
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, scale: 1.01 }}
+      whileHover={{ y: -4 }}
       viewport={{ once: true, margin: "-100px" }}
       transition={{ duration: 0.5, delay }}
-      className="h-full rounded-xl bg-white/10 backdrop-blur ring-1 ring-white/10 p-4 sm:p-6 shadow-sm"
+      className="h-full rounded-3xl border border-slate-900/8 bg-white p-5 shadow-soft-sm transition-shadow hover:shadow-soft sm:p-6"
     >
       <div className="flex items-start gap-3">
-        <span className="mt-1 h-7 w-7 shrink-0 rounded-full bg-gradient-to-br from-sky-400 to-violet-600 flex items-center justify-center text-white shadow-sm">
-          <CheckCircle2 className="h-4 w-4" />
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+          <CheckCircle2 className="h-5 w-5" />
         </span>
         <div>
-          <h3 className="font-semibold text-white leading-snug">{title}</h3>
-          <p className="text-white/80 mt-1">{desc}</p>
+          <h3 className="font-semibold leading-snug text-slate-900">{title}</h3>
+          <p className="mt-1 text-sm leading-relaxed text-slate-500">{desc}</p>
         </div>
       </div>
     </motion.div>
@@ -97,7 +97,7 @@ export default function BenefitsSlider({
             <button
               key={i}
               onClick={() => setIndex(i)}
-              className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-white/90" : "w-3 bg-white/40"}`}
+              className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-indigo-600" : "w-3 bg-slate-300"}`}
               aria-label={`Seite ${i + 1}`}
             />
           ))}

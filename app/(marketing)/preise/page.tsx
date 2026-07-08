@@ -1,17 +1,21 @@
+import type { Metadata } from "next";
 import PricingSection from "@/components/pricing/pricing-section";
-import Squares from "@/components/visuals/Squares";
+import CTASection from "@/components/sections/CTASection";
+
+export const metadata: Metadata = {
+  title: "Preise",
+  description:
+    "Faire, transparente und skalierbare Preise für Gleistrix – die ERP-Plattform für Bahndienstleister. Alle Features in jedem Plan.",
+};
 
 export default function Page() {
   return (
-    <main className="relative text-white overflow-hidden bg-gradient-to-b from-gray-900 to-slate-900">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Squares direction="diagonal" speed={0.35} squareSize={52} borderColor="#223" hoverFillColor="#0b1020" />
-      </div>
-      <div className="relative z-10">
-        <PricingSection />
-      </div>
+    <main className="bg-white">
+      <PricingSection />
+      <CTASection
+        title="Noch unsicher, welcher Plan passt?"
+        description="In einer kurzen Demo finden wir gemeinsam die richtige Konfiguration für deinen Betrieb."
+      />
     </main>
   );
 }
-
-

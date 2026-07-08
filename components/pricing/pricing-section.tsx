@@ -3,8 +3,7 @@
 import { useState } from "react";
 import PricingBox from "@/components/pricing/pricing-box";
 import PricingFooterNote from "@/components/pricing/pricing-footer-note";
-import { PRICING_PLANS, BillingCycle, getDisplayMonthlyPrice, formatPriceEUR } from "@/data/pricing";
-import { Button } from "@/components/ui/button";
+import { PRICING_PLANS, type BillingCycle, getDisplayMonthlyPrice, formatPriceEUR } from "@/data/pricing";
 
 export default function PricingSection() {
   const [cycle, setCycle] = useState<BillingCycle>("monthly");
@@ -12,59 +11,68 @@ export default function PricingSection() {
   const computePrice = (baseMonthly: number) => formatPriceEUR(getDisplayMonthlyPrice(baseMonthly, cycle));
 
   return (
-    <section className="relative w-full text-white">
-      {/* Hero / Banner */}
-      <div className="page-container pt-28 md:pt-32 pb-10 md:pb-12">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-blue-500 to-violet-600">
-          Preise für Ihr Unternehmen – jetzt anfragen
+    <section aria-labelledby="pricing-heading" className="relative overflow-hidden bg-white pb-20 pt-32 md:pb-28 md:pt-40">
+      {/* Weiche Hintergrund-Verläufe */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 left-1/2 h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.13),transparent)]" />
+      </div>
+
+      <div className="page-container relative text-center">
+        <span className="inline-flex items-center rounded-full border border-indigo-200/70 bg-indigo-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-indigo-700">
+          Preise
+        </span>
+        <h1 id="pricing-heading" className="mx-auto mt-4 max-w-2xl text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+          Fair, transparent und <span className="text-gradient-accent">skalierbar</span>
         </h1>
-        <p className="mt-3 text-white/90 max-w-2xl">
-          Fair, transparent und skalierbar. Alle Features in jedem Plan.
+        <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-slate-500 sm:text-lg">
+          Alle Features in jedem Plan – wähle die Team-Größe, die zu deinem Betrieb passt.
         </p>
 
-        {/* Billing Toggle */}
-        <div className="mt-6 flex justify-center">
-          <div className="inline-flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 backdrop-blur px-2 py-1">
+        {/* Billing-Toggle */}
+        <div className="mt-8 flex justify-center">
+          <div className="glass inline-flex items-center gap-1 rounded-full p-1 shadow-soft-sm">
             <button
-            type="button"
-            aria-label="Monatlich"
-            onClick={() => setCycle("monthly")}
-            className={`h-9 px-3 rounded-md text-sm ${
-              cycle === "monthly" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/10"
-            }`}
-          >
-            Monatlich
-          </button>
+              type="button"
+              aria-pressed={cycle === "monthly"}
+              onClick={() => setCycle("monthly")}
+              className={`h-9 rounded-full px-4 text-sm font-medium transition-colors ${
+                cycle === "monthly" ? "bg-indigo-600 text-white shadow-soft-sm" : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Monatlich
+            </button>
             <button
-            type="button"
-            aria-label="Jährlich (2 Monate gratis)"
-            onClick={() => setCycle("yearly")}
-            className={`h-9 px-3 rounded-md text-sm ${
-              cycle === "yearly" ? "bg-white/15 ring-1 ring-white/20" : "hover:bg-white/10"
-            }`}
-          >
-            Jährlich
-            <span className="ml-2 text-xs text-white/80">(2 Monate gratis)</span>
-          </button>
+              type="button"
+              aria-pressed={cycle === "yearly"}
+              onClick={() => setCycle("yearly")}
+              className={`flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-medium transition-colors ${
+                cycle === "yearly" ? "bg-indigo-600 text-white shadow-soft-sm" : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Jährlich
+              <span className={`text-xs ${cycle === "yearly" ? "text-indigo-100" : "text-emerald-600"}`}>
+                2 Monate gratis
+              </span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="page-container pb-10 md:pb-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {PRICING_PLANS.map((p) => (
+      {/* Karten */}
+      <div className="page-container relative mt-14">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:items-center">
+          {PRICING_PLANS.map((plan) => (
             <PricingBox
-              key={p.id}
-              title={p.title}
-              priceLabel={computePrice(p.priceMonthly)}
-              admins={p.admins}
-              users={p.users}
-              features={p.features}
-              highlighted={p.highlighted}
-              ctaLabel="Demo Anfragen"
+              key={plan.id}
+              title={plan.title}
+              priceLabel={computePrice(plan.priceMonthly)}
+              admins={plan.admins}
+              users={plan.users}
+              features={plan.features}
+              highlighted={plan.highlighted}
+              ctaLabel="Demo anfragen"
               ctaHref="/demo-buchen"
-              analyticsId={p.analyticsId}
+              analyticsId={plan.analyticsId}
             />
           ))}
         </div>
@@ -73,5 +81,3 @@ export default function PricingSection() {
     </section>
   );
 }
-
-

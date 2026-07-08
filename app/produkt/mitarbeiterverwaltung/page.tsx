@@ -1,23 +1,24 @@
-import Squares from "@/components/visuals/Squares";
+import type { Metadata } from "next";
 import FeatureDetail from "@/components/product/FeatureDetail";
+
+export const metadata: Metadata = {
+  title: "Mitarbeiterverwaltung",
+  description: "Anlegen, bearbeiten und verwalten – inkl. Urlaubsplanung und Abwesenheiten.",
+};
 
 export default function Page() {
   return (
-    <main className="relative text-white overflow-hidden bg-gradient-to-b from-gray-900 to-slate-900">
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Squares direction="diagonal" speed={0.35} squareSize={52} borderColor="#223" hoverFillColor="#0b1020" />
-      </div>
+    <main className="bg-white">
       <FeatureDetail
         title="Mitarbeiterverwaltung"
-        description="Anlegen, bearbeiten und verwalten – inkl. Urlaubsplanung und Abwesenheiten."
+        description="Personal anlegen, bearbeiten und verwalten – inklusive Qualifikationen, Urlaubsplanung und Abwesenheiten."
         imageSrc="/Sicherungspersonal%20gleis.png"
+        features={[
+          "Qualifikationen und Tauglichkeiten mit Fristenwarnung",
+          "Urlaubs- und Abwesenheitsplanung integriert",
+          "Rollen und Berechtigungen pro Team",
+        ]}
       />
     </main>
   );
 }
-
-
-
-
-
-

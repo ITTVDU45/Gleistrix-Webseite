@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import HighlightBadge from "@/components/pricing/highlight-badge";
@@ -20,40 +19,52 @@ export default function PricingBox(props: PricingBoxProps) {
   const { title, priceLabel, admins, users, features, highlighted, ctaLabel, ctaHref, analyticsId } = props;
 
   const containerClasses = highlighted
-    ? "bg-white/10 backdrop-blur shadow-xl shadow-violet-500/20 scale-[1.03]"
-    : "bg-white/[0.03] backdrop-blur shadow-sm";
+    ? "border-indigo-200 bg-white shadow-soft lg:scale-[1.04]"
+    : "border-slate-900/8 bg-white shadow-soft-sm";
 
   return (
-    <Card className={`relative h-full flex flex-col rounded-2xl transition-transform duration-200 hover:-translate-y-1 border-0 ${containerClasses}`}>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <CardTitle className="text-white text-xl">{title}</CardTitle>
-          {highlighted && <HighlightBadge />}
-        </div>
-        <div className="mt-2">
-          <span className="text-4xl font-extrabold text-white">{priceLabel}</span>
-          <span className="text-white/70 text-sm"> / Monat</span>
-        </div>
-        <p className="text-white/80 text-sm">Admins: {admins} • Nutzer: {users}</p>
-      </CardHeader>
-      <CardContent className="mt-auto">
-        <ul className="space-y-2 text-sm">
-          {features.map((f, i) => (
-            <li key={i} className="flex items-start gap-2 text-white/90">
-              <Check className="h-4 w-4 mt-0.5" /> {f}
-            </li>
-          ))}
-        </ul>
-        <div className="mt-6">
+    <div
+      className={`relative flex h-full flex-col rounded-3xl border p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-soft ${containerClasses}`}
+    >
+      <div className="flex items-start justify-between">
+        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+        {highlighted && <HighlightBadge />}
+      </div>
+
+      <div className="mt-4 flex items-baseline gap-1">
+        <span className="text-4xl font-bold tracking-tight text-slate-900">{priceLabel}</span>
+        <span className="text-sm text-slate-400"> / Monat</span>
+      </div>
+      <p className="mt-1 text-sm text-slate-500">
+        Admins: {admins} · Nutzer: {users}
+      </p>
+
+      <ul className="mt-6 space-y-2.5">
+        {features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-600">
+            <span className="mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+              <Check className="h-3 w-3" />
+            </span>
+            {feature}
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-auto pt-8">
+        <Button
+          asChild
+          className={
+            highlighted
+              ? "w-full rounded-xl bg-indigo-600 text-white shadow-soft-sm transition-all hover:bg-indigo-500 hover:shadow-soft"
+              : "w-full rounded-xl border border-slate-200 bg-white text-slate-700 shadow-none transition-all hover:bg-slate-50 hover:text-slate-900"
+          }
+          variant={highlighted ? "default" : "outline"}
+        >
           <Link href={ctaHref} aria-label={`${title} ${ctaLabel}`} data-analytics={analyticsId}>
-            <Button className="w-full bg-gradient-to-r from-sky-400 via-blue-600 to-violet-600 text-white hover:brightness-110">
-              {ctaLabel}
-            </Button>
+            {ctaLabel}
           </Link>
-        </div>
-      </CardContent>
-    </Card>
+        </Button>
+      </div>
+    </div>
   );
 }
-
-

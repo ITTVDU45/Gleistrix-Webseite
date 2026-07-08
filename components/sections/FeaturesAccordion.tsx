@@ -1,167 +1,154 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { ChevronDown, Plus } from "lucide-react";
+import { Plus, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 type AccordionItem = {
   id: string;
   title: string;
   subtitle: string;
   imageSrc: string;
+  href: string;
 };
 
 const ITEMS: AccordionItem[] = [
   {
     id: "mitarbeiter",
     title: "Mitarbeiterverwaltung",
-    subtitle: "Anlegen, Abwesenheiten, Qualifikationen.",
+    subtitle: "Anlegen, Abwesenheiten, Qualifikationen – zentral und mit Fristenwarnung.",
     imageSrc: "/Sicherungspersonal%20gleis.png",
+    href: "/produkt/mitarbeiterverwaltung",
   },
   {
     id: "technik",
     title: "Fahrzeug & Technik",
-    subtitle: "Zentral erfassen, warten, Einsätzen zuordnen.",
+    subtitle: "Zentral erfassen, warten und Einsätzen zuordnen – inklusive Prüffristen.",
     imageSrc: "/Fahrzeugplanung.png",
+    href: "/produkt/fahrzeug-technik",
   },
   {
     id: "projekte",
     title: "Projektplanung & Dispo",
-    subtitle: "Ressourcen präzise zuweisen & steuern.",
+    subtitle: "Ressourcen präzise zuweisen und steuern – ohne Doppelbelegungen.",
     imageSrc: "/Einsatzvorbereitung%20&%20Logistik.png",
+    href: "/produkt/projektplanung-disposition",
   },
   {
     id: "kalender",
     title: "Kalender & Schichten",
-    subtitle: "Alle Termine live in der App.",
+    subtitle: "Alle Termine live in der App – jederzeit aktuell.",
     imageSrc: "/Standortbezogene%20Disposition.png",
+    href: "/produkt/kalender-einsatzuebersicht",
   },
   {
     id: "rechnungen",
     title: "Rechnungsstellung",
-    subtitle: "Schnell, korrekt, optional automatisiert.",
+    subtitle: "Schnell, korrekt, optional automatisiert – bis zur X-Rechnung.",
     imageSrc: "/Rechnungen.png",
+    href: "/produkt/rechnungsstellung",
   },
   {
     id: "dokumente",
     title: "Dokumentenmanagement",
-    subtitle: "Zentral, teilbar, revisionssicher.",
+    subtitle: "Zentral, teilbar und revisionssicher archiviert.",
     imageSrc: "/Lösungen.png",
+    href: "/produkt/dokumentenmanagement",
   },
   {
     id: "zeit",
     title: "Zeiterfassung & Zettel",
-    subtitle: "Digital, mobil, prüffähig.",
+    subtitle: "Digital, mobil und prüffähig – direkt mit Projekten verknüpft.",
     imageSrc: "/Zeiterfassung.png",
+    href: "/produkt/zeiterfassung-stundenzettel",
   },
   {
     id: "reports",
     title: "Reports & Forecasts",
-    subtitle: "Echtzeitdaten für klare Entscheidungen.",
+    subtitle: "Echtzeitdaten für klare Entscheidungen und transparente Abläufe.",
     imageSrc: "/reports.png",
+    href: "/produkt/reports-auswertungen",
   },
 ];
 
 export default function FeaturesAccordion() {
   const [openId, setOpenId] = useState<string | null>(ITEMS[0]?.id ?? null);
+  const shouldReduceMotion = useReducedMotion();
 
   const columns: AccordionItem[][] = [
-    ITEMS.filter((_, idx) => idx % 2 === 0),
-    ITEMS.filter((_, idx) => idx % 2 === 1),
+    ITEMS.filter((_, index) => index % 2 === 0),
+    ITEMS.filter((_, index) => index % 2 === 1),
   ];
-
-  const hrefById: Record<string, string> = {
-    mitarbeiter: "/produkt/mitarbeiterverwaltung",
-    technik: "/produkt/fahrzeug-technik",
-    projekte: "/produkt/projektplanung-disposition",
-    kalender: "/produkt/kalender-einsatzuebersicht",
-    rechnungen: "/produkt/rechnungsstellung",
-    dokumente: "/produkt/dokumentenmanagement",
-    zeit: "/produkt/zeiterfassung-stundenzettel",
-    reports: "/produkt/reports-auswertungen",
-  };
 
   return (
     <div className="mx-auto max-w-6xl md:grid md:grid-cols-2 md:gap-5">
-      {columns.map((col, colIdx) => (
-        <ul key={colIdx} className="space-y-3 md:space-y-4">
-          {col.map((it, itemIdx) => {
-          const isOpen = openId === it.id;
-            // subtle gradient accent for the dot
-            const gradients = [
-              "bg-gradient-to-br from-sky-400/40 via-blue-500/40 to-violet-600/40",
-              "bg-gradient-to-br from-rose-400/40 via-fuchsia-500/40 to-violet-600/40",
-              "bg-gradient-to-br from-amber-400/40 via-orange-500/40 to-pink-500/40",
-              "bg-gradient-to-br from-emerald-400/40 via-teal-500/40 to-cyan-500/40",
-            ];
-            const activeGradient = gradients[(colIdx + itemIdx) % gradients.length];
+      {columns.map((column, columnIndex) => (
+        <ul key={columnIndex} className="space-y-3 md:space-y-4">
+          {column.map((item) => {
+            const isOpen = openId === item.id;
             return (
-              <li key={it.id} className="rounded-[36px] ring-1 ring-white/10 bg-white/5 backdrop-blur overflow-hidden">
-              <button
-                type="button"
-                className="w-full px-5 py-4 md:px-6 md:py-5 flex items-center justify-between gap-4 text-left"
-                aria-expanded={isOpen}
-                aria-controls={`panel-${it.id}`}
-                onClick={() => setOpenId((p) => (p === it.id ? null : it.id))}
+              <li
+                key={item.id}
+                className="overflow-hidden rounded-3xl border border-slate-900/8 bg-white shadow-soft-sm transition-shadow hover:shadow-soft"
               >
-                <h3 className="text-white text-lg md:text-2xl font-semibold tracking-tight">{it.title}</h3>
-                <div
-                  className={`relative h-12 w-12 md:h-14 md:w-14 rounded-full grid place-items-center ring-1 ring-white/20 backdrop-blur-sm transition-all duration-300 ${
-                    isOpen ? `${activeGradient} shadow-[0_0_28px_rgba(99,102,241,0.35)] scale-105` : "bg-white/10 scale-100"
-                  }`}
-                  aria-hidden
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left md:px-6 md:py-5"
+                  aria-expanded={isOpen}
+                  aria-controls={`panel-${item.id}`}
+                  onClick={() => setOpenId((prev) => (prev === item.id ? null : item.id))}
                 >
-                  <Plus className="h-6 w-6 text-white" />
-                </div>
-              </button>
-
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    id={`panel-${it.id}`}
-                    key={it.id}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: "easeInOut" }}
+                  <h3 className="text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+                    {item.title}
+                  </h3>
+                  <span
+                    aria-hidden
+                    className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-all duration-300 ${
+                      isOpen ? "rotate-45 bg-indigo-600 text-white" : "bg-indigo-50 text-indigo-600"
+                    }`}
                   >
-                    <div className="px-3 md:px-4 pb-5 mt-2">
-                      <div className="rounded-3xl ring-1 ring-white/10 bg-white/5 backdrop-blur p-5 md:p-7 text-white">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                          <motion.div
-                            initial={{ opacity: 0, x: -16 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3 }}
-                            className="relative w-full aspect-[4/3] overflow-hidden rounded-xl border border-white/10 bg-white/5"
+                    <Plus className="h-5 w-5" />
+                  </span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      id={`panel-${item.id}`}
+                      key={item.id}
+                      initial={shouldReduceMotion ? undefined : { height: 0, opacity: 0 }}
+                      animate={shouldReduceMotion ? undefined : { height: "auto", opacity: 1 }}
+                      exit={shouldReduceMotion ? undefined : { height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                    >
+                      <div className="px-3 pb-4 md:px-4">
+                        <div className="rounded-2xl border border-slate-900/6 bg-[#f8fafc] p-4 md:p-5">
+                          <div className="relative aspect-[16/9] overflow-hidden rounded-xl ring-1 ring-slate-900/8">
+                            <Image
+                              src={item.imageSrc}
+                              alt={item.title}
+                              fill
+                              sizes="(min-width: 768px) 40vw, 90vw"
+                              className="object-cover"
+                            />
+                          </div>
+                          <p className="mt-4 text-sm leading-relaxed text-slate-500">{item.subtitle}</p>
+                          <Link
+                            href={item.href}
+                            aria-label={`${item.title} – Mehr erfahren`}
+                            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-500"
                           >
-                            <Image src={it.imageSrc} alt={it.title} fill className="object-cover" />
-                          </motion.div>
-                          <motion.div
-                            initial={{ opacity: 0, x: 16 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.3, delay: 0.05 }}
-                            className="min-w-0 break-words"
-                          >
-                            <h4 className="sr-only">{it.title}</h4>
-                            <p className="text-white/85 mt-1 md:mt-2 text-base md:text-lg max-w-prose">{it.subtitle}</p>
-                            <div className="mt-4">
-                              <Link href={hrefById[it.id] ?? "/produkt#features"} aria-label={`${it.title} – Mehr erfahren`}>
-                                <Button className="bg-gradient-to-r from-sky-400 via-blue-600 to-violet-600 text-white hover:brightness-110">
-                                  Mehr erfahren
-                                </Button>
-                              </Link>
-                            </div>
-                          </motion.div>
+                            Mehr erfahren
+                            <ArrowRight className="h-4 w-4" />
+                          </Link>
                         </div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </li>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </li>
             );
           })}
         </ul>
@@ -169,5 +156,3 @@ export default function FeaturesAccordion() {
     </div>
   );
 }
-
-
