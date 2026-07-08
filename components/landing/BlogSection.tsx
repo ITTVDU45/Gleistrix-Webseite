@@ -121,6 +121,12 @@ export default function BlogSection() {
           <div
             ref={carouselRef}
             className="scrollbar-none -mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5"
+            style={{
+              maskImage:
+                "linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%)",
+              WebkitMaskImage:
+                "linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%)",
+            }}
             aria-label="Aktuelle Blogartikel"
           >
             {BLOG_POSTS.map((post, index) => (
