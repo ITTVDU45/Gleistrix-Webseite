@@ -189,9 +189,20 @@
   animation: float-y 7s ease-in-out 1.2s infinite;
 }
 
+/* Sehr langsames, dezentes Schweben – für das Footer-Wasserzeichen */
+@keyframes drift-y {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+.animate-drift {
+  animation: drift-y 14s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
-  .animate-float-delayed {
+  .animate-float-delayed,
+  .animate-drift {
     animation: none;
   }
 }

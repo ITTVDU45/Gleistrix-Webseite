@@ -1,97 +1,115 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Github, Linkedin, Mail, Twitter } from "lucide-react";
+import Reveal from "@/components/landing/Reveal";
+import FooterCTA from "./footer/FooterCTA";
+import { FOOTER_COLUMNS, FOOTER_LEGAL } from "./footer/footer-nav";
 
-const MODULE_LINKS = [
-  { href: "/produkt/projektplanung-disposition", label: "Projektmanagement" },
-  { href: "/produkt/kalender-einsatzuebersicht", label: "Plantafel & Einsatzplanung" },
-  { href: "/produkt/mitarbeiterverwaltung", label: "Mitarbeiter & Fahrzeuge" },
-  { href: "/produkt/dokumentenmanagement", label: "Dokumentenmanagement" },
-  { href: "/produkt/rechnungsstellung", label: "Abrechnung" },
-  { href: "/#ki-agenten", label: "KI-Agenten" },
-] as const;
-
-const COMPANY_LINKS = [
-  { href: "/produkt", label: "Plattform" },
-  { href: "/branchen", label: "Branchen" },
-  { href: "/preise", label: "Preise" },
-  { href: "/ueber-uns", label: "Über uns" },
-  { href: "/demo-buchen", label: "Demo anfragen" },
-] as const;
-
-const LEGAL_LINKS = [
-  { href: "/#impressum", label: "Impressum" },
-  { href: "/#datenschutz", label: "Datenschutz" },
+const SOCIAL_LINKS = [
+  { href: "#", label: "Gleistrix auf LinkedIn", icon: Linkedin },
+  { href: "#", label: "Gleistrix auf X", icon: Twitter },
+  { href: "#", label: "Gleistrix auf GitHub", icon: Github },
+  { href: "/demo-buchen", label: "Kontakt aufnehmen", icon: Mail },
 ] as const;
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-slate-900/8 bg-white">
-      <div className="page-container grid gap-10 py-14 text-sm md:grid-cols-12">
-        {/* Marke */}
-        <div className="md:col-span-5">
-          <Link href="/" className="inline-flex items-center" aria-label="Gleistrix Startseite">
-            <Image
-              src="/Gleistrix Logo (500 x 300 px).png"
-              alt="Gleistrix Logo"
-              width={500}
-              height={300}
-              className="h-12 w-auto"
-            />
-          </Link>
-          <p className="mt-4 max-w-[46ch] leading-relaxed text-slate-500">
-            Gleistrix bündelt Projektmanagement, Einsatzplanung, Dokumente, Lager, Abrechnung
-            und KI-Agenten in einer zentralen SaaS-Lösung für Bahndienstleister.
-          </p>
-        </div>
-
-        {/* Module */}
-        <nav aria-label="Module" className="md:col-span-3">
-          <h4 className="mb-3 font-semibold text-slate-900">Module</h4>
-          <ul className="space-y-2">
-            {MODULE_LINKS.map((link) => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-slate-500 transition-colors hover:text-indigo-600">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Unternehmen */}
-        <nav aria-label="Unternehmen" className="md:col-span-2">
-          <h4 className="mb-3 font-semibold text-slate-900">Unternehmen</h4>
-          <ul className="space-y-2">
-            {COMPANY_LINKS.map((link) => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-slate-500 transition-colors hover:text-indigo-600">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Rechtliches */}
-        <nav aria-label="Rechtliches" className="md:col-span-2">
-          <h4 className="mb-3 font-semibold text-slate-900">Rechtliches</h4>
-          <ul className="space-y-2">
-            {LEGAL_LINKS.map((link) => (
-              <li key={link.label}>
-                <Link href={link.href} className="text-slate-500 transition-colors hover:text-indigo-600">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <footer className="relative isolate overflow-hidden bg-[#f6f8fb] pt-20 md:pt-28">
+      {/* Riesiges, sehr transparentes Branding-Wasserzeichen */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 hidden justify-center overflow-hidden md:flex"
+      >
+        <span className="animate-drift translate-y-[42%] select-none whitespace-nowrap text-[200px] font-black leading-none tracking-tighter text-slate-900/[0.04] lg:text-[300px]">
+          Gleistrix
+        </span>
       </div>
 
-      <div className="border-t border-slate-900/8">
-        <div className="page-container flex flex-col items-center justify-between gap-2 py-5 text-xs text-slate-400 sm:flex-row">
-          <p>© {new Date().getFullYear()} Gleistrix. Alle Rechte vorbehalten.</p>
-          <p>Die ERP-Plattform für den Bahn- und Infrastrukturbereich.</p>
-        </div>
+      <div className="page-container relative pb-28 md:pb-44">
+        {/* Dunkler CTA-Banner */}
+        <FooterCTA />
+
+        {/* Helle Footer-Karte */}
+        <Reveal delay={0.05} className="mt-8 md:mt-10">
+          <div className="rounded-[2rem] border border-slate-200/70 bg-white/85 p-8 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl md:p-14">
+            <div className="grid gap-12 lg:grid-cols-12">
+              {/* Branding */}
+              <div className="lg:col-span-4">
+                <Link
+                  href="/"
+                  className="inline-flex items-center"
+                  aria-label="Gleistrix Startseite"
+                >
+                  <Image
+                    src="/Gleistrix Logo (500 x 300 px).png"
+                    alt="Gleistrix Logo"
+                    width={500}
+                    height={300}
+                    className="h-11 w-auto"
+                  />
+                </Link>
+                <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-slate-500">
+                  Gleistrix ist die moderne ERP- und SaaS-Plattform für Bahndienstleister. Von
+                  Projektmanagement über Plantafel und Dokumentation bis zur Abrechnung.
+                </p>
+                <div className="mt-6 flex items-center gap-2.5">
+                  {SOCIAL_LINKS.map((social) => (
+                    <Link
+                      key={social.label}
+                      href={social.href}
+                      aria-label={social.label}
+                      className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 text-slate-500 transition-colors duration-200 hover:bg-slate-100 hover:text-slate-900"
+                    >
+                      <social.icon className="h-[18px] w-[18px]" />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Link-Spalten */}
+              <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 lg:col-span-8">
+                {FOOTER_COLUMNS.map((column, index) => (
+                  <Reveal key={column.heading} delay={0.1 + index * 0.06} className="min-w-0">
+                    <nav aria-label={column.heading}>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                        {column.heading}
+                      </h4>
+                      <ul className="mt-4 space-y-2.5">
+                        {column.links.map((link) => (
+                          <li key={link.label}>
+                            <Link
+                              href={link.href}
+                              className="text-sm leading-snug text-slate-500 transition-colors duration-200 hover:text-indigo-600 hyphens-auto [overflow-wrap:anywhere]"
+                            >
+                              {link.label}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </nav>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+
+            {/* Untere Zeile */}
+            <div className="mt-12 flex flex-col gap-4 border-t border-slate-200 pt-6 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between">
+              <p>© {new Date().getFullYear()} Gleistrix. Alle Rechte vorbehalten.</p>
+              <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                {FOOTER_LEGAL.map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="transition-colors duration-200 hover:text-slate-700"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </Reveal>
       </div>
     </footer>
   );
