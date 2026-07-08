@@ -5,6 +5,7 @@ import ModulesSection from "@/components/landing/ModulesSection";
 import AgentsSection from "@/components/landing/AgentsSection";
 import WorkflowSection from "@/components/landing/WorkflowSection";
 import AudienceSection from "@/components/landing/AudienceSection";
+import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FAQSection from "@/components/landing/FAQSection";
 import BlogSection from "@/components/landing/BlogSection";
 
@@ -18,6 +19,7 @@ export default function Home() {
       <AgentsSection />
       <WorkflowSection />
       <AudienceSection />
+      <TestimonialsSection />
       <FAQSection />
       <BlogSection />
     </main>

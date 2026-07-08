@@ -1,4 +1,4 @@
-import { Briefcase, HardHat, Quote, ShieldCheck, TrainFront, Users, Warehouse } from "lucide-react";
+import { Briefcase, HardHat, ShieldCheck, TrainFront, Users, Warehouse } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
@@ -68,21 +68,6 @@ export default function AudienceSection() {
             );
           })}
         </div>
-
-        {/* Neutrale Praxisstimme – bewusst ohne Namen, bis echte Referenzen vorliegen */}
-        <Reveal delay={0.1} className="mt-12 md:mt-16">
-          <figure className="glass mx-auto max-w-3xl rounded-3xl px-6 py-9 text-center shadow-soft-sm md:px-14">
-            <Quote aria-hidden className="mx-auto h-7 w-7 text-indigo-300" />
-            <blockquote className="mt-4 text-lg font-medium leading-relaxed text-slate-700 md:text-xl">
-              „Vorher lagen unsere Einsatzpläne in drei Excel-Dateien und die Nachweise im
-              E-Mail-Postfach. Heute ist alles in einem System – und die Abrechnung geht raus,
-              sobald der Einsatz dokumentiert ist.“
-            </blockquote>
-            <figcaption className="mt-5 text-sm font-medium text-slate-400">
-              Projektleitung eines Sicherungsunternehmens · aus dem Pilotbetrieb
-            </figcaption>
-          </figure>
-        </Reveal>
       </div>
     </section>
   );
