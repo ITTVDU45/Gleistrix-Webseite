@@ -15,6 +15,16 @@ const LONGEST_WORD = HERO_SLIDES.reduce(
   ""
 );
 
+/** Nächster Slide, der in der Auto-Rotation läuft (überspringt Chip-only Slides) */
+function nextRotationIndex(current: number): number {
+  const total = HERO_SLIDES.length;
+  for (let step = 1; step <= total; step++) {
+    const candidate = (current + step) % total;
+    if (HERO_SLIDES[candidate].inRotation) return candidate;
+  }
+  return current;
+}
+
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
   const [active, setActive] = useState(0);
@@ -25,7 +35,7 @@ export default function Hero() {
     if (shouldReduceMotion) return;
     const id = setInterval(() => {
       if (document.hidden) return;
-      setActive((current) => (current + 1) % HERO_SLIDES.length);
+      setActive((current) => nextRotationIndex(current));
     }, ROTATE_INTERVAL_MS);
     return () => clearInterval(id);
   }, [shouldReduceMotion, active]);
