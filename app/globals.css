@@ -199,10 +199,26 @@
   animation: drift-y 14s ease-in-out infinite;
 }
 
+/* Endlos laufende Logo-Reihe – zwei identische Kopien wandern um 50 % */
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee-x 46s linear infinite;
+}
+
+.animate-marquee-reverse {
+  animation: marquee-x 46s linear infinite reverse;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-float,
   .animate-float-delayed,
-  .animate-drift {
+  .animate-drift,
+  .animate-marquee,
+  .animate-marquee-reverse {
     animation: none;
   }
 }
