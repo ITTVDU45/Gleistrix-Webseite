@@ -1,8 +1,7 @@
 "use client";
-import { useCallback, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { CAROUSEL_CARD_ATTR, CarouselControls, useSnapCarousel } from "./carousel";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -74,35 +73,7 @@ const BLOG_POSTS: BlogPost[] = [
 ];
 
 export default function BlogSection() {
-  const carouselRef = useRef<HTMLDivElement>(null);
-
-  const scrollCarousel = useCallback((direction: "prev" | "next") => {
-    const track = carouselRef.current;
-    if (!track) return;
-
-    const firstCard = track.querySelector<HTMLElement>("[data-blog-card]");
-    const gap = Number.parseFloat(getComputedStyle(track).columnGap || "0");
-    const cardWidth = firstCard?.getBoundingClientRect().width ?? track.clientWidth * 0.82;
-    const maxScroll = track.scrollWidth - track.clientWidth;
-    const nextScroll =
-      direction === "next" ? track.scrollLeft + cardWidth + gap : track.scrollLeft - cardWidth - gap;
-    const target =
-      direction === "next" && nextScroll >= maxScroll - 8
-        ? 0
-        : direction === "prev" && nextScroll <= 0
-          ? maxScroll
-          : nextScroll;
-
-    track.scrollTo({ left: target, behavior: "smooth" });
-  }, []);
-
-  useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reducedMotion.matches) return;
-
-    const interval = window.setInterval(() => scrollCarousel("next"), 6200);
-    return () => window.clearInterval(interval);
-  }, [scrollCarousel]);
+  const { trackRef, scrollCarousel } = useSnapCarousel(6200);
 
   return (
     <section id="blog" aria-labelledby="blog-heading" className="scroll-mt-24 overflow-hidden bg-[#f8fafc] py-20 md:py-28">
@@ -119,7 +90,7 @@ export default function BlogSection() {
 
         <div className="relative mt-12 md:mt-16">
           <div
-            ref={carouselRef}
+            ref={trackRef}
             className="scrollbar-none -mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5"
             style={{
               maskImage:
@@ -137,7 +108,7 @@ export default function BlogSection() {
               >
                 <Link
                   href="/blog"
-                  data-blog-card
+                  {...{ [CAROUSEL_CARD_ATTR]: true }}
                   className="group relative block h-[420px] overflow-hidden rounded-3xl border border-slate-900/8 bg-white shadow-soft-sm transition duration-300 hover:-translate-y-1 hover:shadow-soft md:h-[460px]"
                 >
                   <Image
@@ -169,26 +140,12 @@ export default function BlogSection() {
             ))}
           </div>
 
-          <div className="mt-7 flex items-center justify-center gap-8">
-            <button
-              type="button"
-              onClick={() => scrollCarousel("prev")}
-              className="group flex items-center gap-3 text-indigo-600 transition hover:text-indigo-800"
-              aria-label="Vorherige Blogartikel anzeigen"
-            >
-              <span className="h-px w-24 bg-current transition group-hover:w-28" />
-              <ChevronLeft className="size-6" />
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollCarousel("next")}
-              className="group flex items-center gap-3 text-indigo-600 transition hover:text-indigo-800"
-              aria-label="Nächste Blogartikel anzeigen"
-            >
-              <ChevronRight className="size-6" />
-              <span className="h-px w-24 bg-current transition group-hover:w-28" />
-            </button>
-          </div>
+          <CarouselControls
+            onScroll={scrollCarousel}
+            prevLabel="Vorherige Blogartikel anzeigen"
+            nextLabel="Nächste Blogartikel anzeigen"
+            className="mt-7"
+          />
         </div>
       </div>
     </section>

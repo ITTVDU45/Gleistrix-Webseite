@@ -1,4 +1,6 @@
 import Hero from "@/components/landing/Hero";
+import SecurityIntegrations from "@/components/landing/SecurityIntegrations";
+import CaseStudiesSection from "@/components/landing/CaseStudiesSection";
 import TrustBand from "@/components/landing/TrustBand";
 import ProblemSection from "@/components/landing/ProblemSection";
 import ModulesSection from "@/components/landing/ModulesSection";
@@ -13,6 +15,8 @@ export default function Home() {
   return (
     <main>
       <Hero />
+      <SecurityIntegrations />
+      <CaseStudiesSection />
       <TrustBand />
       <ProblemSection />
       <ModulesSection />
