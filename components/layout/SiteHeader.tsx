@@ -12,6 +12,7 @@ import {
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
 import { Button } from "@/components/ui/button";
+import styles from "./SiteHeader.module.css";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home" },
@@ -51,7 +52,7 @@ export default function SiteHeader() {
     >
       <div className="page-container">
         <div
-          className={`glass-header pointer-events-auto relative overflow-hidden rounded-[1.35rem] transition-all duration-500 md:rounded-[1.6rem] ${
+          className={`${styles.headerGlass} pointer-events-auto relative overflow-hidden rounded-[1.35rem] transition-all duration-500 md:rounded-[1.6rem] ${
             scrolled
               ? "translate-y-0 shadow-[0_22px_70px_-28px_rgba(15,23,42,0.32)]"
               : "shadow-[0_14px_45px_-28px_rgba(79,70,229,0.28)]"
@@ -158,7 +159,7 @@ export default function SiteHeader() {
           >
             <nav
               aria-label="Mobile Navigation"
-              className="glass-menu relative overflow-hidden rounded-[1.5rem] p-2.5"
+              className={`${styles.mobileGlass} relative overflow-hidden rounded-[1.5rem] p-2.5`}
             >
               <div
                 aria-hidden
