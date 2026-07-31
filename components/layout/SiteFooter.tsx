@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
+import BrandLogo from "@/components/brand/BrandLogo";
 import Reveal from "@/components/landing/Reveal";
 import FooterCTA from "./footer/FooterCTA";
 import { FOOTER_COLUMNS, FOOTER_LEGAL } from "./footer/footer-nav";
@@ -37,15 +37,12 @@ export default function SiteFooter() {
               <div className="lg:col-span-4">
                 <Link
                   href="/"
-                  className="inline-flex items-center"
+                  className="inline-flex items-center rounded-xl outline-none ring-indigo-500/30 transition focus-visible:ring-4"
                   aria-label="Gleistrix Startseite"
                 >
-                  <Image
-                    src="/Gleistrix Logo (500 x 300 px).png"
-                    alt="Gleistrix Logo"
-                    width={500}
-                    height={300}
-                    className="h-11 w-auto"
+                  <BrandLogo
+                    markClassName="h-10 w-10 md:h-11 md:w-11"
+                    wordmarkClassName="text-[1.45rem] md:text-[1.65rem]"
                   />
                 </Link>
                 <p className="mt-5 max-w-[42ch] text-sm leading-relaxed text-slate-500">
