@@ -6,13 +6,15 @@ import SiteFooter from "./SiteFooter";
 
 export default function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideHeader = pathname?.startsWith("/demo-buchen") ?? false;
+  // Der Adminbereich bringt seine eigene Navigation mit.
+  const isAdmin = pathname?.startsWith("/admin") ?? false;
+  const hideHeader = isAdmin || (pathname?.startsWith("/demo-buchen") ?? false);
 
   return (
     <>
       {!hideHeader && <SiteHeader />}
       {children}
-      <SiteFooter />
+      {!isAdmin && <SiteFooter />}
     </>
   );
 }
