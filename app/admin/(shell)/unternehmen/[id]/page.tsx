@@ -1,0 +1,437 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+
+import {
+  assignPackageAction,
+  setCompanyStatusAction,
+  setModuleAccessAction,
+  setProvisioningStepAction,
+} from "@/app/admin/actions";
+import {
+  CompanyStatusPill,
+  EmptyState,
+  KeyValue,
+  Mono,
+  Section,
+  StepStatusPill,
+  formatDate,
+  formatNumber,
+  formatStorage,
+} from "@/components/admin/ui";
+import { Button } from "@/components/ui/button";
+import { formatPriceEUR } from "@/data/pricing";
+import {
+  TIER_LABEL,
+  effectiveModuleIds,
+  moduleCatalog,
+  moduleGrantSource,
+} from "@/lib/admin/modules";
+import { getDraftPricing } from "@/lib/admin/pricing";
+import SupportAccessForm from "@/components/admin/SupportAccessForm";
+import {
+  getCompany,
+  getPackage,
+  getSupportAccess,
+  getUsage,
+  readStore,
+} from "@/lib/admin/store";
+import { supportAccountEmail, supportConfigIssue } from "@/lib/admin/support";
+import { instanceUrl } from "@/lib/admin/tenant";
+
+type Props = { params: Promise<{ id: string }> };
+
+const CONTROL_CLASS =
+  "h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+
+export async function generateMetadata({ params }: Props) {
+  const { id } = await params;
+  const company = await getCompany(id);
+  return { title: company?.name ?? "Unternehmen" };
+}
+
+export default async function CompanyDetailPage({ params }: Props) {
+  const { id } = await params;
+  const company = await getCompany(id);
+  if (!company) notFound();
+
+  const [pkg, usage, store, supportLog, pricing] = await Promise.all([
+    getPackage(company.packageId),
+    getUsage(company.id),
+    readStore(),
+    getSupportAccess(company.id),
+    // Entwurfsstand: der Admin soll auch noch nicht freigegebene Module sehen.
+    getDraftPricing(),
+  ]);
+
+  const selectablePackages = store.packages.filter(
+    (p) => p.isPublished || p.id === company.packageId,
+  );
+  const catalog = moduleCatalog(pricing);
+  const activeModules = effectiveModuleIds(pricing, company, pkg);
+  const isSuspended = company.status === "suspended";
+  const isDeployed =
+    company.provisioning.find((step) => step.id === "deployment")?.status === "done";
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <Link
+          href="/admin/unternehmen"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:underline"
+        >
+          <ArrowLeft className="size-3.5" aria-hidden />
+          Alle Unternehmen
+        </Link>
+
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
+          <CompanyStatusPill status={company.status} />
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {company.contactName ? `${company.contactName} · ` : ""}
+          {company.contactEmail} · seit {formatDate(company.createdAt)}
+        </p>
+      </div>
+
+      {isSuspended ? (
+        <div className="rounded-xl border border-rose-500/30 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+          <strong className="font-medium">Zugang gesperrt.</strong>{" "}
+          {company.suspendedReason ?? "Ohne Angabe"} – alle Module sind für diesen Mandanten
+          deaktiviert.
+        </div>
+      ) : null}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section
+          title="Mandant & Infrastruktur"
+          description="Feste Namen, aus der Kennung abgeleitet."
+        >
+          <dl>
+            <KeyValue label="Kennung" value={<Mono>{company.slug}</Mono>} />
+            <KeyValue
+              label="Instanz"
+              value={
+                isDeployed ? (
+                  <a
+                    href={instanceUrl(company.tenant)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
+                  >
+                    <Mono>{company.tenant.subdomain}</Mono>
+                    <ExternalLink className="size-3.5" aria-hidden />
+                  </a>
+                ) : (
+                  <Mono>{company.tenant.subdomain}</Mono>
+                )
+              }
+            />
+            <KeyValue
+              label="MongoDB-Datenbank"
+              value={<Mono>{company.tenant.mongoDatabase}</Mono>}
+            />
+            <KeyValue label="MongoDB-Benutzer" value={<Mono>{company.tenant.mongoUser}</Mono>} />
+            <KeyValue label="MinIO-Bucket" value={<Mono>{company.tenant.minioBucket}</Mono>} />
+            <KeyValue label="Benutzerplätze" value={formatNumber(company.seats)} />
+          </dl>
+        </Section>
+
+        <Section
+          title="Paket"
+          description="Nur freigegebene Pakete lassen sich zuweisen."
+          action={
+            pkg ? (
+              <span className="text-sm font-medium">
+                {formatPriceEUR(pkg.monthlyPrice)} / Monat
+              </span>
+            ) : null
+          }
+        >
+          <form action={assignPackageAction} className="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="companyId" value={company.id} />
+            <div className="min-w-48 flex-1 space-y-2">
+              <label htmlFor="packageId" className="text-sm font-medium">
+                Zugewiesenes Paket
+              </label>
+              <select
+                id="packageId"
+                name="packageId"
+                defaultValue={company.packageId ?? ""}
+                className={`${CONTROL_CLASS} w-full`}
+              >
+                <option value="">Ohne Paket</option>
+                {selectablePackages.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.name}
+                    {option.isPublished ? "" : " (nicht freigegeben)"}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Button type="submit" variant="outline">
+              Übernehmen
+            </Button>
+          </form>
+
+          {pkg ? (
+            <dl className="mt-4">
+              <KeyValue label="Enthaltene Benutzer" value={formatNumber(pkg.includedSeats)} />
+              <KeyValue label="Projektlimit" value={formatNumber(pkg.projectLimit)} />
+              <KeyValue label="Module im Paket" value={formatNumber(pkg.moduleIds.length)} />
+            </dl>
+          ) : (
+            <p className="mt-4 text-sm text-muted-foreground">
+              Ohne Paket sind nur einzeln freigegebene Module nutzbar.
+            </p>
+          )}
+        </Section>
+      </div>
+
+      <Section
+        title="Provisionierung"
+        description="Ressourcen dieses Mandanten. Solange die Zugangsdaten fehlen, werden die Schritte manuell quittiert."
+      >
+        <ul className="divide-y">
+          {company.provisioning.map((step) => (
+            <li
+              key={step.id}
+              className="flex flex-wrap items-start justify-between gap-3 py-4 first:pt-0 last:pb-0"
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium">{step.label}</span>
+                  <StepStatusPill status={step.status} />
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">{step.note}</p>
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Ziel: <Mono>{step.target}</Mono>
+                  {process.env[step.requiredEnv] ? null : (
+                    <>
+                      {" · benötigt "}
+                      <Mono>{step.requiredEnv}</Mono>
+                    </>
+                  )}
+                </p>
+              </div>
+
+              <div className="flex gap-2">
+                {step.status === "done" ? (
+                  <form action={setProvisioningStepAction}>
+                    <input type="hidden" name="companyId" value={company.id} />
+                    <input type="hidden" name="stepId" value={step.id} />
+                    <input type="hidden" name="status" value="pending" />
+                    <Button type="submit" size="sm" variant="ghost">
+                      Zurücksetzen
+                    </Button>
+                  </form>
+                ) : (
+                  <form action={setProvisioningStepAction}>
+                    <input type="hidden" name="companyId" value={company.id} />
+                    <input type="hidden" name="stepId" value={step.id} />
+                    <input type="hidden" name="status" value="done" />
+                    <Button type="submit" size="sm" variant="outline">
+                      Erledigt
+                    </Button>
+                  </form>
+                )}
+                {step.status !== "failed" ? (
+                  <form action={setProvisioningStepAction}>
+                    <input type="hidden" name="companyId" value={company.id} />
+                    <input type="hidden" name="stepId" value={step.id} />
+                    <input type="hidden" name="status" value="failed" />
+                    <Button type="submit" size="sm" variant="ghost">
+                      Fehlgeschlagen
+                    </Button>
+                  </form>
+                ) : null}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section
+        title={`Module (${activeModules.length} aktiv)`}
+        description="Paketumfang plus Einzelfreigaben, abzüglich gesperrter Module."
+      >
+        <ul className="grid gap-2 lg:grid-cols-2">
+          {catalog.map((module) => {
+            const source = moduleGrantSource(module.id, company, pkg);
+            const isActive = activeModules.includes(module.id);
+            const label =
+              source === "package"
+                ? "Im Paket enthalten"
+                : source === "extra"
+                  ? "Einzeln freigegeben"
+                  : source === "blocked"
+                    ? "Gesperrt"
+                    : "Nicht freigegeben";
+
+            return (
+              <li
+                key={module.id}
+                className="flex items-start justify-between gap-3 rounded-lg border px-3.5 py-3"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium">{module.title}</span>
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                      {TIER_LABEL[module.tier]}
+                    </span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {label}
+                    {isActive ? "" : " · inaktiv"}
+                  </p>
+                </div>
+
+                <div className="flex shrink-0 gap-1.5">
+                  {source !== "package" && source !== "extra" ? (
+                    <form action={setModuleAccessAction}>
+                      <input type="hidden" name="companyId" value={company.id} />
+                      <input type="hidden" name="moduleId" value={module.id} />
+                      <input type="hidden" name="mode" value="grant" />
+                      <Button type="submit" size="sm" variant="outline">
+                        Freigeben
+                      </Button>
+                    </form>
+                  ) : null}
+                  {source === "blocked" ? (
+                    <form action={setModuleAccessAction}>
+                      <input type="hidden" name="companyId" value={company.id} />
+                      <input type="hidden" name="moduleId" value={module.id} />
+                      <input type="hidden" name="mode" value="reset" />
+                      <Button type="submit" size="sm" variant="outline">
+                        Entsperren
+                      </Button>
+                    </form>
+                  ) : (
+                    <form action={setModuleAccessAction}>
+                      <input type="hidden" name="companyId" value={company.id} />
+                      <input type="hidden" name="moduleId" value={module.id} />
+                      <input type="hidden" name="mode" value="block" />
+                      <Button type="submit" size="sm" variant="ghost">
+                        Sperren
+                      </Button>
+                    </form>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </Section>
+
+      <Section title="Nutzung" description="Verbrauch je Monat – Basis für Tracking und Abrechnung.">
+        {usage.length === 0 ? (
+          <EmptyState>Für diesen Mandanten liegen noch keine Nutzungsdaten vor.</EmptyState>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
+                  <th className="pb-2 pr-4 font-medium">Monat</th>
+                  <th className="pb-2 pr-4 text-right font-medium">Nutzer</th>
+                  <th className="pb-2 pr-4 text-right font-medium">Projekte</th>
+                  <th className="pb-2 pr-4 text-right font-medium">Speicher</th>
+                  <th className="pb-2 text-right font-medium">API-Aufrufe</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {usage.map((entry) => (
+                  <tr key={entry.month}>
+                    <td className="py-2.5 pr-4">{entry.month}</td>
+                    <td className="py-2.5 pr-4 text-right tabular-nums">
+                      {formatNumber(entry.activeUsers)}
+                    </td>
+                    <td className="py-2.5 pr-4 text-right tabular-nums">
+                      {formatNumber(entry.projects)}
+                    </td>
+                    <td className="py-2.5 pr-4 text-right tabular-nums">
+                      {formatStorage(entry.storageMb)}
+                    </td>
+                    <td className="py-2.5 text-right tabular-nums">
+                      {formatNumber(entry.apiCalls)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Section>
+
+      <Section
+        title="Support-Zugriff"
+        description="Anmeldung in der Kundeninstanz als globaler Gleistrix-Support – getrennt vom Control-Plane-Konto und nur mit eigenem Passwort."
+      >
+        <SupportAccessForm
+          companyId={company.id}
+          supportEmail={supportAccountEmail()}
+          configIssue={supportConfigIssue()}
+          isDeployed={isDeployed}
+        />
+
+        {supportLog.length > 0 ? (
+          <div className="mt-5 border-t pt-4">
+            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Letzte Zugriffe
+            </h3>
+            <ul className="mt-2 divide-y">
+              {supportLog.slice(0, 8).map((entry) => (
+                <li key={entry.id} className="flex flex-wrap justify-between gap-2 py-2 text-sm">
+                  <span>
+                    <span className="font-medium">{entry.actor}</span>
+                    <span className="text-muted-foreground"> — {entry.reason}</span>
+                  </span>
+                  <span className="text-muted-foreground">
+                    {new Date(entry.createdAt).toLocaleString("de-DE")}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </Section>
+
+      <Section
+        title="Zugang"
+        description="Eine Sperre deaktiviert sofort alle Module, lässt Daten und Ressourcen aber unangetastet."
+        className="border-rose-200"
+      >
+        {isSuspended ? (
+          <form action={setCompanyStatusAction} className="flex flex-wrap items-center gap-3">
+            <input type="hidden" name="companyId" value={company.id} />
+            <input type="hidden" name="status" value="active" />
+            <Button type="submit" variant="outline">
+              Sperre aufheben
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              Der Mandant erreicht danach wieder {company.tenant.subdomain}.
+            </p>
+          </form>
+        ) : (
+          <form action={setCompanyStatusAction} className="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="companyId" value={company.id} />
+            <input type="hidden" name="status" value="suspended" />
+            <div className="min-w-56 flex-1 space-y-2">
+              <label htmlFor="reason" className="text-sm font-medium">
+                Grund der Sperre
+              </label>
+              <input
+                id="reason"
+                name="reason"
+                placeholder="z. B. Zahlungsrückstand"
+                className={`${CONTROL_CLASS} w-full`}
+              />
+            </div>
+            <Button type="submit" variant="destructive">
+              Zugang sperren
+            </Button>
+          </form>
+        )}
+      </Section>
+    </div>
+  );
+}

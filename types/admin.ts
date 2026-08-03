@@ -1,0 +1,168 @@
+import type { PricingConfig } from "./pricing";
+
+export type CompanyStatus = "provisioning" | "active" | "suspended";
+
+export type ProvisioningStepId =
+  | "mongo-database"
+  | "mongo-role"
+  | "minio-bucket"
+  | "deployment"
+  | "dns-record";
+
+export type ProvisioningStatus = "pending" | "done" | "failed";
+
+export type ProvisioningStep = {
+  id: ProvisioningStepId;
+  label: string;
+  /** Was konkret angelegt wird – z. B. der Datenbank- oder Bucket-Name. */
+  target: string;
+  /** Env-Variable, die für die automatische Ausführung nötig ist. */
+  requiredEnv: string;
+  status: ProvisioningStatus;
+  note?: string;
+  updatedAt: string;
+};
+
+/**
+ * Ressourcen eines Mandanten.
+ *
+ * Isolationsmodell: ein Deployment der Gleistrix-App je Mandant. Die App ist
+ * Single-Tenant gebaut (dbName fest verdrahtet, Feature-Flags mit scope
+ * 'global') – deshalb bekommt jeder Kunde eine eigene Instanz mit eigener
+ * Datenbank statt einer gemeinsamen Datenbank mit companyId je Dokument.
+ */
+export type Tenant = {
+  /** kundenname.gleistrix.de */
+  subdomain: string;
+  /** Eigene MongoDB-Datenbank im gemeinsamen Cluster (die App braucht ~46 Collections). */
+  mongoDatabase: string;
+  /** MongoDB-Benutzer, dessen Rolle nur auf diese Datenbank zeigt. */
+  mongoUser: string;
+  /** Eigener MinIO-Bucket des Mandanten. */
+  minioBucket: string;
+};
+
+export type Company = {
+  id: string;
+  name: string;
+  slug: string;
+  contactName: string;
+  contactEmail: string;
+  seats: number;
+  status: CompanyStatus;
+  packageId: string | null;
+  /** Zusätzlich freigegebene Module über das Paket hinaus. */
+  extraModuleIds: string[];
+  /** Trotz Paket gesperrte Module. */
+  blockedModuleIds: string[];
+  suspendedReason?: string;
+  tenant: Tenant;
+  provisioning: ProvisioningStep[];
+  createdAt: string;
+};
+
+export type Package = {
+  id: string;
+  name: string;
+  description: string;
+  monthlyPrice: number;
+  includedSeats: number;
+  projectLimit: number;
+  moduleIds: string[];
+  /** Nicht freigegebene Pakete lassen sich keinem Unternehmen zuweisen. */
+  isPublished: boolean;
+  createdAt: string;
+};
+
+export type Usage = {
+  companyId: string;
+  /** ISO-Monat, z. B. 2026-08 */
+  month: string;
+  activeUsers: number;
+  projects: number;
+  storageMb: number;
+  apiCalls: number;
+};
+
+/**
+ * Protokoll jedes Support-Zugriffs auf eine Kundeninstanz.
+ * Wer, wann, worauf und warum – ohne das ist ein globaler Zugang nicht
+ * vertretbar.
+ */
+export type SupportAccess = {
+  id: string;
+  companyId: string;
+  companyName: string;
+  /** Gleistrix-Support-Konto, nicht der Control-Plane-Admin. */
+  actor: string;
+  reason: string;
+  createdAt: string;
+};
+
+/* --------------------------------------------------------------- Anfragen */
+
+export type LeadKind = "demo" | "termin" | "kontakt";
+
+export type LeadStatus = "neu" | "in-kontakt" | "termin" | "gewonnen" | "verloren";
+
+/** Eingehende Anfrage von der Website – Demo, Terminwunsch oder Kontaktformular. */
+export type Lead = {
+  id: string;
+  kind: LeadKind;
+  company: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  message?: string;
+  status: LeadStatus;
+  /** Vereinbarter Termin als ISO-Zeitpunkt. */
+  appointmentAt?: string;
+  /** Interne Notiz des Superadmins. */
+  note?: string;
+  createdAt: string;
+};
+
+/** Anforderung der Produktbroschüre – separat, weil sie nur einen Versand braucht. */
+export type BrochureRequest = {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  createdAt: string;
+  sentAt?: string;
+};
+
+export type DemoAccessStatus = "angefragt" | "aktiv" | "widerrufen" | "fehlgeschlagen";
+
+/**
+ * Über die Schnittstelle in der Gleistrix-App freigeschalteter Demo-Zugang.
+ * Der Control-Plane hält nur das Protokoll – die Instanz führt den Zugang.
+ */
+export type DemoAccess = {
+  id: string;
+  /** Anfrage, aus der die Freigabe entstanden ist. */
+  leadId: string | null;
+  company: string;
+  email: string;
+  status: DemoAccessStatus;
+  /** Login-Adresse der Demo-Instanz, wie von der App gemeldet. */
+  url?: string;
+  expiresAt: string;
+  /** Fehlermeldung der App, wenn die Freigabe scheiterte. */
+  error?: string;
+  createdAt: string;
+};
+
+export type AdminStore = {
+  companies: Company[];
+  packages: Package[];
+  usage: Usage[];
+  supportAccess: SupportAccess[];
+  leads: Lead[];
+  brochureRequests: BrochureRequest[];
+  demoAccess: DemoAccess[];
+  /** Bearbeitungsstand der öffentlichen Preisseite. */
+  pricingDraft?: PricingConfig;
+  /** Freigegebener Stand – nur dieser wird auf /preise ausgeliefert. */
+  pricingPublished?: PricingConfig;
+};
