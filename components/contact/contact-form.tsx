@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function ContactForm() {
+/** Worum die Anfrage geht – derselbe Endpunkt bedient alle vier Fälle. */
+export type ContactKind = "demo" | "termin" | "kontakt" | "broschuere";
+
+type Props = {
+  kind?: ContactKind;
+};
+
+export default function ContactForm({ kind = "kontakt" }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -14,12 +21,17 @@ export default function ContactForm() {
     setSubmitting(true);
     setMessage(null);
 
-    const formData = new FormData(e.currentTarget);
+    // Das Formular wird nach dem await zurückgesetzt – bis dahin ist
+    // e.currentTarget null, deshalb die Referenz vorher festhalten.
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const data = {
       name: formData.get('name') as string,
       email: formData.get('email') as string,
       phone: formData.get('phone') as string,
+      company: formData.get('company') as string,
       message: formData.get('message') as string,
+      kind,
     };
 
     try {
@@ -36,7 +48,7 @@ export default function ContactForm() {
       if (response.ok) {
         setMessage({ type: 'success', text: result.message });
         // Reset form on success
-        e.currentTarget.reset();
+        form.reset();
       } else {
         setMessage({ type: 'error', text: result.error || 'Ein Fehler ist aufgetreten.' });
       }
@@ -59,9 +71,15 @@ export default function ContactForm() {
           <Input id="phone" name="phone" placeholder="+49 …" className="mt-1 bg-white/5 text-white border-white/10 placeholder-white/60" />
         </div>
       </div>
-      <div>
-        <Label htmlFor="email" className="text-white">E‑Mail</Label>
-        <Input id="email" type="email" name="email" placeholder="name@firma.de" className="mt-1 bg-white/5 text-white border-white/10 placeholder-white/60" required />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="email" className="text-white">E‑Mail</Label>
+          <Input id="email" type="email" name="email" placeholder="name@firma.de" className="mt-1 bg-white/5 text-white border-white/10 placeholder-white/60" required />
+        </div>
+        <div>
+          <Label htmlFor="company" className="text-white">Firma</Label>
+          <Input id="company" name="company" placeholder="Ihr Unternehmen" className="mt-1 bg-white/5 text-white border-white/10 placeholder-white/60" />
+        </div>
       </div>
       <div>
         <Label htmlFor="message" className="text-white">Nachricht</Label>

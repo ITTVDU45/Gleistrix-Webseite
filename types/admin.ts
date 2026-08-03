@@ -122,6 +122,32 @@ export type Lead = {
   createdAt: string;
 };
 
+/** Woher ein Kontakt stammt – aus einer Anfrage übernommen oder von Hand angelegt. */
+export type ContactSource = "lead" | "manuell";
+
+/**
+ * Kontaktverzeichnis des Vertriebs.
+ *
+ * Bewusst neben Lead und Company: eine Anfrage ist ein Vorgang mit Status, ein
+ * Unternehmen ein bereitgestellter Mandant. Der Kontakt überlebt beides und
+ * bleibt bestehen, auch wenn eine Anfrage verloren geht.
+ */
+export type Contact = {
+  id: string;
+  company: string;
+  contactName: string;
+  email: string;
+  phone?: string;
+  role?: string;
+  note?: string;
+  source: ContactSource;
+  /** Anfrage, aus der der Kontakt entstanden ist. */
+  leadId?: string | null;
+  /** Zugehöriger Mandant, sobald es einen gibt. */
+  companyId?: string | null;
+  createdAt: string;
+};
+
 /** Anforderung der Produktbroschüre – separat, weil sie nur einen Versand braucht. */
 export type BrochureRequest = {
   id: string;
@@ -142,6 +168,14 @@ export type DemoAccess = {
   id: string;
   /** Anfrage, aus der die Freigabe entstanden ist. */
   leadId: string | null;
+  /**
+   * Mandant, für den die Demo läuft – sofern es ihn schon gibt.
+   *
+   * Eine Demo entsteht oft vor dem Mandanten, deshalb optional. Ist sie gesetzt,
+   * gilt sie; die Zuordnung über den Firmennamen bleibt nur die Rückfallebene
+   * für Altdaten und frei eingegebene Empfänger.
+   */
+  companyId?: string | null;
   company: string;
   email: string;
   status: DemoAccessStatus;
@@ -159,6 +193,7 @@ export type AdminStore = {
   usage: Usage[];
   supportAccess: SupportAccess[];
   leads: Lead[];
+  contacts: Contact[];
   brochureRequests: BrochureRequest[];
   demoAccess: DemoAccess[];
   /** Bearbeitungsstand der öffentlichen Preisseite. */

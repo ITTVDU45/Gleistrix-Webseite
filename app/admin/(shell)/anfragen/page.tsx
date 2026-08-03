@@ -1,6 +1,7 @@
-import { Mail, Phone } from "lucide-react";
+import Link from "next/link";
+import { Mail, Phone, UserCheck } from "lucide-react";
 
-import { setLeadStatusAction } from "@/app/admin/actions";
+import { createContactFromLeadAction, setLeadStatusAction } from "@/app/admin/actions";
 import AppointmentForm from "@/components/admin/AppointmentForm";
 import {
   EmptyState,
@@ -12,7 +13,7 @@ import {
   formatNumber,
 } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
-import { getLeads } from "@/lib/admin/store";
+import { getLeads, listContacts } from "@/lib/admin/store";
 import type { LeadKind, LeadStatus } from "@/types/admin";
 
 export const metadata = { title: "Anfragen" };
@@ -41,8 +42,25 @@ const NEXT_STATUS: Record<LeadStatus, { status: LeadStatus; label: string }[]> =
   verloren: [{ status: "in-kontakt", label: "Wieder aufnehmen" }],
 };
 
+/**
+ * createContactFromLeadAction ist auf useActionState zugeschnitten und erwartet
+ * den vorherigen Zustand als erstes Argument. Die Statusknöpfe daneben sind
+ * einfache Formulare ohne Rückmeldung – dieser bleibt es auch: gelingt die
+ * Übernahme, zeigt die Zeile danach den Verweis statt des Buttons.
+ */
+async function saveLeadAsContact(data: FormData): Promise<void> {
+  "use server";
+  await createContactFromLeadAction({}, data);
+}
+
 export default async function AdminLeadsPage() {
-  const leads = await getLeads();
+  const [leads, contacts] = await Promise.all([getLeads(), listContacts()]);
+
+  // Welche Anfrage schon im Verzeichnis steht – zweimal derselbe Kontakt hilft
+  // niemandem, deshalb ersetzt der Hinweis den Button.
+  const savedLeadIds = new Set(
+    contacts.map((contact) => contact.leadId).filter((id): id is string => Boolean(id)),
+  );
 
   const open = leads.filter((lead) => lead.status === "neu" || lead.status === "in-kontakt");
   const demos = leads.filter((lead) => lead.kind === "demo");
@@ -113,7 +131,7 @@ export default async function AdminLeadsPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     {NEXT_STATUS[lead.status].map((option) => (
                       <form key={option.status} action={setLeadStatusAction}>
                         <input type="hidden" name="leadId" value={lead.id} />
@@ -123,6 +141,23 @@ export default async function AdminLeadsPage() {
                         </Button>
                       </form>
                     ))}
+
+                    {savedLeadIds.has(lead.id) ? (
+                      <Link
+                        href="/admin/kontakte"
+                        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:underline"
+                      >
+                        <UserCheck className="size-3.5" aria-hidden />
+                        Im Verzeichnis
+                      </Link>
+                    ) : (
+                      <form action={saveLeadAsContact}>
+                        <input type="hidden" name="leadId" value={lead.id} />
+                        <Button type="submit" variant="outline" size="sm">
+                          Als Kontakt speichern
+                        </Button>
+                      </form>
+                    )}
                   </div>
                 </div>
 

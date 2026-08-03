@@ -16,8 +16,16 @@ export type DemoCandidate = {
   email: string;
 };
 
+/** Angelegter Mandant – Demozugänge gehen auch an bestehende Kunden. */
+export type DemoCompany = {
+  id: string;
+  name: string;
+  contactEmail: string;
+};
+
 type Props = {
   candidates: DemoCandidate[];
+  companies: DemoCompany[];
   defaultDays: number;
   maxDays: number;
   configIssue: string | null;
@@ -27,6 +35,7 @@ const MANUAL = "";
 
 export default function DemoReleaseForm({
   candidates,
+  companies,
   defaultDays,
   maxDays,
   configIssue,
@@ -35,9 +44,23 @@ export default function DemoReleaseForm({
     releaseDemoAction,
     {},
   );
-  const [leadId, setLeadId] = useState(MANUAL);
+  // Eine Auswahlliste, zwei Quellen – deshalb trägt der Wert seine Herkunft mit.
+  // Die Liste selbst hat kein name-Attribut; die Anfrage-Kennung geht über ein
+  // eigenes verstecktes Feld an die Action, damit dort nichts zu zerlegen ist.
+  const [selection, setSelection] = useState(MANUAL);
 
-  const selected = candidates.find((candidate) => candidate.id === leadId);
+  const lead = selection.startsWith("lead:")
+    ? candidates.find((candidate) => candidate.id === selection.slice(5))
+    : undefined;
+  const company = selection.startsWith("company:")
+    ? companies.find((entry) => entry.id === selection.slice(8))
+    : undefined;
+
+  const prefill = lead
+    ? { company: lead.company, email: lead.email }
+    : company
+      ? { company: company.name, email: company.contactEmail }
+      : { company: "", email: "" };
 
   if (configIssue) {
     return (
@@ -49,22 +72,39 @@ export default function DemoReleaseForm({
 
   return (
     <form action={formAction} className="space-y-4">
+      <input type="hidden" name="leadId" value={lead?.id ?? ""} />
+      {/* Nur bei Auswahl eines Mandanten gesetzt – bei freier Eingabe bleibt die
+          Zuordnung offen, statt sie über den Firmennamen zu raten. */}
+      <input type="hidden" name="companyId" value={company?.id ?? ""} />
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="leadId">Aus Anfrage übernehmen</Label>
+          <Label htmlFor="source">Empfänger übernehmen</Label>
           <select
-            id="leadId"
-            name="leadId"
-            value={leadId}
-            onChange={(event) => setLeadId(event.target.value)}
+            id="source"
+            value={selection}
+            onChange={(event) => setSelection(event.target.value)}
             className="h-9 w-full rounded-md border bg-transparent px-3 text-sm shadow-xs"
           >
-            <option value={MANUAL}>Ohne Anfrage – Daten selbst eingeben</option>
-            {candidates.map((candidate) => (
-              <option key={candidate.id} value={candidate.id}>
-                {candidate.company} · {candidate.contactName}
-              </option>
-            ))}
+            <option value={MANUAL}>Freie Eingabe – Daten selbst eintragen</option>
+            {companies.length > 0 ? (
+              <optgroup label="Unternehmen">
+                {companies.map((entry) => (
+                  <option key={entry.id} value={`company:${entry.id}`}>
+                    {entry.name} · {entry.contactEmail}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
+            {candidates.length > 0 ? (
+              <optgroup label="Anfragen">
+                {candidates.map((candidate) => (
+                  <option key={candidate.id} value={`lead:${candidate.id}`}>
+                    {candidate.company} · {candidate.contactName}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
           </select>
         </div>
 
@@ -72,23 +112,23 @@ export default function DemoReleaseForm({
           <Label htmlFor="company">Unternehmen</Label>
           {/* key erzwingt ein Remount, damit defaultValue der Auswahl folgt. */}
           <Input
-            key={`company-${leadId}`}
+            key={`company-${selection}`}
             id="company"
             name="company"
             required
-            defaultValue={selected?.company ?? ""}
+            defaultValue={prefill.company}
           />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="email">E-Mail des Interessenten</Label>
           <Input
-            key={`email-${leadId}`}
+            key={`email-${selection}`}
             id="email"
             name="email"
             type="email"
             required
-            defaultValue={selected?.email ?? ""}
+            defaultValue={prefill.email}
           />
         </div>
 

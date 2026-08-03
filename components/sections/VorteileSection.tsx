@@ -79,14 +79,14 @@ export default function VorteileSection() {
     const mq = window.matchMedia("(max-width: 640px)");
     const apply = () => setVisible(mq.matches ? 2 : 3);
     apply();
-    mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply as any);
+    mq.addEventListener ? mq.addEventListener("change", apply) : mq.addListener(apply);
     return () => {
-      mq.removeEventListener ? mq.removeEventListener("change", apply) : mq.removeListener(apply as any);
+      mq.removeEventListener ? mq.removeEventListener("change", apply) : mq.removeListener(apply);
     };
   }, []);
 
   const pages = useMemo(() => {
-    const out: typeof items[] = [] as any;
+    const out: typeof items[] = [];
     for (let i = 0; i < items.length; i += visible) {
       out.push(items.slice(i, i + visible));
     }

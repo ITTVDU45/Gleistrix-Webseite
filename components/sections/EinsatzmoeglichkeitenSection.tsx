@@ -75,9 +75,9 @@ function UseCaseSlider({ items }: { items: UseCase[] }) {
     const mq = window.matchMedia('(min-width: 768px)');
     const apply = () => setVisible(mq.matches ? 2 : 1);
     apply();
-    mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply as any);
+    mq.addEventListener ? mq.addEventListener('change', apply) : mq.addListener(apply);
     return () => {
-      mq.removeEventListener ? mq.removeEventListener('change', apply) : mq.removeListener(apply as any);
+      mq.removeEventListener ? mq.removeEventListener('change', apply) : mq.removeListener(apply);
     };
   }, []);
 

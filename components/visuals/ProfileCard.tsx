@@ -249,15 +249,20 @@ const ProfileCardComponent: React.FC<ProfileCardProps> = ({
 
     const handleClick = () => {
       if (!enableMobileTilt || location.protocol !== 'https:') return;
-      if (typeof (window.DeviceMotionEvent as any).requestPermission === 'function') {
-        (window.DeviceMotionEvent as any)
+      // iOS verlangt eine Nutzergeste, bevor Bewegungsdaten fließen – nur dort
+      // trägt DeviceMotionEvent überhaupt requestPermission.
+      const motionEvent = window.DeviceMotionEvent as unknown as {
+        requestPermission?: () => Promise<PermissionState>;
+      };
+      if (typeof motionEvent.requestPermission === 'function') {
+        motionEvent
           .requestPermission()
-          .then((state: string) => {
+          .then((state) => {
             if (state === 'granted') {
               window.addEventListener('deviceorientation', deviceOrientationHandler);
             }
           })
-          .catch((err: any) => console.error(err));
+          .catch((err: unknown) => console.error(err));
       } else {
         window.addEventListener('deviceorientation', deviceOrientationHandler);
       }

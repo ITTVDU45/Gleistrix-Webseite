@@ -1,52 +1,96 @@
 import { DEFAULT_PRICING, migratePricing } from "@/data/pricing";
 import { isIconKey } from "@/lib/pricing/icons";
 import type { PricingConfig, PricingModule } from "@/types/pricing";
-import { readStore, writeStore } from "./store";
+import { bootstrap } from "./db/bootstrap";
+import { patchFileStore, readFileStore } from "./db/file-store";
+import * as pricingDb from "./db/pricing";
+import { isMongoConfigured } from "./mongo";
+import { readStore } from "./store";
 
 /**
- * Preisseite als pflegbares Dokument.
+ * Preisseite als pflegbarer Stand.
  *
- * Zwei Stände: `pricingDraft` wird im Admin bearbeitet, `pricingPublished` ist
- * das, was Kunden sehen. Ohne Freigabe ändert sich die öffentliche Seite nicht –
- * ein halb gepflegter Modulkatalog geht damit nie live.
+ * Zwei Stände: der ENTWURF wird im Admin bearbeitet, eine FREIGABE ist das, was
+ * Kunden sehen. Ohne Freigabe ändert sich die öffentliche Seite nicht – ein
+ * halb gepflegter Modulkatalog geht damit nie live.
+ *
+ * Gegen MongoDB liegt der Entwurf zerlegt in den pricing_*-Collections; jede
+ * Freigabe wird als vollständiger Schnappschuss nach pricing_releases
+ * geschrieben. Ohne Datenbank bleiben beide Stände im JSON-Gesamtdokument.
  */
 
 export async function getDraftPricing(): Promise<PricingConfig> {
-  const store = await readStore();
-  return store.pricingDraft ? migratePricing(store.pricingDraft) : DEFAULT_PRICING;
+  if (!isMongoConfigured()) {
+    const store = await readFileStore();
+    return store.pricingDraft ? migratePricing(store.pricingDraft) : DEFAULT_PRICING;
+  }
+
+  await bootstrap();
+  const draft = await pricingDb.readDraft();
+  if (draft) return draft;
+
+  // Erster Aufruf gegen leere Collections: den Auslieferungszustand einmalig
+  // hineinschreiben, damit ab hier ausschließlich im Admin gepflegt wird.
+  await pricingDb.writeDraft(DEFAULT_PRICING);
+  return DEFAULT_PRICING;
 }
 
 export async function getPublishedPricing(): Promise<PricingConfig> {
-  const store = await readStore();
-  return store.pricingPublished ? migratePricing(store.pricingPublished) : DEFAULT_PRICING;
+  if (!isMongoConfigured()) {
+    const store = await readFileStore();
+    return store.pricingPublished ? migratePricing(store.pricingPublished) : DEFAULT_PRICING;
+  }
+
+  await bootstrap();
+  return (await pricingDb.latestRelease()) ?? DEFAULT_PRICING;
 }
 
 /** Ändert den Entwurf unveränderlich und stempelt ihn. */
 export async function updateDraft(
   patch: (config: PricingConfig) => PricingConfig,
 ): Promise<PricingConfig> {
-  const store = await readStore();
-  const current = store.pricingDraft ? migratePricing(store.pricingDraft) : DEFAULT_PRICING;
+  const current = await getDraftPricing();
   const next: PricingConfig = { ...patch(current), updatedAt: new Date().toISOString() };
 
-  await writeStore({ ...store, pricingDraft: next });
+  if (isMongoConfigured()) {
+    await pricingDb.writeDraftChanges(current, next);
+    return next;
+  }
+
+  await patchFileStore((store) => ({ next: { ...store, pricingDraft: next }, result: undefined }));
   return next;
 }
 
+/** Schreibt den Entwurf als Schnappschuss in die Freigabe-Historie. */
 export async function publishDraft(): Promise<PricingConfig> {
-  const store = await readStore();
-  const draft = store.pricingDraft ? migratePricing(store.pricingDraft) : DEFAULT_PRICING;
-  const published: PricingConfig = { ...draft, updatedAt: new Date().toISOString() };
+  // Ohne Änderung durchreichen: setzt updatedAt und liefert den Entwurf zurück.
+  const published = await updateDraft((config) => config);
 
-  await writeStore({ ...store, pricingPublished: published, pricingDraft: published });
+  if (isMongoConfigured()) {
+    await pricingDb.insertRelease(published);
+    return published;
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, pricingPublished: published },
+    result: undefined,
+  }));
   return published;
 }
 
 /** Verwirft den Entwurf und setzt ihn auf den freigegebenen Stand zurück. */
 export async function discardDraft(): Promise<void> {
-  const store = await readStore();
-  const published = store.pricingPublished ? migratePricing(store.pricingPublished) : DEFAULT_PRICING;
-  await writeStore({ ...store, pricingDraft: published });
+  const published = await getPublishedPricing();
+
+  if (isMongoConfigured()) {
+    await pricingDb.writeDraft(published);
+    return;
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, pricingDraft: published },
+    result: undefined,
+  }));
 }
 
 /** Gibt es unveröffentlichte Änderungen? Vergleicht ohne den Zeitstempel. */

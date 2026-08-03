@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   Boxes,
   Building2,
+  Contact,
   FileText,
   Inbox,
   LayoutDashboard,
@@ -18,6 +19,7 @@ const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/unternehmen", label: "Unternehmen", icon: Building2, exact: false },
   { href: "/admin/anfragen", label: "Anfragen", icon: Inbox, exact: false },
+  { href: "/admin/kontakte", label: "Kontakte", icon: Contact, exact: false },
   { href: "/admin/broschuere", label: "Broschüre", icon: FileText, exact: false },
   { href: "/admin/demo-zugang", label: "Demo-Zugang", icon: PlayCircle, exact: false },
   { href: "/admin/pakete", label: "Pakete", icon: Package, exact: false },

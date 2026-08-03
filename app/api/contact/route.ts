@@ -1,10 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+
+import { contactRecipient, mailConfigIssue, sendMail } from '@/lib/admin/mail';
+import { insertBrochureRequest, insertLead } from '@/lib/admin/store';
+import type { BrochureRequest, Lead, LeadKind } from '@/types/admin';
+
+/**
+ * Eingang aller Website-Anfragen: Kontakt, Demo, Termin, Broschüre.
+ *
+ * Reihenfolge ist Absicht – erst speichern, dann mailen. Ein ausgefallener
+ * SMTP-Server darf keine Anfrage verschlucken; der Adminbereich liest den
+ * Datensatz unabhängig vom Mailversand.
+ */
+
+/** "broschuere" ist kein LeadKind (types/admin.ts) – die Anfrage wird als Kontakt geführt. */
+type RequestKind = LeadKind | 'broschuere';
+
+const KINDS: readonly RequestKind[] = ['demo', 'termin', 'kontakt', 'broschuere'];
+
+const LABELS: Record<RequestKind, string> = {
+  demo: 'Demo-Anfrage',
+  termin: 'Terminwunsch',
+  kontakt: 'Kontaktanfrage',
+  broschuere: 'Broschürenanfrage',
+};
+
+/** Grenzen gegen aufgeblähte Datensätze; großzügig genug für echte Anfragen. */
+const MAX_SHORT = 200;
+const MAX_MESSAGE = 5000;
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function text(value: unknown, limit: number): string {
+  return typeof value === 'string' ? value.trim().slice(0, limit) : '';
+}
+
+function parseKind(value: unknown): RequestKind {
+  return KINDS.includes(value as RequestKind) ? (value as RequestKind) : 'kontakt';
+}
 
 export async function POST(request: NextRequest) {
+  let lead: Lead;
+  let kind: RequestKind;
+
   try {
     const body = await request.json();
-    const { name, email, phone, message } = body;
+
+    const name = text(body?.name, MAX_SHORT);
+    const email = text(body?.email, MAX_SHORT);
+    const phone = text(body?.phone, MAX_SHORT);
+    const company = text(body?.company, MAX_SHORT);
+    const message = text(body?.message, MAX_MESSAGE);
+    kind = parseKind(body?.kind);
 
     // Validate required fields
     if (!name || !email || !message) {
@@ -14,46 +60,42 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create SMTP transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    if (!EMAIL_PATTERN.test(email)) {
+      return NextResponse.json(
+        { error: 'Bitte geben Sie eine gültige E-Mail-Adresse an.' },
+        { status: 400 }
+      );
+    }
 
-    // Email content
-    const emailContent = `
-Neue Kontaktanfrage von der Gleistrix-Website:
+    const createdAt = new Date().toISOString();
+    // Zeitstempel plus Zufall: zwei Anfragen in derselben Millisekunde würden
+    // sonst über die _id kollidieren.
+    const id = `lead_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
-Name: ${name}
-E-Mail: ${email}
-Telefon: ${phone || 'Nicht angegeben'}
+    lead = {
+      id,
+      kind: kind === 'broschuere' ? 'kontakt' : kind,
+      company: company || 'Ohne Firmenangabe',
+      contactName: name,
+      email,
+      phone: phone || undefined,
+      message,
+      status: 'neu',
+      createdAt,
+    };
 
-Nachricht:
-${message}
+    await insertLead(lead);
 
----
-Diese Nachricht wurde automatisch von der Gleistrix-Website gesendet.
-    `;
-
-    // Send email
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || 'noreply@gleistrix.com',
-      to: process.env.CONTACT_EMAIL || 'info@gleistrix.com',
-      subject: `Neue Kontaktanfrage von ${name}`,
-      text: emailContent,
-      replyTo: email,
-    });
-
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Ihre Nachricht wurde erfolgreich gesendet!' 
-    });
-
+    if (kind === 'broschuere') {
+      const brochure: BrochureRequest = {
+        id: `bro_${id.slice('lead_'.length)}`,
+        company: lead.company,
+        contactName: name,
+        email,
+        createdAt,
+      };
+      await insertBrochureRequest(brochure);
+    }
   } catch (error) {
     console.error('Contact form error:', error);
     return NextResponse.json(
@@ -61,4 +103,41 @@ Diese Nachricht wurde automatisch von der Gleistrix-Website gesendet.
       { status: 500 }
     );
   }
+
+  // Ab hier ist die Anfrage gesichert. Der Mailversand ist nur noch die
+  // Benachrichtigung – ein Fehler wird protokolliert, nicht zurückgemeldet.
+  const configIssue = mailConfigIssue();
+
+  if (configIssue) {
+    console.warn(`Anfrage ${lead.id} gespeichert, aber nicht versendet: ${configIssue}`);
+  } else {
+    try {
+      await sendMail({
+        to: contactRecipient(),
+        replyTo: lead.email,
+        subject: `Neue ${LABELS[kind]} von ${lead.contactName}`,
+        text: [
+          `Neue ${LABELS[kind]} von der Gleistrix-Website:`,
+          '',
+          `Name: ${lead.contactName}`,
+          `Firma: ${lead.company}`,
+          `E-Mail: ${lead.email}`,
+          `Telefon: ${lead.phone || 'Nicht angegeben'}`,
+          '',
+          'Nachricht:',
+          lead.message ?? '',
+          '',
+          '---',
+          `Vorgang ${lead.id} – im Adminbereich unter /admin/anfragen.`,
+        ].join('\n'),
+      });
+    } catch (error) {
+      console.error(`Mailversand für Anfrage ${lead.id} fehlgeschlagen:`, error);
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    message: 'Ihre Nachricht wurde erfolgreich gesendet!',
+  });
 }
