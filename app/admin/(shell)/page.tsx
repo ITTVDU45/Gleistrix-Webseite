@@ -12,6 +12,7 @@ import {
   formatNumber,
   formatStorage,
 } from "@/components/admin/ui";
+import { isMongoConfigured, pingMongo } from "@/lib/admin/mongo";
 import { readStore } from "@/lib/admin/store";
 import { missingProvisioningEnv } from "@/lib/admin/tenant";
 import { formatPriceEUR } from "@/data/pricing";
@@ -19,7 +20,12 @@ import { formatPriceEUR } from "@/data/pricing";
 export const metadata = { title: "Dashboard" };
 
 export default async function AdminOverviewPage() {
-  const { companies, packages, usage, leads, brochureRequests, demoAccess } = await readStore();
+  const { companies, packages, usage, leads, contacts, brochureRequests, demoAccess } =
+    await readStore();
+  // Ohne Datenbank landet alles in einer lokalen Datei – auf einem
+  // schreibgeschützten Dateisystem wäre jede Änderung nach dem nächsten
+  // Request wieder weg. Das muss sichtbar sein.
+  const database = isMongoConfigured() ? await pingMongo() : null;
   const missingEnv = missingProvisioningEnv();
 
   const active = companies.filter((c) => c.status === "active");
@@ -39,6 +45,7 @@ export default async function AdminOverviewPage() {
     (lead) => lead.status === "neu" || lead.status === "in-kontakt",
   );
   const openBrochure = brochureRequests.filter((request) => !request.sentAt);
+  const contactsFromLeads = contacts.filter((contact) => contact.source === "lead").length;
   const activeDemos = demoAccess.filter((entry) => entry.status === "aktiv");
   const nextAppointment = leads
     .filter((lead) => lead.appointmentAt && new Date(lead.appointmentAt) >= new Date())
@@ -69,6 +76,33 @@ export default async function AdminOverviewPage() {
         </p>
       </header>
 
+      {database === null ? (
+        <div className="flex gap-3 rounded-xl border border-amber-500/30 bg-amber-50 px-4 py-3.5">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
+          <div className="text-sm text-amber-900">
+            <p className="font-medium">Keine Datenbank angebunden.</p>
+            <p className="mt-1 text-amber-800">
+              Alle Änderungen liegen nur in der lokalen Datei <Mono>.data/admin-store.json</Mono>.
+              Im Betrieb auf Vercel gehen sie damit nach dem nächsten Aufruf verloren – dort
+              müssen <Mono>MONGODB_HOST</Mono>, <Mono>MONGODB_USERNAME</Mono> und{" "}
+              <Mono>MONGODB_PASSWORD</Mono> gesetzt sein.
+            </p>
+          </div>
+        </div>
+      ) : database.ok ? (
+        <p className="text-sm text-muted-foreground">
+          Datenbank verbunden: <Mono>{database.database}</Mono>
+        </p>
+      ) : (
+        <div className="flex gap-3 rounded-xl border border-rose-500/30 bg-rose-50 px-4 py-3.5">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0 text-rose-600" aria-hidden />
+          <div className="text-sm text-rose-900">
+            <p className="font-medium">Datenbank nicht erreichbar.</p>
+            <p className="mt-1 text-rose-800">{database.error}</p>
+          </div>
+        </div>
+      )}
+
       {missingEnv.length > 0 ? (
         <div className="flex gap-3 rounded-xl border border-amber-500/30 bg-amber-50 px-4 py-3.5">
           <AlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden />
@@ -82,7 +116,7 @@ export default async function AdminOverviewPage() {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           label="Offene Anfragen"
           value={formatNumber(openLeads.length)}
@@ -106,6 +140,12 @@ export default async function AdminOverviewPage() {
           value={formatNumber(activeDemos.length)}
           hint={`${demoAccess.length} Freigaben insgesamt`}
           href="/admin/demo-zugang"
+        />
+        <StatCard
+          label="Kontakte"
+          value={formatNumber(contacts.length)}
+          hint={`${contactsFromLeads} aus Anfragen übernommen`}
+          href="/admin/kontakte"
         />
       </div>
 

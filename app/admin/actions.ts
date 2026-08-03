@@ -29,14 +29,20 @@ import {
 } from "@/lib/admin/pricing";
 import {
   addDemoAccess,
+  deleteContact,
+  getLead,
+  insertCompany,
+  insertContact,
+  insertPackage,
+  listContacts,
   readStore,
   recordSupportAccess,
   setBrochureSent,
   updateCompany,
+  updateContact,
   updateDemoAccess,
   updateLead,
   updatePackage,
-  writeStore,
 } from "@/lib/admin/store";
 import { createSupportLink } from "@/lib/admin/support";
 import {
@@ -71,6 +77,7 @@ function revalidateAdmin(companyId?: string): void {
   revalidatePath("/admin/pakete/mandanten");
   revalidatePath("/admin/module");
   revalidatePath("/admin/anfragen");
+  revalidatePath("/admin/kontakte");
   revalidatePath("/admin/broschuere");
   revalidatePath("/admin/demo-zugang");
   // Ohne die Kundenseite bleibt nach einer Freigabe der alte Preis stehen.
@@ -167,7 +174,7 @@ export async function createCompanyAction(
     createdAt: new Date().toISOString(),
   };
 
-  await writeStore({ ...store, companies: [...store.companies, company] });
+  await insertCompany(company);
   revalidateAdmin(company.id);
   redirect(`/admin/unternehmen/${company.id}`);
 }
@@ -328,7 +335,6 @@ export async function createPackageAction(
     return { error: "Enthaltene Benutzer müssen mindestens 1 sein." };
   }
 
-  const store = await readStore();
   const pkg: Package = {
     id: `pkg_${slugify(name) || "paket"}_${Date.now().toString(36)}`,
     name,
@@ -341,7 +347,7 @@ export async function createPackageAction(
     createdAt: new Date().toISOString(),
   };
 
-  await writeStore({ ...store, packages: [...store.packages, pkg] });
+  await insertPackage(pkg);
   revalidateAdmin();
   return { success: `Paket „${pkg.name}“ angelegt – noch nicht freigegeben.` };
 }
@@ -425,6 +431,101 @@ export async function setLeadAppointmentAction(
   };
 }
 
+/* ---------------------------------------------------------------- Kontakte */
+
+/** Neuer Kontakt bei leerer contactId, sonst Änderung am bestehenden. */
+export async function saveContactAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const contactId = field(data, "contactId");
+  const company = field(data, "company");
+  const contactName = field(data, "contactName");
+  const email = field(data, "email");
+
+  if (!company) return { error: "Firmenname fehlt." };
+  if (!contactName) return { error: "Bitte den Ansprechpartner angeben." };
+  if (!email.includes("@")) return { error: "Bitte eine gültige E-Mail-Adresse angeben." };
+
+  const values = {
+    company,
+    contactName,
+    email,
+    phone: field(data, "phone") || undefined,
+    role: field(data, "role") || undefined,
+    note: field(data, "note") || undefined,
+    companyId: field(data, "companyId") || null,
+  };
+
+  if (contactId) {
+    // Herkunft und leadId bleiben stehen – sie beschreiben, woher der Kontakt
+    // kam, nicht seinen aktuellen Stand.
+    const updated = await updateContact(contactId, (current) => ({ ...current, ...values }));
+    if (!updated) return { error: "Unbekannter Kontakt." };
+
+    revalidateAdmin();
+    return { success: `Kontakt „${contactName}“ gespeichert.` };
+  }
+
+  await insertContact({
+    id: `ctc_${Date.now().toString(36)}`,
+    ...values,
+    source: "manuell",
+    leadId: null,
+    createdAt: new Date().toISOString(),
+  });
+  revalidateAdmin();
+  return { success: `Kontakt „${contactName}“ angelegt.` };
+}
+
+export async function deleteContactAction(data: FormData): Promise<void> {
+  const contactId = field(data, "contactId");
+  if (!contactId) return;
+
+  await deleteContact(contactId);
+  revalidateAdmin();
+}
+
+/**
+ * Übernimmt eine Anfrage ins Kontaktverzeichnis.
+ *
+ * Der Lead gilt damit als gewonnen: Wer im Verzeichnis steht, ist kein offener
+ * Vorgang mehr. Die Anfrage selbst bleibt als Historie bestehen.
+ */
+export async function createContactFromLeadAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const leadId = field(data, "leadId");
+
+  const lead = await getLead(leadId);
+  if (!lead) return { error: "Unbekannte Anfrage." };
+
+  // ponytail: Prüfung im Anwendungscode statt eines partiellen Unique-Index.
+  // Bei einer Handvoll Admins ist das Zeitfenster bis zum Insert unkritisch;
+  // Upgrade-Pfad wäre ein Unique-Index auf leadId für source "lead".
+  const contacts = await listContacts();
+  if (contacts.some((contact) => contact.leadId === leadId)) {
+    return { error: "Zu dieser Anfrage gibt es bereits einen Kontakt." };
+  }
+
+  await insertContact({
+    id: `ctc_${Date.now().toString(36)}`,
+    company: lead.company,
+    contactName: lead.contactName,
+    email: lead.email,
+    phone: lead.phone,
+    source: "lead",
+    leadId,
+    companyId: null,
+    createdAt: new Date().toISOString(),
+  });
+  await updateLead(leadId, (current) => ({ ...current, status: "gewonnen" }));
+
+  revalidateAdmin();
+  return { success: `„${lead.contactName}“ ins Kontaktverzeichnis übernommen.` };
+}
+
 /* --------------------------------------------------------------- Broschüre */
 
 export async function setBrochureSentAction(data: FormData): Promise<void> {
@@ -448,6 +549,7 @@ export async function releaseDemoAction(
   data: FormData,
 ): Promise<FormState> {
   const leadId = field(data, "leadId") || null;
+  const companyId = field(data, "companyId") || null;
   const email = field(data, "email").toLowerCase();
   const company = field(data, "company");
   const days = Number.parseInt(field(data, "days") || String(DEFAULT_DEMO_DAYS), 10);
@@ -469,6 +571,7 @@ export async function releaseDemoAction(
     await addDemoAccess({
       id,
       leadId,
+      companyId,
       company,
       email,
       status: "fehlgeschlagen",
@@ -483,6 +586,7 @@ export async function releaseDemoAction(
   await addDemoAccess({
     id,
     leadId,
+    companyId,
     company,
     email,
     status: "aktiv",
@@ -1028,4 +1132,59 @@ export async function movePricingEntryAction(data: FormData): Promise<void> {
     }
   });
   revalidateAdmin();
+}
+
+/* ------------------------------------------------------- Broschürenversand */
+
+// Nachträglich angehängt, damit die Importliste oben unberührt bleibt.
+// Namespace-Import: ein weiterer Name aus store.ts könnte sonst mit dem
+// dortigen Block kollidieren.
+import * as brochureStore from "@/lib/admin/store";
+import { brochureFile, mailConfigIssue, sendMail } from "@/lib/admin/mail";
+import { basename } from "node:path";
+
+/**
+ * Verschickt die Broschüre an den Anforderer und markiert die Anfrage als
+ * versendet.
+ *
+ * Der Empfänger kommt aus dem gespeicherten Datensatz, nicht aus dem Formular –
+ * sonst wäre der Adminbereich ein offenes Versandrelais.
+ */
+export async function sendBrochureAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const requestId = field(data, "requestId");
+  const subject = field(data, "subject");
+  const body = field(data, "body");
+
+  if (!requestId) return { error: "Anfrage nicht erkannt." };
+  if (!subject || !body) return { error: "Betreff und Text dürfen nicht leer sein." };
+
+  const issue = mailConfigIssue();
+  if (issue) return { error: issue };
+
+  const request = (await brochureStore.getBrochureRequests()).find(
+    (entry) => entry.id === requestId,
+  );
+  if (!request) return { error: "Diese Anforderung gibt es nicht mehr." };
+
+  const { path } = brochureFile();
+
+  try {
+    await sendMail({
+      to: request.email,
+      subject,
+      text: body,
+      attachments: path ? [{ filename: basename(path), path }] : undefined,
+    });
+  } catch (error) {
+    console.error(`Broschürenversand für ${requestId} fehlgeschlagen:`, error);
+    return { error: "Der Versand ist fehlgeschlagen. Die Anfrage bleibt offen." };
+  }
+
+  await brochureStore.setBrochureSent(requestId, true);
+  revalidateAdmin();
+
+  return { success: `Broschüre an ${request.email} versendet.` };
 }

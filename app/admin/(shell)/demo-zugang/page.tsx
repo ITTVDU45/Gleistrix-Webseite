@@ -19,12 +19,15 @@ import {
   MAX_DEMO_DAYS,
   demoConfigIssue,
 } from "@/lib/admin/demo";
-import { getDemoAccess, getLeads } from "@/lib/admin/store";
+import { readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Demo-Zugang" };
 
 export default async function AdminDemoAccessPage() {
-  const [access, leads] = await Promise.all([getDemoAccess(), getLeads()]);
+  // readStore statt getDemoAccess + getLeads: das Formular braucht zusätzlich
+  // die angelegten Unternehmen, und readStore holt ohnehin alles parallel.
+  const { demoAccess, leads, companies } = await readStore();
+  const access = [...demoAccess].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const issue = demoConfigIssue();
 
   const active = access.filter((entry) => entry.status === "aktiv");
@@ -74,6 +77,11 @@ export default async function AdminDemoAccessPage() {
       >
         <DemoReleaseForm
           candidates={candidates}
+          companies={companies.map((company) => ({
+            id: company.id,
+            name: company.name,
+            contactEmail: company.contactEmail,
+          }))}
           defaultDays={DEFAULT_DEMO_DAYS}
           maxDays={MAX_DEMO_DAYS}
           configIssue={issue ? DEMO_ISSUE_TEXT[issue] : null}
