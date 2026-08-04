@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Cal, { getCalApi } from "@calcom/embed-react";
 import { ArrowLeft, Star } from "lucide-react";
+
+import ConfigurationRequest from "@/components/demo/ConfigurationRequest";
 
 export default function DemoBuchenPage() {
   return (
@@ -51,6 +53,13 @@ export default function DemoBuchenPage() {
           </p>
         </div>
       </div>
+
+      {/* Konfiguration aus dem Preisrechner, falls der Besucher von dort kommt.
+          Suspense ist Pflicht: useSearchParams verhindert sonst das statische
+          Rendern der gesamten Seite. */}
+      <Suspense fallback={null}>
+        <ConfigurationRequest />
+      </Suspense>
 
       {/* Zwei-Spalten-Layout */}
       <div className="page-container relative z-10 mt-10 pb-24">
