@@ -28,7 +28,11 @@ import {
   moduleGrantSource,
 } from "@/lib/admin/modules";
 import { getDraftPricing } from "@/lib/admin/pricing";
+import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
+import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
+import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
+import { VERCEL_ISSUE_TEXT, vercelIssue } from "@/lib/admin/provision/vercel";
 import {
   getCompany,
   getPackage,
@@ -54,6 +58,24 @@ export default async function CompanyDetailPage({ params }: Props) {
   const { id } = await params;
   const company = await getCompany(id);
   if (!company) notFound();
+
+  // Welcher Schritt sich nicht automatisch ausfuehren laesst und warum. Fehlt
+  // ein Zugang, steht der Hinweis statt des Knopfes – ein Klick ins Leere waere
+  // schlimmer als gar kein Knopf.
+  const mongoBlocker = mongoAdminIssue();
+  const minioBlocker = minioIssue();
+  const vercelBlocker = vercelIssue();
+  const stepBlockers: Record<string, string | undefined> = {
+    "mongo-database": mongoBlocker ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker] : undefined,
+    "mongo-role": mongoBlocker ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker] : undefined,
+    "minio-bucket": minioBlocker ? MINIO_ISSUE_TEXT[minioBlocker] : undefined,
+    deployment: mongoBlocker
+      ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker]
+      : vercelBlocker
+        ? VERCEL_ISSUE_TEXT[vercelBlocker]
+        : undefined,
+    "dns-record": undefined,
+  };
 
   const [pkg, usage, store, supportLog, pricing] = await Promise.all([
     getPackage(company.packageId),
@@ -213,6 +235,14 @@ export default async function CompanyDetailPage({ params }: Props) {
                     </>
                   )}
                 </p>
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <ProvisioningRunForm
+                  companyId={company.id}
+                  stepId={step.id}
+                  disabledHint={stepBlockers[step.id]}
+                />
               </div>
 
               <div className="flex gap-2">

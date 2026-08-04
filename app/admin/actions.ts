@@ -1188,3 +1188,159 @@ export async function sendBrochureAction(
 
   return { success: `Broschüre an ${request.email} versendet.` };
 }
+
+/* --------------------------------------------------- Automatische Provisionierung */
+
+import { getCompany as loadCompany } from "@/lib/admin/store";
+import {
+  MINIO_ISSUE_TEXT,
+  createTenantBucket,
+  minioIssue,
+} from "@/lib/admin/provision/minio";
+import {
+  MONGO_ADMIN_ISSUE_TEXT,
+  createTenantDatabase,
+  createTenantUser,
+  generateTenantPassword,
+  mongoAdminIssue,
+  tenantMongoUri,
+} from "@/lib/admin/provision/mongo";
+import {
+  VERCEL_ISSUE_TEXT,
+  attachTenantDomain,
+  createTenantProject,
+  vercelIssue,
+} from "@/lib/admin/provision/vercel";
+import type { ProvisioningStepId, Tenant } from "@/types/admin";
+
+/** Ergebnis eines Schritts, einheitlich für alle drei Anbieter. */
+type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
+
+/**
+ * Datenbank, Benutzer und Deployment eines Mandanten.
+ *
+ * ABSICHERUNG GEGEN AUSSPERREN: Das Passwort des Mandantenbenutzers existiert
+ * nur im Moment seiner Anlage – MongoDB gibt es nie wieder heraus, und
+ * createTenantUser setzt es bei einem bestehenden Benutzer bewusst NICHT neu.
+ * Deshalb darf die Verbindungszeichenfolge nur dann in die Vercel-Umgebung
+ * geschrieben werden, wenn der Benutzer in DIESEM Lauf entstanden ist
+ * (`created === true`). Andernfalls stünde dort ein Passwort, das am Benutzer
+ * nie gesetzt wurde, und der Mandant verlöre beim nächsten Deployment den
+ * Datenbankzugriff.
+ */
+async function runDeployment(tenant: Tenant): Promise<StepOutcome> {
+  const password = generateTenantPassword();
+  const user = await createTenantUser(tenant, password);
+  if (!user.ok) return { ok: false, error: user.error };
+
+  // Nur ein frisch angelegter Benutzer hat dieses Passwort.
+  const env: Record<string, string> = user.created
+    ? {
+        MONGODB_URI: tenantMongoUri(tenant, password),
+        MINIO_BUCKET: tenant.minioBucket,
+        NEXTAUTH_SECRET: generateTenantPassword(),
+        NEXTAUTH_URL: instanceUrl(tenant),
+      }
+    : {
+        MINIO_BUCKET: tenant.minioBucket,
+        NEXTAUTH_URL: instanceUrl(tenant),
+      };
+
+  const project = await createTenantProject(tenant, env);
+  if (!project.ok) return { ok: false, error: project.error };
+
+  const domain = await attachTenantDomain(tenant);
+  if (!domain.ok) return { ok: false, error: domain.error };
+
+  const notes = [user.note, project.note, domain.note];
+  if (!user.created) {
+    notes.push(
+      "Die Datenbank-Verbindung wurde NICHT überschrieben, da der Benutzer schon bestand – " +
+        "sein Passwort ist nur bei der Erstanlage bekannt. Zum Erneuern den Benutzer in " +
+        "MongoDB löschen und den Schritt wiederholen.",
+    );
+  }
+  return { ok: true, note: notes.join(" ") };
+}
+
+/** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */
+export async function runProvisioningStepAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const stepId = field(data, "stepId") as ProvisioningStepId;
+
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+  if (!company.provisioning.some((step) => step.id === stepId)) {
+    return { error: "Unbekannter Schritt." };
+  }
+
+  const tenant = company.tenant;
+  let outcome: StepOutcome;
+
+  switch (stepId) {
+    case "mongo-database": {
+      const issue = mongoAdminIssue();
+      if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
+      outcome = await createTenantDatabase(tenant);
+      break;
+    }
+    case "mongo-role": {
+      const issue = mongoAdminIssue();
+      if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
+      // Eigenständig ausführbar, damit der Benutzer früh steht. Das Passwort
+      // wird hier verworfen – die Verbindungsdaten entstehen im Deployment.
+      const user = await createTenantUser(tenant, generateTenantPassword());
+      outcome = user.ok
+        ? {
+            ok: true,
+            note: user.created
+              ? `${user.note} Die Verbindungsdaten setzt der Deployment-Schritt.`
+              : user.note,
+          }
+        : { ok: false, error: user.error };
+      break;
+    }
+    case "minio-bucket": {
+      const issue = minioIssue();
+      if (issue) return { error: MINIO_ISSUE_TEXT[issue] };
+      outcome = await createTenantBucket(tenant);
+      break;
+    }
+    case "deployment": {
+      const mongo = mongoAdminIssue();
+      if (mongo) return { error: MONGO_ADMIN_ISSUE_TEXT[mongo] };
+      const vercel = vercelIssue();
+      if (vercel) return { error: VERCEL_ISSUE_TEXT[vercel] };
+      outcome = await runDeployment(tenant);
+      break;
+    }
+    case "dns-record":
+      outcome = {
+        ok: true,
+        note: `${tenant.subdomain} wird im Deployment-Schritt an das Vercel-Projekt gehängt; die Zone liegt bei Vercel, ein eigener DNS-Eintrag entfällt.`,
+      };
+      break;
+    default:
+      return { error: "Für diesen Schritt gibt es keine Automatik." };
+  }
+
+  await updateCompany(companyId, (current) => ({
+    ...current,
+    provisioning: current.provisioning.map((step) =>
+      step.id === stepId
+        ? {
+            ...step,
+            status: outcome.ok ? ("done" as const) : ("failed" as const),
+            note: outcome.ok ? outcome.note : outcome.error,
+            updatedAt: new Date().toISOString(),
+          }
+        : step,
+    ),
+  }));
+  revalidateAdmin(companyId);
+
+  return outcome.ok ? { success: outcome.note } : { error: outcome.error };
+}

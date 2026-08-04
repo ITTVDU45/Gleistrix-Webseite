@@ -100,7 +100,7 @@ const BLUEPRINTS: StepBlueprint[] = [
     requiredEnv: "MINIO_ENDPOINT",
     target: (t) => t.minioBucket,
     note: (t) =>
-      `Bucket ${t.minioBucket} mit Versionierung, Verschlüsselung und einer Policy, die nur ${t.mongoUser} zulässt.`,
+      `Bucket ${t.minioBucket} mit Versionierung. Ohne Policy, denn bei MinIO ist ein Bucket ohne Policy privat – die Beschränkung auf den Mandanten gehört an dessen Access Key.`,
   },
   {
     id: "deployment",
@@ -113,10 +113,10 @@ const BLUEPRINTS: StepBlueprint[] = [
   {
     id: "dns-record",
     label: "DNS-Eintrag setzen",
-    requiredEnv: "DNS_API_TOKEN",
+    requiredEnv: "VERCEL_API_TOKEN",
     target: (t) => t.subdomain,
     note: (t) =>
-      `CNAME ${t.subdomain} → das Deployment des Mandanten, anschließend TLS-Zertifikat ausstellen.`,
+      `${t.subdomain} an das Vercel-Projekt des Mandanten hängen. Die Zone liegt in der Vercel-Nameserververwaltung, deshalb setzt Vercel DNS-Eintrag und Zertifikat selbst – ein eigener DNS-Anbieter wird nicht gebraucht.`,
   },
 ];
 
