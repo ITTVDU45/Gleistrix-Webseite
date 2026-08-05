@@ -66,7 +66,7 @@ const company = {
 
 /* ------------------------------------------------------------- Ohne Kauf */
 
-const ohneKauf = registrationFor({ company, purchase: null, pricing, tenantPackage });
+const ohneKauf = registrationFor({ company, purchases: [], pricing, tenantPackage });
 
 // 1. Der Paketname kommt aus dem Mandantenkatalog, nicht aus der Preisliste.
 // Vorher wurde "pkg_professional" in pricing.packages gesucht, ging leer aus und
@@ -90,7 +90,7 @@ assert.deepEqual(
 // 3. Eine Sperre zieht ab.
 const mitSperre = registrationFor({
   company: { ...company, blockedModuleIds: ["zeiterfassung"] },
-  purchase: null,
+  purchases: [],
   pricing,
   tenantPackage,
 });
@@ -102,7 +102,7 @@ assert.ok(
 // 4. Ohne zugewiesenes Paket bleibt das Feld leer, statt eine Kennung zu erfinden.
 const ohnePaket = registrationFor({
   company: { ...company, packageId: null, extraModuleIds: [] },
-  purchase: null,
+  purchases: [],
   pricing,
   tenantPackage: null,
 });
@@ -117,6 +117,7 @@ assert.equal(ohneKauf.paket.benutzer, 12);
 
 const purchase = {
   id: "pur_abc",
+  kind: "paket",
   companyId: "cmp_muster",
   packageId: "professional",
   moduleIds: ["einsatztafel", "geloeschtes-modul"],
@@ -128,7 +129,7 @@ const purchase = {
   createdAt: "2026-08-01T10:00:00.000Z",
 } as unknown as Purchase;
 
-const mitKauf = registrationFor({ company, purchase, pricing, tenantPackage });
+const mitKauf = registrationFor({ company, purchases: [purchase], pricing, tenantPackage });
 
 // 6. Der Kauf gewinnt: sein eingefrorener Stand, nicht der heutige des Mandanten.
 assert.equal(mitKauf.paket.id, "professional", "Der Kauf verweist auf die Preisliste");
@@ -171,7 +172,7 @@ assert.ok(
 // kommt an dieser Funktion vorbei.
 const gesperrtMitKauf = registrationFor({
   company: { ...company, status: "suspended" } as Company,
-  purchase,
+  purchases: [purchase],
   pricing,
   tenantPackage,
 });
@@ -184,10 +185,65 @@ assert.deepEqual(
 // 11. Ohne Kauf gilt dasselbe – hier über effectiveModuleIds.
 const gesperrtOhneKauf = registrationFor({
   company: { ...company, status: "suspended" } as Company,
-  purchase: null,
+  purchases: [],
   pricing,
   tenantPackage,
 });
 assert.deepEqual(gesperrtOhneKauf.module, [], "Auch ohne Kauf bleibt eine Sperre eine Sperre");
 
-console.log("app-sync.check: alle 11 Pruefungen bestanden");
+/* ---------------------------------------------------------- Zubuchungen */
+
+/** Freischaltung aus der App: kommt „on top" auf den Grundkauf. */
+const zubuchung = {
+  id: "pur_zub_xyz",
+  kind: "zubuchung",
+  companyId: "cmp_muster",
+  packageId: "",
+  capacityId: "",
+  users: 0,
+  moduleIds: ["zeiterfassung"],
+  monthlyTotal: 39,
+  implementationPrice: 0,
+  status: "freigegeben",
+  createdAt: "2026-08-06T09:00:00.000Z",
+} as unknown as Purchase;
+
+// 12. Der Mandant behaelt seinen Grundumfang UND bekommt die Zubuchung dazu.
+// Wuerde nur der neueste Kauf gemeldet, entzoege die Zubuchung ihm alles, was
+// er vorher gebucht hat - hier also die Einsatztafel.
+const mitZubuchung = registrationFor({
+  company,
+  // Neueste zuerst, wie der Store sie liefert.
+  purchases: [zubuchung, purchase],
+  pricing,
+  tenantPackage,
+});
+assert.deepEqual(
+  [...mitZubuchung.module].sort(),
+  ["einsatztafel", "zeiterfassung"],
+  "Zubuchung kommt zum Grundumfang dazu, sie ersetzt ihn nicht",
+);
+
+// 13. Paket und Benutzerzahl bleiben die des Grundkaufs - eine Zubuchung
+// enthaelt dazu nichts und darf sie nicht auf 0 ziehen.
+assert.equal(mitZubuchung.paket.id, "professional", "Das Paket steht im Grundkauf");
+assert.equal(mitZubuchung.paket.benutzer, 25, "Die Benutzerzahl steht im Grundkauf");
+
+// 14. Auch ohne Grundkauf zaehlt eine Zubuchung mit - dann zum Stand, den der
+// Adminbereich fuer den Mandanten anzeigt.
+const nurZubuchung = registrationFor({
+  company,
+  purchases: [zubuchung],
+  pricing,
+  tenantPackage,
+});
+assert.ok(
+  nurZubuchung.module.includes("zeiterfassung"),
+  "Eine Zubuchung ohne Grundkauf darf nicht verschwinden",
+);
+assert.ok(
+  nurZubuchung.module.includes("einsatztafel"),
+  "Der Paketumfang des Mandanten bleibt daneben bestehen",
+);
+
+console.log("app-sync.check: alle 14 Pruefungen bestanden");

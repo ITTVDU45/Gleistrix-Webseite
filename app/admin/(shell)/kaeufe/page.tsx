@@ -92,7 +92,14 @@ export default async function AdminPurchasesPage() {
                         ) : null}
                       </td>
                       <td className="py-3 pr-4">
-                        {packageNameById.get(purchase.packageId) ?? purchase.packageId}
+                        {purchase.kind === "zubuchung" ? (
+                          <span className="text-muted-foreground">
+                            Zubuchung · {purchase.moduleIds.length} Modul
+                            {purchase.moduleIds.length === 1 ? "" : "e"}
+                          </span>
+                        ) : (
+                          (packageNameById.get(purchase.packageId) ?? purchase.packageId)
+                        )}
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums">
                         {formatNumber(purchase.users)}

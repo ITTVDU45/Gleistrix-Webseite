@@ -1232,15 +1232,20 @@ type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
  */
 async function runAppSync(company: Company, forPurchase?: Purchase): Promise<StepOutcome> {
   const [purchases, pricing, tenantPackage] = await Promise.all([
-    forPurchase ? Promise.resolve([forPurchase]) : getPurchasesForCompany(company.id),
+    getPurchasesForCompany(company.id),
     getPublishedPricing(),
     getPackage(company.packageId),
   ]);
-  const purchase = purchases[0] ?? null;
+
+  // Gemeldet wird IMMER der gesamte Stand des Mandanten – Grundkauf plus alle
+  // Zubuchungen. `forPurchase` sagt nur, an welchem Kauf das Ergebnis vermerkt
+  // wird; ohne Angabe ist das der Grundkauf.
+  const purchase =
+    forPurchase ?? purchases.find((entry) => entry.kind === "paket") ?? purchases[0] ?? null;
 
   const registration = registrationFor({
     company,
-    purchase,
+    purchases,
     pricing,
     tenantPackage,
     gueltigBis: null,

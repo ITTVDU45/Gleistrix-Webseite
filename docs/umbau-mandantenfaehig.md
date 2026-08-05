@@ -119,6 +119,39 @@ dem Benutzer, den Schritt 4 anlegt, und liest die Zugangsdaten aus ihrer eigenen
 Umgebung. Und ein Fehlschlag darf den Kauf nicht verlieren: `status` geht auf
 `fehlgeschlagen`, `syncError` hält die Meldung, ein Knopf wiederholt.
 
+### Gegenrichtung: Add-ons aus der App
+
+Schaltet ein Nutzer in der App ein Add-on frei, zahlt der Mandant es monatlich
+**zusätzlich**. Die App meldet das zurück:
+
+```
+POST {WEBSITE}/api/internal/addons
+Authorization: Bearer {SERVICE_SHARED_SECRET}
+Idempotency-Key: {Vorgangskennung der App}
+```
+
+```jsonc
+{
+  "kennung": "mustermann-bau",
+  "module": ["lagerverwaltung"],
+  "mengen": { "lagerverwaltung": 2000 }   // nur bei Modulen mit Nutzungspreis
+}
+```
+
+Antwort `201` mit `{ "kaufId": "pur_zub_...", "monatlich": 1079 }`, bei
+Wiederholung mit demselben Schlüssel `200` und derselbe Rumpf.
+
+**Kein Preis im Rumpf.** Die App kennt keine Preise; die Website rechnet den
+Betrag aus ihrer freigegebenen Preisliste und friert ihn ein. Eine Zubuchung
+kostet genau ihre Module plus deren Nutzungsmengen — kein Grundpreis, keine
+Kapazität, kein Freikontingent, denn die stecken schon im Grundkauf.
+
+Gespeichert wird sie als weiterer Eintrag in `purchases` mit
+`kind: "zubuchung"`; `packageId`, `capacityId` und `users` bleiben leer.
+**Käufe sind additiv**: Was ein Mandant monatlich zahlt, ist ihre Summe, und
+`app-sync` meldet der App die Vereinigung aller gebuchten Module. Ein Kauf löst
+keinen anderen ab.
+
 ## Schritt 4 — Provisionierungslauf kürzen
 
 Der Lauf schrumpft auf vier Schritte:

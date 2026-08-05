@@ -26,7 +26,7 @@ registerHooks({
   },
 });
 
-const { purchaseFor } = await import("./purchase.ts");
+const { addonPurchaseFor, purchaseFor } = await import("./purchase.ts");
 
 /** Zahlen bewusst krumm, damit ein vergessener Summand auffällt. */
 const config = {
@@ -172,4 +172,53 @@ assert.deepEqual(voll.moduleIds, ["einsatztafel", "lager"]);
 assert.equal(voll.users, 14);
 assert.equal(voll.capacityId, "gross");
 
-console.log("purchase.check: alle 9 Pruefungen bestanden");
+/* ----------------------------------------------------- Zubuchung aus der App */
+
+const zubuchung = addonPurchaseFor({
+  id: "pur_zub_abc",
+  companyId: "cmp_muster",
+  moduleIds: ["lager"],
+  usageAmounts: { lager: 2000 },
+  config,
+  createdAt: "2026-08-06T09:00:00.000Z",
+});
+
+// 10. Eine Zubuchung kostet NUR ihre Module plus Nutzung: 79 + 2000*0,50 = 1079.
+// Der entscheidende Punkt: KEIN Grundpreis. Wuerde hier calculatePrice benutzt,
+// kaemen die 390 des Standardpakets ein zweites Mal obendrauf - der Kunde zahlte
+// sein Paket doppelt.
+assert.equal(zubuchung.monthlyTotal, 1079, `Zubuchung falsch berechnet: ${zubuchung.monthlyTotal}`);
+assert.notEqual(zubuchung.monthlyTotal, 1469, "Der Grundpreis darf in einer Zubuchung nicht auftauchen");
+
+// 11. Sie beansprucht nichts, was zum Grundkauf gehoert.
+assert.equal(zubuchung.kind, "zubuchung");
+assert.equal(zubuchung.packageId, "");
+assert.equal(zubuchung.capacityId, "");
+assert.equal(zubuchung.users, 0);
+assert.equal(zubuchung.implementationPrice, 0, "Implementierung faellt nur beim Grundkauf an");
+
+// 12. Sie gilt sofort - das Add-on laeuft in der App bereits, wenn die Meldung
+// eintrifft. Die Website haelt es fest, sie gibt es nicht frei.
+assert.equal(zubuchung.status, "freigegeben");
+assert.equal(zubuchung.syncedAt, "2026-08-06T09:00:00.000Z");
+
+// 13. Die Mengen werden auch hier mitgeschrieben.
+assert.deepEqual(zubuchung.usageAmounts, { lager: 2000 });
+
+// 14. Ein stillgelegtes Modul kostet nichts und landet nicht im Kauf - sonst
+// zahlte der Kunde fuer etwas, das im Katalog nicht mehr angeboten wird.
+const mitStillgelegtem = addonPurchaseFor({
+  id: "pur_zub_def",
+  companyId: "cmp_muster",
+  moduleIds: ["inaktiv", "einsatztafel"],
+  usageAmounts: {},
+  config,
+  createdAt: "2026-08-06T09:00:00.000Z",
+});
+assert.equal(mitStillgelegtem.monthlyTotal, 49, "Nur das aktive Modul zaehlt");
+assert.deepEqual(mitStillgelegtem.moduleIds, ["einsatztafel"]);
+
+// 15. Der Grundkauf bleibt davon voellig unberuehrt - er ist eingefroren.
+assert.equal(voll.monthlyTotal, 1646, "Eine Zubuchung darf den Grundkauf nicht anfassen");
+
+console.log("purchase.check: alle 15 Pruefungen bestanden");

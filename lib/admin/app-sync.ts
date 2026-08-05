@@ -159,44 +159,60 @@ function tenantRegistration(input: {
  */
 export function registrationFor(input: {
   company: Company;
-  purchase: Purchase | null;
+  /**
+   * Alle Käufe des Mandanten, neueste zuerst.
+   *
+   * Käufe sind additiv: Der Grundkauf trägt Paket und Benutzerzahl, jede
+   * Zubuchung legt Module „on top". Nur den neuesten zu melden entzöge dem
+   * Mandanten alles, was er vorher gebucht hat.
+   */
+  purchases: Purchase[];
   pricing: PricingConfig;
-  /** Von Hand zugewiesenes Mandantenpaket – nur ohne Kauf maßgeblich. */
+  /** Von Hand zugewiesenes Mandantenpaket – nur ohne Grundkauf maßgeblich. */
   tenantPackage: Package | null;
   gueltigBis?: string | null;
 }): TenantRegistration {
-  const { company, purchase, pricing, tenantPackage } = input;
+  const { company, purchases, pricing, tenantPackage } = input;
 
-  const paket = purchase
+  // Paket und Benutzerzahl stehen im Grundkauf; eine Zubuchung sagt dazu nichts.
+  const grundkauf = purchases.find((purchase) => purchase.kind === "paket") ?? null;
+
+  const paket = grundkauf
     ? {
-        id: purchase.packageId,
+        id: grundkauf.packageId,
         name:
-          pricing.packages.find((pkg) => pkg.id === purchase.packageId)?.name ??
-          purchase.packageId,
+          pricing.packages.find((pkg) => pkg.id === grundkauf.packageId)?.name ??
+          grundkauf.packageId,
       }
     : { id: tenantPackage?.id ?? "", name: tenantPackage?.name ?? "" };
 
   const known = new Set(pricing.modules.map((module) => module.id));
+
+  // Grundumfang plus jede Zubuchung. Ohne Grundkauf zählt der Stand, den der
+  // Adminbereich anzeigt – Zubuchungen kommen auch dann obendrauf.
+  const gebucht = [
+    ...new Set([
+      ...(grundkauf ? grundkauf.moduleIds : effectiveModuleIds(pricing, company, tenantPackage)),
+      ...purchases
+        .filter((purchase) => purchase.kind === "zubuchung")
+        .flatMap((purchase) => purchase.moduleIds),
+    ]),
+  ];
 
   // Eine Sperre steht ÜBER dem Kauf. Der Adminbereich sagt zu, dass sie sofort
   // alle Module deaktiviert – läge die Regel nur in effectiveModuleIds, hielte
   // der Kauf-Zweig diese Zusage nicht, und ein gesperrter Mandant bekäme seinen
   // vollen Umfang gemeldet. Der Kauf selbst bleibt unberührt: Er ist
   // eingefroren, die Sperre ist ein Zugangsstopp.
-  const module =
-    company.status === "suspended"
-      ? []
-      : purchase
-        ? // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin
-          // ablehnen, und im Protokoll stünde dann ein Fehler statt der Ursache.
-          // Der Kauf behält sie – die Kaufseite zeigt sie als „Unbekanntes Modul".
-          purchase.moduleIds.filter((id) => known.has(id))
-        : effectiveModuleIds(pricing, company, tenantPackage);
+  // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen, und
+  // im Protokoll stünde dann ein Fehler statt der Ursache. Der Kauf behält sie –
+  // die Kaufseite zeigt sie als „Unbekanntes Modul".
+  const module = company.status === "suspended" ? [] : gebucht.filter((id) => known.has(id));
 
   return tenantRegistration({
     company,
     paket,
-    benutzer: purchase?.users ?? company.seats,
+    benutzer: grundkauf?.users ?? company.seats,
     module,
     gueltigBis: input.gueltigBis,
   });

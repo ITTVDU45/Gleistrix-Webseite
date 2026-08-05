@@ -294,8 +294,10 @@ export default async function CompanyDetailPage({ params }: Props) {
                     href={`/admin/kaeufe/${purchase.id}`}
                     className="text-sm font-medium underline-offset-4 hover:underline"
                   >
-                    {publishedPricing.packages.find((entry) => entry.id === purchase.packageId)
-                      ?.name ?? purchase.packageId}
+                    {purchase.kind === "zubuchung"
+                      ? "Zubuchung aus der App"
+                      : (publishedPricing.packages.find((entry) => entry.id === purchase.packageId)
+                          ?.name ?? purchase.packageId)}
                   </Link>
                   <p className="text-xs text-muted-foreground">
                     {formatNumber(purchase.users)} Benutzer · {purchase.moduleIds.length} Module ·{" "}
