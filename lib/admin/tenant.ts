@@ -1,4 +1,4 @@
-import type { ProvisioningStep, Tenant } from "@/types/admin";
+import type { CompanyStatus, ProvisioningStep, Tenant } from "@/types/admin";
 
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
 
@@ -157,6 +157,20 @@ export function reconcileProvisioning(
       updatedAt: previous.updatedAt,
     };
   });
+}
+
+/**
+ * Status eines Mandanten aus dem Stand seiner Provisionierung.
+ *
+ * Eine Sperre überlebt: Sie ist eine bewusste Entscheidung und darf nicht
+ * dadurch verschwinden, dass ein Provisionierungsschritt durchläuft.
+ *
+ * An genau einer Stelle definiert, weil zwei Aufrufer sie brauchen – der Lauf
+ * im Adminbereich und die Nachmigration beim Start.
+ */
+export function statusFor(current: CompanyStatus, steps: ProvisioningStep[]): CompanyStatus {
+  if (current === "suspended") return current;
+  return steps.every((step) => step.status === "done") ? "active" : "provisioning";
 }
 
 /** Ob `reconcileProvisioning` an dieser Schrittliste etwas ändern würde. */

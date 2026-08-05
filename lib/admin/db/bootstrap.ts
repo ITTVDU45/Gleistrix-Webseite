@@ -3,7 +3,7 @@ import type { IndexSpecification } from "mongodb";
 import { migratePricing } from "@/data/pricing";
 import type { AdminStore } from "@/types/admin";
 
-import { provisioningIsCurrent, reconcileProvisioning } from "../tenant";
+import { provisioningIsCurrent, reconcileProvisioning, statusFor } from "../tenant";
 
 import { insertBrochureRequests, brochureRequestsEmpty } from "./brochure";
 import { COLLECTIONS, col } from "./collections";
@@ -60,30 +60,44 @@ async function run(): Promise<void> {
  * Gleichzeitig fällt das Feld `tenant.subdomain` weg. Der Typ kennt es nicht
  * mehr, im Dokument stünde sonst dauerhaft eine Adresse, die es nicht gibt.
  *
- * Idempotent: Beim zweiten Start stimmen Schrittliste und `tenant`, und es wird
- * nichts geschrieben.
+ * Der Status zieht mit: Ein Mandant mit offenem `app-sync` ist nicht fertig
+ * bereitgestellt und geht zurück auf `provisioning`. Bis der Schritt läuft,
+ * gibt es für ihn keinen Support-Zugriff – der setzt einen abgeschlossenen
+ * Lauf voraus.
+ *
+ * Idempotent: Beim zweiten Start stimmen Schrittliste, `tenant` und Status, und
+ * es wird nichts geschrieben.
  */
 async function migrateProvisioningPlans(): Promise<void> {
   const companies = await listCompanies();
-  const outdated = companies.filter(
-    (company) =>
-      !provisioningIsCurrent(company.provisioning) || "subdomain" in (company.tenant ?? {}),
-  );
+  const outdated = companies.filter((company) => {
+    const provisioning = reconcileProvisioning(company.tenant, company.provisioning);
+    return (
+      !provisioningIsCurrent(company.provisioning) ||
+      "subdomain" in (company.tenant ?? {}) ||
+      statusFor(company.status, provisioning) !== company.status
+    );
+  });
   if (outdated.length === 0) return;
 
   await Promise.all(
     outdated.map((company) =>
-      patchCompany(company.id, (current) => ({
-        ...current,
-        // Neu aufgebaut statt gespreizt: nur so verschwinden Altfelder, die
-        // fromDoc unverändert durchreicht.
-        tenant: {
-          mongoDatabase: current.tenant.mongoDatabase,
-          mongoUser: current.tenant.mongoUser,
-          minioBucket: current.tenant.minioBucket,
-        },
-        provisioning: reconcileProvisioning(current.tenant, current.provisioning),
-      })),
+      patchCompany(company.id, (current) => {
+        const provisioning = reconcileProvisioning(current.tenant, current.provisioning);
+
+        return {
+          ...current,
+          // Neu aufgebaut statt gespreizt: nur so verschwinden Altfelder, die
+          // fromDoc unverändert durchreicht.
+          tenant: {
+            mongoDatabase: current.tenant.mongoDatabase,
+            mongoUser: current.tenant.mongoUser,
+            minioBucket: current.tenant.minioBucket,
+          },
+          provisioning,
+          status: statusFor(current.status, provisioning),
+        };
+      }),
     ),
   );
 }

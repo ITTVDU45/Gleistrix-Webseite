@@ -11,9 +11,8 @@
  */
 import assert from "node:assert/strict";
 
-const { provisioningIsCurrent, provisioningPlan, reconcileProvisioning, tenantFor } = await import(
-  "./tenant.ts"
-);
+const { provisioningIsCurrent, provisioningPlan, reconcileProvisioning, statusFor, tenantFor } =
+  await import("./tenant.ts");
 
 const tenant = tenantFor("muster-bau");
 
@@ -108,4 +107,24 @@ assert.deepEqual(
 // 6. Ein frischer Plan ist ohne Zutun aktuell.
 assert.equal(provisioningIsCurrent(provisioningPlan(tenant)), true);
 
-console.log("tenant.check: alle 6 Pruefungen bestanden");
+// 7. Der Status folgt dem Lauf: Der neue offene Schritt holt einen Mandanten
+// aus „aktiv" zurück in die Provisionierung.
+assert.equal(
+  statusFor("active", migrated),
+  "provisioning",
+  "Mit offenem app-sync ist ein Mandant nicht fertig bereitgestellt",
+);
+assert.equal(
+  statusFor("provisioning", migrated.map((step) => ({ ...step, status: "done" as const }))),
+  "active",
+  "Sind alle Schritte erledigt, wird der Mandant aktiv",
+);
+
+// 8. Eine Sperre ist eine bewusste Entscheidung und überlebt beides.
+assert.equal(
+  statusFor("suspended", migrated.map((step) => ({ ...step, status: "done" as const }))),
+  "suspended",
+  "Ein durchgelaufener Schritt darf keine Sperre aufheben",
+);
+
+console.log("tenant.check: alle 8 Pruefungen bestanden");

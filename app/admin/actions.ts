@@ -49,6 +49,7 @@ import {
   APP_URL,
   provisioningPlan,
   slugify,
+  statusFor,
   tenantFor,
   validateSlug,
 } from "@/lib/admin/tenant";
@@ -245,18 +246,12 @@ export async function setProvisioningStepAction(data: FormData): Promise<void> {
     const provisioning = company.provisioning.map((step) =>
       step.id === stepId ? { ...step, status, updatedAt: new Date().toISOString() } : step,
     );
-    const allDone = provisioning.every((step) => step.status === "done");
 
     return {
       ...company,
       provisioning,
       // Erst wenn alle Ressourcen stehen, verlässt der Mandant die Provisionierung.
-      status:
-        company.status === "suspended"
-          ? company.status
-          : allDone
-            ? ("active" as const)
-            : ("provisioning" as const),
+      status: statusFor(company.status, provisioning),
     };
   });
 
