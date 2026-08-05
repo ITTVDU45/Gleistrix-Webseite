@@ -3,9 +3,11 @@ import type { IndexSpecification } from "mongodb";
 import { migratePricing } from "@/data/pricing";
 import type { AdminStore } from "@/types/admin";
 
+import { provisioningIsCurrent, reconcileProvisioning } from "../tenant";
+
 import { insertBrochureRequests, brochureRequestsEmpty } from "./brochure";
 import { COLLECTIONS, col } from "./collections";
-import { companiesEmpty, insertCompanies } from "./companies";
+import { companiesEmpty, insertCompanies, listCompanies, patchCompany } from "./companies";
 import { contactsEmpty, insertContacts } from "./contacts";
 import { demoAccessEmpty, insertDemoAccessEntries } from "./demoAccess";
 import { insertLeads, leadsEmpty } from "./leads";
@@ -45,6 +47,45 @@ async function run(): Promise<void> {
   await ensureIndexes();
   const migrated = await migrateLegacyDocument();
   if (!migrated) await seedIfEmpty();
+  await migrateProvisioningPlans();
+}
+
+/**
+ * Zieht gespeicherte Provisionierungspläne auf die aktuelle Schrittliste nach.
+ *
+ * Bestandsmandanten kennen `app-sync` nicht und tragen noch `deployment` und
+ * `dns-record`. Ohne diesen Lauf bekämen sie den neuen Schritt erst, wenn
+ * jemand sie neu anlegt.
+ *
+ * Gleichzeitig fällt das Feld `tenant.subdomain` weg. Der Typ kennt es nicht
+ * mehr, im Dokument stünde sonst dauerhaft eine Adresse, die es nicht gibt.
+ *
+ * Idempotent: Beim zweiten Start stimmen Schrittliste und `tenant`, und es wird
+ * nichts geschrieben.
+ */
+async function migrateProvisioningPlans(): Promise<void> {
+  const companies = await listCompanies();
+  const outdated = companies.filter(
+    (company) =>
+      !provisioningIsCurrent(company.provisioning) || "subdomain" in (company.tenant ?? {}),
+  );
+  if (outdated.length === 0) return;
+
+  await Promise.all(
+    outdated.map((company) =>
+      patchCompany(company.id, (current) => ({
+        ...current,
+        // Neu aufgebaut statt gespreizt: nur so verschwinden Altfelder, die
+        // fromDoc unverändert durchreicht.
+        tenant: {
+          mongoDatabase: current.tenant.mongoDatabase,
+          mongoUser: current.tenant.mongoUser,
+          minioBucket: current.tenant.minioBucket,
+        },
+        provisioning: reconcileProvisioning(current.tenant, current.provisioning),
+      })),
+    ),
+  );
 }
 
 /* ---------------------------------------------------------------- Migration */

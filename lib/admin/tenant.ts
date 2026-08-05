@@ -126,6 +126,47 @@ export function provisioningPlan(tenant: Tenant): ProvisioningStep[] {
   }));
 }
 
+/**
+ * Bringt einen gespeicherten Plan auf die aktuelle Schrittliste.
+ *
+ * Bestandsmandanten tragen noch die Schritte `deployment` und `dns-record` und
+ * kennen `app-sync` nicht. Beschriftung, Ziel und Hinweis kommen deshalb immer
+ * frisch aus dem Bauplan – erhalten bleibt nur, was ein Lauf erreicht hat:
+ * Status, Zeitpunkt und die Meldung eines ausgeführten Schritts.
+ *
+ * Der Status des Unternehmens bleibt bewusst unangetastet. Ein aktiver Mandant
+ * bekommt zwar einen offenen `app-sync`-Schritt dazu, verlöre bei einem
+ * Rückfall auf „provisioning" aber sofort den Support-Zugriff.
+ */
+export function reconcileProvisioning(
+  tenant: Tenant,
+  stored: ProvisioningStep[],
+): ProvisioningStep[] {
+  const previousById = new Map(stored.map((step) => [step.id, step]));
+
+  return provisioningPlan(tenant).map((step) => {
+    const previous = previousById.get(step.id);
+    if (!previous) return step;
+
+    return {
+      ...step,
+      status: previous.status,
+      // Ein offener Schritt hat noch nichts zu erzählen – dort gilt der
+      // Hinweis aus dem Bauplan, sonst das Protokoll des Laufs.
+      note: previous.status === "pending" ? step.note : previous.note,
+      updatedAt: previous.updatedAt,
+    };
+  });
+}
+
+/** Ob `reconcileProvisioning` an dieser Schrittliste etwas ändern würde. */
+export function provisioningIsCurrent(stored: ProvisioningStep[]): boolean {
+  const expected = BLUEPRINTS.map((blueprint) => blueprint.id);
+  return (
+    stored.length === expected.length && stored.every((step, index) => step.id === expected[index])
+  );
+}
+
 /** Welche Zugangsdaten für die automatische Ausführung noch fehlen. */
 export function missingProvisioningEnv(): string[] {
   const required = [...new Set(BLUEPRINTS.map((b) => b.requiredEnv))];
