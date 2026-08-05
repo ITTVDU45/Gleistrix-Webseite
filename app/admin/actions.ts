@@ -909,6 +909,7 @@ export async function deletePricingModuleAction(
     const references = [
       usage.packages.length > 0 ? `Pakete: ${usage.packages.join(", ")}` : "",
       usage.companies.length > 0 ? `Unternehmen: ${usage.companies.join(", ")}` : "",
+      usage.purchases.length > 0 ? `Käufe: ${usage.purchases.length}` : "",
     ]
       .filter(Boolean)
       .join(" · ");
@@ -1192,11 +1193,14 @@ import {
 } from "@/lib/admin/provision/mongo";
 import { registerTenant, registrationFor } from "@/lib/admin/app-sync";
 import {
+  addPurchase,
   getPackage,
   getPurchase,
   getPurchasesForCompany,
   updatePurchase,
 } from "@/lib/admin/store";
+import { purchaseFor } from "@/lib/admin/purchase";
+import { formatPriceEUR } from "@/data/pricing";
 import { getPublishedPricing } from "@/lib/admin/pricing";
 import type { ProvisioningStepId, Purchase } from "@/types/admin";
 
@@ -1319,6 +1323,84 @@ export async function runProvisioningStepAction(
   revalidateAdmin(companyId);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };
+}
+
+/**
+ * Erfasst einen Kauf für einen Mandanten.
+ *
+ * Der Preis wird hier neu gerechnet und dann eingefroren – der Betrag aus dem
+ * Formular ist nur Anzeige. Käme er aus dem Browser, bestimmte der Kunde, was er
+ * zahlt.
+ *
+ * Jede Kennung wird gegen die FREIGEGEBENE Preisliste geprüft, nicht gegen den
+ * Entwurf: Ein Kauf darf sich nicht auf ein Paket beziehen, das noch niemand
+ * sehen konnte. Unbekannte Kennungen führen zum Abbruch statt stillschweigend zu
+ * verschwinden – `calculatePrice` fiele sonst auf das Standardpaket zurück und
+ * schriebe einen Preis fest, den niemand gewählt hat.
+ */
+export async function createPurchaseAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const packageId = field(data, "packageId");
+  const capacityId = field(data, "capacityId");
+  const users = Number.parseInt(field(data, "users") || "0", 10);
+
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  const pricing = await getPublishedPricing();
+
+  if (!pricing.packages.some((pkg) => pkg.id === packageId)) {
+    return { error: "Bitte ein freigegebenes Paket wählen." };
+  }
+  if (!pricing.capacities.some((capacity) => capacity.id === capacityId)) {
+    return { error: "Bitte eine Kapazitätsstufe wählen." };
+  }
+  if (!Number.isFinite(users) || users < 1) {
+    return { error: "Anzahl Benutzer muss mindestens 1 sein." };
+  }
+
+  const active = new Map(
+    pricing.modules.filter((module) => module.isActive).map((module) => [module.id, module]),
+  );
+  const moduleIds = data
+    .getAll("moduleIds")
+    .filter((value): value is string => typeof value === "string");
+
+  const unbekannt = moduleIds.filter((id) => !active.has(id));
+  if (unbekannt.length > 0) {
+    return { error: `Nicht freigegebene Module: ${unbekannt.join(", ")}.` };
+  }
+
+  // Mengen nur für Module, die überhaupt nach Nutzung abgerechnet werden.
+  const usageAmounts: Record<string, number> = {};
+  for (const moduleId of moduleIds) {
+    const module = active.get(moduleId);
+    if (!module?.usage) continue;
+
+    const amount = Number.parseInt(field(data, `usage_${moduleId}`) || "0", 10);
+    if (!Number.isFinite(amount) || amount < 0) {
+      return { error: `Ungültige Menge für „${module.title}".` };
+    }
+    usageAmounts[moduleId] = amount;
+  }
+
+  const purchase = purchaseFor({
+    id: `pur_${Date.now().toString(36)}`,
+    companyId,
+    selection: { packageId, users, capacityId, moduleIds, usageAmounts },
+    config: pricing,
+    createdAt: new Date().toISOString(),
+  });
+
+  await addPurchase(purchase);
+  revalidateAdmin(companyId);
+
+  return {
+    success: `Kauf über ${formatPriceEUR(purchase.monthlyTotal)} pro Monat erfasst. Der Schritt „Mandant an die App melden" überträgt ihn.`,
+  };
 }
 
 /**

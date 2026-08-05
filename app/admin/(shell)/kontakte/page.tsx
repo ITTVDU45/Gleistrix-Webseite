@@ -10,7 +10,7 @@ import {
   formatNumber,
 } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
-import { listContacts } from "@/lib/admin/store";
+import { listContacts, readStore } from "@/lib/admin/store";
 import type { ContactSource } from "@/types/admin";
 
 export const metadata = { title: "Kontakte" };
@@ -21,7 +21,7 @@ const SOURCE_LABEL: Record<ContactSource, string> = {
 };
 
 export default async function AdminContactsPage() {
-  const contacts = await listContacts();
+  const [contacts, { companies }] = await Promise.all([listContacts(), readStore()]);
 
   const fromLeads = contacts.filter((contact) => contact.source === "lead");
   const withCompany = contacts.filter((contact) => Boolean(contact.companyId));
@@ -54,7 +54,7 @@ export default async function AdminContactsPage() {
         title="Kontakt anlegen"
         description="Für alles, was nicht über das Formular auf der Website hereinkommt."
       >
-        <ContactForm />
+        <ContactForm companies={companies} />
       </Section>
 
       <Section
@@ -119,7 +119,7 @@ export default async function AdminContactsPage() {
                     Bearbeiten
                   </summary>
                   <div className="mt-4">
-                    <ContactForm contact={contact} />
+                    <ContactForm contact={contact} companies={companies} />
                   </div>
                 </details>
               </li>

@@ -202,6 +202,14 @@ export type Purchase = {
   /** Gebuchte Benutzerzahl. */
   users: number;
   capacityId: string;
+  /**
+   * Gebuchte Mengen der Module mit Nutzungspreis, je Modulkennung.
+   *
+   * Ohne sie ließe sich `monthlyTotal` später nicht mehr nachrechnen: Ein Modul
+   * wie die Lagerverwaltung kostet je Artikel, das können vierstellige Beträge
+   * im Monat sein. Der eingefrorene Preis wäre sonst eine Zahl ohne Herkunft.
+   */
+  usageAmounts?: Record<string, number>;
   monthlyTotal: number;
   implementationPrice: number;
   status: PurchaseStatus;

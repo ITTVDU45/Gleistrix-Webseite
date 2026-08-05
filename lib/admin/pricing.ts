@@ -157,20 +157,30 @@ export type ModuleUsage = {
   packages: string[];
   /** Unternehmen mit Einzelfreigabe oder Sperre auf das Modul. */
   companies: string[];
+  /** Käufe, die das Modul eingefroren enthalten. */
+  purchases: string[];
 };
 
 /**
  * Wo ein Modul außerhalb der Preisseite referenziert wird.
  *
- * Modul-IDs sind Fremdschlüssel: Mandanten-Pakete und Unternehmen speichern sie.
- * Ein gelöschtes Modul würde einem Kunden still die Freigabe entziehen – deshalb
- * darf nur gelöscht werden, was nirgends referenziert ist. Alles andere wird
- * archiviert.
+ * Modul-IDs sind Fremdschlüssel: Mandanten-Pakete, Unternehmen und Käufe
+ * speichern sie. Ein gelöschtes Modul würde einem Kunden still die Freigabe
+ * entziehen – deshalb darf nur gelöscht werden, was nirgends referenziert ist.
+ * Alles andere wird archiviert.
+ *
+ * Käufe zählen mit, obwohl sie eingefroren sind: `registrationFor` filtert
+ * unbekannte Kennungen kommentarlos aus der Meldung an die App. Fiele der
+ * Löschschutz hier aus, verschwände ein bezahltes Modul lautlos aus dem
+ * Mandanten – der Filter dort setzt diesen Schutz voraus.
  */
 export async function moduleUsage(moduleId: string): Promise<ModuleUsage> {
   const store = await readStore();
 
   return {
+    purchases: store.purchases
+      .filter((purchase) => purchase.moduleIds.includes(moduleId))
+      .map((purchase) => purchase.id),
     packages: store.packages
       .filter((pkg) => pkg.moduleIds.includes(moduleId))
       .map((pkg) => pkg.name),
@@ -185,7 +195,7 @@ export async function moduleUsage(moduleId: string): Promise<ModuleUsage> {
 }
 
 export function isModuleInUse(usage: ModuleUsage): boolean {
-  return usage.packages.length > 0 || usage.companies.length > 0;
+  return usage.packages.length > 0 || usage.companies.length > 0 || usage.purchases.length > 0;
 }
 
 /** Alle Module inklusive archivierter – der Admin muss auch die sehen. */

@@ -11,9 +11,11 @@ import type { Contact } from "@/types/admin";
 type Props = {
   /** Ohne Kontakt legt das Formular einen neuen an, mit Kontakt bearbeitet es ihn. */
   contact?: Contact;
+  /** Auswahl für die Zuordnung zu einem Mandanten. */
+  companies: { id: string; name: string }[];
 };
 
-export default function ContactForm({ contact }: Props) {
+export default function ContactForm({ contact, companies }: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     saveContactAction,
     {},
@@ -26,9 +28,26 @@ export default function ContactForm({ contact }: Props) {
   return (
     <form action={formAction} className="space-y-4">
       {contact ? <input type="hidden" name="contactId" value={contact.id} /> : null}
-      {/* Die Action schreibt companyId aus dem Formular zurück – ohne dieses
-          Feld würde eine Bearbeitung die Zuordnung zum Mandanten löschen. */}
-      <input type="hidden" name="companyId" value={contact?.companyId ?? ""} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-2 sm:col-span-2">
+          <Label htmlFor={`companyId-${uid}`}>Zugehöriger Mandant</Label>
+          {/* Die Action schreibt companyId aus dem Formular zurück – ohne dieses
+              Feld würde eine Bearbeitung die Zuordnung löschen. */}
+          <select
+            id={`companyId-${uid}`}
+            name="companyId"
+            defaultValue={contact?.companyId ?? ""}
+            className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            <option value="">Keinem Mandanten zugeordnet</option>
+            {companies.map((company) => (
+              <option key={company.id} value={company.id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
