@@ -167,8 +167,12 @@ export default function NewPurchaseForm({ companyId, pricing, defaultUsers }: Pr
                       name={`usage_${module.id}`}
                       type="number"
                       min={0}
-                      max={module.usage.sliderMax}
-                      step={module.usage.step}
+                      // Ohne max und step: `sliderMax` und `step` beschreiben
+                      // nur den Regler auf der Preisseite, keine fachliche
+                      // Grenze. Als Formularregeln würden sie den Versand
+                      // blockieren – 2.437 Artikel wären dann nicht erfassbar,
+                      // obwohl der Kunde genau das im Rechner sehen kann.
+                      step={1}
                       value={usageAmounts[module.id] ?? "0"}
                       onChange={(event) =>
                         setUsageAmounts((current) => ({

@@ -178,16 +178,26 @@ export function registrationFor(input: {
 
   const known = new Set(pricing.modules.map((module) => module.id));
 
+  // Eine Sperre steht ÜBER dem Kauf. Der Adminbereich sagt zu, dass sie sofort
+  // alle Module deaktiviert – läge die Regel nur in effectiveModuleIds, hielte
+  // der Kauf-Zweig diese Zusage nicht, und ein gesperrter Mandant bekäme seinen
+  // vollen Umfang gemeldet. Der Kauf selbst bleibt unberührt: Er ist
+  // eingefroren, die Sperre ist ein Zugangsstopp.
+  const module =
+    company.status === "suspended"
+      ? []
+      : purchase
+        ? // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin
+          // ablehnen, und im Protokoll stünde dann ein Fehler statt der Ursache.
+          // Der Kauf behält sie – die Kaufseite zeigt sie als „Unbekanntes Modul".
+          purchase.moduleIds.filter((id) => known.has(id))
+        : effectiveModuleIds(pricing, company, tenantPackage);
+
   return tenantRegistration({
     company,
     paket,
     benutzer: purchase?.users ?? company.seats,
-    module: purchase
-      ? // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
-        // und im Protokoll stünde dann ein Fehler statt der Ursache. Der Kauf
-        // selbst behält sie – die Kaufseite zeigt sie als „Unbekanntes Modul".
-        purchase.moduleIds.filter((id) => known.has(id))
-      : effectiveModuleIds(pricing, company, tenantPackage),
+    module,
     gueltigBis: input.gueltigBis,
   });
 }

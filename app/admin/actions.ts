@@ -31,6 +31,7 @@ import {
   addDemoAccess,
   deleteContact,
   getLead,
+  getPurchases,
   insertCompany,
   insertContact,
   insertPackage,
@@ -715,6 +716,12 @@ export async function savePricingPackageAction(
 export async function deletePricingPackageAction(data: FormData): Promise<void> {
   const packageId = field(data, "packageId");
 
+  // Wie bei Modulen: Ein gekauftes Paket bleibt stehen. Der Kauf hält seine
+  // Kennung eingefroren – ohne das Paket zeigten Kaufseite und Meldung an die
+  // App nur noch die technische Kennung statt des Namens.
+  const purchases = await getPurchases();
+  if (purchases.some((purchase) => purchase.packageId === packageId)) return;
+
   await updateDraft((config) => {
     // Der Konfigurator braucht mindestens ein Paket – das letzte bleibt stehen.
     if (config.packages.length <= 1) return config;
@@ -792,6 +799,10 @@ export async function savePricingCapacityAction(
 
 export async function deletePricingCapacityAction(data: FormData): Promise<void> {
   const capacityId = field(data, "capacityId");
+
+  // Gekaufte Kapazitätsstufe bleibt stehen – gleicher Grund wie beim Paket.
+  const purchases = await getPurchases();
+  if (purchases.some((purchase) => purchase.capacityId === capacityId)) return;
 
   await updateDraft((config) => {
     // Der Konfigurator braucht mindestens eine Stufe – die letzte bleibt stehen.

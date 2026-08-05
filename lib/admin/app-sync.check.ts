@@ -163,4 +163,31 @@ assert.ok(
   "Im Rumpf darf kein Passwortfeld auftauchen",
 );
 
-console.log("app-sync.check: alle 9 Pruefungen bestanden");
+/* ------------------------------------------------------------- Die Sperre */
+
+// 10. Eine Sperre deaktiviert alle Module – auch mit Kauf. Der Adminbereich
+// sagt genau das zu („Eine Sperre deaktiviert sofort alle Module"). Läge die
+// Regel nur in effectiveModuleIds, hebelte ein Kauf sie aus: Der Kauf-Zweig
+// kommt an dieser Funktion vorbei.
+const gesperrtMitKauf = registrationFor({
+  company: { ...company, status: "suspended" } as Company,
+  purchase,
+  pricing,
+  tenantPackage,
+});
+assert.deepEqual(
+  gesperrtMitKauf.module,
+  [],
+  "Ein gesperrter Mandant darf auch mit Kauf keine Module gemeldet bekommen",
+);
+
+// 11. Ohne Kauf gilt dasselbe – hier über effectiveModuleIds.
+const gesperrtOhneKauf = registrationFor({
+  company: { ...company, status: "suspended" } as Company,
+  purchase: null,
+  pricing,
+  tenantPackage,
+});
+assert.deepEqual(gesperrtOhneKauf.module, [], "Auch ohne Kauf bleibt eine Sperre eine Sperre");
+
+console.log("app-sync.check: alle 11 Pruefungen bestanden");
