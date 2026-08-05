@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   Package,
   PlayCircle,
+  Receipt,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ const ITEMS = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/unternehmen", label: "Unternehmen", icon: Building2, exact: false },
   { href: "/admin/anfragen", label: "Anfragen", icon: Inbox, exact: false },
+  { href: "/admin/kaeufe", label: "Käufe", icon: Receipt, exact: false },
   { href: "/admin/kontakte", label: "Kontakte", icon: Contact, exact: false },
   { href: "/admin/broschuere", label: "Broschüre", icon: FileText, exact: false },
   { href: "/admin/demo-zugang", label: "Demo-Zugang", icon: PlayCircle, exact: false },

@@ -19,6 +19,7 @@ export const COLLECTIONS = {
   contacts: "contacts",
   brochureRequests: "brochure_requests",
   demoAccess: "demo_access",
+  purchases: "purchases",
   supportAccess: "support_access",
   usage: "usage",
   tenantPackages: "tenant_packages",

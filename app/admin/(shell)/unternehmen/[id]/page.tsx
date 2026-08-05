@@ -28,7 +28,11 @@ import {
   moduleGrantSource,
 } from "@/lib/admin/modules";
 import { getDraftPricing } from "@/lib/admin/pricing";
+import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
+import { APP_SYNC_ISSUE_TEXT, appSyncIssue } from "@/lib/admin/app-sync";
+import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
+import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
 import {
   getCompany,
   getPackage,
@@ -37,7 +41,7 @@ import {
   readStore,
 } from "@/lib/admin/store";
 import { supportAccountEmail, supportConfigIssue } from "@/lib/admin/support";
-import { instanceUrl } from "@/lib/admin/tenant";
+import { APP_URL } from "@/lib/admin/tenant";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -55,6 +59,19 @@ export default async function CompanyDetailPage({ params }: Props) {
   const company = await getCompany(id);
   if (!company) notFound();
 
+  // Welcher Schritt sich nicht automatisch ausfuehren laesst und warum. Fehlt
+  // ein Zugang, steht der Hinweis statt des Knopfes – ein Klick ins Leere waere
+  // schlimmer als gar kein Knopf.
+  const mongoBlocker = mongoAdminIssue();
+  const minioBlocker = minioIssue();
+  const syncBlocker = appSyncIssue();
+  const stepBlockers: Record<string, string | undefined> = {
+    "mongo-database": mongoBlocker ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker] : undefined,
+    "mongo-role": mongoBlocker ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker] : undefined,
+    "minio-bucket": minioBlocker ? MINIO_ISSUE_TEXT[minioBlocker] : undefined,
+    "app-sync": syncBlocker ? APP_SYNC_ISSUE_TEXT[syncBlocker] : undefined,
+  };
+
   const [pkg, usage, store, supportLog, pricing] = await Promise.all([
     getPackage(company.packageId),
     getUsage(company.id),
@@ -70,8 +87,7 @@ export default async function CompanyDetailPage({ params }: Props) {
   const catalog = moduleCatalog(pricing);
   const activeModules = effectiveModuleIds(pricing, company, pkg);
   const isSuspended = company.status === "suspended";
-  const isDeployed =
-    company.provisioning.find((step) => step.id === "deployment")?.status === "done";
+  const isProvisioned = company.status !== "provisioning";
 
   return (
     <div className="space-y-8">
@@ -105,26 +121,22 @@ export default async function CompanyDetailPage({ params }: Props) {
       <div className="grid gap-6 lg:grid-cols-2">
         <Section
           title="Mandant & Infrastruktur"
-          description="Feste Namen, aus der Kennung abgeleitet."
+          description="Feste Namen, aus der Kennung abgeleitet. Die Anwendung ist für alle Mandanten dieselbe."
         >
           <dl>
             <KeyValue label="Kennung" value={<Mono>{company.slug}</Mono>} />
             <KeyValue
-              label="Instanz"
+              label="Anwendung"
               value={
-                isDeployed ? (
-                  <a
-                    href={instanceUrl(company.tenant)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
-                  >
-                    <Mono>{company.tenant.subdomain}</Mono>
-                    <ExternalLink className="size-3.5" aria-hidden />
-                  </a>
-                ) : (
-                  <Mono>{company.tenant.subdomain}</Mono>
-                )
+                <a
+                  href={APP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-primary underline-offset-4 hover:underline"
+                >
+                  <Mono>{APP_URL.replace(/^https?:\/\//, "")}</Mono>
+                  <ExternalLink className="size-3.5" aria-hidden />
+                </a>
               }
             />
             <KeyValue
@@ -213,6 +225,14 @@ export default async function CompanyDetailPage({ params }: Props) {
                     </>
                   )}
                 </p>
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <ProvisioningRunForm
+                  companyId={company.id}
+                  stepId={step.id}
+                  disabledHint={stepBlockers[step.id]}
+                />
               </div>
 
               <div className="flex gap-2">
@@ -370,7 +390,7 @@ export default async function CompanyDetailPage({ params }: Props) {
           companyId={company.id}
           supportEmail={supportAccountEmail()}
           configIssue={supportConfigIssue()}
-          isDeployed={isDeployed}
+          isProvisioned={isProvisioned}
         />
 
         {supportLog.length > 0 ? (
@@ -408,7 +428,7 @@ export default async function CompanyDetailPage({ params }: Props) {
               Sperre aufheben
             </Button>
             <p className="text-sm text-muted-foreground">
-              Der Mandant erreicht danach wieder {company.tenant.subdomain}.
+              Der Mandant kann die Anwendung danach wieder nutzen.
             </p>
           </form>
         ) : (

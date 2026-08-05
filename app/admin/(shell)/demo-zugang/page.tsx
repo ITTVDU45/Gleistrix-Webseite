@@ -14,11 +14,11 @@ import {
 } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import {
+  APP_SYNC_ISSUE_TEXT,
   DEFAULT_DEMO_DAYS,
-  DEMO_ISSUE_TEXT,
   MAX_DEMO_DAYS,
-  demoConfigIssue,
-} from "@/lib/admin/demo";
+  appSyncIssue,
+} from "@/lib/admin/app-sync";
 import { readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Demo-Zugang" };
@@ -28,7 +28,7 @@ export default async function AdminDemoAccessPage() {
   // die angelegten Unternehmen, und readStore holt ohnehin alles parallel.
   const { demoAccess, leads, companies } = await readStore();
   const access = [...demoAccess].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const issue = demoConfigIssue();
+  const issue = appSyncIssue();
 
   const active = access.filter((entry) => entry.status === "aktiv");
   const failed = access.filter((entry) => entry.status === "fehlgeschlagen");
@@ -84,7 +84,7 @@ export default async function AdminDemoAccessPage() {
           }))}
           defaultDays={DEFAULT_DEMO_DAYS}
           maxDays={MAX_DEMO_DAYS}
-          configIssue={issue ? DEMO_ISSUE_TEXT[issue] : null}
+          configIssue={issue ? APP_SYNC_ISSUE_TEXT[issue] : null}
         />
       </Section>
 

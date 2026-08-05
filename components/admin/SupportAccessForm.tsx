@@ -12,7 +12,7 @@ type Props = {
   companyId: string;
   supportEmail: string | null;
   configIssue: "no-account" | "no-secret" | null;
-  isDeployed: boolean;
+  isProvisioned: boolean;
 };
 
 const ISSUE_TEXT: Record<"no-account" | "no-secret", string> = {
@@ -26,7 +26,7 @@ export default function SupportAccessForm({
   companyId,
   supportEmail,
   configIssue,
-  isDeployed,
+  isProvisioned,
 }: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     openSupportSessionAction,
@@ -41,10 +41,10 @@ export default function SupportAccessForm({
     );
   }
 
-  if (!isDeployed) {
+  if (!isProvisioned) {
     return (
       <p className="rounded-lg border border-dashed px-4 py-6 text-center text-sm text-muted-foreground">
-        Support-Zugriff ist möglich, sobald das Deployment dieses Mandanten steht.
+        Support-Zugriff ist möglich, sobald die Provisionierung dieses Mandanten abgeschlossen ist.
       </p>
     );
   }

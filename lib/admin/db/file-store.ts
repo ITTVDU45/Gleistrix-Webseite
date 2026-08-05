@@ -3,6 +3,7 @@ import path from "node:path";
 
 import type { AdminStore } from "@/types/admin";
 
+import { reconcileProvisioning } from "../tenant";
 import { seed } from "./seed";
 
 /**
@@ -30,7 +31,12 @@ let cacheMtimeMs = -1;
 /** Fehlende Felder auffüllen – ältere Stände kennen die neueren nicht. */
 export function normalize(parsed: Partial<AdminStore>): AdminStore {
   return {
-    companies: parsed.companies ?? [],
+    // Wie in bootstrap.ts: Bestandsmandanten bekommen die aktuelle
+    // Schrittliste, sonst fehlte hier ohne Datenbank der Schritt app-sync.
+    companies: (parsed.companies ?? []).map((company) => ({
+      ...company,
+      provisioning: reconcileProvisioning(company.tenant, company.provisioning),
+    })),
     packages: parsed.packages ?? [],
     usage: parsed.usage ?? [],
     supportAccess: parsed.supportAccess ?? [],
@@ -38,6 +44,7 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
     contacts: parsed.contacts ?? [],
     brochureRequests: parsed.brochureRequests ?? [],
     demoAccess: parsed.demoAccess ?? [],
+    purchases: parsed.purchases ?? [],
     // Fehlt die Preiskonfiguration, greift DEFAULT_PRICING als Rückfallebene
     // (siehe lib/admin/pricing.ts) – nicht hier, damit der Store frei von
     // Preislogik bleibt.

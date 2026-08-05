@@ -6,13 +6,13 @@ import { redirect } from "next/navigation";
 import { DEFAULT_PRICING } from "@/data/pricing";
 import { login, logout } from "@/lib/admin/auth";
 import {
+  APP_SYNC_ISSUE_TEXT,
   DEFAULT_DEMO_DAYS,
-  DEMO_ISSUE_TEXT,
   MAX_DEMO_DAYS,
-  demoConfigIssue,
+  appSyncIssue,
   grantDemo,
   revokeDemo,
-} from "@/lib/admin/demo";
+} from "@/lib/admin/app-sync";
 import { getModule } from "@/lib/admin/modules";
 import {
   discardDraft,
@@ -46,9 +46,10 @@ import {
 } from "@/lib/admin/store";
 import { createSupportLink } from "@/lib/admin/support";
 import {
-  instanceUrl,
+  APP_URL,
   provisioningPlan,
   slugify,
+  statusFor,
   tenantFor,
   validateSlug,
 } from "@/lib/admin/tenant";
@@ -80,6 +81,7 @@ function revalidateAdmin(companyId?: string): void {
   revalidatePath("/admin/kontakte");
   revalidatePath("/admin/broschuere");
   revalidatePath("/admin/demo-zugang");
+  revalidatePath("/admin/kaeufe");
   // Ohne die Kundenseite bleibt nach einer Freigabe der alte Preis stehen.
   revalidatePath("/preise");
   if (companyId) revalidatePath(`/admin/unternehmen/${companyId}`);
@@ -244,18 +246,12 @@ export async function setProvisioningStepAction(data: FormData): Promise<void> {
     const provisioning = company.provisioning.map((step) =>
       step.id === stepId ? { ...step, status, updatedAt: new Date().toISOString() } : step,
     );
-    const allDone = provisioning.every((step) => step.status === "done");
 
     return {
       ...company,
       provisioning,
       // Erst wenn alle Ressourcen stehen, verlässt der Mandant die Provisionierung.
-      status:
-        company.status === "suspended"
-          ? company.status
-          : allDone
-            ? ("active" as const)
-            : ("provisioning" as const),
+      status: statusFor(company.status, provisioning),
     };
   });
 
@@ -283,17 +279,13 @@ export async function openSupportSessionAction(
   const company = store.companies.find((c) => c.id === companyId);
   if (!company) return { error: "Unbekanntes Unternehmen." };
 
-  const deployed = company.provisioning.find((step) => step.id === "deployment");
-  if (deployed?.status !== "done") {
-    return { error: "Die Instanz dieses Mandanten ist noch nicht deployed." };
+  if (company.status === "provisioning") {
+    return { error: "Die Provisionierung dieses Mandanten ist noch nicht abgeschlossen." };
   }
 
-  const link = createSupportLink(
-    company.tenant.subdomain,
-    instanceUrl(company.tenant),
-    password,
-    reason,
-  );
+  // Alle Mandanten teilen sich eine App – die Kennung im Token sagt der App,
+  // wessen Daten der Support sehen darf.
+  const link = createSupportLink(company.slug, APP_URL, password, reason);
   if (!link.ok) return { error: link.error };
 
   await recordSupportAccess({
@@ -560,8 +552,8 @@ export async function releaseDemoAction(
     return { error: `Laufzeit muss zwischen 1 und ${MAX_DEMO_DAYS} Tagen liegen.` };
   }
 
-  const issue = demoConfigIssue();
-  if (issue) return { error: DEMO_ISSUE_TEXT[issue] };
+  const issue = appSyncIssue();
+  if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
 
   const result = await grantDemo({ email, company, days });
   const now = new Date().toISOString();
@@ -1187,4 +1179,200 @@ export async function sendBrochureAction(
   revalidateAdmin();
 
   return { success: `Broschüre an ${request.email} versendet.` };
+}
+
+/* --------------------------------------------------- Automatische Provisionierung */
+
+import { getCompany as loadCompany } from "@/lib/admin/store";
+import {
+  MINIO_ISSUE_TEXT,
+  createTenantBucket,
+  minioIssue,
+} from "@/lib/admin/provision/minio";
+import {
+  MONGO_ADMIN_ISSUE_TEXT,
+  createTenantDatabase,
+  createTenantUser,
+  generateTenantPassword,
+  mongoAdminIssue,
+} from "@/lib/admin/provision/mongo";
+import { registerTenant, tenantRegistration } from "@/lib/admin/app-sync";
+import { getPurchase, getPurchasesForCompany, updatePurchase } from "@/lib/admin/store";
+import { allModules, getPublishedPricing } from "@/lib/admin/pricing";
+import type { ProvisioningStepId } from "@/types/admin";
+
+/** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
+type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
+
+/**
+ * Meldet den Mandanten an die App.
+ *
+ * Gibt es einen Kauf, gilt dessen eingefrorener Stand – Paket, Module und
+ * Benutzerzahl zum Kaufzeitpunkt, nicht der heutige Stand der Preisliste. Die
+ * Kauf-ID ist zugleich der Idempotency-Key, damit eine Wiederholung nach einem
+ * Fehlschlag keinen zweiten Mandanten erzeugt.
+ *
+ * Scheitert der Aufruf, bleibt der Kauf erhalten: `status` geht auf
+ * `fehlgeschlagen`, `syncError` hält die Meldung, und der Knopf unter
+ * /admin/kaeufe wiederholt den Lauf.
+ */
+async function runAppSync(company: Company): Promise<StepOutcome> {
+  const [purchases, pricing] = await Promise.all([
+    getPurchasesForCompany(company.id),
+    getPublishedPricing(),
+  ]);
+  const purchase = purchases[0] ?? null;
+
+  const packageId = purchase?.packageId ?? company.packageId ?? "";
+  const packageName = pricing.packages.find((pkg) => pkg.id === packageId)?.name ?? packageId;
+  const known = new Set(allModules(pricing).map((module) => module.id));
+
+  const registration = tenantRegistration({
+    company,
+    paket: { id: packageId, name: packageName },
+    benutzer: purchase?.users ?? company.seats,
+    // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
+    // und im Protokoll stünde dann ein Fehler statt der Ursache.
+    module: (purchase?.moduleIds ?? company.extraModuleIds).filter((id) => known.has(id)),
+    gueltigBis: null,
+  });
+
+  const result = await registerTenant(registration, purchase?.id ?? company.id);
+  const now = new Date().toISOString();
+
+  if (purchase) {
+    await updatePurchase(purchase.id, (current) => ({
+      ...current,
+      status: result.ok ? "freigegeben" : "fehlgeschlagen",
+      syncedAt: result.ok ? now : current.syncedAt ?? null,
+      syncError: result.ok ? null : result.error,
+    }));
+  }
+
+  if (!result.ok) return result;
+
+  const details = [
+    result.tenantId ? `Mandant ${result.tenantId}` : null,
+    result.einladungsLink ? `Einladungslink: ${result.einladungsLink}` : null,
+  ].filter(Boolean);
+
+  return {
+    ok: true,
+    note: `An ${registration.datenbank} gemeldet, ohne Zugangsdaten.${
+      details.length > 0 ? ` ${details.join(" · ")}` : ""
+    }`,
+  };
+}
+
+/** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */
+export async function runProvisioningStepAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const stepId = field(data, "stepId") as ProvisioningStepId;
+
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+  if (!company.provisioning.some((step) => step.id === stepId)) {
+    return { error: "Unbekannter Schritt." };
+  }
+
+  const tenant = company.tenant;
+  let outcome: StepOutcome;
+
+  switch (stepId) {
+    case "mongo-database": {
+      const issue = mongoAdminIssue();
+      if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
+      outcome = await createTenantDatabase(tenant);
+      break;
+    }
+    case "mongo-role": {
+      const issue = mongoAdminIssue();
+      if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
+      // Das Passwort wird hier verworfen: Die App verbindet sich mit dem
+      // Zugang aus ihrer eigenen Umgebung, nicht mit einem je Mandant erzeugten.
+      const user = await createTenantUser(tenant, generateTenantPassword());
+      outcome = user.ok
+        ? { ok: true, note: user.note }
+        : { ok: false, error: user.error };
+      break;
+    }
+    case "minio-bucket": {
+      const issue = minioIssue();
+      if (issue) return { error: MINIO_ISSUE_TEXT[issue] };
+      outcome = await createTenantBucket(tenant);
+      break;
+    }
+    case "app-sync": {
+      const issue = appSyncIssue();
+      if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
+      outcome = await runAppSync(company);
+      break;
+    }
+    default:
+      return { error: "Für diesen Schritt gibt es keine Automatik." };
+  }
+
+  await updateCompany(companyId, (current) => ({
+    ...current,
+    provisioning: current.provisioning.map((step) =>
+      step.id === stepId
+        ? {
+            ...step,
+            status: outcome.ok ? ("done" as const) : ("failed" as const),
+            note: outcome.ok ? outcome.note : outcome.error,
+            updatedAt: new Date().toISOString(),
+          }
+        : step,
+    ),
+  }));
+  revalidateAdmin(companyId);
+
+  return outcome.ok ? { success: outcome.note } : { error: outcome.error };
+}
+
+/**
+ * Wiederholt die Meldung eines fehlgeschlagenen Kaufs an die App.
+ *
+ * Derselbe Weg wie der Provisionierungsschritt, nur von der Kaufseite aus –
+ * inklusive Idempotency-Key, sodass ein bereits angelegter Mandant nicht
+ * doppelt entsteht.
+ */
+export async function syncPurchaseAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const purchaseId = field(data, "purchaseId");
+
+  const purchase = await getPurchase(purchaseId);
+  if (!purchase) return { error: "Unbekannter Kauf." };
+
+  const company = await loadCompany(purchase.companyId);
+  if (!company) return { error: "Zu diesem Kauf gibt es kein Unternehmen mehr." };
+
+  const issue = appSyncIssue();
+  if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
+
+  const outcome = await runAppSync(company);
+
+  // Auch den Schritt im Protokoll nachziehen – sonst steht dort „fehlgeschlagen“,
+  // während der Kauf längst freigegeben ist.
+  await updateCompany(company.id, (current) => ({
+    ...current,
+    provisioning: current.provisioning.map((step) =>
+      step.id === "app-sync"
+        ? {
+            ...step,
+            status: outcome.ok ? ("done" as const) : ("failed" as const),
+            note: outcome.ok ? outcome.note : outcome.error,
+            updatedAt: new Date().toISOString(),
+          }
+        : step,
+    ),
+  }));
+  revalidateAdmin(company.id);
+
+  return outcome.ok ? { success: outcome.note } : { error: outcome.error };
 }

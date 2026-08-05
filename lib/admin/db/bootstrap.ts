@@ -3,13 +3,16 @@ import type { IndexSpecification } from "mongodb";
 import { migratePricing } from "@/data/pricing";
 import type { AdminStore } from "@/types/admin";
 
+import { provisioningIsCurrent, reconcileProvisioning, statusFor } from "../tenant";
+
 import { insertBrochureRequests, brochureRequestsEmpty } from "./brochure";
 import { COLLECTIONS, col } from "./collections";
-import { companiesEmpty, insertCompanies } from "./companies";
+import { companiesEmpty, insertCompanies, listCompanies, patchCompany } from "./companies";
 import { contactsEmpty, insertContacts } from "./contacts";
 import { demoAccessEmpty, insertDemoAccessEntries } from "./demoAccess";
 import { insertLeads, leadsEmpty } from "./leads";
 import { draftEmpty, insertRelease, releasesEmpty, writeDraft } from "./pricing";
+import { insertPurchases, purchasesEmpty } from "./purchases";
 import { seed } from "./seed";
 import { insertSupportAccessEntries, supportAccessEmpty } from "./supportAccess";
 import { insertPackages, packagesEmpty } from "./tenantPackages";
@@ -44,6 +47,59 @@ async function run(): Promise<void> {
   await ensureIndexes();
   const migrated = await migrateLegacyDocument();
   if (!migrated) await seedIfEmpty();
+  await migrateProvisioningPlans();
+}
+
+/**
+ * Zieht gespeicherte Provisionierungspläne auf die aktuelle Schrittliste nach.
+ *
+ * Bestandsmandanten kennen `app-sync` nicht und tragen noch `deployment` und
+ * `dns-record`. Ohne diesen Lauf bekämen sie den neuen Schritt erst, wenn
+ * jemand sie neu anlegt.
+ *
+ * Gleichzeitig fällt das Feld `tenant.subdomain` weg. Der Typ kennt es nicht
+ * mehr, im Dokument stünde sonst dauerhaft eine Adresse, die es nicht gibt.
+ *
+ * Der Status zieht mit: Ein Mandant mit offenem `app-sync` ist nicht fertig
+ * bereitgestellt und geht zurück auf `provisioning`. Bis der Schritt läuft,
+ * gibt es für ihn keinen Support-Zugriff – der setzt einen abgeschlossenen
+ * Lauf voraus.
+ *
+ * Idempotent: Beim zweiten Start stimmen Schrittliste, `tenant` und Status, und
+ * es wird nichts geschrieben.
+ */
+async function migrateProvisioningPlans(): Promise<void> {
+  const companies = await listCompanies();
+  const outdated = companies.filter((company) => {
+    const provisioning = reconcileProvisioning(company.tenant, company.provisioning);
+    return (
+      !provisioningIsCurrent(company.provisioning) ||
+      "subdomain" in (company.tenant ?? {}) ||
+      statusFor(company.status, provisioning) !== company.status
+    );
+  });
+  if (outdated.length === 0) return;
+
+  await Promise.all(
+    outdated.map((company) =>
+      patchCompany(company.id, (current) => {
+        const provisioning = reconcileProvisioning(current.tenant, current.provisioning);
+
+        return {
+          ...current,
+          // Neu aufgebaut statt gespreizt: nur so verschwinden Altfelder, die
+          // fromDoc unverändert durchreicht.
+          tenant: {
+            mongoDatabase: current.tenant.mongoDatabase,
+            mongoUser: current.tenant.mongoUser,
+            minioBucket: current.tenant.minioBucket,
+          },
+          provisioning,
+          status: statusFor(current.status, provisioning),
+        };
+      }),
+    ),
+  );
 }
 
 /* ---------------------------------------------------------------- Migration */
@@ -94,6 +150,7 @@ async function distribute(store: Partial<AdminStore>): Promise<void> {
     fill(contactsEmpty, () => insertContacts(store.contacts ?? [])),
     fill(brochureRequestsEmpty, () => insertBrochureRequests(store.brochureRequests ?? [])),
     fill(demoAccessEmpty, () => insertDemoAccessEntries(store.demoAccess ?? [])),
+    fill(purchasesEmpty, () => insertPurchases(store.purchases ?? [])),
     fill(draftEmpty, async () => {
       if (store.pricingDraft) await writeDraft(migratePricing(store.pricingDraft));
     }),
@@ -125,6 +182,8 @@ async function ensureIndexes(): Promise<void> {
     index(COLLECTIONS.contacts, { createdAt: -1 }),
     index(COLLECTIONS.brochureRequests, { createdAt: -1 }),
     index(COLLECTIONS.demoAccess, { createdAt: -1 }),
+    index(COLLECTIONS.purchases, { companyId: 1, createdAt: -1 }),
+    index(COLLECTIONS.purchases, { createdAt: -1 }),
     index(COLLECTIONS.supportAccess, { companyId: 1, createdAt: -1 }),
     index(COLLECTIONS.usage, { companyId: 1, month: 1 }),
     index(COLLECTIONS.pricingPackages, { order: 1 }),

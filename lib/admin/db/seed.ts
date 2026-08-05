@@ -221,5 +221,6 @@ export function seed(): AdminStore {
     contacts: [],
     brochureRequests,
     demoAccess: [],
+    purchases: [],
   };
 }

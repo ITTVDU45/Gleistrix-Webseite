@@ -1,6 +1,12 @@
-import type { ProvisioningStep, Tenant } from "@/types/admin";
+import type { CompanyStatus, ProvisioningStep, Tenant } from "@/types/admin";
 
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
+
+/**
+ * Adresse der mandantenfähigen App – für alle Kunden dieselbe. Welcher Mandant
+ * gemeint ist, entscheidet dort die Anmeldung, nicht mehr die URL.
+ */
+export const APP_URL = process.env.GLEISTRIX_APP_URL?.trim() || `https://app.${ROOT_DOMAIN}`;
 
 /** Reservierte Subdomains, die kein Mandant belegen darf. */
 const RESERVED_SLUGS = new Set([
@@ -45,7 +51,7 @@ export function validateSlug(slug: string, takenSlugs: string[]): SlugCheck {
     return { ok: false, error: "Nur Kleinbuchstaben, Ziffern und Bindestriche erlaubt." };
   }
   if (RESERVED_SLUGS.has(slug)) {
-    return { ok: false, error: `„${slug}“ ist eine reservierte Subdomain.` };
+    return { ok: false, error: `„${slug}“ ist eine reservierte Kennung.` };
   }
   if (takenSlugs.includes(slug)) {
     return { ok: false, error: `„${slug}“ ist bereits vergeben.` };
@@ -57,16 +63,10 @@ export function validateSlug(slug: string, takenSlugs: string[]): SlugCheck {
 export function tenantFor(slug: string): Tenant {
   const flat = slug.replace(/-/g, "_");
   return {
-    subdomain: `${slug}.${ROOT_DOMAIN}`,
     mongoDatabase: `gleistrix_${flat}`,
     mongoUser: `svc_${flat}`,
     minioBucket: `gleistrix-${slug}`,
   };
-}
-
-/** Basis-URL der Kundeninstanz. */
-export function instanceUrl(tenant: Tenant): string {
-  return `https://${tenant.subdomain}`;
 }
 
 type StepBlueprint = {
@@ -100,23 +100,15 @@ const BLUEPRINTS: StepBlueprint[] = [
     requiredEnv: "MINIO_ENDPOINT",
     target: (t) => t.minioBucket,
     note: (t) =>
-      `Bucket ${t.minioBucket} mit Versionierung, Verschlüsselung und einer Policy, die nur ${t.mongoUser} zulässt.`,
+      `Bucket ${t.minioBucket} mit Versionierung. Ohne Policy, denn bei MinIO ist ein Bucket ohne Policy privat – die Beschränkung auf den Mandanten gehört an dessen Access Key.`,
   },
   {
-    id: "deployment",
-    label: "Gleistrix-Instanz deployen",
-    requiredEnv: "VERCEL_API_TOKEN",
-    target: (t) => t.subdomain,
+    id: "app-sync",
+    label: "Mandant an die App melden",
+    requiredEnv: "SERVICE_SHARED_SECRET",
+    target: (t) => t.mongoDatabase,
     note: (t) =>
-      `Eigenes Deployment der Gleistrix-App: MONGODB_URI auf ${t.mongoDatabase}, MinIO auf ${t.minioBucket}, eigenes NEXTAUTH_SECRET und eigenes SUPERADMIN_EMAIL/PASSWORD für den Kunden.`,
-  },
-  {
-    id: "dns-record",
-    label: "DNS-Eintrag setzen",
-    requiredEnv: "DNS_API_TOKEN",
-    target: (t) => t.subdomain,
-    note: (t) =>
-      `CNAME ${t.subdomain} → das Deployment des Mandanten, anschließend TLS-Zertifikat ausstellen.`,
+      `Meldet Kennung, Unternehmen, Paket und Module an ${APP_URL}. Übertragen wird nur der Datenbankname ${t.mongoDatabase}, kein Passwort – die App verbindet sich mit dem Zugang aus ihrer eigenen Umgebung.`,
   },
 ];
 
@@ -132,6 +124,61 @@ export function provisioningPlan(tenant: Tenant): ProvisioningStep[] {
     note: blueprint.note(tenant),
     updatedAt: now,
   }));
+}
+
+/**
+ * Bringt einen gespeicherten Plan auf die aktuelle Schrittliste.
+ *
+ * Bestandsmandanten tragen noch die Schritte `deployment` und `dns-record` und
+ * kennen `app-sync` nicht. Beschriftung, Ziel und Hinweis kommen deshalb immer
+ * frisch aus dem Bauplan – erhalten bleibt nur, was ein Lauf erreicht hat:
+ * Status, Zeitpunkt und die Meldung eines ausgeführten Schritts.
+ *
+ * Der Status des Unternehmens bleibt bewusst unangetastet. Ein aktiver Mandant
+ * bekommt zwar einen offenen `app-sync`-Schritt dazu, verlöre bei einem
+ * Rückfall auf „provisioning" aber sofort den Support-Zugriff.
+ */
+export function reconcileProvisioning(
+  tenant: Tenant,
+  stored: ProvisioningStep[],
+): ProvisioningStep[] {
+  const previousById = new Map(stored.map((step) => [step.id, step]));
+
+  return provisioningPlan(tenant).map((step) => {
+    const previous = previousById.get(step.id);
+    if (!previous) return step;
+
+    return {
+      ...step,
+      status: previous.status,
+      // Ein offener Schritt hat noch nichts zu erzählen – dort gilt der
+      // Hinweis aus dem Bauplan, sonst das Protokoll des Laufs.
+      note: previous.status === "pending" ? step.note : previous.note,
+      updatedAt: previous.updatedAt,
+    };
+  });
+}
+
+/**
+ * Status eines Mandanten aus dem Stand seiner Provisionierung.
+ *
+ * Eine Sperre überlebt: Sie ist eine bewusste Entscheidung und darf nicht
+ * dadurch verschwinden, dass ein Provisionierungsschritt durchläuft.
+ *
+ * An genau einer Stelle definiert, weil zwei Aufrufer sie brauchen – der Lauf
+ * im Adminbereich und die Nachmigration beim Start.
+ */
+export function statusFor(current: CompanyStatus, steps: ProvisioningStep[]): CompanyStatus {
+  if (current === "suspended") return current;
+  return steps.every((step) => step.status === "done") ? "active" : "provisioning";
+}
+
+/** Ob `reconcileProvisioning` an dieser Schrittliste etwas ändern würde. */
+export function provisioningIsCurrent(stored: ProvisioningStep[]): boolean {
+  const expected = BLUEPRINTS.map((blueprint) => blueprint.id);
+  return (
+    stored.length === expected.length && stored.every((step, index) => step.id === expected[index])
+  );
 }
 
 /** Welche Zugangsdaten für die automatische Ausführung noch fehlen. */

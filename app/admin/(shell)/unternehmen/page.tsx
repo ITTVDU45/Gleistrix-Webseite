@@ -12,7 +12,6 @@ import {
 import { effectiveModuleIds } from "@/lib/admin/modules";
 import { getDraftPricing } from "@/lib/admin/pricing";
 import { readStore } from "@/lib/admin/store";
-import { ROOT_DOMAIN } from "@/lib/admin/tenant";
 
 export const metadata = { title: "Unternehmen" };
 
@@ -66,8 +65,8 @@ export default async function CompaniesPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Unternehmen</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Jeder Mandant bekommt eine eigene Subdomain, eine eigene MongoDB-Collection und einen
-          eigenen MinIO-Bucket.
+          Alle Mandanten arbeiten in derselben App; getrennt sind sie über eine eigene
+          MongoDB-Datenbank und einen eigenen MinIO-Bucket.
         </p>
       </header>
 
@@ -75,10 +74,7 @@ export default async function CompaniesPage() {
         title="Neues Unternehmen anlegen"
         description="Der Mandant startet in der Provisionierung und wird aktiv, sobald alle Ressourcen stehen."
       >
-        <NewCompanyForm
-          rootDomain={ROOT_DOMAIN}
-          packages={publishedPackages.map((p) => ({ id: p.id, name: p.name }))}
-        />
+        <NewCompanyForm packages={publishedPackages.map((p) => ({ id: p.id, name: p.name }))} />
       </Section>
 
       <Section
@@ -93,7 +89,7 @@ export default async function CompaniesPage() {
               <thead>
                 <tr className="border-b text-left text-xs uppercase tracking-wider text-muted-foreground">
                   <th className="pb-2 pr-4 font-medium">Unternehmen</th>
-                  <th className="pb-2 pr-4 font-medium">Subdomain</th>
+                  <th className="pb-2 pr-4 font-medium">Kennung</th>
                   <th className="pb-2 pr-4 font-medium">Paket</th>
                   <th className="pb-2 pr-4 text-right font-medium">Module</th>
                   <th className="pb-2 pr-4 text-right font-medium">Benutzer</th>
@@ -128,7 +124,7 @@ export default async function CompaniesPage() {
                         <p className="text-xs text-muted-foreground">{company.contactEmail}</p>
                       </td>
                       <td className="py-3 pr-4">
-                        <Mono>{company.tenant.subdomain}</Mono>
+                        <Mono>{company.slug}</Mono>
                       </td>
                       <td className="py-3 pr-4">
                         {pkg ? pkg.name : <span className="text-muted-foreground">–</span>}
