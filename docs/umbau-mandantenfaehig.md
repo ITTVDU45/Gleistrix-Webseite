@@ -89,11 +89,19 @@ Authorization: Bearer {SERVICE_SHARED_SECRET}
 Idempotency-Key: {purchase.id}
 ```
 
+Der `Idempotency-Key` trägt die Kauf-ID. Läuft der Schritt für einen Mandanten
+**ohne** Kauf — von Hand im Adminbereich angelegt —, tritt die Unternehmens-ID
+an ihre Stelle; einen Kauf gibt es dort nicht, und ohne Schlüssel wäre die
+Wiederholung nicht abgesichert. Die App muss beide Formen als denselben Vorgang
+behandeln, solange `kennung` gleich bleibt.
+
 ```jsonc
 {
-  "kennung": "mustermann-bau",       // = Datenbankname ohne Präfix
+  "kennung": "mustermann-bau",       // Kennung des Mandanten
   "unternehmen": "Mustermann Bau GmbH",
-  "datenbank": "gleistrix_mustermann-bau",
+  // Unverändert übernehmen, NICHT aus der Kennung ableiten:
+  // dort stehen Unterstriche statt Bindestrichen.
+  "datenbank": "gleistrix_mustermann_bau",
   "bucket": "gleistrix-mustermann-bau",
   "erstbenutzer": { "email": "info@example.de", "name": "Max Mustermann" },
   "paket": { "id": "pkg_...", "name": "Professional", "benutzer": 12 },

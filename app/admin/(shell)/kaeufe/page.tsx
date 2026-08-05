@@ -9,13 +9,21 @@ import {
   formatNumber,
 } from "@/components/admin/ui";
 import { formatPriceEUR } from "@/data/pricing";
+import { getPublishedPricing } from "@/lib/admin/pricing";
 import { getPurchases, readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Käufe" };
 
 export default async function AdminPurchasesPage() {
-  const [purchases, { companies }] = await Promise.all([getPurchases(), readStore()]);
+  const [purchases, { companies }, pricing] = await Promise.all([
+    getPurchases(),
+    readStore(),
+    getPublishedPricing(),
+  ]);
   const companyById = new Map(companies.map((company) => [company.id, company]));
+  // Wie auf der Detailseite: Ein „pkg_…" in der Spalte „Paket" erfüllt die
+  // Überschrift nur formal.
+  const packageNameById = new Map(pricing.packages.map((pkg) => [pkg.id, pkg.name]));
 
   const open = purchases.filter((purchase) => purchase.status === "offen");
   const failed = purchases.filter((purchase) => purchase.status === "fehlgeschlagen");
@@ -83,7 +91,9 @@ export default async function AdminPurchasesPage() {
                           <p className="text-xs text-rose-700">{purchase.syncError}</p>
                         ) : null}
                       </td>
-                      <td className="py-3 pr-4">{purchase.packageId}</td>
+                      <td className="py-3 pr-4">
+                        {packageNameById.get(purchase.packageId) ?? purchase.packageId}
+                      </td>
                       <td className="py-3 pr-4 text-right tabular-nums">
                         {formatNumber(purchase.users)}
                       </td>

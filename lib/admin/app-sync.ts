@@ -98,7 +98,13 @@ function text(value: unknown): string | undefined {
 
 /** Was die App braucht, um einen Mandanten anzulegen – ohne Zugangsdaten. */
 export type TenantRegistration = {
-  /** Kennung des Mandanten = Datenbankname ohne Präfix. */
+  /**
+   * Kennung des Mandanten, z. B. „muster-bau".
+   *
+   * NICHT der Datenbankname ohne Präfix: dort stehen Unterstriche statt
+   * Bindestriche (gleistrix_muster_bau). Die App übernimmt `datenbank`
+   * unverändert und leitet sie nicht aus der Kennung ab.
+   */
   kennung: string;
   unternehmen: string;
   datenbank: string;

@@ -27,13 +27,6 @@ export async function listUsageForCompany(companyId: string): Promise<Usage[]> {
   return docs.map((doc) => toUsage(doc));
 }
 
-/** Monatswert setzen oder ersetzen. */
-export async function upsertUsage(entry: Usage): Promise<void> {
-  await (await col(COLLECTIONS.usage)).replaceOne({ _id: usageId(entry) }, entry, {
-    upsert: true,
-  });
-}
-
 export async function insertUsage(entries: Usage[]): Promise<void> {
   if (entries.length === 0) return;
   await (await col(COLLECTIONS.usage)).insertMany(

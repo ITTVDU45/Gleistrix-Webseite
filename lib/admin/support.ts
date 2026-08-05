@@ -3,11 +3,14 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 /**
  * Globaler Gleistrix-Support-Zugang über alle Mandanten.
  *
- * Jeder Mandant läuft in einem eigenen Deployment mit eigener Datenbank. Damit
- * ein Support-Konto trotzdem in jede Instanz kommt, ohne dass wir Kunden-
- * passwörter speichern, erzeugt der Control-Plane ein kurzlebiges, signiertes
- * Token. Die Instanz prüft es mit demselben SERVICE_SHARED_SECRET, das dort
+ * Alle Mandanten arbeiten in derselben App; getrennt sind ihre Daten auf
+ * Datenbankebene. Damit ein Support-Konto hineinkommt, ohne dass wir Kunden-
+ * passwörter speichern, erzeugt der Adminbereich ein kurzlebiges, signiertes
+ * Token. Die App prüft es mit demselben SERVICE_SHARED_SECRET, das dort
  * bereits für Portal→Admin-Requests genutzt wird.
+ *
+ * WELCHER Mandant gemeint ist, sagt allein die Audience des Tokens – die URL
+ * ist für alle dieselbe und trägt die Information nicht mehr.
  *
  * Das Support-Konto ist bewusst NICHT das Control-Plane-Konto: eine Session
  * unter /admin allein öffnet keine Kundendaten, es braucht zusätzlich das
@@ -63,15 +66,15 @@ export type SupportLinkResult =
   | { ok: false; error: string };
 
 /**
- * Baut einen kurzlebigen Support-Link in die Instanz eines Mandanten.
+ * Baut einen kurzlebigen Support-Link auf einen Mandanten.
  * Das Passwort wird hier geprüft (Step-up) und nicht in das Token übernommen.
  *
- * `subdomain` ist die Audience des Tokens, `baseUrl` das Ziel des Links – beide
+ * `kennung` ist die Audience des Tokens, `baseUrl` das Ziel des Links – beide
  * kommen vom Aufrufer, damit dieses Modul nichts über das Namensschema der
  * Mandanten wissen muss (das liegt allein in `tenant.ts`).
  */
 export function createSupportLink(
-  subdomain: string,
+  kennung: string,
   baseUrl: string,
   password: string,
   reason: string,
@@ -102,10 +105,12 @@ export function createSupportLink(
   // JSON statt "email.audience.exp": E-Mail und Domain enthalten selbst Punkte,
   // ein Trennzeichen-Format zerlegt sie falsch.
   //
-  // `aud` ist die Subdomain und gehört mit in die Signatur: ein Token für
-  // Mandant A darf sich nicht gegen Mandant B einlösen lassen. Die Instanz
-  // prüft es gegen ihren eigenen Host – ohne Datenbankzugriff.
-  const payload = JSON.stringify({ sub: account.email, aud: subdomain, exp: expires });
+  // `aud` ist die Kennung des Mandanten und gehört mit in die Signatur: ein
+  // Token für Mandant A darf sich nicht gegen Mandant B einlösen lassen. Seit
+  // alle dieselbe App teilen, ist das die EINZIGE Grenze zwischen beiden – die
+  // App muss `aud` gegen den aufgelösten Mandanten prüfen, nicht gegen ihren
+  // Host. Siehe support.check.ts, dort ist das Format gepinnt.
+  const payload = JSON.stringify({ sub: account.email, aud: kennung, exp: expires });
   // Signiert wird die kodierte Form: so prüft die Instanz exakt die Bytes, die
   // sie empfangen hat, ohne Roundtrip über JSON.
   const encoded = Buffer.from(payload, "utf8").toString("base64url");

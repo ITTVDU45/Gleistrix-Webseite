@@ -7,15 +7,26 @@ import type {
   Tenant,
 } from "@/types/admin";
 
-export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
 
 /**
  * Adresse der mandantenfähigen App – für alle Kunden dieselbe. Welcher Mandant
  * gemeint ist, entscheidet dort die Anmeldung, nicht mehr die URL.
+ *
+ * Der Schrägstrich am Ende fliegt weg: Die Pfade werden angehängt, aus
+ * „https://app.gleistrix.de/" würde sonst „…de//api/internal/tenants".
  */
-export const APP_URL = process.env.GLEISTRIX_APP_URL?.trim() || `https://app.${ROOT_DOMAIN}`;
+export const APP_URL = (
+  process.env.GLEISTRIX_APP_URL?.trim() || `https://app.${ROOT_DOMAIN}`
+).replace(/\/+$/, "");
 
-/** Reservierte Subdomains, die kein Mandant belegen darf. */
+/**
+ * Reservierte Kennungen, die kein Mandant belegen darf.
+ *
+ * Sie werden zu Datenbank- und Bucketnamen (gleistrix_<kennung>,
+ * gleistrix-<kennung>). Eine Subdomain je Mandant gibt es seit dem Umbau nicht
+ * mehr – die Namenskollision aber sehr wohl.
+ */
 const RESERVED_SLUGS = new Set([
   "www",
   "app",
