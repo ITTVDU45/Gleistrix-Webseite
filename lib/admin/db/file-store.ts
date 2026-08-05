@@ -38,6 +38,7 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
     contacts: parsed.contacts ?? [],
     brochureRequests: parsed.brochureRequests ?? [],
     demoAccess: parsed.demoAccess ?? [],
+    purchases: parsed.purchases ?? [],
     // Fehlt die Preiskonfiguration, greift DEFAULT_PRICING als Rückfallebene
     // (siehe lib/admin/pricing.ts) – nicht hier, damit der Store frei von
     // Preislogik bleibt.

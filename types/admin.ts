@@ -180,6 +180,34 @@ export type DemoAccess = {
   createdAt: string;
 };
 
+/* ----------------------------------------------------------------- Käufe */
+
+export type PurchaseStatus = "offen" | "freigegeben" | "fehlgeschlagen";
+
+/**
+ * Ein abgeschlossener Kauf – die Vorlage für den Mandanten in der App.
+ *
+ * Preise stehen hier eingefroren zum Kaufzeitpunkt. Änderte sich später die
+ * Preisliste, verschöbe sich sonst rückwirkend, was der Kunde zahlt.
+ */
+export type Purchase = {
+  id: string;
+  companyId: string;
+  packageId: string;
+  moduleIds: string[];
+  /** Gebuchte Benutzerzahl. */
+  users: number;
+  capacityId: string;
+  monthlyTotal: number;
+  implementationPrice: number;
+  status: PurchaseStatus;
+  /** Zeitpunkt der Rückmeldung aus der App. */
+  syncedAt?: string | null;
+  /** Letzte Fehlermeldung – Grundlage für die Wiederholung im Admin. */
+  syncError?: string | null;
+  createdAt: string;
+};
+
 export type AdminStore = {
   companies: Company[];
   packages: Package[];
@@ -189,6 +217,7 @@ export type AdminStore = {
   contacts: Contact[];
   brochureRequests: BrochureRequest[];
   demoAccess: DemoAccess[];
+  purchases: Purchase[];
   /** Bearbeitungsstand der öffentlichen Preisseite. */
   pricingDraft?: PricingConfig;
   /** Freigegebener Stand – nur dieser wird auf /preise ausgeliefert. */

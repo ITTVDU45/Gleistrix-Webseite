@@ -6,6 +6,7 @@ import type {
   DemoAccess,
   Lead,
   Package,
+  Purchase,
   SupportAccess,
   Usage,
 } from "@/types/admin";
@@ -17,6 +18,7 @@ import * as contactsDb from "./db/contacts";
 import * as demoDb from "./db/demoAccess";
 import { patchFileStore, readFileStore } from "./db/file-store";
 import * as leadsDb from "./db/leads";
+import * as purchasesDb from "./db/purchases";
 import * as supportDb from "./db/supportAccess";
 import * as packagesDb from "./db/tenantPackages";
 import * as usageDb from "./db/usage";
@@ -53,19 +55,39 @@ export async function readStore(): Promise<AdminStore> {
   if (!isMongoConfigured()) return readFileStore();
   await ready();
 
-  const [companies, packages, usage, supportAccess, leads, contacts, brochureRequests, demoAccess] =
-    await Promise.all([
-      companiesDb.listCompanies(),
-      packagesDb.listPackages(),
-      usageDb.listUsage(),
-      supportDb.listSupportAccess(),
-      leadsDb.listLeads(),
-      contactsDb.listContacts(),
-      brochureDb.listBrochureRequests(),
-      demoDb.listDemoAccess(),
-    ]);
+  const [
+    companies,
+    packages,
+    usage,
+    supportAccess,
+    leads,
+    contacts,
+    brochureRequests,
+    demoAccess,
+    purchases,
+  ] = await Promise.all([
+    companiesDb.listCompanies(),
+    packagesDb.listPackages(),
+    usageDb.listUsage(),
+    supportDb.listSupportAccess(),
+    leadsDb.listLeads(),
+    contactsDb.listContacts(),
+    brochureDb.listBrochureRequests(),
+    demoDb.listDemoAccess(),
+    purchasesDb.listPurchases(),
+  ]);
 
-  return { companies, packages, usage, supportAccess, leads, contacts, brochureRequests, demoAccess };
+  return {
+    companies,
+    packages,
+    usage,
+    supportAccess,
+    leads,
+    contacts,
+    brochureRequests,
+    demoAccess,
+    purchases,
+  };
 }
 
 /* --------------------------------------------------------------- Unternehmen */
@@ -404,6 +426,76 @@ export async function updateDemoAccess(
       next: {
         ...store,
         demoAccess: store.demoAccess.map((access) => (access.id === id ? updated : access)),
+      },
+      result: updated,
+    };
+  });
+}
+
+/* -------------------------------------------------------------------- Käufe */
+
+export async function getPurchases(): Promise<Purchase[]> {
+  if (isMongoConfigured()) {
+    await ready();
+    return purchasesDb.listPurchases();
+  }
+
+  const store = await readFileStore();
+  return [...store.purchases].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function getPurchase(id: string): Promise<Purchase | null> {
+  if (isMongoConfigured()) {
+    await ready();
+    return purchasesDb.getPurchase(id);
+  }
+
+  const store = await readFileStore();
+  return store.purchases.find((purchase) => purchase.id === id) ?? null;
+}
+
+export async function getPurchasesForCompany(companyId: string): Promise<Purchase[]> {
+  if (isMongoConfigured()) {
+    await ready();
+    return purchasesDb.listPurchasesForCompany(companyId);
+  }
+
+  const store = await readFileStore();
+  return store.purchases
+    .filter((purchase) => purchase.companyId === companyId)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export async function addPurchase(purchase: Purchase): Promise<void> {
+  if (isMongoConfigured()) {
+    await ready();
+    return purchasesDb.insertPurchase(purchase);
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, purchases: [purchase, ...store.purchases] },
+    result: undefined,
+  }));
+}
+
+export async function updatePurchase(
+  id: string,
+  patch: (purchase: Purchase) => Purchase,
+): Promise<Purchase | null> {
+  if (isMongoConfigured()) {
+    await ready();
+    return purchasesDb.patchPurchase(id, patch);
+  }
+
+  return patchFileStore((store) => {
+    const current = store.purchases.find((purchase) => purchase.id === id);
+    if (!current) return { next: store, result: null };
+
+    const updated = patch(current);
+    return {
+      next: {
+        ...store,
+        purchases: store.purchases.map((purchase) => (purchase.id === id ? updated : purchase)),
       },
       result: updated,
     };

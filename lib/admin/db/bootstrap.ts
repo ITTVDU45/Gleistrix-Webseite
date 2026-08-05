@@ -10,6 +10,7 @@ import { contactsEmpty, insertContacts } from "./contacts";
 import { demoAccessEmpty, insertDemoAccessEntries } from "./demoAccess";
 import { insertLeads, leadsEmpty } from "./leads";
 import { draftEmpty, insertRelease, releasesEmpty, writeDraft } from "./pricing";
+import { insertPurchases, purchasesEmpty } from "./purchases";
 import { seed } from "./seed";
 import { insertSupportAccessEntries, supportAccessEmpty } from "./supportAccess";
 import { insertPackages, packagesEmpty } from "./tenantPackages";
@@ -94,6 +95,7 @@ async function distribute(store: Partial<AdminStore>): Promise<void> {
     fill(contactsEmpty, () => insertContacts(store.contacts ?? [])),
     fill(brochureRequestsEmpty, () => insertBrochureRequests(store.brochureRequests ?? [])),
     fill(demoAccessEmpty, () => insertDemoAccessEntries(store.demoAccess ?? [])),
+    fill(purchasesEmpty, () => insertPurchases(store.purchases ?? [])),
     fill(draftEmpty, async () => {
       if (store.pricingDraft) await writeDraft(migratePricing(store.pricingDraft));
     }),
@@ -125,6 +127,8 @@ async function ensureIndexes(): Promise<void> {
     index(COLLECTIONS.contacts, { createdAt: -1 }),
     index(COLLECTIONS.brochureRequests, { createdAt: -1 }),
     index(COLLECTIONS.demoAccess, { createdAt: -1 }),
+    index(COLLECTIONS.purchases, { companyId: 1, createdAt: -1 }),
+    index(COLLECTIONS.purchases, { createdAt: -1 }),
     index(COLLECTIONS.supportAccess, { companyId: 1, createdAt: -1 }),
     index(COLLECTIONS.usage, { companyId: 1, month: 1 }),
     index(COLLECTIONS.pricingPackages, { order: 1 }),
