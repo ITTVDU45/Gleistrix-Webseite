@@ -46,7 +46,7 @@ import {
 } from "@/lib/admin/store";
 import { createSupportLink } from "@/lib/admin/support";
 import {
-  instanceUrl,
+  APP_URL,
   provisioningPlan,
   slugify,
   tenantFor,
@@ -283,17 +283,13 @@ export async function openSupportSessionAction(
   const company = store.companies.find((c) => c.id === companyId);
   if (!company) return { error: "Unbekanntes Unternehmen." };
 
-  const deployed = company.provisioning.find((step) => step.id === "deployment");
-  if (deployed?.status !== "done") {
-    return { error: "Die Instanz dieses Mandanten ist noch nicht deployed." };
+  if (company.status === "provisioning") {
+    return { error: "Die Provisionierung dieses Mandanten ist noch nicht abgeschlossen." };
   }
 
-  const link = createSupportLink(
-    company.tenant.subdomain,
-    instanceUrl(company.tenant),
-    password,
-    reason,
-  );
+  // Alle Mandanten teilen sich eine App – die Kennung im Token sagt der App,
+  // wessen Daten der Support sehen darf.
+  const link = createSupportLink(company.slug, APP_URL, password, reason);
   if (!link.ok) return { error: link.error };
 
   await recordSupportAccess({
@@ -1203,65 +1199,11 @@ import {
   createTenantUser,
   generateTenantPassword,
   mongoAdminIssue,
-  tenantMongoUri,
 } from "@/lib/admin/provision/mongo";
-import {
-  VERCEL_ISSUE_TEXT,
-  attachTenantDomain,
-  createTenantProject,
-  vercelIssue,
-} from "@/lib/admin/provision/vercel";
-import type { ProvisioningStepId, Tenant } from "@/types/admin";
+import type { ProvisioningStepId } from "@/types/admin";
 
-/** Ergebnis eines Schritts, einheitlich für alle drei Anbieter. */
+/** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
 type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
-
-/**
- * Datenbank, Benutzer und Deployment eines Mandanten.
- *
- * ABSICHERUNG GEGEN AUSSPERREN: Das Passwort des Mandantenbenutzers existiert
- * nur im Moment seiner Anlage – MongoDB gibt es nie wieder heraus, und
- * createTenantUser setzt es bei einem bestehenden Benutzer bewusst NICHT neu.
- * Deshalb darf die Verbindungszeichenfolge nur dann in die Vercel-Umgebung
- * geschrieben werden, wenn der Benutzer in DIESEM Lauf entstanden ist
- * (`created === true`). Andernfalls stünde dort ein Passwort, das am Benutzer
- * nie gesetzt wurde, und der Mandant verlöre beim nächsten Deployment den
- * Datenbankzugriff.
- */
-async function runDeployment(tenant: Tenant): Promise<StepOutcome> {
-  const password = generateTenantPassword();
-  const user = await createTenantUser(tenant, password);
-  if (!user.ok) return { ok: false, error: user.error };
-
-  // Nur ein frisch angelegter Benutzer hat dieses Passwort.
-  const env: Record<string, string> = user.created
-    ? {
-        MONGODB_URI: tenantMongoUri(tenant, password),
-        MINIO_BUCKET: tenant.minioBucket,
-        NEXTAUTH_SECRET: generateTenantPassword(),
-        NEXTAUTH_URL: instanceUrl(tenant),
-      }
-    : {
-        MINIO_BUCKET: tenant.minioBucket,
-        NEXTAUTH_URL: instanceUrl(tenant),
-      };
-
-  const project = await createTenantProject(tenant, env);
-  if (!project.ok) return { ok: false, error: project.error };
-
-  const domain = await attachTenantDomain(tenant);
-  if (!domain.ok) return { ok: false, error: domain.error };
-
-  const notes = [user.note, project.note, domain.note];
-  if (!user.created) {
-    notes.push(
-      "Die Datenbank-Verbindung wurde NICHT überschrieben, da der Benutzer schon bestand – " +
-        "sein Passwort ist nur bei der Erstanlage bekannt. Zum Erneuern den Benutzer in " +
-        "MongoDB löschen und den Schritt wiederholen.",
-    );
-  }
-  return { ok: true, note: notes.join(" ") };
-}
 
 /** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */
 export async function runProvisioningStepAction(
@@ -1290,16 +1232,11 @@ export async function runProvisioningStepAction(
     case "mongo-role": {
       const issue = mongoAdminIssue();
       if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
-      // Eigenständig ausführbar, damit der Benutzer früh steht. Das Passwort
-      // wird hier verworfen – die Verbindungsdaten entstehen im Deployment.
+      // Das Passwort wird hier verworfen: Die App verbindet sich mit dem
+      // Zugang aus ihrer eigenen Umgebung, nicht mit einem je Mandant erzeugten.
       const user = await createTenantUser(tenant, generateTenantPassword());
       outcome = user.ok
-        ? {
-            ok: true,
-            note: user.created
-              ? `${user.note} Die Verbindungsdaten setzt der Deployment-Schritt.`
-              : user.note,
-          }
+        ? { ok: true, note: user.note }
         : { ok: false, error: user.error };
       break;
     }
@@ -1309,20 +1246,6 @@ export async function runProvisioningStepAction(
       outcome = await createTenantBucket(tenant);
       break;
     }
-    case "deployment": {
-      const mongo = mongoAdminIssue();
-      if (mongo) return { error: MONGO_ADMIN_ISSUE_TEXT[mongo] };
-      const vercel = vercelIssue();
-      if (vercel) return { error: VERCEL_ISSUE_TEXT[vercel] };
-      outcome = await runDeployment(tenant);
-      break;
-    }
-    case "dns-record":
-      outcome = {
-        ok: true,
-        note: `${tenant.subdomain} wird im Deployment-Schritt an das Vercel-Projekt gehängt; die Zone liegt bei Vercel, ein eigener DNS-Eintrag entfällt.`,
-      };
-      break;
     default:
       return { error: "Für diesen Schritt gibt es keine Automatik." };
   }

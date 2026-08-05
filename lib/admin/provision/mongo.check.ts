@@ -17,7 +17,6 @@ process.env.MONGODB_ADMIN_URI = `mongodb://cluster_root:${ADMIN_PASSWORD}@5.9.22
 const { generateTenantPassword, tenantMongoUri } = await import("./mongo.ts");
 
 const tenant = {
-  subdomain: "muster-bau.gleistrix.de",
   mongoDatabase: "gleistrix_muster_bau",
   mongoUser: "svc_muster_bau",
   minioBucket: "gleistrix-muster-bau",

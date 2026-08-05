@@ -9,14 +9,13 @@ import { Label } from "@/components/ui/label";
 import { slugify } from "@/lib/admin/tenant";
 
 type Props = {
-  rootDomain: string;
   packages: { id: string; name: string }[];
 };
 
 const SELECT_CLASS =
   "h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
-export default function NewCompanyForm({ rootDomain, packages }: Props) {
+export default function NewCompanyForm({ packages }: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     createCompanyAction,
     {},
@@ -43,7 +42,7 @@ export default function NewCompanyForm({ rootDomain, packages }: Props) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="slug">Kennung / Subdomain</Label>
+          <Label htmlFor="slug">Kennung</Label>
           <Input
             id="slug"
             name="slug"
@@ -52,7 +51,7 @@ export default function NewCompanyForm({ rootDomain, packages }: Props) {
             placeholder="muster-bau"
           />
           <p className="text-xs text-muted-foreground">
-            {slug ? `${slug}.${rootDomain}` : `kennung.${rootDomain}`}
+            Datenbank <code>gleistrix_{(slug || "kennung").replace(/-/g, "_")}</code>
           </p>
         </div>
 

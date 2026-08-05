@@ -2,12 +2,7 @@ import type { PricingConfig } from "./pricing";
 
 export type CompanyStatus = "provisioning" | "active" | "suspended";
 
-export type ProvisioningStepId =
-  | "mongo-database"
-  | "mongo-role"
-  | "minio-bucket"
-  | "deployment"
-  | "dns-record";
+export type ProvisioningStepId = "mongo-database" | "mongo-role" | "minio-bucket";
 
 export type ProvisioningStatus = "pending" | "done" | "failed";
 
@@ -26,14 +21,12 @@ export type ProvisioningStep = {
 /**
  * Ressourcen eines Mandanten.
  *
- * Isolationsmodell: ein Deployment der Gleistrix-App je Mandant. Die App ist
- * Single-Tenant gebaut (dbName fest verdrahtet, Feature-Flags mit scope
- * 'global') – deshalb bekommt jeder Kunde eine eigene Instanz mit eigener
- * Datenbank statt einer gemeinsamen Datenbank mit companyId je Dokument.
+ * Isolationsmodell: EINE mandantenfähige App unter app.gleistrix.de für alle
+ * Kunden, die Trennung liegt auf Datenbankebene. Jeder Kunde bekommt eine
+ * eigene Datenbank statt einer gemeinsamen mit companyId je Dokument – die App
+ * ist mit fest verdrahtetem dbName und globalen Feature-Flags gebaut.
  */
 export type Tenant = {
-  /** kundenname.gleistrix.de */
-  subdomain: string;
   /** Eigene MongoDB-Datenbank im gemeinsamen Cluster (die App braucht ~46 Collections). */
   mongoDatabase: string;
   /** MongoDB-Benutzer, dessen Rolle nur auf diese Datenbank zeigt. */

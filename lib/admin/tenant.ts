@@ -2,6 +2,12 @@ import type { ProvisioningStep, Tenant } from "@/types/admin";
 
 export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
 
+/**
+ * Adresse der mandantenfähigen App – für alle Kunden dieselbe. Welcher Mandant
+ * gemeint ist, entscheidet dort die Anmeldung, nicht mehr die URL.
+ */
+export const APP_URL = process.env.GLEISTRIX_APP_URL?.trim() || `https://app.${ROOT_DOMAIN}`;
+
 /** Reservierte Subdomains, die kein Mandant belegen darf. */
 const RESERVED_SLUGS = new Set([
   "www",
@@ -45,7 +51,7 @@ export function validateSlug(slug: string, takenSlugs: string[]): SlugCheck {
     return { ok: false, error: "Nur Kleinbuchstaben, Ziffern und Bindestriche erlaubt." };
   }
   if (RESERVED_SLUGS.has(slug)) {
-    return { ok: false, error: `„${slug}“ ist eine reservierte Subdomain.` };
+    return { ok: false, error: `„${slug}“ ist eine reservierte Kennung.` };
   }
   if (takenSlugs.includes(slug)) {
     return { ok: false, error: `„${slug}“ ist bereits vergeben.` };
@@ -57,16 +63,10 @@ export function validateSlug(slug: string, takenSlugs: string[]): SlugCheck {
 export function tenantFor(slug: string): Tenant {
   const flat = slug.replace(/-/g, "_");
   return {
-    subdomain: `${slug}.${ROOT_DOMAIN}`,
     mongoDatabase: `gleistrix_${flat}`,
     mongoUser: `svc_${flat}`,
     minioBucket: `gleistrix-${slug}`,
   };
-}
-
-/** Basis-URL der Kundeninstanz. */
-export function instanceUrl(tenant: Tenant): string {
-  return `https://${tenant.subdomain}`;
 }
 
 type StepBlueprint = {
@@ -101,22 +101,6 @@ const BLUEPRINTS: StepBlueprint[] = [
     target: (t) => t.minioBucket,
     note: (t) =>
       `Bucket ${t.minioBucket} mit Versionierung. Ohne Policy, denn bei MinIO ist ein Bucket ohne Policy privat – die Beschränkung auf den Mandanten gehört an dessen Access Key.`,
-  },
-  {
-    id: "deployment",
-    label: "Gleistrix-Instanz deployen",
-    requiredEnv: "VERCEL_API_TOKEN",
-    target: (t) => t.subdomain,
-    note: (t) =>
-      `Eigenes Deployment der Gleistrix-App: MONGODB_URI auf ${t.mongoDatabase}, MinIO auf ${t.minioBucket}, eigenes NEXTAUTH_SECRET und eigenes SUPERADMIN_EMAIL/PASSWORD für den Kunden.`,
-  },
-  {
-    id: "dns-record",
-    label: "DNS-Eintrag setzen",
-    requiredEnv: "VERCEL_API_TOKEN",
-    target: (t) => t.subdomain,
-    note: (t) =>
-      `${t.subdomain} an das Vercel-Projekt des Mandanten hängen. Die Zone liegt in der Vercel-Nameserververwaltung, deshalb setzt Vercel DNS-Eintrag und Zertifikat selbst – ein eigener DNS-Anbieter wird nicht gebraucht.`,
   },
 ];
 
