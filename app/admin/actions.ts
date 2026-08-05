@@ -47,9 +47,9 @@ import {
 import { createSupportLink } from "@/lib/admin/support";
 import {
   APP_URL,
+  applyStepResult,
   provisioningPlan,
   slugify,
-  statusFor,
   tenantFor,
   validateSlug,
 } from "@/lib/admin/tenant";
@@ -242,18 +242,12 @@ export async function setProvisioningStepAction(data: FormData): Promise<void> {
 
   if (status !== "pending" && status !== "done" && status !== "failed") return;
 
-  const updated = await updateCompany(companyId, (company) => {
-    const provisioning = company.provisioning.map((step) =>
-      step.id === stepId ? { ...step, status, updatedAt: new Date().toISOString() } : step,
-    );
-
-    return {
-      ...company,
-      provisioning,
-      // Erst wenn alle Ressourcen stehen, verlässt der Mandant die Provisionierung.
-      status: statusFor(company.status, provisioning),
-    };
-  });
+  const updated = await updateCompany(companyId, (company) =>
+    applyStepResult(company, stepId as ProvisioningStepId, {
+      status,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
 
   if (updated) revalidateAdmin(companyId);
 }
@@ -1197,9 +1191,15 @@ import {
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
 import { registerTenant, tenantRegistration } from "@/lib/admin/app-sync";
-import { getPurchase, getPurchasesForCompany, updatePurchase } from "@/lib/admin/store";
+import {
+  getPackage,
+  getPurchase,
+  getPurchasesForCompany,
+  updatePurchase,
+} from "@/lib/admin/store";
 import { allModules, getPublishedPricing } from "@/lib/admin/pricing";
-import type { ProvisioningStepId } from "@/types/admin";
+import { effectiveModuleIds } from "@/lib/admin/modules";
+import type { ProvisioningStepId, Purchase } from "@/types/admin";
 
 /** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
 type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
@@ -1216,24 +1216,40 @@ type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
  * `fehlgeschlagen`, `syncError` hält die Meldung, und der Knopf unter
  * /admin/kaeufe wiederholt den Lauf.
  */
-async function runAppSync(company: Company): Promise<StepOutcome> {
-  const [purchases, pricing] = await Promise.all([
-    getPurchasesForCompany(company.id),
+async function runAppSync(company: Company, forPurchase?: Purchase): Promise<StepOutcome> {
+  const [purchases, pricing, tenantPackage] = await Promise.all([
+    forPurchase ? Promise.resolve([forPurchase]) : getPurchasesForCompany(company.id),
     getPublishedPricing(),
+    getPackage(company.packageId),
   ]);
   const purchase = purchases[0] ?? null;
 
-  const packageId = purchase?.packageId ?? company.packageId ?? "";
-  const packageName = pricing.packages.find((pkg) => pkg.id === packageId)?.name ?? packageId;
+  // Zwei getrennte Kataloge mit eigenem Kennungsraum: Ein Kauf verweist auf die
+  // Preisliste (pricing_packages), ein von Hand zugewiesenes Paket auf die
+  // Mandantenpakete (tenant_packages). Wer im falschen sucht, findet nie etwas
+  // und meldet der App die technische Kennung als Paketnamen.
+  const paket = purchase
+    ? {
+        id: purchase.packageId,
+        name:
+          pricing.packages.find((pkg) => pkg.id === purchase.packageId)?.name ??
+          purchase.packageId,
+      }
+    : { id: tenantPackage?.id ?? "", name: tenantPackage?.name ?? "" };
+
   const known = new Set(allModules(pricing).map((module) => module.id));
 
   const registration = tenantRegistration({
     company,
-    paket: { id: packageId, name: packageName },
+    paket,
     benutzer: purchase?.users ?? company.seats,
-    // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
-    // und im Protokoll stünde dann ein Fehler statt der Ursache.
-    module: (purchase?.moduleIds ?? company.extraModuleIds).filter((id) => known.has(id)),
+    module: purchase
+      ? // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
+        // und im Protokoll stünde dann ein Fehler statt der Ursache.
+        purchase.moduleIds.filter((id) => known.has(id))
+      : // Ohne Kauf gilt genau der Umfang, den der Adminbereich für diesen
+        // Mandanten anzeigt: Paketmodule plus Einzelfreigaben, minus Sperren.
+        effectiveModuleIds(pricing, company, tenantPackage),
     gueltigBis: null,
   });
 
@@ -1315,19 +1331,13 @@ export async function runProvisioningStepAction(
       return { error: "Für diesen Schritt gibt es keine Automatik." };
   }
 
-  await updateCompany(companyId, (current) => ({
-    ...current,
-    provisioning: current.provisioning.map((step) =>
-      step.id === stepId
-        ? {
-            ...step,
-            status: outcome.ok ? ("done" as const) : ("failed" as const),
-            note: outcome.ok ? outcome.note : outcome.error,
-            updatedAt: new Date().toISOString(),
-          }
-        : step,
-    ),
-  }));
+  await updateCompany(companyId, (current) =>
+    applyStepResult(current, stepId, {
+      status: outcome.ok ? "done" : "failed",
+      note: outcome.ok ? outcome.note : outcome.error,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
   revalidateAdmin(companyId);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };
@@ -1355,23 +1365,19 @@ export async function syncPurchaseAction(
   const issue = appSyncIssue();
   if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
 
-  const outcome = await runAppSync(company);
+  // Der angeklickte Kauf wird ausdrücklich durchgereicht: Ohne ihn nähme
+  // runAppSync den neuesten des Unternehmens und meldete den falschen frei.
+  const outcome = await runAppSync(company, purchase);
 
   // Auch den Schritt im Protokoll nachziehen – sonst steht dort „fehlgeschlagen“,
   // während der Kauf längst freigegeben ist.
-  await updateCompany(company.id, (current) => ({
-    ...current,
-    provisioning: current.provisioning.map((step) =>
-      step.id === "app-sync"
-        ? {
-            ...step,
-            status: outcome.ok ? ("done" as const) : ("failed" as const),
-            note: outcome.ok ? outcome.note : outcome.error,
-            updatedAt: new Date().toISOString(),
-          }
-        : step,
-    ),
-  }));
+  await updateCompany(company.id, (current) =>
+    applyStepResult(current, "app-sync", {
+      status: outcome.ok ? "done" : "failed",
+      note: outcome.ok ? outcome.note : outcome.error,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
   revalidateAdmin(company.id);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };
