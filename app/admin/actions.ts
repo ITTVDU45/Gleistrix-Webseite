@@ -1190,15 +1190,14 @@ import {
   generateTenantPassword,
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
-import { registerTenant, tenantRegistration } from "@/lib/admin/app-sync";
+import { registerTenant, registrationFor } from "@/lib/admin/app-sync";
 import {
   getPackage,
   getPurchase,
   getPurchasesForCompany,
   updatePurchase,
 } from "@/lib/admin/store";
-import { allModules, getPublishedPricing } from "@/lib/admin/pricing";
-import { effectiveModuleIds } from "@/lib/admin/modules";
+import { getPublishedPricing } from "@/lib/admin/pricing";
 import type { ProvisioningStepId, Purchase } from "@/types/admin";
 
 /** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
@@ -1224,32 +1223,11 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<Ste
   ]);
   const purchase = purchases[0] ?? null;
 
-  // Zwei getrennte Kataloge mit eigenem Kennungsraum: Ein Kauf verweist auf die
-  // Preisliste (pricing_packages), ein von Hand zugewiesenes Paket auf die
-  // Mandantenpakete (tenant_packages). Wer im falschen sucht, findet nie etwas
-  // und meldet der App die technische Kennung als Paketnamen.
-  const paket = purchase
-    ? {
-        id: purchase.packageId,
-        name:
-          pricing.packages.find((pkg) => pkg.id === purchase.packageId)?.name ??
-          purchase.packageId,
-      }
-    : { id: tenantPackage?.id ?? "", name: tenantPackage?.name ?? "" };
-
-  const known = new Set(allModules(pricing).map((module) => module.id));
-
-  const registration = tenantRegistration({
+  const registration = registrationFor({
     company,
-    paket,
-    benutzer: purchase?.users ?? company.seats,
-    module: purchase
-      ? // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
-        // und im Protokoll stünde dann ein Fehler statt der Ursache.
-        purchase.moduleIds.filter((id) => known.has(id))
-      : // Ohne Kauf gilt genau der Umfang, den der Adminbereich für diesen
-        // Mandanten anzeigt: Paketmodule plus Einzelfreigaben, minus Sperren.
-        effectiveModuleIds(pricing, company, tenantPackage),
+    purchase,
+    pricing,
+    tenantPackage,
     gueltigBis: null,
   });
 

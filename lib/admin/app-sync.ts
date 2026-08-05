@@ -10,8 +10,10 @@
  * wählt die Kundendatenbank nur über deren Namen. Damit verlässt kein
  * Mandantengeheimnis die Website.
  */
-import type { Company } from "@/types/admin";
+import type { Company, Package, Purchase } from "@/types/admin";
+import type { PricingConfig } from "@/types/pricing";
 
+import { effectiveModuleIds } from "./modules";
 import { APP_URL } from "./tenant";
 
 /** Wie in der Gleistrix-App: 32 Zeichen = 128 Bit. */
@@ -115,7 +117,7 @@ export type TenantRegistration = {
  * Unternehmen: Bei einem Kauf gilt der eingefrorene Stand aus `purchases`, nicht
  * der heutige Stand der Preisliste.
  */
-export function tenantRegistration(input: {
+function tenantRegistration(input: {
   company: Company;
   paket: { id: string; name: string };
   benutzer: number;
@@ -133,6 +135,55 @@ export function tenantRegistration(input: {
     module: input.module,
     gueltigBis: input.gueltigBis ?? null,
   };
+}
+
+/**
+ * Entscheidet, was der App gemeldet wird – die ganze Regel an einer Stelle und
+ * ohne Datenbank, damit sie prüfbar ist.
+ *
+ * Der Kauf hat Vorrang: sein eingefrorener Stand gilt, nicht die heutige
+ * Preisliste. Ohne Kauf zählt der Mandant selbst, und zwar mit genau dem
+ * Umfang, den der Adminbereich für ihn anzeigt.
+ *
+ * ACHTUNG BEI DEN PAKETEN: Es gibt zwei Kataloge mit eigenem Kennungsraum.
+ * `purchase.packageId` verweist auf die Preisliste (pricing_packages),
+ * `company.packageId` auf die Mandantenpakete (tenant_packages). Wer im
+ * falschen sucht, findet strukturell nie etwas und meldet der App die
+ * technische Kennung als Paketnamen – genau das war der Fehler.
+ */
+export function registrationFor(input: {
+  company: Company;
+  purchase: Purchase | null;
+  pricing: PricingConfig;
+  /** Von Hand zugewiesenes Mandantenpaket – nur ohne Kauf maßgeblich. */
+  tenantPackage: Package | null;
+  gueltigBis?: string | null;
+}): TenantRegistration {
+  const { company, purchase, pricing, tenantPackage } = input;
+
+  const paket = purchase
+    ? {
+        id: purchase.packageId,
+        name:
+          pricing.packages.find((pkg) => pkg.id === purchase.packageId)?.name ??
+          purchase.packageId,
+      }
+    : { id: tenantPackage?.id ?? "", name: tenantPackage?.name ?? "" };
+
+  const known = new Set(pricing.modules.map((module) => module.id));
+
+  return tenantRegistration({
+    company,
+    paket,
+    benutzer: purchase?.users ?? company.seats,
+    module: purchase
+      ? // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
+        // und im Protokoll stünde dann ein Fehler statt der Ursache. Der Kauf
+        // selbst behält sie – die Kaufseite zeigt sie als „Unbekanntes Modul".
+        purchase.moduleIds.filter((id) => known.has(id))
+      : effectiveModuleIds(pricing, company, tenantPackage),
+    gueltigBis: input.gueltigBis,
+  });
 }
 
 export type TenantSyncResult =

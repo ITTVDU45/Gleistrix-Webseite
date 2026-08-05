@@ -187,17 +187,36 @@ assert.equal(gescheitert.status, "provisioning", "Ein Fehlschlag darf keinen akt
 
 // 11. Ohne eigene Meldung bleibt der bisherige Hinweis stehen - der manuelle
 // Haken hat nichts zu erzaehlen und darf das Protokoll nicht leeren.
-const vorher = fertig.provisioning.find((step) => step.id === "minio-bucket")?.note;
+//
+// Der Erwartungswert steht hier bewusst als Literal und wird NICHT aus `fertig`
+// gelesen: Ein Vergleich zweier Rueckgabewerte derselben Funktion bestaetigt nur
+// ihre Konsistenz mit sich selbst. Faerbte applyStepResult alle Schritte gleich
+// ein, faerbte es den Vergleichswert mit und der Test bliebe gruen.
 const gehakt = applyStepResult(fertig, "minio-bucket", {
   status: "pending",
   updatedAt: "2026-08-05T12:10:00.000Z",
 });
 assert.equal(
   gehakt.provisioning.find((step) => step.id === "minio-bucket")?.note,
-  vorher,
+  "MinIO war nicht erreichbar.",
   "Ohne neue Meldung muss der bisherige Hinweis erhalten bleiben",
 );
 assert.equal(gehakt.status, "provisioning", "Ein zurueckgesetzter Schritt oeffnet die Provisionierung wieder");
+
+// 11b. Der angesprochene Schritt ist der EINZIGE, der sich aendert. Ohne diese
+// Pruefung deckt kein Test den Abgleich `step.id === stepId` ab - ein Haken an
+// einem Schritt koennte alle vier auf „done" setzen und den Mandanten sofort
+// aktivieren, ohne dass je eine Ressource entstanden waere.
+assert.equal(
+  gehakt.provisioning.find((step) => step.id === "app-sync")?.status,
+  "done",
+  "Ein Schritt darf die uebrigen Schritte nicht mitschreiben",
+);
+assert.equal(
+  gehakt.provisioning.find((step) => step.id === "mongo-database")?.updatedAt,
+  "2026-07-01T09:00:00.000Z",
+  "Ein unbeteiligter Schritt behaelt seinen Zeitpunkt",
+);
 
 // 12. Eine Sperre ueberlebt auch hier.
 const gesperrt = applyStepResult({ ...mandant, status: "suspended" }, "app-sync", {
@@ -206,4 +225,4 @@ const gesperrt = applyStepResult({ ...mandant, status: "suspended" }, "app-sync"
 });
 assert.equal(gesperrt.status, "suspended", "applyStepResult darf keine Sperre aufheben");
 
-console.log("tenant.check: alle 12 Pruefungen bestanden");
+console.log("tenant.check: alle 13 Pruefungen bestanden");
