@@ -2,7 +2,11 @@ import type { PricingConfig } from "./pricing";
 
 export type CompanyStatus = "provisioning" | "active" | "suspended";
 
-export type ProvisioningStepId = "mongo-database" | "mongo-role" | "minio-bucket";
+export type ProvisioningStepId =
+  | "mongo-database"
+  | "mongo-role"
+  | "minio-bucket"
+  | "app-sync";
 
 export type ProvisioningStatus = "pending" | "done" | "failed";
 

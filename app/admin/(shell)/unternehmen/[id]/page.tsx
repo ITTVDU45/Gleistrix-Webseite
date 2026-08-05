@@ -30,6 +30,7 @@ import {
 import { getDraftPricing } from "@/lib/admin/pricing";
 import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
+import { APP_SYNC_ISSUE_TEXT, appSyncIssue } from "@/lib/admin/app-sync";
 import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
 import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
 import {
@@ -63,10 +64,12 @@ export default async function CompanyDetailPage({ params }: Props) {
   // schlimmer als gar kein Knopf.
   const mongoBlocker = mongoAdminIssue();
   const minioBlocker = minioIssue();
+  const syncBlocker = appSyncIssue();
   const stepBlockers: Record<string, string | undefined> = {
     "mongo-database": mongoBlocker ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker] : undefined,
     "mongo-role": mongoBlocker ? MONGO_ADMIN_ISSUE_TEXT[mongoBlocker] : undefined,
     "minio-bucket": minioBlocker ? MINIO_ISSUE_TEXT[minioBlocker] : undefined,
+    "app-sync": syncBlocker ? APP_SYNC_ISSUE_TEXT[syncBlocker] : undefined,
   };
 
   const [pkg, usage, store, supportLog, pricing] = await Promise.all([

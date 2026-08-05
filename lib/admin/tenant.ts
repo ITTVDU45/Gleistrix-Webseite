@@ -102,6 +102,14 @@ const BLUEPRINTS: StepBlueprint[] = [
     note: (t) =>
       `Bucket ${t.minioBucket} mit Versionierung. Ohne Policy, denn bei MinIO ist ein Bucket ohne Policy privat – die Beschränkung auf den Mandanten gehört an dessen Access Key.`,
   },
+  {
+    id: "app-sync",
+    label: "Mandant an die App melden",
+    requiredEnv: "SERVICE_SHARED_SECRET",
+    target: (t) => t.mongoDatabase,
+    note: (t) =>
+      `Meldet Kennung, Unternehmen, Paket und Module an ${APP_URL}. Übertragen wird nur der Datenbankname ${t.mongoDatabase}, kein Passwort – die App verbindet sich mit dem Zugang aus ihrer eigenen Umgebung.`,
+  },
 ];
 
 /** Frischer Provisionierungsplan für einen neuen Mandanten – alle Schritte offen. */

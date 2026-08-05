@@ -1200,10 +1200,73 @@ import {
   generateTenantPassword,
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
+import { registerTenant, tenantRegistration } from "@/lib/admin/app-sync";
+import { getPurchasesForCompany, updatePurchase } from "@/lib/admin/store";
+import { allModules, getPublishedPricing } from "@/lib/admin/pricing";
 import type { ProvisioningStepId } from "@/types/admin";
 
 /** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
 type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
+
+/**
+ * Meldet den Mandanten an die App.
+ *
+ * Gibt es einen Kauf, gilt dessen eingefrorener Stand – Paket, Module und
+ * Benutzerzahl zum Kaufzeitpunkt, nicht der heutige Stand der Preisliste. Die
+ * Kauf-ID ist zugleich der Idempotency-Key, damit eine Wiederholung nach einem
+ * Fehlschlag keinen zweiten Mandanten erzeugt.
+ *
+ * Scheitert der Aufruf, bleibt der Kauf erhalten: `status` geht auf
+ * `fehlgeschlagen`, `syncError` hält die Meldung, und der Knopf unter
+ * /admin/kaeufe wiederholt den Lauf.
+ */
+async function runAppSync(company: Company): Promise<StepOutcome> {
+  const [purchases, pricing] = await Promise.all([
+    getPurchasesForCompany(company.id),
+    getPublishedPricing(),
+  ]);
+  const purchase = purchases[0] ?? null;
+
+  const packageId = purchase?.packageId ?? company.packageId ?? "";
+  const packageName = pricing.packages.find((pkg) => pkg.id === packageId)?.name ?? packageId;
+  const known = new Set(allModules(pricing).map((module) => module.id));
+
+  const registration = tenantRegistration({
+    company,
+    paket: { id: packageId, name: packageName },
+    benutzer: purchase?.users ?? company.seats,
+    // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
+    // und im Protokoll stünde dann ein Fehler statt der Ursache.
+    module: (purchase?.moduleIds ?? company.extraModuleIds).filter((id) => known.has(id)),
+    gueltigBis: null,
+  });
+
+  const result = await registerTenant(registration, purchase?.id ?? company.id);
+  const now = new Date().toISOString();
+
+  if (purchase) {
+    await updatePurchase(purchase.id, (current) => ({
+      ...current,
+      status: result.ok ? "freigegeben" : "fehlgeschlagen",
+      syncedAt: result.ok ? now : current.syncedAt ?? null,
+      syncError: result.ok ? null : result.error,
+    }));
+  }
+
+  if (!result.ok) return result;
+
+  const details = [
+    result.tenantId ? `Mandant ${result.tenantId}` : null,
+    result.einladungsLink ? `Einladungslink: ${result.einladungsLink}` : null,
+  ].filter(Boolean);
+
+  return {
+    ok: true,
+    note: `An ${registration.datenbank} gemeldet, ohne Zugangsdaten.${
+      details.length > 0 ? ` ${details.join(" · ")}` : ""
+    }`,
+  };
+}
 
 /** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */
 export async function runProvisioningStepAction(
@@ -1244,6 +1307,12 @@ export async function runProvisioningStepAction(
       const issue = minioIssue();
       if (issue) return { error: MINIO_ISSUE_TEXT[issue] };
       outcome = await createTenantBucket(tenant);
+      break;
+    }
+    case "app-sync": {
+      const issue = appSyncIssue();
+      if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
+      outcome = await runAppSync(company);
       break;
     }
     default:
