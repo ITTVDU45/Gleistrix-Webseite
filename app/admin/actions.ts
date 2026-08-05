@@ -6,13 +6,13 @@ import { redirect } from "next/navigation";
 import { DEFAULT_PRICING } from "@/data/pricing";
 import { login, logout } from "@/lib/admin/auth";
 import {
+  APP_SYNC_ISSUE_TEXT,
   DEFAULT_DEMO_DAYS,
-  DEMO_ISSUE_TEXT,
   MAX_DEMO_DAYS,
-  demoConfigIssue,
+  appSyncIssue,
   grantDemo,
   revokeDemo,
-} from "@/lib/admin/demo";
+} from "@/lib/admin/app-sync";
 import { getModule } from "@/lib/admin/modules";
 import {
   discardDraft,
@@ -556,8 +556,8 @@ export async function releaseDemoAction(
     return { error: `Laufzeit muss zwischen 1 und ${MAX_DEMO_DAYS} Tagen liegen.` };
   }
 
-  const issue = demoConfigIssue();
-  if (issue) return { error: DEMO_ISSUE_TEXT[issue] };
+  const issue = appSyncIssue();
+  if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
 
   const result = await grantDemo({ email, company, days });
   const now = new Date().toISOString();
