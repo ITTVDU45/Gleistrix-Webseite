@@ -80,6 +80,7 @@ function revalidateAdmin(companyId?: string): void {
   revalidatePath("/admin/kontakte");
   revalidatePath("/admin/broschuere");
   revalidatePath("/admin/demo-zugang");
+  revalidatePath("/admin/kaeufe");
   // Ohne die Kundenseite bleibt nach einer Freigabe der alte Preis stehen.
   revalidatePath("/preise");
   if (companyId) revalidatePath(`/admin/unternehmen/${companyId}`);
@@ -1201,7 +1202,7 @@ import {
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
 import { registerTenant, tenantRegistration } from "@/lib/admin/app-sync";
-import { getPurchasesForCompany, updatePurchase } from "@/lib/admin/store";
+import { getPurchase, getPurchasesForCompany, updatePurchase } from "@/lib/admin/store";
 import { allModules, getPublishedPricing } from "@/lib/admin/pricing";
 import type { ProvisioningStepId } from "@/types/admin";
 
@@ -1333,6 +1334,50 @@ export async function runProvisioningStepAction(
     ),
   }));
   revalidateAdmin(companyId);
+
+  return outcome.ok ? { success: outcome.note } : { error: outcome.error };
+}
+
+/**
+ * Wiederholt die Meldung eines fehlgeschlagenen Kaufs an die App.
+ *
+ * Derselbe Weg wie der Provisionierungsschritt, nur von der Kaufseite aus –
+ * inklusive Idempotency-Key, sodass ein bereits angelegter Mandant nicht
+ * doppelt entsteht.
+ */
+export async function syncPurchaseAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const purchaseId = field(data, "purchaseId");
+
+  const purchase = await getPurchase(purchaseId);
+  if (!purchase) return { error: "Unbekannter Kauf." };
+
+  const company = await loadCompany(purchase.companyId);
+  if (!company) return { error: "Zu diesem Kauf gibt es kein Unternehmen mehr." };
+
+  const issue = appSyncIssue();
+  if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
+
+  const outcome = await runAppSync(company);
+
+  // Auch den Schritt im Protokoll nachziehen – sonst steht dort „fehlgeschlagen“,
+  // während der Kauf längst freigegeben ist.
+  await updateCompany(company.id, (current) => ({
+    ...current,
+    provisioning: current.provisioning.map((step) =>
+      step.id === "app-sync"
+        ? {
+            ...step,
+            status: outcome.ok ? ("done" as const) : ("failed" as const),
+            note: outcome.ok ? outcome.note : outcome.error,
+            updatedAt: new Date().toISOString(),
+          }
+        : step,
+    ),
+  }));
+  revalidateAdmin(company.id);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };
 }

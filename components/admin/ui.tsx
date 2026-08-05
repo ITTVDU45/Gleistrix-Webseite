@@ -7,6 +7,7 @@ import type {
   DemoAccessStatus,
   LeadStatus,
   ProvisioningStatus,
+  PurchaseStatus,
 } from "@/types/admin";
 
 /* ------------------------------------------------------------ Formatierung */
@@ -110,6 +111,29 @@ const DEMO_STATUS: Record<DemoAccessStatus, { label: string; className: string }
 
 export function DemoStatusPill({ status }: { status: DemoAccessStatus }) {
   const config = DEMO_STATUS[status];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset",
+        config.className,
+      )}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+const PURCHASE_STATUS: Record<PurchaseStatus, { label: string; className: string }> = {
+  offen: { label: "Offen", className: "bg-amber-50 text-amber-800 ring-amber-600/20" },
+  freigegeben: {
+    label: "Freigegeben",
+    className: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
+  },
+  fehlgeschlagen: { label: "Fehlgeschlagen", className: "bg-rose-50 text-rose-700 ring-rose-600/20" },
+};
+
+export function PurchaseStatusPill({ status }: { status: PurchaseStatus }) {
+  const config = PURCHASE_STATUS[status];
   return (
     <span
       className={cn(
