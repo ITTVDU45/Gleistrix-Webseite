@@ -1230,6 +1230,47 @@ type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
  * `fehlgeschlagen`, `syncError` hält die Meldung, und der Knopf unter
  * /admin/kaeufe wiederholt den Lauf.
  */
+/**
+ * Schickt dem Ansprechpartner seinen Einladungslink.
+ *
+ * Der Link ist der einzige Weg des Kunden in seinen frischen Mandanten – ohne
+ * Versand erführe er nie davon, und er stünde nur im Protokoll des Schritts.
+ *
+ * Ein Fehlschlag beim Mailen darf den Kauf NICHT scheitern lassen: Der Mandant
+ * ist in der App schon angelegt, und ein zweiter Meldelauf würde daran nichts
+ * ändern. Deshalb wird das Ergebnis nur vermerkt, nicht geworfen.
+ *
+ * @returns Vermerk fürs Protokoll, oder null wenn es nichts zu versenden gab
+ */
+async function sendeEinladung(company: Company, link?: string): Promise<string | null> {
+  if (!link) return null;
+
+  const issue = mailConfigIssue();
+  if (issue) return `Einladung NICHT versendet (${issue}) – Link von Hand weitergeben.`;
+
+  try {
+    await sendMail({
+      to: company.contactEmail,
+      subject: `Ihr Zugang zu Gleistrix – ${company.name}`,
+      text: [
+        `Guten Tag ${company.contactName || ""}`.trim() + ",",
+        "",
+        `Ihr Zugang für ${company.name} steht bereit. Über den folgenden Link legen Sie Ihr Passwort fest und melden sich das erste Mal an:`,
+        "",
+        link,
+        "",
+        "Viele Grüße",
+        "Ihr Gleistrix-Team",
+      ].join("\n"),
+    });
+  } catch (error) {
+    console.error(`Einladung an ${company.contactEmail} fehlgeschlagen:`, error);
+    return "Einladung konnte nicht versendet werden – Link von Hand weitergeben.";
+  }
+
+  return `Einladung an ${company.contactEmail} versendet.`;
+}
+
 async function runAppSync(company: Company, forPurchase?: Purchase): Promise<StepOutcome> {
   const [purchases, pricing, tenantPackage] = await Promise.all([
     getPurchasesForCompany(company.id),
@@ -1248,7 +1289,6 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<Ste
     purchases,
     pricing,
     tenantPackage,
-    gueltigBis: null,
   });
 
   const result = await registerTenant(registration, purchase?.id ?? company.id);
@@ -1265,9 +1305,12 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<Ste
 
   if (!result.ok) return result;
 
+  const versand = await sendeEinladung(company, result.einladungsLink);
+
   const details = [
     result.tenantId ? `Mandant ${result.tenantId}` : null,
     result.einladungsLink ? `Einladungslink: ${result.einladungsLink}` : null,
+    versand,
   ].filter(Boolean);
 
   return {

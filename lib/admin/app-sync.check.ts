@@ -158,7 +158,6 @@ assert.equal(mitKauf.kennung, "muster-bau");
 assert.equal(mitKauf.datenbank, "gleistrix_muster_bau");
 assert.equal(mitKauf.bucket, "gleistrix-muster-bau");
 assert.deepEqual(mitKauf.erstbenutzer, { email: "info@example.test", name: "Max Mustermann" });
-assert.equal(mitKauf.gueltigBis, null, "Ohne Demozugang bleibt gueltigBis leer");
 assert.ok(
   !JSON.stringify(mitKauf).toLowerCase().includes("passwor"),
   "Im Rumpf darf kein Passwortfeld auftauchen",

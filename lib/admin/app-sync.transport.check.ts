@@ -80,7 +80,6 @@ const registration = {
   erstbenutzer: { email: "info@example.test", name: "Max Mustermann" },
   paket: { id: "professional", name: "Professional", benutzer: 14 },
   module: ["einsatztafel"],
-  gueltigBis: null,
 };
 
 /* ------------------------------------------------------------ Erfolgsfall */

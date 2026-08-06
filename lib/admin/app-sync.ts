@@ -112,8 +112,6 @@ export type TenantRegistration = {
   erstbenutzer: { email: string; name: string };
   paket: { id: string; name: string; benutzer: number };
   module: string[];
-  /** Nur bei Demozugängen gesetzt, sonst null. */
-  gueltigBis: string | null;
 };
 
 /**
@@ -128,7 +126,6 @@ function tenantRegistration(input: {
   paket: { id: string; name: string };
   benutzer: number;
   module: string[];
-  gueltigBis?: string | null;
 }): TenantRegistration {
   const { company } = input;
   return {
@@ -139,7 +136,6 @@ function tenantRegistration(input: {
     erstbenutzer: { email: company.contactEmail, name: company.contactName },
     paket: { ...input.paket, benutzer: input.benutzer },
     module: input.module,
-    gueltigBis: input.gueltigBis ?? null,
   };
 }
 
@@ -170,7 +166,6 @@ export function registrationFor(input: {
   pricing: PricingConfig;
   /** Von Hand zugewiesenes Mandantenpaket – nur ohne Grundkauf maßgeblich. */
   tenantPackage: Package | null;
-  gueltigBis?: string | null;
 }): TenantRegistration {
   const { company, purchases, pricing, tenantPackage } = input;
 
@@ -214,7 +209,6 @@ export function registrationFor(input: {
     paket,
     benutzer: grundkauf?.users ?? company.seats,
     module,
-    gueltigBis: input.gueltigBis,
   });
 }
 

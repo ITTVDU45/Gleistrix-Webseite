@@ -3,7 +3,7 @@ import path from "node:path";
 
 import type { AdminStore } from "@/types/admin";
 
-import { reconcileProvisioning } from "../tenant";
+import { reconcileProvisioning, statusFor } from "../tenant";
 import { seed } from "./seed";
 
 /**
@@ -33,10 +33,23 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
   return {
     // Wie in bootstrap.ts: Bestandsmandanten bekommen die aktuelle
     // Schrittliste, sonst fehlte hier ohne Datenbank der Schritt app-sync.
-    companies: (parsed.companies ?? []).map((company) => ({
-      ...company,
-      provisioning: reconcileProvisioning(company.tenant, company.provisioning),
-    })),
+    companies: (parsed.companies ?? []).map((company) => {
+      const provisioning = reconcileProvisioning(company.tenant, company.provisioning);
+
+      return {
+        ...company,
+        provisioning,
+        // Nur ABWÄRTS: Ein Mandant mit offenem Schritt gilt als nicht fertig
+        // bereitgestellt, sonst bekäme er Support-Zugriff für etwas, das die
+        // App nie erhalten hat. Aufwärts wäre hier falsch – anders als die
+        // einmalige Migration läuft normalize() bei JEDEM Lesen und würde einen
+        // von Hand gesetzten Status sofort wieder überschreiben.
+        status:
+          company.status === "active" && statusFor(company.status, provisioning) !== "active"
+            ? ("provisioning" as const)
+            : company.status,
+      };
+    }),
     packages: parsed.packages ?? [],
     usage: parsed.usage ?? [],
     supportAccess: parsed.supportAccess ?? [],
