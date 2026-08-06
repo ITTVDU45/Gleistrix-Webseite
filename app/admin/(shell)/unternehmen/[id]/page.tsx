@@ -300,7 +300,13 @@ export default async function CompanyDetailPage({ params }: Props) {
                           ?.name ?? purchase.packageId)}
                   </Link>
                   <p className="text-xs text-muted-foreground">
-                    {formatNumber(purchase.users)} Benutzer · {purchase.moduleIds.length} Module ·{" "}
+                    {/* Benutzerzahl nur beim Grundkauf – eine Zubuchung sagt
+                        dazu nichts, „0 Benutzer" wäre irreführend. */}
+                    {purchase.kind === "paket"
+                      ? `${formatNumber(purchase.users)} Benutzer · `
+                      : ""}
+                    {purchase.moduleIds.length}{" "}
+                    {purchase.moduleIds.length === 1 ? "Modul" : "Module"} ·{" "}
                     {formatDate(purchase.createdAt)}
                   </p>
                 </div>

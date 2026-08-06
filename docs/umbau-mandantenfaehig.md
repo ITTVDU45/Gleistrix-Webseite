@@ -105,13 +105,16 @@ behandeln, solange `kennung` gleich bleibt.
   "bucket": "gleistrix-mustermann-bau",
   "erstbenutzer": { "email": "info@example.de", "name": "Max Mustermann" },
   "paket": { "id": "pkg_...", "name": "Professional", "benutzer": 12 },
-  "module": ["einsatztafel", "zeiterfassung"],
-  "gueltigBis": null                  // gesetzt bei Demozugängen
+  "module": ["einsatztafel", "zeiterfassung"]
 }
 ```
 
 Antwort `201` mit `{ "tenantId": "...", "einladungsLink": "..." }`, bei
 erneutem Aufruf mit demselben `Idempotency-Key` derselbe Rumpf und `200`.
+
+Ein Ablaufdatum steht **nicht** im Rumpf: Demozugänge laufen über den eigenen
+Endpunkt `POST /api/internal/demo` mit `days` und sind kein befristeter Mandant.
+Soll sich das ändern, ist es eine Entwurfsentscheidung, kein vergessenes Feld.
 
 Zwei Punkte, die im Adminbereich sichtbar sein müssen: Das Mandantenpasswort
 wird **nicht** über diese Schnittstelle übertragen — die App verbindet sich mit

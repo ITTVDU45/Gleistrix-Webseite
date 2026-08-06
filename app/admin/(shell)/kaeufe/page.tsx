@@ -5,11 +5,13 @@ import {
   PurchaseStatusPill,
   Section,
   StatCard,
+  formatDate,
   formatDateTime,
   formatNumber,
 } from "@/components/admin/ui";
 import { formatPriceEUR } from "@/data/pricing";
 import { getPublishedPricing } from "@/lib/admin/pricing";
+import { istWirksam } from "@/lib/admin/purchase";
 import { getPurchases, readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Käufe" };
@@ -27,8 +29,12 @@ export default async function AdminPurchasesPage() {
 
   const open = purchases.filter((purchase) => purchase.status === "offen");
   const failed = purchases.filter((purchase) => purchase.status === "fehlgeschlagen");
+  // Abbestellte Zubuchungen zählen bis zu ihrem Laufzeitende mit – bis dahin
+  // sind sie bezahlt. Danach fallen sie aus der Summe, ohne dass jemand
+  // aufräumen muss.
+  const jetzt = new Date().toISOString();
   const monthly = purchases
-    .filter((purchase) => purchase.status === "freigegeben")
+    .filter((purchase) => istWirksam(purchase, jetzt))
     .reduce((sum, purchase) => sum + purchase.monthlyTotal, 0);
 
   return (
@@ -102,7 +108,13 @@ export default async function AdminPurchasesPage() {
                         )}
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums">
-                        {formatNumber(purchase.users)}
+                        {/* Eine Zubuchung trägt keine Benutzerzahl – „0" läse
+                            sich wie „null Benutzer gebucht". */}
+                        {purchase.kind === "zubuchung" ? (
+                          <span className="text-muted-foreground">–</span>
+                        ) : (
+                          formatNumber(purchase.users)
+                        )}
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums">
                         {formatPriceEUR(purchase.monthlyTotal)}
@@ -112,6 +124,11 @@ export default async function AdminPurchasesPage() {
                       </td>
                       <td className="py-3 text-muted-foreground">
                         {formatDateTime(purchase.createdAt)}
+                        {purchase.endetAm ? (
+                          <span className="block text-xs text-amber-700">
+                            abbestellt, läuft bis {formatDate(purchase.endetAm)}
+                          </span>
+                        ) : null}
                       </td>
                     </tr>
                   );

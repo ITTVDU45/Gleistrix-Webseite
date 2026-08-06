@@ -26,7 +26,7 @@ registerHooks({
   },
 });
 
-const { addonPurchaseFor, purchaseFor } = await import("./purchase.ts");
+const { addonPurchaseFor, istWirksam, monatsende, purchaseFor } = await import("./purchase.ts");
 
 /** Zahlen bewusst krumm, damit ein vergessener Summand auffällt. */
 const config = {
@@ -221,4 +221,48 @@ assert.deepEqual(mitStillgelegtem.moduleIds, ["einsatztafel"]);
 // 15. Der Grundkauf bleibt davon voellig unberuehrt - er ist eingefroren.
 assert.equal(voll.monthlyTotal, 1646, "Eine Zubuchung darf den Grundkauf nicht anfassen");
 
-console.log("purchase.check: alle 15 Pruefungen bestanden");
+/* ---------------------------------------------------------- Abbestellung */
+
+// 16. Die Regel: wirksam zum MONATSENDE, nicht sofort. Wer am 6. abbestellt,
+// zahlt den August zu Ende - dafuer bleibt das Modul bis dahin nutzbar.
+assert.equal(
+  monatsende("2026-08-06T09:00:00.000Z"),
+  "2026-08-31T23:59:59.999Z",
+  "Eine Abbestellung wirkt zum Monatsende",
+);
+
+// 17. Auch am letzten Tag des Monats - dann endet sie noch am selben Tag.
+assert.equal(monatsende("2026-08-31T23:00:00.000Z"), "2026-08-31T23:59:59.999Z");
+
+// 18. Monatslaengen und Schaltjahr, weil "+1 Monat, Tag 0" leicht danebengeht.
+assert.equal(monatsende("2026-02-10T00:00:00.000Z"), "2026-02-28T23:59:59.999Z");
+assert.equal(monatsende("2028-02-10T00:00:00.000Z"), "2028-02-29T23:59:59.999Z");
+assert.equal(monatsende("2026-12-24T00:00:00.000Z"), "2026-12-31T23:59:59.999Z");
+
+// 19. Bis zum Laufzeitende zaehlt die Zubuchung mit - sie ist bezahlt.
+const abbestellt = { ...zubuchung, endetAm: "2026-08-31T23:59:59.999Z" };
+assert.equal(
+  istWirksam(abbestellt, "2026-08-20T12:00:00.000Z"),
+  true,
+  "Vor dem Laufzeitende bleibt eine abbestellte Zubuchung wirksam",
+);
+
+// 20. Danach faellt sie weg, ohne dass jemand aufraeumen muss.
+assert.equal(
+  istWirksam(abbestellt, "2026-09-01T00:00:00.000Z"),
+  false,
+  "Nach dem Laufzeitende zaehlt sie nicht mehr",
+);
+
+// 21. Ohne Abbestellung laeuft sie weiter.
+assert.equal(istWirksam(zubuchung, "2027-01-01T00:00:00.000Z"), true);
+
+// 22. Ein offener oder fehlgeschlagener Kauf zaehlt nie zum Monatsbetrag -
+// sonst stuende Geld in der Summe, das die App nie erhalten hat.
+assert.equal(istWirksam({ ...zubuchung, status: "offen" }, "2026-08-20T12:00:00.000Z"), false);
+assert.equal(
+  istWirksam({ ...zubuchung, status: "fehlgeschlagen" }, "2026-08-20T12:00:00.000Z"),
+  false,
+);
+
+console.log("purchase.check: alle 22 Pruefungen bestanden");

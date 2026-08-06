@@ -50,6 +50,36 @@ export function purchaseFor(input: {
   };
 }
 
+/* ---------------------------------------------------------- Abbestellung */
+
+/**
+ * Letzter Moment des Monats, in dem `zeitpunkt` liegt – in UTC.
+ *
+ * DIE REGEL FÜR ABBESTELLUNGEN, an genau einer Stelle: Sie wirkt zum
+ * Monatsende, nicht sofort, und es gibt keine anteilige Erstattung. Bis dahin
+ * ist bezahlt, also bleibt das Modul nutzbar. Soll sie sofort wirken, ist hier
+ * eine Zeile zu ändern – und die zugehörigen Prüfungen in purchase.check.ts.
+ */
+export function monatsende(zeitpunkt: string): string {
+  const datum = new Date(zeitpunkt);
+  // Tag 0 des Folgemonats ist der letzte Tag des laufenden.
+  return new Date(
+    Date.UTC(datum.getUTCFullYear(), datum.getUTCMonth() + 1, 0, 23, 59, 59, 999),
+  ).toISOString();
+}
+
+/**
+ * Zählt der Kauf zum heutigen Stand – für den Monatsbetrag und für das, was
+ * der App gemeldet wird?
+ *
+ * Eine abbestellte Zubuchung bleibt bis zum Laufzeitende wirksam. Danach fällt
+ * sie weg, ohne dass jemand aufräumen muss: Der Kauf bleibt als Beleg stehen.
+ */
+export function istWirksam(purchase: Purchase, jetzt: string): boolean {
+  if (purchase.status !== "freigegeben") return false;
+  return !purchase.endetAm || purchase.endetAm >= jetzt;
+}
+
 /**
  * Baut eine Zubuchung: Module, die ein Nutzer in der App selbst freigeschaltet
  * hat und die „on top" auf seinen Grundkauf kommen.
