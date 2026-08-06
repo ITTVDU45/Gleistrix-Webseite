@@ -6,7 +6,6 @@ import { COLLECTIONS, repository } from "./collections";
 const contacts = repository<Contact>(COLLECTIONS.contacts, { createdAt: -1 });
 
 export const listContacts = contacts.list;
-export const getContact = contacts.get;
 export const insertContact = contacts.insert;
 export const insertContacts = contacts.insertMany;
 export const patchContact = contacts.patch;

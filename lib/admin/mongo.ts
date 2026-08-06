@@ -19,8 +19,6 @@ const DEFAULT_AUTH_SOURCE = "admin";
 /** Verbindungsaufbau soll schnell scheitern, statt eine Server Action hängen zu lassen. */
 const SERVER_SELECTION_TIMEOUT_MS = 8000;
 
-export type MongoConfigIssue = "no-host" | "no-credentials" | null;
-
 function host(): string | null {
   return process.env.MONGODB_HOST?.trim() || null;
 }
@@ -30,19 +28,6 @@ function credentials(): { username: string; password: string } | null {
   const password = process.env.MONGODB_PASSWORD;
   return username && password ? { username, password } : null;
 }
-
-/** Was für die Datenbankanbindung noch fehlt – für die Anzeige im Adminbereich. */
-export function mongoConfigIssue(): MongoConfigIssue {
-  if (process.env.MONGODB_URI?.trim()) return null;
-  if (!host()) return "no-host";
-  if (!credentials()) return "no-credentials";
-  return null;
-}
-
-export const MONGO_ISSUE_TEXT: Record<"no-host" | "no-credentials", string> = {
-  "no-host": "MONGODB_HOST fehlt – ohne Adresse gibt es keine Datenbankverbindung.",
-  "no-credentials": "MONGODB_USERNAME oder MONGODB_PASSWORD fehlt.",
-};
 
 export function databaseName(): string {
   return process.env.MONGODB_DATABASE?.trim() || DEFAULT_DATABASE;

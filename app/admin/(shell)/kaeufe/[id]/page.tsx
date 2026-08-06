@@ -81,14 +81,38 @@ export default async function PurchaseDetailPage({ params }: Props) {
           description="Eingefroren zum Kaufzeitpunkt – eine spätere Preisänderung verschiebt ihn nicht."
         >
           <dl>
-            <KeyValue label="Paket" value={packageName} />
-            <KeyValue label="Benutzer" value={formatNumber(purchase.users)} />
-            <KeyValue label="Kapazität" value={capacityLabel} />
-            <KeyValue label="Monatspreis" value={formatPriceEUR(purchase.monthlyTotal)} />
-            <KeyValue
-              label="Implementierung"
-              value={formatPriceEUR(purchase.implementationPrice)}
-            />
+            {/* Eine Zubuchung trägt weder Paket noch Kapazität noch Benutzerzahl –
+                die gehören zum Grundkauf. Leere Felder anzuzeigen behauptete das
+                Gegenteil. */}
+            {purchase.kind === "zubuchung" ? (
+              <>
+                <KeyValue label="Art" value="Zubuchung aus der App" />
+                <KeyValue
+                  label="Monatlich zusätzlich"
+                  value={formatPriceEUR(purchase.monthlyTotal)}
+                />
+              </>
+            ) : (
+              <>
+                <KeyValue label="Paket" value={packageName} />
+                <KeyValue label="Benutzer" value={formatNumber(purchase.users)} />
+                <KeyValue label="Kapazität" value={capacityLabel} />
+                <KeyValue label="Monatspreis" value={formatPriceEUR(purchase.monthlyTotal)} />
+                <KeyValue
+                  label="Implementierung"
+                  value={formatPriceEUR(purchase.implementationPrice)}
+                />
+              </>
+            )}
+            {purchase.usageAmounts
+              ? Object.entries(purchase.usageAmounts).map(([moduleId, amount]) => (
+                  <KeyValue
+                    key={moduleId}
+                    label={`Menge · ${moduleTitleById.get(moduleId) ?? moduleId}`}
+                    value={formatNumber(amount)}
+                  />
+                ))
+              : null}
           </dl>
         </Section>
 

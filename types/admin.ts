@@ -188,6 +188,8 @@ export type DemoAccess = {
 
 export type PurchaseStatus = "offen" | "freigegeben" | "fehlgeschlagen";
 
+export type PurchaseKind = "paket" | "zubuchung";
+
 /**
  * Ein abgeschlossener Kauf – die Vorlage für den Mandanten in der App.
  *
@@ -196,12 +198,32 @@ export type PurchaseStatus = "offen" | "freigegeben" | "fehlgeschlagen";
  */
 export type Purchase = {
   id: string;
+  /**
+   * Woher der Kauf stammt.
+   *
+   * `paket` ist der im Adminbereich erfasste Grundkauf. `zubuchung` entsteht,
+   * wenn ein Nutzer in der App ein Add-on freischaltet – dort bleiben
+   * `packageId`, `capacityId` und `users` leer, weil sie zum Grundkauf gehören,
+   * und `implementationPrice` ist 0.
+   *
+   * Was ein Mandant monatlich zahlt, ist die Summe seiner Käufe: der Grundkauf
+   * plus jede Zubuchung „on top". Käufe lösen einander nicht ab.
+   */
+  kind: PurchaseKind;
   companyId: string;
   packageId: string;
   moduleIds: string[];
   /** Gebuchte Benutzerzahl. */
   users: number;
   capacityId: string;
+  /**
+   * Gebuchte Mengen der Module mit Nutzungspreis, je Modulkennung.
+   *
+   * Ohne sie ließe sich `monthlyTotal` später nicht mehr nachrechnen: Ein Modul
+   * wie die Lagerverwaltung kostet je Artikel, das können vierstellige Beträge
+   * im Monat sein. Der eingefrorene Preis wäre sonst eine Zahl ohne Herkunft.
+   */
+  usageAmounts?: Record<string, number>;
   monthlyTotal: number;
   implementationPrice: number;
   status: PurchaseStatus;

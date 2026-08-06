@@ -10,8 +10,10 @@
  * wählt die Kundendatenbank nur über deren Namen. Damit verlässt kein
  * Mandantengeheimnis die Website.
  */
-import type { Company } from "@/types/admin";
+import type { Company, Package, Purchase } from "@/types/admin";
+import type { PricingConfig } from "@/types/pricing";
 
+import { effectiveModuleIds } from "./modules";
 import { APP_URL } from "./tenant";
 
 /** Wie in der Gleistrix-App: 32 Zeichen = 128 Bit. */
@@ -96,7 +98,13 @@ function text(value: unknown): string | undefined {
 
 /** Was die App braucht, um einen Mandanten anzulegen – ohne Zugangsdaten. */
 export type TenantRegistration = {
-  /** Kennung des Mandanten = Datenbankname ohne Präfix. */
+  /**
+   * Kennung des Mandanten, z. B. „muster-bau".
+   *
+   * NICHT der Datenbankname ohne Präfix: dort stehen Unterstriche statt
+   * Bindestriche (gleistrix_muster_bau). Die App übernimmt `datenbank`
+   * unverändert und leitet sie nicht aus der Kennung ab.
+   */
   kennung: string;
   unternehmen: string;
   datenbank: string;
@@ -115,7 +123,7 @@ export type TenantRegistration = {
  * Unternehmen: Bei einem Kauf gilt der eingefrorene Stand aus `purchases`, nicht
  * der heutige Stand der Preisliste.
  */
-export function tenantRegistration(input: {
+function tenantRegistration(input: {
   company: Company;
   paket: { id: string; name: string };
   benutzer: number;
@@ -133,6 +141,81 @@ export function tenantRegistration(input: {
     module: input.module,
     gueltigBis: input.gueltigBis ?? null,
   };
+}
+
+/**
+ * Entscheidet, was der App gemeldet wird – die ganze Regel an einer Stelle und
+ * ohne Datenbank, damit sie prüfbar ist.
+ *
+ * Der Kauf hat Vorrang: sein eingefrorener Stand gilt, nicht die heutige
+ * Preisliste. Ohne Kauf zählt der Mandant selbst, und zwar mit genau dem
+ * Umfang, den der Adminbereich für ihn anzeigt.
+ *
+ * ACHTUNG BEI DEN PAKETEN: Es gibt zwei Kataloge mit eigenem Kennungsraum.
+ * `purchase.packageId` verweist auf die Preisliste (pricing_packages),
+ * `company.packageId` auf die Mandantenpakete (tenant_packages). Wer im
+ * falschen sucht, findet strukturell nie etwas und meldet der App die
+ * technische Kennung als Paketnamen – genau das war der Fehler.
+ */
+export function registrationFor(input: {
+  company: Company;
+  /**
+   * Alle Käufe des Mandanten, neueste zuerst.
+   *
+   * Käufe sind additiv: Der Grundkauf trägt Paket und Benutzerzahl, jede
+   * Zubuchung legt Module „on top". Nur den neuesten zu melden entzöge dem
+   * Mandanten alles, was er vorher gebucht hat.
+   */
+  purchases: Purchase[];
+  pricing: PricingConfig;
+  /** Von Hand zugewiesenes Mandantenpaket – nur ohne Grundkauf maßgeblich. */
+  tenantPackage: Package | null;
+  gueltigBis?: string | null;
+}): TenantRegistration {
+  const { company, purchases, pricing, tenantPackage } = input;
+
+  // Paket und Benutzerzahl stehen im Grundkauf; eine Zubuchung sagt dazu nichts.
+  const grundkauf = purchases.find((purchase) => purchase.kind === "paket") ?? null;
+
+  const paket = grundkauf
+    ? {
+        id: grundkauf.packageId,
+        name:
+          pricing.packages.find((pkg) => pkg.id === grundkauf.packageId)?.name ??
+          grundkauf.packageId,
+      }
+    : { id: tenantPackage?.id ?? "", name: tenantPackage?.name ?? "" };
+
+  const known = new Set(pricing.modules.map((module) => module.id));
+
+  // Grundumfang plus jede Zubuchung. Ohne Grundkauf zählt der Stand, den der
+  // Adminbereich anzeigt – Zubuchungen kommen auch dann obendrauf.
+  const gebucht = [
+    ...new Set([
+      ...(grundkauf ? grundkauf.moduleIds : effectiveModuleIds(pricing, company, tenantPackage)),
+      ...purchases
+        .filter((purchase) => purchase.kind === "zubuchung")
+        .flatMap((purchase) => purchase.moduleIds),
+    ]),
+  ];
+
+  // Eine Sperre steht ÜBER dem Kauf. Der Adminbereich sagt zu, dass sie sofort
+  // alle Module deaktiviert – läge die Regel nur in effectiveModuleIds, hielte
+  // der Kauf-Zweig diese Zusage nicht, und ein gesperrter Mandant bekäme seinen
+  // vollen Umfang gemeldet. Der Kauf selbst bleibt unberührt: Er ist
+  // eingefroren, die Sperre ist ein Zugangsstopp.
+  // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen, und
+  // im Protokoll stünde dann ein Fehler statt der Ursache. Der Kauf behält sie –
+  // die Kaufseite zeigt sie als „Unbekanntes Modul".
+  const module = company.status === "suspended" ? [] : gebucht.filter((id) => known.has(id));
+
+  return tenantRegistration({
+    company,
+    paket,
+    benutzer: grundkauf?.users ?? company.seats,
+    module,
+    gueltigBis: input.gueltigBis,
+  });
 }
 
 export type TenantSyncResult =

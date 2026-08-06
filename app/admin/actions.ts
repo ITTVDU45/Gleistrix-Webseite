@@ -31,6 +31,7 @@ import {
   addDemoAccess,
   deleteContact,
   getLead,
+  getPurchases,
   insertCompany,
   insertContact,
   insertPackage,
@@ -47,9 +48,9 @@ import {
 import { createSupportLink } from "@/lib/admin/support";
 import {
   APP_URL,
+  applyStepResult,
   provisioningPlan,
   slugify,
-  statusFor,
   tenantFor,
   validateSlug,
 } from "@/lib/admin/tenant";
@@ -242,18 +243,12 @@ export async function setProvisioningStepAction(data: FormData): Promise<void> {
 
   if (status !== "pending" && status !== "done" && status !== "failed") return;
 
-  const updated = await updateCompany(companyId, (company) => {
-    const provisioning = company.provisioning.map((step) =>
-      step.id === stepId ? { ...step, status, updatedAt: new Date().toISOString() } : step,
-    );
-
-    return {
-      ...company,
-      provisioning,
-      // Erst wenn alle Ressourcen stehen, verlässt der Mandant die Provisionierung.
-      status: statusFor(company.status, provisioning),
-    };
-  });
+  const updated = await updateCompany(companyId, (company) =>
+    applyStepResult(company, stepId as ProvisioningStepId, {
+      status,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
 
   if (updated) revalidateAdmin(companyId);
 }
@@ -721,6 +716,12 @@ export async function savePricingPackageAction(
 export async function deletePricingPackageAction(data: FormData): Promise<void> {
   const packageId = field(data, "packageId");
 
+  // Wie bei Modulen: Ein gekauftes Paket bleibt stehen. Der Kauf hält seine
+  // Kennung eingefroren – ohne das Paket zeigten Kaufseite und Meldung an die
+  // App nur noch die technische Kennung statt des Namens.
+  const purchases = await getPurchases();
+  if (purchases.some((purchase) => purchase.packageId === packageId)) return;
+
   await updateDraft((config) => {
     // Der Konfigurator braucht mindestens ein Paket – das letzte bleibt stehen.
     if (config.packages.length <= 1) return config;
@@ -798,6 +799,10 @@ export async function savePricingCapacityAction(
 
 export async function deletePricingCapacityAction(data: FormData): Promise<void> {
   const capacityId = field(data, "capacityId");
+
+  // Gekaufte Kapazitätsstufe bleibt stehen – gleicher Grund wie beim Paket.
+  const purchases = await getPurchases();
+  if (purchases.some((purchase) => purchase.capacityId === capacityId)) return;
 
   await updateDraft((config) => {
     // Der Konfigurator braucht mindestens eine Stufe – die letzte bleibt stehen.
@@ -915,6 +920,7 @@ export async function deletePricingModuleAction(
     const references = [
       usage.packages.length > 0 ? `Pakete: ${usage.packages.join(", ")}` : "",
       usage.companies.length > 0 ? `Unternehmen: ${usage.companies.join(", ")}` : "",
+      usage.purchases.length > 0 ? `Käufe: ${usage.purchases.length}` : "",
     ]
       .filter(Boolean)
       .join(" · ");
@@ -1196,10 +1202,18 @@ import {
   generateTenantPassword,
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
-import { registerTenant, tenantRegistration } from "@/lib/admin/app-sync";
-import { getPurchase, getPurchasesForCompany, updatePurchase } from "@/lib/admin/store";
-import { allModules, getPublishedPricing } from "@/lib/admin/pricing";
-import type { ProvisioningStepId } from "@/types/admin";
+import { registerTenant, registrationFor } from "@/lib/admin/app-sync";
+import {
+  addPurchase,
+  getPackage,
+  getPurchase,
+  getPurchasesForCompany,
+  updatePurchase,
+} from "@/lib/admin/store";
+import { purchaseFor } from "@/lib/admin/purchase";
+import { formatPriceEUR } from "@/data/pricing";
+import { getPublishedPricing } from "@/lib/admin/pricing";
+import type { ProvisioningStepId, Purchase } from "@/types/admin";
 
 /** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
 type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
@@ -1216,24 +1230,24 @@ type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
  * `fehlgeschlagen`, `syncError` hält die Meldung, und der Knopf unter
  * /admin/kaeufe wiederholt den Lauf.
  */
-async function runAppSync(company: Company): Promise<StepOutcome> {
-  const [purchases, pricing] = await Promise.all([
+async function runAppSync(company: Company, forPurchase?: Purchase): Promise<StepOutcome> {
+  const [purchases, pricing, tenantPackage] = await Promise.all([
     getPurchasesForCompany(company.id),
     getPublishedPricing(),
+    getPackage(company.packageId),
   ]);
-  const purchase = purchases[0] ?? null;
 
-  const packageId = purchase?.packageId ?? company.packageId ?? "";
-  const packageName = pricing.packages.find((pkg) => pkg.id === packageId)?.name ?? packageId;
-  const known = new Set(allModules(pricing).map((module) => module.id));
+  // Gemeldet wird IMMER der gesamte Stand des Mandanten – Grundkauf plus alle
+  // Zubuchungen. `forPurchase` sagt nur, an welchem Kauf das Ergebnis vermerkt
+  // wird; ohne Angabe ist das der Grundkauf.
+  const purchase =
+    forPurchase ?? purchases.find((entry) => entry.kind === "paket") ?? purchases[0] ?? null;
 
-  const registration = tenantRegistration({
+  const registration = registrationFor({
     company,
-    paket: { id: packageId, name: packageName },
-    benutzer: purchase?.users ?? company.seats,
-    // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen,
-    // und im Protokoll stünde dann ein Fehler statt der Ursache.
-    module: (purchase?.moduleIds ?? company.extraModuleIds).filter((id) => known.has(id)),
+    purchases,
+    pricing,
+    tenantPackage,
     gueltigBis: null,
   });
 
@@ -1315,22 +1329,94 @@ export async function runProvisioningStepAction(
       return { error: "Für diesen Schritt gibt es keine Automatik." };
   }
 
-  await updateCompany(companyId, (current) => ({
-    ...current,
-    provisioning: current.provisioning.map((step) =>
-      step.id === stepId
-        ? {
-            ...step,
-            status: outcome.ok ? ("done" as const) : ("failed" as const),
-            note: outcome.ok ? outcome.note : outcome.error,
-            updatedAt: new Date().toISOString(),
-          }
-        : step,
-    ),
-  }));
+  await updateCompany(companyId, (current) =>
+    applyStepResult(current, stepId, {
+      status: outcome.ok ? "done" : "failed",
+      note: outcome.ok ? outcome.note : outcome.error,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
   revalidateAdmin(companyId);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };
+}
+
+/**
+ * Erfasst einen Kauf für einen Mandanten.
+ *
+ * Der Preis wird hier neu gerechnet und dann eingefroren – der Betrag aus dem
+ * Formular ist nur Anzeige. Käme er aus dem Browser, bestimmte der Kunde, was er
+ * zahlt.
+ *
+ * Jede Kennung wird gegen die FREIGEGEBENE Preisliste geprüft, nicht gegen den
+ * Entwurf: Ein Kauf darf sich nicht auf ein Paket beziehen, das noch niemand
+ * sehen konnte. Unbekannte Kennungen führen zum Abbruch statt stillschweigend zu
+ * verschwinden – `calculatePrice` fiele sonst auf das Standardpaket zurück und
+ * schriebe einen Preis fest, den niemand gewählt hat.
+ */
+export async function createPurchaseAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const packageId = field(data, "packageId");
+  const capacityId = field(data, "capacityId");
+  const users = Number.parseInt(field(data, "users") || "0", 10);
+
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  const pricing = await getPublishedPricing();
+
+  if (!pricing.packages.some((pkg) => pkg.id === packageId)) {
+    return { error: "Bitte ein freigegebenes Paket wählen." };
+  }
+  if (!pricing.capacities.some((capacity) => capacity.id === capacityId)) {
+    return { error: "Bitte eine Kapazitätsstufe wählen." };
+  }
+  if (!Number.isFinite(users) || users < 1) {
+    return { error: "Anzahl Benutzer muss mindestens 1 sein." };
+  }
+
+  const active = new Map(
+    pricing.modules.filter((module) => module.isActive).map((module) => [module.id, module]),
+  );
+  const moduleIds = data
+    .getAll("moduleIds")
+    .filter((value): value is string => typeof value === "string");
+
+  const unbekannt = moduleIds.filter((id) => !active.has(id));
+  if (unbekannt.length > 0) {
+    return { error: `Nicht freigegebene Module: ${unbekannt.join(", ")}.` };
+  }
+
+  // Mengen nur für Module, die überhaupt nach Nutzung abgerechnet werden.
+  const usageAmounts: Record<string, number> = {};
+  for (const moduleId of moduleIds) {
+    const module = active.get(moduleId);
+    if (!module?.usage) continue;
+
+    const amount = Number.parseInt(field(data, `usage_${moduleId}`) || "0", 10);
+    if (!Number.isFinite(amount) || amount < 0) {
+      return { error: `Ungültige Menge für „${module.title}".` };
+    }
+    usageAmounts[moduleId] = amount;
+  }
+
+  const purchase = purchaseFor({
+    id: `pur_${Date.now().toString(36)}`,
+    companyId,
+    selection: { packageId, users, capacityId, moduleIds, usageAmounts },
+    config: pricing,
+    createdAt: new Date().toISOString(),
+  });
+
+  await addPurchase(purchase);
+  revalidateAdmin(companyId);
+
+  return {
+    success: `Kauf über ${formatPriceEUR(purchase.monthlyTotal)} pro Monat erfasst. Der Schritt „Mandant an die App melden" überträgt ihn.`,
+  };
 }
 
 /**
@@ -1355,23 +1441,19 @@ export async function syncPurchaseAction(
   const issue = appSyncIssue();
   if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
 
-  const outcome = await runAppSync(company);
+  // Der angeklickte Kauf wird ausdrücklich durchgereicht: Ohne ihn nähme
+  // runAppSync den neuesten des Unternehmens und meldete den falschen frei.
+  const outcome = await runAppSync(company, purchase);
 
   // Auch den Schritt im Protokoll nachziehen – sonst steht dort „fehlgeschlagen“,
   // während der Kauf längst freigegeben ist.
-  await updateCompany(company.id, (current) => ({
-    ...current,
-    provisioning: current.provisioning.map((step) =>
-      step.id === "app-sync"
-        ? {
-            ...step,
-            status: outcome.ok ? ("done" as const) : ("failed" as const),
-            note: outcome.ok ? outcome.note : outcome.error,
-            updatedAt: new Date().toISOString(),
-          }
-        : step,
-    ),
-  }));
+  await updateCompany(company.id, (current) =>
+    applyStepResult(current, "app-sync", {
+      status: outcome.ok ? "done" : "failed",
+      note: outcome.ok ? outcome.note : outcome.error,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
   revalidateAdmin(company.id);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };

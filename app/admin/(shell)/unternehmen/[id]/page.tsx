@@ -13,6 +13,7 @@ import {
   EmptyState,
   KeyValue,
   Mono,
+  PurchaseStatusPill,
   Section,
   StepStatusPill,
   formatDate,
@@ -27,7 +28,8 @@ import {
   moduleCatalog,
   moduleGrantSource,
 } from "@/lib/admin/modules";
-import { getDraftPricing } from "@/lib/admin/pricing";
+import { getDraftPricing, getPublishedPricing } from "@/lib/admin/pricing";
+import NewPurchaseForm from "@/components/admin/NewPurchaseForm";
 import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
 import { APP_SYNC_ISSUE_TEXT, appSyncIssue } from "@/lib/admin/app-sync";
@@ -36,6 +38,7 @@ import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/m
 import {
   getCompany,
   getPackage,
+  getPurchasesForCompany,
   getSupportAccess,
   getUsage,
   readStore,
@@ -72,13 +75,17 @@ export default async function CompanyDetailPage({ params }: Props) {
     "app-sync": syncBlocker ? APP_SYNC_ISSUE_TEXT[syncBlocker] : undefined,
   };
 
-  const [pkg, usage, store, supportLog, pricing] = await Promise.all([
+  const [pkg, usage, store, supportLog, pricing, publishedPricing, purchases] = await Promise.all([
     getPackage(company.packageId),
     getUsage(company.id),
     readStore(),
     getSupportAccess(company.id),
     // Entwurfsstand: der Admin soll auch noch nicht freigegebene Module sehen.
     getDraftPricing(),
+    // Für den Kauf dagegen der freigegebene Stand – ein Kauf darf sich nicht auf
+    // ein Paket beziehen, das noch niemand sehen konnte.
+    getPublishedPricing(),
+    getPurchasesForCompany(company.id),
   ]);
 
   const selectablePackages = store.packages.filter(
@@ -269,6 +276,50 @@ export default async function CompanyDetailPage({ params }: Props) {
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section
+        title="Käufe"
+        description={
+          "Der Monatspreis wird beim Erfassen eingefroren. Gemeldet wird er mit dem Schritt " +
+          "„Mandant an die App melden“."
+        }
+      >
+        {purchases.length > 0 ? (
+          <ul className="mb-6 divide-y">
+            {purchases.map((purchase) => (
+              <li key={purchase.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0">
+                <div className="min-w-0">
+                  <Link
+                    href={`/admin/kaeufe/${purchase.id}`}
+                    className="text-sm font-medium underline-offset-4 hover:underline"
+                  >
+                    {purchase.kind === "zubuchung"
+                      ? "Zubuchung aus der App"
+                      : (publishedPricing.packages.find((entry) => entry.id === purchase.packageId)
+                          ?.name ?? purchase.packageId)}
+                  </Link>
+                  <p className="text-xs text-muted-foreground">
+                    {formatNumber(purchase.users)} Benutzer · {purchase.moduleIds.length} Module ·{" "}
+                    {formatDate(purchase.createdAt)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm tabular-nums">
+                    {formatPriceEUR(purchase.monthlyTotal)} / Monat
+                  </span>
+                  <PurchaseStatusPill status={purchase.status} />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+
+        <NewPurchaseForm
+          companyId={company.id}
+          pricing={publishedPricing}
+          defaultUsers={company.seats}
+        />
       </Section>
 
       <Section

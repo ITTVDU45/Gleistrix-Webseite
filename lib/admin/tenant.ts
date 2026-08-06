@@ -1,14 +1,32 @@
-import type { CompanyStatus, ProvisioningStep, Tenant } from "@/types/admin";
+import type {
+  Company,
+  CompanyStatus,
+  ProvisioningStatus,
+  ProvisioningStep,
+  ProvisioningStepId,
+  Tenant,
+} from "@/types/admin";
 
-export const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_TENANT_ROOT_DOMAIN ?? "gleistrix.de";
 
 /**
  * Adresse der mandantenfähigen App – für alle Kunden dieselbe. Welcher Mandant
  * gemeint ist, entscheidet dort die Anmeldung, nicht mehr die URL.
+ *
+ * Der Schrägstrich am Ende fliegt weg: Die Pfade werden angehängt, aus
+ * „https://app.gleistrix.de/" würde sonst „…de//api/internal/tenants".
  */
-export const APP_URL = process.env.GLEISTRIX_APP_URL?.trim() || `https://app.${ROOT_DOMAIN}`;
+export const APP_URL = (
+  process.env.GLEISTRIX_APP_URL?.trim() || `https://app.${ROOT_DOMAIN}`
+).replace(/\/+$/, "");
 
-/** Reservierte Subdomains, die kein Mandant belegen darf. */
+/**
+ * Reservierte Kennungen, die kein Mandant belegen darf.
+ *
+ * Sie werden zu Datenbank- und Bucketnamen (gleistrix_<kennung>,
+ * gleistrix-<kennung>). Eine Subdomain je Mandant gibt es seit dem Umbau nicht
+ * mehr – die Namenskollision aber sehr wohl.
+ */
 const RESERVED_SLUGS = new Set([
   "www",
   "app",
@@ -165,12 +183,43 @@ export function reconcileProvisioning(
  * Eine Sperre überlebt: Sie ist eine bewusste Entscheidung und darf nicht
  * dadurch verschwinden, dass ein Provisionierungsschritt durchläuft.
  *
- * An genau einer Stelle definiert, weil zwei Aufrufer sie brauchen – der Lauf
- * im Adminbereich und die Nachmigration beim Start.
+ * An genau einer Stelle definiert, weil mehrere Wege sie brauchen: der manuelle
+ * Haken, der automatische Lauf, die Wiederholung unter /admin/kaeufe und die
+ * Nachmigration beim Start.
  */
 export function statusFor(current: CompanyStatus, steps: ProvisioningStep[]): CompanyStatus {
   if (current === "suspended") return current;
   return steps.every((step) => step.status === "done") ? "active" : "provisioning";
+}
+
+/**
+ * Schreibt das Ergebnis eines Schritts an den Mandanten – Schrittliste UND
+ * Status in einem Zug.
+ *
+ * Bewusst die einzige Stelle, an der ein Schrittergebnis entsteht: Vorher stand
+ * die Statusableitung nur an einem der drei Aufrufer, und ein vollständig
+ * durchgelaufener Mandant blieb auf „provisioning" stehen – mitsamt gesperrtem
+ * Support-Zugriff. Wer den Schritt hier setzt, kann den Status nicht vergessen.
+ */
+export function applyStepResult(
+  company: Company,
+  stepId: ProvisioningStepId,
+  result: { status: ProvisioningStatus; note?: string; updatedAt: string },
+): Company {
+  const provisioning = company.provisioning.map((step) =>
+    step.id === stepId
+      ? {
+          ...step,
+          status: result.status,
+          // Ohne eigene Meldung bleibt der bisherige Hinweis stehen – der
+          // manuelle Haken hat nichts zu erzählen, ein Lauf schon.
+          note: result.note ?? step.note,
+          updatedAt: result.updatedAt,
+        }
+      : step,
+  );
+
+  return { ...company, provisioning, status: statusFor(company.status, provisioning) };
 }
 
 /** Ob `reconcileProvisioning` an dieser Schrittliste etwas ändern würde. */

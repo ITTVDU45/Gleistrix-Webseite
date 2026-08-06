@@ -110,27 +110,28 @@ export async function createTenantDatabase(tenant: Tenant): Promise<Result> {
 }
 
 /**
- * Legt den Mandantenbenutzer an – angelegt IN der Mandanten-Datenbank, mit
- * readWrite ausschließlich auf ebendiese. Damit sieht der Benutzer keine andere
+ * Ergebnis der Benutzeranlage.
+ *
+ * `created` unterscheidet „neu angelegt" von „war schon da": Nur bei einem NEU
+ * angelegten Benutzer ist das übergebene Passwort auch das gültige. Seit die
+ * App sich mit ihrem eigenen Zugang verbindet, reicht niemand mehr Mandanten-
+ * Zugangsdaten weiter – das Feld bleibt als Protokollangabe. Wer es doch je
+ * wieder auswertet, darf das Passwort ausschließlich bei `created === true`
+ * verwenden, sonst sperrt er den Mandanten aus.
+ */
+export type UserResult =
+  | { ok: true; note: string; created: boolean }
+  | { ok: false; error: string };
+
+/**
+ * Legt den Mandantenbenutzer an – IN der Mandanten-Datenbank, mit readWrite
+ * ausschließlich auf ebendiese. Damit sieht der Benutzer keine andere
  * Mandanten-Datenbank.
  *
  * Idempotent, und ein bestehender Benutzer wird NIE überschrieben: sonst würde
  * ein laufender Mandant mit dem alten Passwort ausgesperrt. Existiert er schon,
  * gilt der Schritt als erledigt und das übergebene Passwort bleibt ungenutzt.
  */
-/**
- * Ergebnis der Benutzeranlage.
- *
- * `created` unterscheidet „neu angelegt" von „war schon da". Das ist keine
- * Kosmetik: nur bei einem NEU angelegten Benutzer ist das übergebene Passwort
- * auch das gültige. Wer die Verbindungsdaten weiterreicht (Vercel-Umgebung),
- * darf das ausschließlich dann tun – sonst schreibt er ein Passwort weiter,
- * das am Benutzer nie gesetzt wurde, und sperrt den Mandanten aus.
- */
-export type UserResult =
-  | { ok: true; note: string; created: boolean }
-  | { ok: false; error: string };
-
 export async function createTenantUser(tenant: Tenant, password: string): Promise<UserResult> {
   if (!password) {
     return { ok: false, error: "Kein Passwort übergeben – der Benutzer wurde nicht angelegt." };

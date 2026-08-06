@@ -11,7 +11,7 @@ export const insertPurchases = purchases.insertMany;
 export const patchPurchase = purchases.patch;
 export const purchasesEmpty = purchases.isEmpty;
 
-/** Käufe eines Mandanten – für die Detailseite unter /admin/unternehmen. */
+/** Käufe eines Mandanten – Grundlage für die Meldung an die App. */
 export function listPurchasesForCompany(companyId: string): Promise<Purchase[]> {
   return purchases.list({ companyId });
 }

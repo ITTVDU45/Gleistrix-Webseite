@@ -11,8 +11,14 @@
  */
 import assert from "node:assert/strict";
 
-const { provisioningIsCurrent, provisioningPlan, reconcileProvisioning, statusFor, tenantFor } =
-  await import("./tenant.ts");
+const {
+  applyStepResult,
+  provisioningIsCurrent,
+  provisioningPlan,
+  reconcileProvisioning,
+  statusFor,
+  tenantFor,
+} = await import("./tenant.ts");
 
 const tenant = tenantFor("muster-bau");
 
@@ -127,4 +133,96 @@ assert.equal(
   "Ein durchgelaufener Schritt darf keine Sperre aufheben",
 );
 
-console.log("tenant.check: alle 8 Pruefungen bestanden");
+/* --------------------------------------------------- Ergebnis eines Schritts */
+
+/**
+ * Genau die Luecke, die es gab: Der automatische Lauf schrieb nur die
+ * Schrittliste, nicht den Status. Ein durchgelaufener Mandant blieb auf
+ * „provisioning" und bekam keinen Support-Zugriff.
+ */
+const mandant = {
+  id: "cmp_muster",
+  name: "Muster Bau GmbH",
+  slug: "muster-bau",
+  contactName: "Max Mustermann",
+  contactEmail: "info@example.test",
+  seats: 12,
+  status: "provisioning" as const,
+  packageId: null,
+  extraModuleIds: [],
+  blockedModuleIds: [],
+  tenant,
+  provisioning: migrated.map((step) => ({ ...step, status: "done" as const })),
+  createdAt: "2026-07-01T08:00:00.000Z",
+};
+
+// 9. Der letzte offene Schritt hebt den Mandanten auf „aktiv" - in DERSELBEN
+// Schreiboperation, nicht erst beim naechsten Prozessstart.
+const offen = {
+  ...mandant,
+  provisioning: mandant.provisioning.map((step) =>
+    step.id === "app-sync" ? { ...step, status: "pending" as const } : step,
+  ),
+};
+const fertig = applyStepResult(offen, "app-sync", {
+  status: "done",
+  note: "An gleistrix_muster_bau gemeldet.",
+  updatedAt: "2026-08-05T12:00:00.000Z",
+});
+assert.equal(fertig.status, "active", "Der letzte erledigte Schritt muss den Mandanten aktivieren");
+assert.equal(fertig.provisioning.find((step) => step.id === "app-sync")?.status, "done");
+assert.equal(
+  fertig.provisioning.find((step) => step.id === "app-sync")?.note,
+  "An gleistrix_muster_bau gemeldet.",
+  "Die Meldung des Laufs muss im Protokoll landen",
+);
+
+// 10. Ein Fehlschlag holt den Mandanten zurueck in die Provisionierung.
+const gescheitert = applyStepResult({ ...mandant, status: "active" }, "app-sync", {
+  status: "failed",
+  note: "Die Gleistrix-App war nicht erreichbar.",
+  updatedAt: "2026-08-05T12:05:00.000Z",
+});
+assert.equal(gescheitert.status, "provisioning", "Ein Fehlschlag darf keinen aktiven Mandanten stehen lassen");
+
+// 11. Ohne eigene Meldung bleibt der bisherige Hinweis stehen - der manuelle
+// Haken hat nichts zu erzaehlen und darf das Protokoll nicht leeren.
+//
+// Der Erwartungswert steht hier bewusst als Literal und wird NICHT aus `fertig`
+// gelesen: Ein Vergleich zweier Rueckgabewerte derselben Funktion bestaetigt nur
+// ihre Konsistenz mit sich selbst. Faerbte applyStepResult alle Schritte gleich
+// ein, faerbte es den Vergleichswert mit und der Test bliebe gruen.
+const gehakt = applyStepResult(fertig, "minio-bucket", {
+  status: "pending",
+  updatedAt: "2026-08-05T12:10:00.000Z",
+});
+assert.equal(
+  gehakt.provisioning.find((step) => step.id === "minio-bucket")?.note,
+  "MinIO war nicht erreichbar.",
+  "Ohne neue Meldung muss der bisherige Hinweis erhalten bleiben",
+);
+assert.equal(gehakt.status, "provisioning", "Ein zurueckgesetzter Schritt oeffnet die Provisionierung wieder");
+
+// 11b. Der angesprochene Schritt ist der EINZIGE, der sich aendert. Ohne diese
+// Pruefung deckt kein Test den Abgleich `step.id === stepId` ab - ein Haken an
+// einem Schritt koennte alle vier auf „done" setzen und den Mandanten sofort
+// aktivieren, ohne dass je eine Ressource entstanden waere.
+assert.equal(
+  gehakt.provisioning.find((step) => step.id === "app-sync")?.status,
+  "done",
+  "Ein Schritt darf die uebrigen Schritte nicht mitschreiben",
+);
+assert.equal(
+  gehakt.provisioning.find((step) => step.id === "mongo-database")?.updatedAt,
+  "2026-07-01T09:00:00.000Z",
+  "Ein unbeteiligter Schritt behaelt seinen Zeitpunkt",
+);
+
+// 12. Eine Sperre ueberlebt auch hier.
+const gesperrt = applyStepResult({ ...mandant, status: "suspended" }, "app-sync", {
+  status: "done",
+  updatedAt: "2026-08-05T12:15:00.000Z",
+});
+assert.equal(gesperrt.status, "suspended", "applyStepResult darf keine Sperre aufheben");
+
+console.log("tenant.check: alle 13 Pruefungen bestanden");

@@ -64,7 +64,7 @@ export default async function AddonDetailPage({ params }: Props) {
         description="Modul-Kennungen sind Fremdschlüssel. Solange sie hier auftauchen, lässt sich das Add-on nicht löschen."
       >
         {inUse ? (
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid gap-4 sm:grid-cols-3">
             <div>
               <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 Mandanten-Pakete
@@ -104,10 +104,34 @@ export default async function AddonDetailPage({ params }: Props) {
                 )}
               </dd>
             </div>
+
+            {/* Käufe blockieren das Löschen ebenfalls – ohne diese Spalte stünde
+                hier zweimal „Keine", während der Löschknopf trotzdem abweist. */}
+            <div>
+              <dt className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                Käufe
+              </dt>
+              <dd className="mt-2 flex flex-wrap gap-1.5">
+                {usage.purchases.length === 0 ? (
+                  <span className="text-sm text-muted-foreground">Keine</span>
+                ) : (
+                  usage.purchases.map((purchaseId) => (
+                    <Link
+                      key={purchaseId}
+                      href={`/admin/kaeufe/${purchaseId}`}
+                      className="rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground underline-offset-4 hover:underline"
+                    >
+                      {purchaseId}
+                    </Link>
+                  ))
+                )}
+              </dd>
+            </div>
           </dl>
         ) : (
           <EmptyState>
-            Dieses Add-on ist in keinem Mandanten-Paket und bei keinem Unternehmen freigegeben.
+            Dieses Add-on ist in keinem Mandanten-Paket, bei keinem Unternehmen und in keinem
+            Kauf referenziert.
           </EmptyState>
         )}
       </Section>
