@@ -231,6 +231,14 @@ export type Purchase = {
   syncedAt?: string | null;
   /** Letzte Fehlermeldung – Grundlage für die Wiederholung im Admin. */
   syncError?: string | null;
+  /**
+   * Ende der Laufzeit nach einer Abbestellung, sonst leer.
+   *
+   * Eine Abbestellung wirkt zum Monatsende: Bis dahin ist bezahlt, also bleibt
+   * das Modul nutzbar und der Betrag zählt mit. Danach fällt beides weg. Der
+   * Kauf selbst bleibt stehen – er ist der Beleg dafür, was wann galt.
+   */
+  endetAm?: string | null;
   createdAt: string;
 };
 

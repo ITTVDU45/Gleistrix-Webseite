@@ -1210,7 +1210,7 @@ import {
   getPurchasesForCompany,
   updatePurchase,
 } from "@/lib/admin/store";
-import { purchaseFor } from "@/lib/admin/purchase";
+import { istWirksam, purchaseFor } from "@/lib/admin/purchase";
 import { formatPriceEUR } from "@/data/pricing";
 import { getPublishedPricing } from "@/lib/admin/pricing";
 import type { ProvisioningStepId, Purchase } from "@/types/admin";
@@ -1284,9 +1284,17 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<Ste
   const purchase =
     forPurchase ?? purchases.find((entry) => entry.kind === "paket") ?? purchases[0] ?? null;
 
+  // Abbestellte Zubuchungen fallen nach ihrem Laufzeitende raus – bis dahin
+  // sind sie bezahlt und bleiben nutzbar. Der Grundkauf zählt immer mit; ohne
+  // ihn stünde ein Mandant ohne Paket da, bevor er überhaupt gemeldet wurde.
+  const jetzt = new Date().toISOString();
+  const wirksam = purchases.filter(
+    (entry) => entry.kind === "paket" || istWirksam(entry, jetzt),
+  );
+
   const registration = registrationFor({
     company,
-    purchases,
+    purchases: wirksam,
     pricing,
     tenantPackage,
   });

@@ -235,6 +235,26 @@ Wiederholung mit demselben Schlüssel `200` und derselbe Rumpf.
 Mögliche Antworten: `401` falsches Geheimnis · `404` unbekannte Kennung ·
 `422` Modul nicht freigegeben · `503` Geheimnis auf der Website nicht gesetzt.
 
+### Abbestellen
+
+```
+POST {WEBSITE_URL}/api/internal/addons/abbestellung
+Authorization: Bearer {SERVICE_SHARED_SECRET}
+
+{ "kennung": "muster-bau", "kaufId": "pur_zub_…" }
+```
+
+Antwort `200` mit `{ "kaufId": "…", "endetAm": "2026-08-31T23:59:59.999Z" }`.
+
+**Die Regel: wirksam zum Monatsende, keine anteilige Erstattung.** Bis dahin ist
+bezahlt — das Modul **bleibt bis `endetAm` freigeschaltet** und darf in der App
+nicht sofort verschwinden. Danach fällt es aus der Meldung und aus der
+Monatssumme.
+
+`kaufId` ist die ID, die die Website bei der Freischaltung zurückgegeben hat —
+die App muss sie sich also merken. Ein zweiter Aufruf ändert nichts und liefert
+dasselbe Datum; die Laufzeit verschiebt sich nicht.
+
 ---
 
 ## Schritt 6 — Umgebungsvariablen der App
