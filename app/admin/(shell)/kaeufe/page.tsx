@@ -102,7 +102,13 @@ export default async function AdminPurchasesPage() {
                         )}
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums">
-                        {formatNumber(purchase.users)}
+                        {/* Eine Zubuchung trägt keine Benutzerzahl – „0" läse
+                            sich wie „null Benutzer gebucht". */}
+                        {purchase.kind === "zubuchung" ? (
+                          <span className="text-muted-foreground">–</span>
+                        ) : (
+                          formatNumber(purchase.users)
+                        )}
                       </td>
                       <td className="py-3 pr-4 text-right tabular-nums">
                         {formatPriceEUR(purchase.monthlyTotal)}
