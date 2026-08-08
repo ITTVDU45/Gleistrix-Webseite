@@ -27,6 +27,8 @@ export const MAX_DEMO_DAYS = 90;
 const REQUEST_TIMEOUT_MS = 10_000;
 
 const TENANTS_PATH = "/api/internal/tenants";
+const TENANT_ACTIVITY_PATH = "/api/internal/tenant-activity";
+const TENANT_INVITATION_PATH = "/api/internal/tenant-invitation";
 const DEMO_PATH = "/api/internal/demo";
 
 function secret(): string | null {
@@ -57,20 +59,23 @@ type CallResult = { ok: true; status: number; payload: JsonObject } | { ok: fals
  * mit demselben Schlüssel darf keinen zweiten Mandanten anlegen, sondern muss
  * denselben Rumpf liefern. Genau das macht die Wiederholung im Admin gefahrlos.
  */
-async function post(path: string, body: JsonObject, idempotencyKey?: string): Promise<CallResult> {
+async function call(
+  path: string,
+  options: { method: "GET" | "POST"; body?: JsonObject; idempotencyKey?: string },
+): Promise<CallResult> {
   const token = secret();
   if (!token) return { ok: false, error: APP_SYNC_ISSUE_TEXT["no-secret"] };
 
   try {
     const response = await fetch(`${APP_URL}${path}`, {
-      method: "POST",
+      method: options.method,
       headers: {
-        "content-type": "application/json",
+        ...(options.body ? { "content-type": "application/json" } : {}),
         // Das Geheimnis geht nur an die konfigurierte App, nie an den Client.
         authorization: `Bearer ${token}`,
-        ...(idempotencyKey ? { "idempotency-key": idempotencyKey } : {}),
+        ...(options.idempotencyKey ? { "idempotency-key": options.idempotencyKey } : {}),
       },
-      body: JSON.stringify(body),
+      ...(options.body ? { body: JSON.stringify(options.body) } : {}),
       cache: "no-store",
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
@@ -88,6 +93,14 @@ async function post(path: string, body: JsonObject, idempotencyKey?: string): Pr
     const reason = error instanceof Error ? error.message : "Unbekannter Fehler";
     return { ok: false, error: `Die Gleistrix-App war nicht erreichbar: ${reason}` };
   }
+}
+
+async function post(path: string, body: JsonObject, idempotencyKey?: string): Promise<CallResult> {
+  return call(path, { method: "POST", body, idempotencyKey });
+}
+
+async function get(path: string): Promise<CallResult> {
+  return call(path, { method: "GET" });
 }
 
 function text(value: unknown): string | undefined {
@@ -202,13 +215,13 @@ export function registrationFor(input: {
   // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen, und
   // im Protokoll stünde dann ein Fehler statt der Ursache. Der Kauf behält sie –
   // die Kaufseite zeigt sie als „Unbekanntes Modul".
-  const module = company.status === "suspended" ? [] : gebucht.filter((id) => known.has(id));
+  const modules = company.status === "suspended" ? [] : gebucht.filter((id) => known.has(id));
 
   return tenantRegistration({
     company,
     paket,
     benutzer: grundkauf?.users ?? company.seats,
-    module,
+    module: modules,
   });
 }
 
@@ -233,6 +246,127 @@ export async function registerTenant(
     ok: true,
     tenantId: text(result.payload.tenantId),
     einladungsLink: text(result.payload.einladungsLink),
+  };
+}
+
+/* ------------------------------------------------------ Zugang & Aktivitäten */
+
+export type TenantInvitationStatus = "pending" | "accepted" | "expired" | "missing";
+
+export type TenantLoginActivity = {
+  id: string;
+  timestamp: string;
+  name: string;
+  email: string;
+  role: string;
+  description: string;
+  historical: boolean;
+};
+
+export type TenantActivity = {
+  hasLoggedIn: boolean;
+  lastLoginAt: string | null;
+  lastLoginUser: { name: string; email: string; role: string } | null;
+  invitation: {
+    status: TenantInvitationStatus;
+    expiresAt: string | null;
+    acceptedAt: string | null;
+  };
+  activities: TenantLoginActivity[];
+};
+
+export type TenantActivityResult =
+  | { ok: true; activity: TenantActivity }
+  | { ok: false; error: string };
+
+function optionalText(value: unknown): string | null {
+  return text(value) ?? null;
+}
+
+function dateText(value: unknown): string | null {
+  const candidate = optionalText(value);
+  return candidate && Number.isFinite(new Date(candidate).getTime()) ? candidate : null;
+}
+
+function invitationStatus(value: unknown): TenantInvitationStatus {
+  return value === "pending" || value === "accepted" || value === "expired" || value === "missing"
+    ? value
+    : "missing";
+}
+
+/** Liest Loginstatus und die letzten Anmeldungen eines Mandanten aus der App. */
+export async function getTenantActivity(kennung: string): Promise<TenantActivityResult> {
+  const result = await get(
+    `${TENANT_ACTIVITY_PATH}?kennung=${encodeURIComponent(kennung.trim().toLowerCase())}`,
+  );
+  if (!result.ok) return result;
+
+  const lastLoginUser = result.payload.lastLoginUser;
+  const invitation = result.payload.invitation;
+  const activities = Array.isArray(result.payload.activities) ? result.payload.activities : [];
+
+  return {
+    ok: true,
+    activity: {
+      hasLoggedIn: result.payload.hasLoggedIn === true,
+      lastLoginAt: dateText(result.payload.lastLoginAt),
+      lastLoginUser:
+        lastLoginUser && typeof lastLoginUser === "object" && !Array.isArray(lastLoginUser)
+          ? {
+              name: optionalText((lastLoginUser as JsonObject).name) ?? "",
+              email: optionalText((lastLoginUser as JsonObject).email) ?? "",
+              role: optionalText((lastLoginUser as JsonObject).role) ?? "",
+            }
+          : null,
+      invitation:
+        invitation && typeof invitation === "object" && !Array.isArray(invitation)
+          ? {
+              status: invitationStatus((invitation as JsonObject).status),
+              expiresAt: dateText((invitation as JsonObject).expiresAt),
+              acceptedAt: dateText((invitation as JsonObject).acceptedAt),
+            }
+          : { status: "missing", expiresAt: null, acceptedAt: null },
+      activities: activities.flatMap((entry) => {
+        if (!entry || typeof entry !== "object" || Array.isArray(entry)) return [];
+        const item = entry as JsonObject;
+        const timestamp = dateText(item.timestamp);
+        if (!timestamp) return [];
+        return [
+          {
+            id: optionalText(item.id) ?? timestamp,
+            timestamp,
+            name: optionalText(item.name) ?? "",
+            email: optionalText(item.email) ?? "",
+            role: optionalText(item.role) ?? "",
+            description: optionalText(item.description) ?? "Erfolgreiche Anmeldung",
+            historical: item.historical === true,
+          },
+        ];
+      }),
+    },
+  };
+}
+
+export type TenantInvitationResult =
+  | { ok: true; email: string; einladungsLink: string; expiresAt: string | null }
+  | { ok: false; error: string };
+
+/** Fordert einen gültigen Erstzugangslink an, ohne Empfänger oder Token vorzugeben. */
+export async function requestTenantInvitation(kennung: string): Promise<TenantInvitationResult> {
+  const result = await post(TENANT_INVITATION_PATH, { kennung });
+  if (!result.ok) return result;
+
+  const email = text(result.payload.email);
+  const einladungsLink = text(result.payload.einladungsLink);
+  if (!email || !einladungsLink) {
+    return { ok: false, error: "Die App hat keinen vollständigen Einladungslink geliefert." };
+  }
+
+  return {
+    ok: true,
+    email,
+    einladungsLink,
+    expiresAt: dateText(result.payload.expiresAt),
   };
 }
 

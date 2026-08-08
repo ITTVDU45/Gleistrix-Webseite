@@ -33,7 +33,14 @@ import NewPurchaseForm from "@/components/admin/NewPurchaseForm";
 import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
 import TenantInvitationForm from "@/components/admin/TenantInvitationForm";
-import { APP_SYNC_ISSUE_TEXT, appSyncIssue } from "@/lib/admin/app-sync";
+import TenantActivityPanel, {
+  TenantLoginStatusPill,
+} from "@/components/admin/TenantActivityPanel";
+import {
+  APP_SYNC_ISSUE_TEXT,
+  appSyncIssue,
+  getTenantActivity,
+} from "@/lib/admin/app-sync";
 import { mailConfigIssue } from "@/lib/admin/mail";
 import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
 import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
@@ -63,6 +70,9 @@ export default async function CompanyDetailPage({ params }: Props) {
   const { id } = await params;
   const company = await getCompany(id);
   if (!company) notFound();
+  const appSyncDone = company.provisioning.some(
+    (step) => step.id === "app-sync" && step.status === "done",
+  );
 
   // Welcher Schritt sich nicht automatisch ausfuehren laesst und warum. Fehlt
   // ein Zugang, steht der Hinweis statt des Knopfes – ein Klick ins Leere waere
@@ -77,18 +87,20 @@ export default async function CompanyDetailPage({ params }: Props) {
     "app-sync": syncBlocker ? APP_SYNC_ISSUE_TEXT[syncBlocker] : undefined,
   };
 
-  const [pkg, usage, store, supportLog, pricing, publishedPricing, purchases] = await Promise.all([
-    getPackage(company.packageId),
-    getUsage(company.id),
-    readStore(),
-    getSupportAccess(company.id),
-    // Entwurfsstand: der Admin soll auch noch nicht freigegebene Module sehen.
-    getDraftPricing(),
-    // Für den Kauf dagegen der freigegebene Stand – ein Kauf darf sich nicht auf
-    // ein Paket beziehen, das noch niemand sehen konnte.
-    getPublishedPricing(),
-    getPurchasesForCompany(company.id),
-  ]);
+  const [pkg, usage, store, supportLog, pricing, publishedPricing, purchases, tenantActivity] =
+    await Promise.all([
+      getPackage(company.packageId),
+      getUsage(company.id),
+      readStore(),
+      getSupportAccess(company.id),
+      // Entwurfsstand: der Admin soll auch noch nicht freigegebene Module sehen.
+      getDraftPricing(),
+      // Für den Kauf dagegen der freigegebene Stand – ein Kauf darf sich nicht auf
+      // ein Paket beziehen, das noch niemand sehen konnte.
+      getPublishedPricing(),
+      getPurchasesForCompany(company.id),
+      appSyncDone ? getTenantActivity(company.slug) : Promise.resolve(null),
+    ]);
 
   const selectablePackages = store.packages.filter(
     (p) => p.isPublished || p.id === company.packageId,
@@ -97,9 +109,19 @@ export default async function CompanyDetailPage({ params }: Props) {
   const activeModules = effectiveModuleIds(pricing, company, pkg);
   const isSuspended = company.status === "suspended";
   const isProvisioned = company.status !== "provisioning";
-  const appSyncDone = company.provisioning.some(
-    (step) => step.id === "app-sync" && step.status === "done",
-  );
+  const hasLoggedIn = tenantActivity?.ok ? tenantActivity.activity.hasLoggedIn : false;
+  const invitationAccepted = tenantActivity?.ok
+    ? tenantActivity.activity.invitation.status === "accepted"
+    : false;
+  const canSendInvitation =
+    appSyncDone && Boolean(tenantActivity?.ok) && !hasLoggedIn && !invitationAccepted;
+  const invitationCompletionHint = hasLoggedIn
+    ? "Der Erstzugang ist abgeschlossen; das Unternehmen hat sich bereits angemeldet."
+    : invitationAccepted
+      ? "Das Passwort wurde bereits festgelegt. Die erste Anmeldung steht noch aus."
+      : appSyncDone && !tenantActivity?.ok
+        ? "Der Einladungsstatus ist derzeit nicht prüfbar; der Neuversand bleibt vorsorglich deaktiviert."
+        : undefined;
 
   return (
     <div className="space-y-8">
@@ -115,6 +137,7 @@ export default async function CompanyDetailPage({ params }: Props) {
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight">{company.name}</h1>
           <CompanyStatusPill status={company.status} />
+          <TenantLoginStatusPill result={tenantActivity} isProvisioned={appSyncDone} />
         </div>
         <p className="mt-1 text-sm text-muted-foreground">
           {company.contactName ? `${company.contactName} · ` : ""}
@@ -284,14 +307,18 @@ export default async function CompanyDetailPage({ params }: Props) {
       </Section>
 
       <Section
-        title="Erstzugang"
-        description="Einmalige Einladung zur persönlichen Passwortvergabe in der Gleistrix-App."
+        title="Erstzugang & Anmeldung"
+        description="Einladung, Passwortstatus und erfolgreiche Anmeldungen dieses Mandanten."
       >
+        <TenantActivityPanel result={tenantActivity} isProvisioned={appSyncDone} />
+        <div className="my-5 border-t" />
         <TenantInvitationForm
           companyId={company.id}
           email={company.contactEmail}
           isProvisioned={appSyncDone}
-          disabledHint={mailConfigIssue() ?? undefined}
+          canSend={canSendInvitation}
+          completionHint={invitationCompletionHint}
+          disabledHint={canSendInvitation ? (mailConfigIssue() ?? undefined) : undefined}
         />
       </Section>
 

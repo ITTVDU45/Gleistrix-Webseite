@@ -10,6 +10,8 @@ type Props = {
   companyId: string;
   email: string;
   isProvisioned: boolean;
+  canSend: boolean;
+  completionHint?: string;
   disabledHint?: string;
 };
 
@@ -17,6 +19,8 @@ export default function TenantInvitationForm({
   companyId,
   email,
   isProvisioned,
+  canSend,
+  completionHint,
   disabledHint,
 }: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
@@ -45,7 +49,13 @@ export default function TenantInvitationForm({
         </p>
       </div>
 
-      {disabledHint ? (
+      {!canSend && completionHint ? (
+        <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
+          {completionHint}
+        </p>
+      ) : null}
+
+      {canSend && disabledHint ? (
         <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-inset ring-amber-600/20">
           {disabledHint}
         </p>
@@ -66,10 +76,12 @@ export default function TenantInvitationForm({
         </p>
       ) : null}
 
-      <Button type="submit" variant="outline" disabled={isPending || Boolean(disabledHint)}>
-        <Mail className="size-4" aria-hidden />
-        {isPending ? "Einladung wird versendet …" : "Einladung senden"}
-      </Button>
+      {canSend ? (
+        <Button type="submit" variant="outline" disabled={isPending || Boolean(disabledHint)}>
+          <Mail className="size-4" aria-hidden />
+          {isPending ? "Einladung wird versendet …" : "Einladung erneut senden"}
+        </Button>
+      ) : null}
     </form>
   );
 }
