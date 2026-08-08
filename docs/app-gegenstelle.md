@@ -115,6 +115,7 @@ Content-Type: application/json
 ```
 
 **Antwort `201`** mit `{ "tenantId": "...", "einladungsLink": "..." }`.
+Nach bereits erfolgter Passwortvergabe fehlt `einladungsLink` bewusst.
 
 ### Sieben Punkte, an denen man sich verbaut
 
@@ -129,7 +130,9 @@ Content-Type: application/json
    Mandanten liefern, nicht einen zweiten anlegen — und mit **`200`** statt
    `201` antworten, bei identischem Rumpf. Die Website wiederholt nach jedem
    Fehlschlag, und der Admin kann den Knopf beliebig oft drücken. Dafür braucht
-   die App eine kleine Ablage `key → { tenantId, einladungsLink }`.
+   die App eine kleine Ablage `key → { tenantId, einladungsLink }`. Ein dort
+   gespeicherter Link darf jedoch nicht ungeprüft zurückgegeben werden: Er kann
+   inzwischen eingelöst oder abgelaufen sein.
 4. **`200` ist Erfolg.** Die Website wertet jede 2xx als Erfolg. Wer nur `201`
    als gültig behandelt, produziert bei der ersten Wiederholung einen
    Fehlschlag im Protokoll, und der Admin wiederholt endlos.
@@ -147,8 +150,8 @@ Content-Type: application/json
 
 1. Bearer-Token gegen `SERVICE_SHARED_SECRET` prüfen — **zeitkonstant**
    vergleichen, nicht mit `===`.
-2. `Idempotency-Key` nachschlagen; bei Treffer sofort `200` mit dem
-   gespeicherten Rumpf.
+2. `Idempotency-Key` nachschlagen; bei Treffer später mit `200` antworten, den
+   Einladungsstatus aber trotzdem frisch auswerten.
 3. Mandanteneintrag anlegen: Kennung, Unternehmen, Datenbankname, Bucket,
    Paket, Modulsatz, Benutzerkontingent.
 4. Erstbenutzer anlegen — **ohne Passwort**, mit einem einmaligen
@@ -158,6 +161,38 @@ Content-Type: application/json
 
 Die Website verschickt den Link anschließend per Mail an den Ansprechpartner.
 Er sollte also mindestens einige Tage gültig sein.
+
+---
+
+## Schritt 2a — Erstzugang und Loginstatus
+
+Die Unternehmensseite der Website liest nach der Provisionierung den aktuellen
+Zugangsstand direkt aus der App.
+
+```
+GET /api/internal/tenant-activity?kennung=muster-bau
+Authorization: Bearer {SERVICE_SHARED_SECRET}
+```
+
+Die Antwort enthält `hasLoggedIn`, `lastLoginAt`, den Benutzer der letzten
+Anmeldung, den Passwort-/Einladungsstatus und höchstens 20 erfolgreiche
+Loginaktivitäten. Keine Passwörter und keine Einladungstoken verlassen die App.
+
+Für „Einladung erneut senden“ fordert die Website serverseitig einen gültigen
+Link an:
+
+```
+POST /api/internal/tenant-invitation
+Authorization: Bearer {SERVICE_SHARED_SECRET}
+Content-Type: application/json
+
+{ "kennung": "muster-bau" }
+```
+
+Empfänger und Token bestimmt allein die App aus dem Mandantenverzeichnis. Eine
+offene Einladung wird wiederverwendet, eine abgelaufene ersetzt. Existiert der
+Erstbenutzer bereits, antwortet die App mit `409`; ein verbrauchter Link wird
+niemals erneut verschickt.
 
 ---
 

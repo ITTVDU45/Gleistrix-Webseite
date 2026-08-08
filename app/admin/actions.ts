@@ -1204,7 +1204,11 @@ import {
   grantAppAccess,
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
-import { registerTenant, registrationFor } from "@/lib/admin/app-sync";
+import {
+  registerTenant,
+  registrationFor,
+  requestTenantInvitation,
+} from "@/lib/admin/app-sync";
 import {
   addPurchase,
   getPackage,
@@ -1222,7 +1226,7 @@ type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
 type AppSyncOutcome =
   | { ok: true; note: string; invitationSent: boolean }
   | { ok: false; error: string };
-type InvitationDelivery = { sent: boolean; note: string | null };
+type InvitationDelivery = { sent: boolean; note: string };
 
 /**
  * Meldet den Mandanten an die App.
@@ -1336,8 +1340,8 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
  *
  * Der Empfänger stammt ausschließlich aus dem gespeicherten Unternehmen.
  * Der Browser kann dadurch weder eine fremde Adresse noch einen eigenen Link
- * einschleusen. `runAppSync` liefert für denselben Stand idempotent denselben,
- * noch gültigen Einmal-Link aus der App zurück.
+ * einschleusen. Der eigene App-Endpunkt verwendet eine offene Einladung erneut,
+ * ersetzt eine abgelaufene und lehnt den Versand nach der Passwortvergabe ab.
  */
 export async function sendTenantInvitationAction(
   _prev: FormState,
@@ -1355,22 +1359,27 @@ export async function sendTenantInvitationAction(
   const issue = mailConfigIssue();
   if (issue) return { error: issue };
 
-  const outcome = await runAppSync(company);
-  if (!outcome.ok) return { error: outcome.error };
-  if (!outcome.invitationSent) {
-    return { error: "Die Einladung konnte nicht versendet werden. Bitte SMTP-Konfiguration prüfen." };
+  const invitation = await requestTenantInvitation(company.slug);
+  if (!invitation.ok) return { error: invitation.error };
+  if (invitation.email.trim().toLowerCase() !== company.contactEmail.trim().toLowerCase()) {
+    return {
+      error:
+        "Die Erstbenutzer-E-Mail in der App weicht vom Ansprechpartner ab. Bitte den Mandanten zuerst erneut mit der App abgleichen.",
+    };
   }
 
-  await updateCompany(company.id, (current) =>
-    applyStepResult(current, "app-sync", {
-      status: "done",
-      note: outcome.note,
-      updatedAt: new Date().toISOString(),
-    }),
-  );
+  const delivery = await sendeEinladung(company, invitation.einladungsLink);
+  if (!delivery.sent) return { error: delivery.note };
+
   revalidateAdmin(company.id);
 
-  return { success: `Einmalige Einladung an ${company.contactEmail} versendet.` };
+  return {
+    success: `Einladung an ${company.contactEmail} versendet${
+      invitation.expiresAt
+        ? `; gültig bis ${new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(invitation.expiresAt))}`
+        : ""
+    }.`,
+  };
 }
 
 /** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */

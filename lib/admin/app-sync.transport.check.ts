@@ -70,7 +70,9 @@ const port = (server.address() as AddressInfo).port;
 process.env.GLEISTRIX_APP_URL = `http://127.0.0.1:${port}`;
 process.env.SERVICE_SHARED_SECRET = SECRET;
 
-const { registerTenant } = await import("./app-sync.ts");
+const { getTenantActivity, registerTenant, requestTenantInvitation } = await import(
+  "./app-sync.ts"
+);
 
 const registration = {
   kennung: "muster-bau",
@@ -113,6 +115,60 @@ assert.ok(
   "Im Rumpf darf kein Passwort auftauchen",
 );
 
+/* ----------------------------------------------------- Login-Aktivitäten */
+
+antwort = {
+  status: 200,
+  payload: {
+    hasLoggedIn: true,
+    lastLoginAt: "2026-08-08T18:00:00.000Z",
+    lastLoginUser: { name: "Max Mustermann", email: "info@example.test", role: "superadmin" },
+    invitation: {
+      status: "accepted",
+      expiresAt: "2026-08-20T18:00:00.000Z",
+      acceptedAt: "2026-08-08T17:00:00.000Z",
+    },
+    activities: [
+      {
+        id: "log_1",
+        timestamp: "2026-08-08T18:00:00.000Z",
+        name: "Max Mustermann",
+        email: "info@example.test",
+        role: "superadmin",
+        description: "Erfolgreiche Anmeldung",
+        historical: false,
+      },
+    ],
+  },
+};
+const aktivitaet = await getTenantActivity("muster-bau");
+assert.equal(aktivitaet.ok, true);
+if (!aktivitaet.ok) throw new Error("unreachable");
+assert.equal(letzte?.method, "GET");
+assert.equal(letzte?.url, "/api/internal/tenant-activity?kennung=muster-bau");
+assert.equal(letzte?.authorization, `Bearer ${SECRET}`);
+assert.equal(aktivitaet.activity.hasLoggedIn, true);
+assert.equal(aktivitaet.activity.activities[0]?.email, "info@example.test");
+
+/* ------------------------------------------------ Einladungs-Neuversand */
+
+antwort = {
+  status: 200,
+  payload: {
+    email: "info@example.test",
+    einladungsLink: "https://app.gleistrix.de/auth/set-password?token=neu",
+    expiresAt: "2026-08-22T18:00:00.000Z",
+  },
+};
+const einladung = await requestTenantInvitation("muster-bau");
+assert.equal(einladung.ok, true);
+if (!einladung.ok) throw new Error("unreachable");
+assert.equal(letzte?.method, "POST");
+assert.equal(letzte?.url, "/api/internal/tenant-invitation");
+assert.deepEqual(letzte?.body, { kennung: "muster-bau" });
+assert.equal(einladung.email, "info@example.test");
+assert.ok(einladung.einladungsLink.includes("token=neu"));
+
 /* ----------------------------------------------------------- Wiederholung */
 
 // 7. Der Vertrag sagt: derselbe Schlüssel, derselbe Rumpf, aber 200. Auch das
@@ -152,4 +208,4 @@ assert.ok(
   `Unerwartete Meldung bei toter Gegenstelle: ${tot.error}`,
 );
 
-console.log("app-sync.transport.check: alle 10 Pruefungen bestanden");
+console.log("app-sync.transport.check: Mandanten-, Aktivitäts- und Einladungsvertrag bestanden");
