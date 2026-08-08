@@ -32,7 +32,9 @@ import { getDraftPricing, getPublishedPricing } from "@/lib/admin/pricing";
 import NewPurchaseForm from "@/components/admin/NewPurchaseForm";
 import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
+import TenantInvitationForm from "@/components/admin/TenantInvitationForm";
 import { APP_SYNC_ISSUE_TEXT, appSyncIssue } from "@/lib/admin/app-sync";
+import { mailConfigIssue } from "@/lib/admin/mail";
 import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
 import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
 import {
@@ -95,6 +97,9 @@ export default async function CompanyDetailPage({ params }: Props) {
   const activeModules = effectiveModuleIds(pricing, company, pkg);
   const isSuspended = company.status === "suspended";
   const isProvisioned = company.status !== "provisioning";
+  const appSyncDone = company.provisioning.some(
+    (step) => step.id === "app-sync" && step.status === "done",
+  );
 
   return (
     <div className="space-y-8">
@@ -276,6 +281,18 @@ export default async function CompanyDetailPage({ params }: Props) {
             </li>
           ))}
         </ul>
+      </Section>
+
+      <Section
+        title="Erstzugang"
+        description="Einmalige Einladung zur persönlichen Passwortvergabe in der Gleistrix-App."
+      >
+        <TenantInvitationForm
+          companyId={company.id}
+          email={company.contactEmail}
+          isProvisioned={appSyncDone}
+          disabledHint={mailConfigIssue() ?? undefined}
+        />
       </Section>
 
       <Section

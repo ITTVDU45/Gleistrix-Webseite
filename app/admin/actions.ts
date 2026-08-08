@@ -1139,6 +1139,7 @@ export async function movePricingEntryAction(data: FormData): Promise<void> {
 // dortigen Block kollidieren.
 import * as brochureStore from "@/lib/admin/store";
 import { brochureFile, mailConfigIssue, sendMail } from "@/lib/admin/mail";
+import { tenantInvitationMail } from "@/lib/admin/tenant-invitation";
 import { basename } from "node:path";
 
 /**
@@ -1218,6 +1219,10 @@ import type { ProvisioningStepId, Purchase } from "@/types/admin";
 
 /** Ergebnis eines Schritts, einheitlich für alle Anbieter. */
 type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
+type AppSyncOutcome =
+  | { ok: true; note: string; invitationSent: boolean }
+  | { ok: false; error: string };
+type InvitationDelivery = { sent: boolean; note: string | null };
 
 /**
  * Meldet den Mandanten an die App.
@@ -1241,38 +1246,33 @@ type StepOutcome = { ok: true; note: string } | { ok: false; error: string };
  * ist in der App schon angelegt, und ein zweiter Meldelauf würde daran nichts
  * ändern. Deshalb wird das Ergebnis nur vermerkt, nicht geworfen.
  *
- * @returns Vermerk fürs Protokoll, oder null wenn es nichts zu versenden gab
+ * @returns Versandstatus plus Vermerk für das Provisionierungsprotokoll
  */
-async function sendeEinladung(company: Company, link?: string): Promise<string | null> {
-  if (!link) return null;
+async function sendeEinladung(company: Company, link?: string): Promise<InvitationDelivery> {
+  if (!link) return { sent: false, note: "Kein Einladungslink von der App erhalten." };
 
   const issue = mailConfigIssue();
-  if (issue) return `Einladung NICHT versendet (${issue}) – Link von Hand weitergeben.`;
-
-  try {
-    await sendMail({
-      to: company.contactEmail,
-      subject: `Ihr Zugang zu Gleistrix – ${company.name}`,
-      text: [
-        `Guten Tag ${company.contactName || ""}`.trim() + ",",
-        "",
-        `Ihr Zugang für ${company.name} steht bereit. Über den folgenden Link legen Sie Ihr Passwort fest und melden sich das erste Mal an:`,
-        "",
-        link,
-        "",
-        "Viele Grüße",
-        "Ihr Gleistrix-Team",
-      ].join("\n"),
-    });
-  } catch (error) {
-    console.error(`Einladung an ${company.contactEmail} fehlgeschlagen:`, error);
-    return "Einladung konnte nicht versendet werden – Link von Hand weitergeben.";
+  if (issue) {
+    return {
+      sent: false,
+      note: `Einladung NICHT versendet (${issue}) – Link von Hand weitergeben.`,
+    };
   }
 
-  return `Einladung an ${company.contactEmail} versendet.`;
+  try {
+    await sendMail(tenantInvitationMail(company, link));
+  } catch (error) {
+    console.error(`Einladung an ${company.contactEmail} fehlgeschlagen:`, error);
+    return {
+      sent: false,
+      note: "Einladung konnte nicht versendet werden – Link von Hand weitergeben.",
+    };
+  }
+
+  return { sent: true, note: `Einladung an ${company.contactEmail} versendet.` };
 }
 
-async function runAppSync(company: Company, forPurchase?: Purchase): Promise<StepOutcome> {
+async function runAppSync(company: Company, forPurchase?: Purchase): Promise<AppSyncOutcome> {
   const [purchases, pricing, tenantPackage] = await Promise.all([
     getPurchasesForCompany(company.id),
     getPublishedPricing(),
@@ -1319,15 +1319,58 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<Ste
   const details = [
     result.tenantId ? `Mandant ${result.tenantId}` : null,
     result.einladungsLink ? `Einladungslink: ${result.einladungsLink}` : null,
-    versand,
+    versand.note,
   ].filter(Boolean);
 
   return {
     ok: true,
+    invitationSent: versand.sent,
     note: `An ${registration.datenbank} gemeldet, ohne Zugangsdaten.${
       details.length > 0 ? ` ${details.join(" · ")}` : ""
     }`,
   };
+}
+
+/**
+ * Sendet den Erstzugang eines bereits provisionierten Mandanten erneut.
+ *
+ * Der Empfänger stammt ausschließlich aus dem gespeicherten Unternehmen.
+ * Der Browser kann dadurch weder eine fremde Adresse noch einen eigenen Link
+ * einschleusen. `runAppSync` liefert für denselben Stand idempotent denselben,
+ * noch gültigen Einmal-Link aus der App zurück.
+ */
+export async function sendTenantInvitationAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  const appStep = company.provisioning.find((step) => step.id === "app-sync");
+  if (appStep?.status !== "done") {
+    return { error: "Der Mandant muss zuerst erfolgreich an die App gemeldet werden." };
+  }
+
+  const issue = mailConfigIssue();
+  if (issue) return { error: issue };
+
+  const outcome = await runAppSync(company);
+  if (!outcome.ok) return { error: outcome.error };
+  if (!outcome.invitationSent) {
+    return { error: "Die Einladung konnte nicht versendet werden. Bitte SMTP-Konfiguration prüfen." };
+  }
+
+  await updateCompany(company.id, (current) =>
+    applyStepResult(current, "app-sync", {
+      status: "done",
+      note: outcome.note,
+      updatedAt: new Date().toISOString(),
+    }),
+  );
+  revalidateAdmin(company.id);
+
+  return { success: `Einmalige Einladung an ${company.contactEmail} versendet.` };
 }
 
 /** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */
@@ -1454,12 +1497,12 @@ export async function createPurchaseAction(
   // Mengen nur für Module, die überhaupt nach Nutzung abgerechnet werden.
   const usageAmounts: Record<string, number> = {};
   for (const moduleId of moduleIds) {
-    const module = active.get(moduleId);
-    if (!module?.usage) continue;
+    const selectedModule = active.get(moduleId);
+    if (!selectedModule?.usage) continue;
 
     const amount = Number.parseInt(field(data, `usage_${moduleId}`) || "0", 10);
     if (!Number.isFinite(amount) || amount < 0) {
-      return { error: `Ungültige Menge für „${module.title}".` };
+      return { error: `Ungültige Menge für „${selectedModule.title}".` };
     }
     usageAmounts[moduleId] = amount;
   }
