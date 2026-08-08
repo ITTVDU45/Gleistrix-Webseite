@@ -1200,6 +1200,7 @@ import {
   createTenantDatabase,
   createTenantUser,
   generateTenantPassword,
+  grantAppAccess,
   mongoAdminIssue,
 } from "@/lib/admin/provision/mongo";
 import { registerTenant, registrationFor } from "@/lib/admin/app-sync";
@@ -1359,9 +1360,18 @@ export async function runProvisioningStepAction(
       // Das Passwort wird hier verworfen: Die App verbindet sich mit dem
       // Zugang aus ihrer eigenen Umgebung, nicht mit einem je Mandant erzeugten.
       const user = await createTenantUser(tenant, generateTenantPassword());
-      outcome = user.ok
-        ? { ok: true, note: user.note }
-        : { ok: false, error: user.error };
+      if (!user.ok) {
+        outcome = { ok: false, error: user.error };
+        break;
+      }
+
+      // Erst hiermit wird der Mandant für die App überhaupt lesbar. Scheitert
+      // es, gilt der Schritt als fehlgeschlagen – sonst stünde ein Mandant als
+      // fertig da, den die App nicht öffnen kann.
+      const zugriff = await grantAppAccess(tenant);
+      outcome = zugriff.ok
+        ? { ok: true, note: `${user.note} ${zugriff.note}` }
+        : { ok: false, error: zugriff.error };
       break;
     }
     case "minio-bucket": {

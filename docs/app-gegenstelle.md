@@ -26,20 +26,32 @@ Nur: Dieser Zugang hat auf eine frisch angelegte Kundendatenbank **keine
 Rechte**. Niemand vergibt sie. Ein neuer Mandant wäre also angelegt und für die
 App trotzdem unlesbar.
 
-Zu entscheiden, bevor der erste echte Mandant entsteht:
+**Auf der Website-Seite ist das inzwischen gelöst.** Der Schritt `mongo-role`
+gewährt dem App-Benutzer nach dem Anlegen der Datenbank `readWrite` darauf —
+über `grantRolesToUser`, je Mandant nachgezogen.
 
-- **Rolle mit Platzhalter** — eine benutzerdefinierte MongoDB-Rolle, die
-  `readWrite` auf allen `gleistrix_*` gewährt. Sauberste Variante, einmal am
-  Cluster einzurichten.
-- **`readWriteAnyDatabase`** — schnell, aber der Zugang darf dann auch alles
-  andere auf dem Server, inklusive `gleistrix_control`.
-- **Rechte je Mandant nachziehen** — die Website erweitert bei der
-  Provisionierung die Rolle des App-Benutzers um die neue Datenbank. Das wäre
-  eine kleine Ergänzung in `lib/admin/provision/mongo.ts`; sag Bescheid, dann
-  baue ich sie auf der Website-Seite.
+Eine Randnotiz, die leicht Zeit kostet: **MongoDB kennt in Rollen kein
+Namensmuster** wie `gleistrix_*`. Ein Privileg nennt entweder eine konkrete
+Datenbank oder alle. Eine „Rolle für alle Gleistrix-Datenbanken" lässt sich also
+nicht anlegen; die Alternative wäre `readWriteAnyDatabase`, und damit dürfte die
+App auch `gleistrix_control` mit Anfragen, Kontakten und Käufen lesen und
+schreiben. Deshalb der Weg über die Provisionierung.
 
-Ohne diese Entscheidung läuft `app-sync` durch, und der Mandant kann sich
-trotzdem nicht anmelden.
+**Was du dafür tun musst:**
+
+1. Einen eigenen Datenbankbenutzer für die App anlegen, in `admin`, **ohne**
+   Rollen — die kommen je Mandant dazu:
+   ```js
+   use admin
+   db.createUser({ user: "app_mandanten", pwd: "…", roles: [] })
+   ```
+2. Seinen **Namen** in die `.env` der Website eintragen:
+   `MONGODB_APP_USERNAME=app_mandanten`. Das Passwort kennt nur die App.
+3. In der App `MONGODB_URI` auf diesen Benutzer zeigen lassen.
+
+Bestandsmandanten, die vor dieser Umstellung entstanden sind, bekommen die
+Rechte nicht rückwirkend: Für sie den Schritt `mongo-role` im Adminbereich
+einmal erneut ausführen.
 
 ### 0.2 Wo liegt das Mandantenverzeichnis der App?
 

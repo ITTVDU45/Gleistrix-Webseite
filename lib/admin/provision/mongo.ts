@@ -175,6 +175,53 @@ export async function createTenantUser(tenant: Tenant, password: string): Promis
   }
 }
 
+/**
+ * Gibt dem Datenbankbenutzer der App Zugriff auf die neue Kundendatenbank.
+ *
+ * OHNE DIESEN SCHRITT IST EIN MANDANT UNBRAUCHBAR: Die App verbindet sich mit
+ * genau einem eigenen Benutzer und wählt die Kundendatenbank über ihren Namen.
+ * Auf eine frisch angelegte Datenbank hat dieser Benutzer aber keinerlei
+ * Rechte – der Mandant wäre angelegt und könnte sich trotzdem nicht anmelden.
+ *
+ * Rechte je Mandant nachziehen statt einmal pauschal: MongoDB kennt in Rollen
+ * KEIN Namensmuster wie `gleistrix_*`. Die Alternative wäre
+ * `readWriteAnyDatabase` – dann dürfte die App auch `gleistrix_control` mit
+ * Anfragen, Kontakten und Käufen lesen und schreiben.
+ *
+ * Ohne gesetzte Variable wird übersprungen, nicht abgebrochen: Wer die App noch
+ * nicht angeschlossen hat, soll trotzdem provisionieren können.
+ */
+export async function grantAppAccess(tenant: Tenant): Promise<Result> {
+  const benutzer = process.env.MONGODB_APP_USERNAME?.trim();
+  if (!benutzer) {
+    return {
+      ok: true,
+      note:
+        "MONGODB_APP_USERNAME ist nicht gesetzt – der App-Benutzer bekommt keine Rechte auf " +
+        `${tenant.mongoDatabase}. Solange das so bleibt, kann die App diesen Mandanten nicht öffnen.`,
+    };
+  }
+
+  try {
+    return await withAdminClient(async (client) => {
+      // Der Benutzer der App liegt in `admin`, seine Rechte zeigen auf die
+      // Kundendatenbank. grantRolesToUser ist idempotent – eine bereits
+      // vorhandene Rolle wird nicht doppelt eingetragen.
+      await client.db("admin").command({
+        grantRolesToUser: benutzer,
+        roles: [{ role: "readWrite", db: tenant.mongoDatabase }],
+      });
+
+      return {
+        ok: true,
+        note: `App-Benutzer hat jetzt readWrite auf ${tenant.mongoDatabase}.`,
+      };
+    });
+  } catch (error) {
+    return { ok: false, error: safeMessage(error) };
+  }
+}
+
 function isUserAlreadyExists(error: unknown): boolean {
   const code = (error as { code?: unknown } | null)?.code;
   if (code === USER_ALREADY_EXISTS) return true;

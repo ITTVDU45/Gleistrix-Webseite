@@ -110,7 +110,7 @@ const BLUEPRINTS: StepBlueprint[] = [
     requiredEnv: "MONGODB_ADMIN_URI",
     target: (t) => t.mongoUser,
     note: (t) =>
-      `Benutzer ${t.mongoUser} mit readWrite ausschließlich auf ${t.mongoDatabase} – kein Zugriff auf andere Mandanten.`,
+      `Benutzer ${t.mongoUser} mit readWrite ausschließlich auf ${t.mongoDatabase} – kein Zugriff auf andere Mandanten. Danach bekommt der Datenbankbenutzer der App readWrite auf diese Datenbank; ohne das könnte sie den Mandanten nicht öffnen.`,
   },
   {
     id: "minio-bucket",
