@@ -44,7 +44,7 @@ export default function RootLayout({
           {`
             window.difyChatbotConfig = {
               token: 'FCVbQpF4fRXpkXb2',
-              baseUrl: 'http://dify.hostiteasy.com',
+              baseUrl: 'https://dify.hostiteasy.com',
               inputs: {
                 // You can define the inputs from the Start node here
                 // key is the variable name
@@ -63,7 +63,7 @@ export default function RootLayout({
           `}
         </Script>
         <Script
-          src="http://dify.hostiteasy.com/embed.min.js"
+          src="https://dify.hostiteasy.com/embed.min.js"
           id="FCVbQpF4fRXpkXb2"
           strategy="afterInteractive"
         />
