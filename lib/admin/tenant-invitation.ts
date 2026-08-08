@@ -1,5 +1,6 @@
 import type { Company } from "@/types/admin";
 
+import { emailWizardWrapper } from "./email-wizard-wrapper";
 import type { MailOptions } from "./mail";
 
 function escapeHtml(value: string): string {
@@ -31,7 +32,7 @@ export function tenantInvitationMail(company: Company, link: string): MailOption
 
   return {
     to: company.contactEmail,
-    subject: `Ihr Zugang zu Gleistrix – ${company.name}`,
+    subject: `Ihr Zugang zu Gleistrix - ${company.name}`,
     text: [
       greeting,
       "",
@@ -45,25 +46,33 @@ export function tenantInvitationMail(company: Company, link: string): MailOption
       "Mit freundlichen Grüßen",
       "Ihr Gleistrix-Team",
     ].join("\n"),
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; padding: 24px; color: #172033;">
-        <h1 style="font-size: 24px; margin: 0 0 20px;">Willkommen bei Gleistrix</h1>
-        <p>${safeGreeting}</p>
-        <p>
-          Ihr Zugang für <strong>${safeCompany}</strong> steht bereit.
-          Legen Sie jetzt über den einmaligen Link Ihr persönliches Passwort fest.
+    html: emailWizardWrapper({
+      preheader: `Ihr persönlicher Zugang für ${company.name} ist bereit.`,
+      eyebrow: "Persönlicher Erstzugang",
+      title: "Willkommen bei Gleistrix",
+      bodyHtml: `
+        <p style="margin:0 0 16px;">${safeGreeting}</p>
+        <p style="margin:0;">
+          Ihr Zugang für <strong style="color:#172033;">${safeCompany}</strong> ist vorbereitet.
+          Legen Sie jetzt Ihr persönliches Passwort fest.
         </p>
-        <p style="margin: 28px 0;">
-          <a href="${safeLink}" style="display: inline-block; background: #4f46e5; color: #fff; text-decoration: none; padding: 13px 20px; border-radius: 8px; font-weight: 600;">
-            Passwort festlegen
-          </a>
-        </p>
-        <p style="font-size: 13px; color: #667085;">
-          Der Link kann nur einmal verwendet werden. Falls die Schaltfläche nicht funktioniert:<br />
-          <span style="word-break: break-all;">${safeLink}</span>
-        </p>
-        <p>Mit freundlichen Grüßen<br /><strong>Ihr Gleistrix-Team</strong></p>
-      </div>
-    `,
+      `,
+      action: {
+        href: link,
+        label: "Passwort festlegen",
+      },
+      notice: {
+        title: "Einmalig und vertraulich",
+        bodyHtml: `
+          Der Link kann nur einmal verwendet werden. Bitte geben Sie ihn nicht weiter.<br />
+          Falls die Schaltfläche nicht funktioniert, öffnen Sie den
+          <a href="${safeLink}" target="_blank" style="color:#4338ca; font-weight:700; text-decoration:underline;">Einladungslink im Browser</a>.
+        `,
+      },
+      closingHtml: `
+        <p style="margin:0;">Mit freundlichen Grüßen</p>
+        <p style="margin:2px 0 0; font-weight:700; color:#172033;">Ihr Gleistrix-Team</p>
+      `,
+    }),
   };
 }
