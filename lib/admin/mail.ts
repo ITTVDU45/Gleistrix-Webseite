@@ -11,20 +11,40 @@ import nodemailer from "nodemailer";
  * Warteschlange.
  */
 
-/** Ohne diese Werte kommt keine Verbindung zustande. */
-const REQUIRED_ENV = ["SMTP_HOST", "SMTP_USER", "SMTP_PASS"] as const;
-
 /** Impliziertes TLS – bei allen anderen Ports wird per STARTTLS hochgestuft. */
 const IMPLICIT_TLS_PORT = 465;
 
 const DEFAULT_PORT = 587;
+
+function firstEnv(...keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = process.env[key];
+    if (value?.trim()) return value.trim();
+  }
+  return undefined;
+}
+
+function smtpConfig() {
+  return {
+    host: firstEnv("SMTP_HOST", "EMAIL_HOST"),
+    port: firstEnv("SMTP_PORT", "EMAIL_PORT"),
+    user: firstEnv("SMTP_USER", "EMAIL_USER"),
+    pass: firstEnv("SMTP_PASS", "EMAIL_PASS"),
+    secure: firstEnv("SMTP_SECURE", "EMAIL_SECURE"),
+  };
+}
 
 /**
  * Welche SMTP-Variablen fehlen – für die Anzeige im Adminbereich.
  * Gibt nur Variablennamen zurück, nie deren Werte.
  */
 export function mailConfigIssue(): string | null {
-  const missing = REQUIRED_ENV.filter((name) => !process.env[name]);
+  const config = smtpConfig();
+  const missing = [
+    config.host ? null : "SMTP_HOST/EMAIL_HOST",
+    config.user ? null : "SMTP_USER/EMAIL_USER",
+    config.pass ? null : "SMTP_PASS/EMAIL_PASS",
+  ].filter((name): name is string => Boolean(name));
   if (missing.length === 0) return null;
 
   return `SMTP ist nicht vollständig konfiguriert – es fehlt: ${missing.join(", ")}.`;
@@ -32,7 +52,9 @@ export function mailConfigIssue(): string | null {
 
 /** Absender und Empfänger der Website-Benachrichtigungen. */
 export function mailFrom(): string {
-  return process.env.SMTP_FROM || "noreply@gleistrix.com";
+  const address = firstEnv("SMTP_FROM", "EMAIL_FROM") || "noreply@gleistrix.com";
+  const name = firstEnv("SMTP_FROM_NAME", "EMAIL_FROM_NAME");
+  return name ? `${name} <${address}>` : address;
 }
 
 export function contactRecipient(): string {
@@ -70,12 +92,16 @@ let transporter: nodemailer.Transporter | null = null;
 function transport(): nodemailer.Transporter {
   if (transporter) return transporter;
 
-  const port = Number.parseInt(process.env.SMTP_PORT || String(DEFAULT_PORT), 10);
+  const config = smtpConfig();
+  const port = Number.parseInt(config.port || String(DEFAULT_PORT), 10);
+  const secure = config.secure
+    ? config.secure.toLowerCase() === "true"
+    : port === IMPLICIT_TLS_PORT;
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
+    host: config.host,
     port: Number.isFinite(port) ? port : DEFAULT_PORT,
-    secure: port === IMPLICIT_TLS_PORT,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+    secure,
+    auth: { user: config.user, pass: config.pass },
   });
 
   return transporter;
