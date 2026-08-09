@@ -53,6 +53,15 @@ export type Company = {
   /** Trotz Paket gesperrte Module. */
   blockedModuleIds: string[];
   suspendedReason?: string;
+  /**
+   * Willkommensmail an den Ansprechpartner, sobald der Erstzugang bereitsteht.
+   *
+   * Optional und als „an" gewertet, solange nichts anderes dasteht – Mandanten
+   * aus der Zeit vor diesem Feld haben ihre Einladung immer bekommen, und ein
+   * fehlendes Feld darf das nicht rückwirkend abschalten. Aus ist aus: dann
+   * bleibt der Weg über „Erstzugang senden" auf der Unternehmensseite.
+   */
+  autoWelcomeMail?: boolean;
   tenant: Tenant;
   provisioning: ProvisioningStep[];
   createdAt: string;
@@ -93,6 +102,7 @@ export type CompanyUser = {
  * `null` an einer Vorlage heißt: nur von Hand versendbar.
  */
 export type NotificationTrigger =
+  | "unternehmen.eingerichtet"
   | "nutzer.eingeladen"
   | "unternehmen.gesperrt"
   | "unternehmen.entsperrt"

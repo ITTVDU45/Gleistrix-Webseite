@@ -74,6 +74,12 @@ export type TriggerInfo = {
 
 export const TRIGGERS: TriggerInfo[] = [
   {
+    id: "unternehmen.eingerichtet",
+    label: "Erster Admin-Zugang erstellt",
+    description:
+      "Der Mandant ist an die App gemeldet und der Erstzugang des Ansprechpartners steht bereit – nach einem Kauf wie nach manueller Anlage. {{link}} enthält den einmaligen Passwortlink.",
+  },
+  {
     id: "nutzer.eingeladen",
     label: "Nutzer eingeladen",
     description:

@@ -9,4 +9,5 @@ export const getCompany = companies.get;
 export const insertCompany = companies.insert;
 export const insertCompanies = companies.insertMany;
 export const patchCompany = companies.patch;
+export const removeCompany = companies.remove;
 export const companiesEmpty = companies.isEmpty;

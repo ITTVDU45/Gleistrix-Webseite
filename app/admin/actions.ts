@@ -30,6 +30,7 @@ import {
 } from "@/lib/admin/pricing";
 import {
   addDemoAccess,
+  deleteCompany,
   deleteContact,
   getLead,
   getPurchases,
@@ -143,6 +144,9 @@ export async function createCompanyAction(
   const seats = Number.parseInt(field(data, "seats") || "1", 10);
   const packageId = field(data, "packageId") || null;
   const slug = slugify(field(data, "slug") || name);
+  // Nicht angehakte Checkboxen schicken gar nichts – daher „on" prüfen, nicht
+  // auf einen fehlenden Wert schließen.
+  const autoWelcomeMail = field(data, "autoWelcomeMail") === "on";
 
   if (!name) return { error: "Firmenname fehlt." };
   if (!contactEmail.includes("@")) return { error: "Bitte eine gültige Kontakt-E-Mail angeben." };
@@ -173,6 +177,7 @@ export async function createCompanyAction(
     packageId,
     extraModuleIds: [],
     blockedModuleIds: [],
+    autoWelcomeMail,
     tenant,
     provisioning: provisioningPlan(tenant),
     createdAt: new Date().toISOString(),
@@ -181,6 +186,61 @@ export async function createCompanyAction(
   await insertCompany(company);
   revalidateAdmin(company.id);
   redirect(`/admin/unternehmen/${company.id}`);
+}
+
+/**
+ * Ändert die Stammdaten eines Mandanten.
+ *
+ * Die Kennung bleibt bewusst außen vor: Datenbankname, MongoDB-Benutzer und
+ * Bucket sind daraus abgeleitet und in der App fest verdrahtet – eine neue
+ * Kennung hieße neue Ressourcen, nicht umbenannte.
+ */
+export async function updateCompanyAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const name = field(data, "name");
+  const contactName = field(data, "contactName");
+  const contactEmail = field(data, "contactEmail");
+  const seats = Number.parseInt(field(data, "seats") || "0", 10);
+
+  if (!companyId) return { error: "Unbekanntes Unternehmen." };
+  if (!name) return { error: "Firmenname fehlt." };
+  if (!contactEmail.includes("@")) return { error: "Bitte eine gültige Kontakt-E-Mail angeben." };
+  if (!Number.isFinite(seats) || seats < 1) {
+    return { error: "Anzahl Benutzer muss mindestens 1 sein." };
+  }
+
+  const updated = await updateCompany(companyId, (company) => ({
+    ...company,
+    name,
+    contactName,
+    contactEmail,
+    seats,
+  }));
+  if (!updated) return { error: "Unternehmen nicht gefunden." };
+
+  // Name, Erstbenutzer und Benutzerzahl stehen auch in der Meldung an die App –
+  // ohne Abgleich liefe der Mandant dort unter dem alten Stand weiter.
+  await syncModulesIfProvisioned(updated);
+  revalidateAdmin(companyId);
+  return { success: `„${name}“ gespeichert.` };
+}
+
+/**
+ * Entfernt den Mandanten aus dem Adminbereich.
+ *
+ * Bewusst nur hier: Datenbank, Bucket und der Mandant in der App bleiben
+ * bestehen. Sie von der Ferne mitzulöschen wäre ein stiller, nicht
+ * umkehrbarer Datenverlust beim Kunden.
+ */
+export async function deleteCompanyAction(data: FormData): Promise<void> {
+  const companyId = field(data, "companyId");
+  if (!companyId) return;
+
+  await deleteCompany(companyId);
+  revalidateAdmin();
 }
 
 export async function assignPackageAction(data: FormData): Promise<void> {
@@ -1329,6 +1389,24 @@ async function sendeEinladung(company: Company, link?: string): Promise<Invitati
     };
   }
 
+  // Hat der Superadmin eine Vorlage am Auslöser „Erster Admin-Zugang erstellt"
+  // aktiviert, gewinnt sie. Ohne Vorlage bleibt es bei der eingebauten
+  // Einladungsmail – der Erstzugang darf nicht ungesendet bleiben, nur weil
+  // niemand eine Vorlage gepflegt hat.
+  const template = await activeTemplateFor("unternehmen.eingerichtet");
+  if (template) {
+    return sendTemplate(
+      template,
+      company.contactEmail,
+      companyValues(company, {
+        name: company.contactName,
+        email: company.contactEmail,
+        rolle: ROLE_LABEL.admin,
+        link,
+      }),
+    );
+  }
+
   try {
     await sendMail(tenantInvitationMail(company, link));
   } catch (error) {
@@ -1384,7 +1462,16 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
 
   if (!result.ok) return result;
 
-  const versand = await sendeEinladung(company, result.einladungsLink);
+  // Die Willkommensmail geht nur automatisch raus, wenn der Superadmin das beim
+  // Anlegen so wollte. Ausgeschaltet heißt aufgeschoben, nicht abgesagt: der
+  // Link steht im Protokoll, und „Erstzugang senden" verschickt ihn jederzeit.
+  const versand =
+    company.autoWelcomeMail === false
+      ? {
+          sent: false,
+          note: "Willkommensmail nicht automatisch versendet (beim Anlegen abgewählt).",
+        }
+      : await sendeEinladung(company, result.einladungsLink);
 
   const details = [
     result.tenantId ? `Mandant ${result.tenantId}` : null,
@@ -1641,7 +1728,7 @@ export async function syncPurchaseAction(
 /* -------------------------------------------------------- Mandanten-Nutzer */
 
 import { inviteTenantUser } from "@/lib/admin/app-sync";
-import { companyValues, notify, sendTemplate } from "@/lib/admin/notify";
+import { activeTemplateFor, companyValues, notify, sendTemplate } from "@/lib/admin/notify";
 import {
   INVITE_FALLBACK_TEMPLATE,
   ROLE_LABEL,

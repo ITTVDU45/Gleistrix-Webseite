@@ -92,6 +92,18 @@ export default function NewCompanyForm({ packages }: Props) {
         </div>
       </div>
 
+      <label className="flex items-start gap-2.5 rounded-lg border px-3.5 py-3">
+        <input type="checkbox" name="autoWelcomeMail" defaultChecked className="mt-0.5 size-4" />
+        <span className="text-sm">
+          Willkommensmail automatisch senden
+          <span className="mt-0.5 block text-xs text-muted-foreground">
+            Geht raus, sobald der Mandant an die App gemeldet ist und der Erstzugang bereitsteht.
+            Abgewählt bleibt der Link im Protokoll – „Erstzugang senden“ verschickt ihn später von
+            Hand.
+          </span>
+        </span>
+      </label>
+
       {state.error ? (
         <p
           role="alert"
