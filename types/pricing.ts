@@ -39,6 +39,10 @@ export type PricingModule = {
   /** Monatspreis in Euro. */
   price: number;
   features: string[];
+  /** Zusatzleistungen, die das Modul über den Grundumfang hinaus mitbringt. */
+  extras: string[];
+  /** Bildpfad unter /public; ohne Bild zeigt die Karte nur das Icon. */
+  imageSrc?: string;
   /** Schlüssel aus der Icon-Registry (lib/pricing/icons.ts). */
   iconKey: string;
   /** Archivierte Module verschwinden von der Preisseite, bleiben aber gebucht nutzbar. */

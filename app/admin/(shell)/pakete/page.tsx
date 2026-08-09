@@ -29,6 +29,7 @@ import {
   getDraftPricing,
   getPublishedPricing,
   hasUnpublishedChanges,
+  suggestionList,
 } from "@/lib/admin/pricing";
 
 export const metadata = { title: "Preisseite" };
@@ -50,6 +51,15 @@ export default async function PricingPage({ searchParams }: Props) {
 
   const hasChanges = hasUnpublishedChanges(draft, published);
   const activeModules = draft.modules.filter((module) => module.isActive);
+
+  // Leistungen sind Freitext – als Auswahl dient, was bereits irgendwo vergeben ist,
+  // plus die Titel der aktiven Add-ons.
+  const packageFeatures = suggestionList([
+    ...draft.packages.flatMap((pkg) => pkg.features),
+    ...activeModules.map((module) => module.title),
+  ]);
+  const moduleFeatures = suggestionList(draft.modules.flatMap((module) => module.features));
+  const moduleExtras = suggestionList(draft.modules.flatMap((module) => module.extras));
 
   // Filter über die Adresse statt über Client-State: die Seite ist eine
   // Server-Komponente und bleibt es damit auch.
@@ -123,7 +133,7 @@ export default async function PricingPage({ searchParams }: Props) {
             title="Neues Paket"
             description="Grundpreis, enthaltene Benutzer, Leistungen und einmalige Implementierung."
           >
-            <PackageForm />
+            <PackageForm suggestions={packageFeatures} />
           </Modal>
         }
       >
@@ -172,7 +182,7 @@ export default async function PricingPage({ searchParams }: Props) {
                     title={pkg.name}
                     description="Änderungen gelten erst nach der Freigabe auf der Preisseite."
                   >
-                    <PackageForm pkg={pkg} />
+                    <PackageForm pkg={pkg} suggestions={packageFeatures} />
                   </Modal>
 
                   <form action={deletePricingPackageAction}>
@@ -210,7 +220,7 @@ export default async function PricingPage({ searchParams }: Props) {
             title="Neues Add-on"
             description="Die Kennung ist nach dem Anlegen unveränderlich – Mandanten-Pakete verweisen darauf."
           >
-            <ModuleForm />
+            <ModuleForm featureSuggestions={moduleFeatures} extraSuggestions={moduleExtras} />
           </Modal>
         }
       >

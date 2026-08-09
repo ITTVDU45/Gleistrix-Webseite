@@ -7,21 +7,17 @@ import {
   savePricingPackageAction,
   type FormState,
 } from "@/app/admin/actions";
+import FeaturesPicker from "@/components/admin/pricing/FeaturesPicker";
 import { useDialogForm } from "@/components/admin/pricing/Modal";
-import {
-  CHECKBOX_CLASS,
-  Field,
-  FormMessage,
-  TEXTAREA_CLASS,
-} from "@/components/admin/pricing/ui";
+import { CHECKBOX_CLASS, Field, FormMessage } from "@/components/admin/pricing/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { PricingPackage } from "@/types/pricing";
 
 /** Ohne Paket legt das Formular ein neues an. */
-type Props = { pkg?: PricingPackage };
+type Props = { pkg?: PricingPackage; suggestions?: string[] };
 
-export default function PackageForm({ pkg }: Props) {
+export default function PackageForm({ pkg, suggestions = [] }: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     savePricingPackageAction,
     {},
@@ -92,14 +88,12 @@ export default function PackageForm({ pkg }: Props) {
       <Field
         id={`${prefix}-features`}
         label="Leistungen"
-        hint="Eine Leistung je Zeile – das ist der Umfang, den dieses Paket abdeckt."
+        hint="Vorhandene Leistungen per + übernehmen oder eine neue anlegen."
       >
-        <textarea
-          id={`${prefix}-features`}
+        <FeaturesPicker
           name="features"
-          className={TEXTAREA_CLASS}
-          rows={6}
-          defaultValue={pkg?.features.join("\n") ?? ""}
+          initial={pkg?.features ?? []}
+          suggestions={suggestions}
         />
       </Field>
 

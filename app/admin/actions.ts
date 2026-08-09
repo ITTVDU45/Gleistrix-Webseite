@@ -196,6 +196,32 @@ export async function assignPackageAction(data: FormData): Promise<void> {
   revalidateAdmin(companyId);
 }
 
+/**
+ * Meldet den aktuellen Stand eines bereits provisionierten Mandanten an die App.
+ *
+ * Absichtlich still: Fehler landen im Serverprotokoll, nicht im Formular.
+ * Der Superadmin sieht sie beim manuellen Wiederholen unter /admin/kaeufe
+ * bzw. am Schritt „app-sync" der Provisionierung.
+ *
+ * Guard: Solange die App noch nicht provisioniert ist (`status === "provisioning"`),
+ * wird nichts gesendet – ein Toggle darf keinen Mandanten anlegen, den der
+ * Superadmin noch nicht bewusst freigeschaltet hat.
+ */
+async function syncModulesIfProvisioned(company: Company | null): Promise<void> {
+  if (!company) return;
+  if (company.status === "provisioning") return;
+  if (appSyncIssue()) return;
+
+  try {
+    const outcome = await runAppSync(company);
+    if (!outcome.ok) {
+      console.error(`App-Sync für ${company.slug} fehlgeschlagen: ${outcome.error}`);
+    }
+  } catch (error) {
+    console.error(`App-Sync für ${company.slug} warf einen Fehler:`, error);
+  }
+}
+
 /** Modul freigeben, sperren oder auf den Paketstand zurücksetzen. */
 export async function setModuleAccessAction(data: FormData): Promise<void> {
   const companyId = field(data, "companyId");
@@ -206,7 +232,7 @@ export async function setModuleAccessAction(data: FormData): Promise<void> {
   if (!getModule(pricing, moduleId)) return;
   if (mode !== "grant" && mode !== "block" && mode !== "reset") return;
 
-  await updateCompany(companyId, (company) => {
+  const updated = await updateCompany(companyId, (company) => {
     const extra = company.extraModuleIds.filter((id) => id !== moduleId);
     const blocked = company.blockedModuleIds.filter((id) => id !== moduleId);
 
@@ -216,6 +242,8 @@ export async function setModuleAccessAction(data: FormData): Promise<void> {
       blockedModuleIds: mode === "block" ? [...blocked, moduleId] : blocked,
     };
   });
+
+  await syncModulesIfProvisioned(updated);
   revalidateAdmin(companyId);
 }
 
@@ -226,11 +254,15 @@ export async function setCompanyStatusAction(data: FormData): Promise<void> {
 
   if (status !== "active" && status !== "suspended" && status !== "provisioning") return;
 
-  await updateCompany(companyId, (company) => ({
+  const updated = await updateCompany(companyId, (company) => ({
     ...company,
     status,
     suspendedReason: status === "suspended" ? reason || "Ohne Angabe" : undefined,
   }));
+
+  // Sperren/Reaktivieren muss sofort in der App wirken: gesperrt = leere
+  // Modulliste (Zugangsstopp), aktiv = voller gebuchter Umfang.
+  await syncModulesIfProvisioned(updated);
   revalidateAdmin(companyId);
 }
 
@@ -871,6 +903,13 @@ export async function savePricingModuleAction(
     };
   }
 
+  // Bilder liegen unter /public – eine fremde Domain würde next/image ohne
+  // Konfiguration abweisen, deshalb nur absolute Pfade.
+  const imageSrc = field(data, "imageSrc").trim();
+  if (imageSrc && !imageSrc.startsWith("/")) {
+    return { error: "Bildpfad muss mit / beginnen, z. B. /module/lager.png." };
+  }
+
   const next: PricingModule = {
     id,
     tier,
@@ -878,6 +917,8 @@ export async function savePricingModuleAction(
     description: field(data, "description"),
     price: price.value,
     features: parseLines(field(data, "features")),
+    extras: parseLines(field(data, "extras")),
+    imageSrc: imageSrc || undefined,
     iconKey: iconKey.value,
     isActive: checked(data, "isActive"),
     usage,
