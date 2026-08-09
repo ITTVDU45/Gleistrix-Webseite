@@ -832,10 +832,21 @@ export async function releaseDemoAction(
   // Ohne Module meldet die Website eine leere Modulliste, und die App liest sie
   // als Zugangsstopp: Der Interessent bekäme eine Einladung in einen Mandanten,
   // den er nicht öffnen kann.
-  const [pricing, tenantPackage] = await Promise.all([
+  const [pricing, tenantPackage, purchases] = await Promise.all([
     getPublishedPricing(),
     getPackage(company.packageId),
+    getPurchasesForCompany(companyId),
   ]);
+
+  // Ein Grundkauf hebt die Befristung auf (siehe registrationFor). Ohne diesen
+  // Riegel meldete die Freigabe „freigeschaltet bis …", während in der App
+  // nichts befristet wäre – eine Zusage, die niemand einlöst.
+  if (purchases.some((purchase) => purchase.kind === "paket")) {
+    return {
+      error: `„${company.name}“ hat einen Grundkauf – dort greift keine Befristung mehr. Ein Demozugang ist nur für Mandanten ohne Kauf vorgesehen.`,
+    };
+  }
+
   if (effectiveModuleIds(pricing, company, tenantPackage).length === 0) {
     return {
       error: `„${company.name}“ hat kein Paket mit Modulen – der Zugang wäre in der App sofort gesperrt. Bitte auf der Unternehmensseite ein Paket zuweisen.`,
@@ -922,6 +933,16 @@ export async function revokeDemoAction(data: FormData): Promise<void> {
     // Altbestand: Freigaben vor der Umstellung hingen am geteilten
     // Demomandanten der App, den es nicht mehr gibt.
     fehler = "Zu diesem Eintrag gibt es keinen Mandanten – Freigabe von vor der Umstellung.";
+  } else if (
+    (await getPurchasesForCompany(access.companyId)).some(
+      (purchase) => purchase.kind === "paket",
+    )
+  ) {
+    // Ein Grundkauf hebt die Befristung auf – das Ende auf jetzt zu setzen
+    // hätte hier also KEINE Wirkung. Das ehrlich zu melden ist wichtiger als
+    // ein „widerrufen", nach dem sich der Kunde weiterhin anmelden kann.
+    fehler =
+      "Dieser Mandant hat einen Grundkauf – die Befristung greift nicht mehr. Zum Sperren den Mandanten unter Unternehmen sperren.";
   } else {
     const beendet = await updateCompany(access.companyId, (current) => ({
       ...current,
