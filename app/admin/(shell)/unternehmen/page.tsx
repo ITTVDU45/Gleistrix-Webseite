@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import CompanyRowMenu from "@/components/admin/CompanyRowMenu";
 import NewCompanyForm from "@/components/admin/NewCompanyForm";
 import {
   CompanyStatusPill,
@@ -96,7 +97,10 @@ export default async function CompaniesPage() {
                   <th className="pb-2 pr-4 text-right font-medium">Demos</th>
                   <th className="pb-2 pr-4 text-right font-medium">Kontakte</th>
                   <th className="pb-2 pr-4 font-medium">Status</th>
-                  <th className="pb-2 font-medium">Angelegt</th>
+                  <th className="pb-2 pr-4 font-medium">Angelegt</th>
+                  <th className="w-px pb-2">
+                    <span className="sr-only">Aktionen</span>
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -150,7 +154,21 @@ export default async function CompaniesPage() {
                       <td className="py-3 pr-4">
                         <CompanyStatusPill status={company.status} />
                       </td>
-                      <td className="py-3 text-muted-foreground">{formatDate(company.createdAt)}</td>
+                      <td className="py-3 pr-4 text-muted-foreground">
+                        {formatDate(company.createdAt)}
+                      </td>
+                      <td className="py-3 text-right">
+                        <CompanyRowMenu
+                          company={{
+                            id: company.id,
+                            name: company.name,
+                            slug: company.slug,
+                            contactName: company.contactName,
+                            contactEmail: company.contactEmail,
+                            seats: company.seats,
+                          }}
+                        />
+                      </td>
                     </tr>
                   );
                 })}
