@@ -1,4 +1,10 @@
-import type { Company, NotificationTemplate, NotificationTrigger } from "@/types/admin";
+import type {
+  Company,
+  NotificationTemplate,
+  NotificationTrigger,
+  Purchase,
+} from "@/types/admin";
+import type { PricingConfig } from "@/types/pricing";
 
 import { mailConfigIssue, sendMail } from "./mail";
 import {
@@ -88,4 +94,39 @@ export async function notify(input: {
   }
 
   return sendTemplate(template, input.to, input.values);
+}
+
+/**
+ * Bestätigt einen freigegebenen Kauf beim Ansprechpartner.
+ *
+ * Steht hier und nicht in den Server Actions, weil es zwei Auslöser gibt und
+ * beide dieselbe Mail schicken müssen: der Meldelauf des Superadmins und die
+ * Add-on-Meldung, die die App von sich aus schickt. Kommt später ein
+ * Zahlungsmittel dazu, hängt sich dessen Bestätigung an dieselbe Stelle.
+ *
+ * `{{paket}}` wird gefüllt, damit in der Mail steht, WAS freigegeben wurde –
+ * bei einer Zubuchung die Module, sonst der Paketname.
+ */
+export async function notifyPurchaseReleased(
+  company: Company,
+  purchase: Purchase,
+  pricing: PricingConfig,
+): Promise<NotifyResult> {
+  const paket =
+    purchase.kind === "paket"
+      ? (pricing.packages.find((entry) => entry.id === purchase.packageId)?.name ?? "")
+      : pricing.modules
+          .filter((entry) => purchase.moduleIds.includes(entry.id))
+          .map((entry) => entry.title)
+          .join(", ");
+
+  return notify({
+    trigger: "kauf.freigegeben",
+    to: company.contactEmail,
+    values: companyValues(company, {
+      name: company.contactName,
+      email: company.contactEmail,
+      paket,
+    }),
+  });
 }

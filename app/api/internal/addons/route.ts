@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 
+import { notifyPurchaseReleased } from "@/lib/admin/notify";
 import { getPublishedPricing } from "@/lib/admin/pricing";
 import { addonPurchaseFor } from "@/lib/admin/purchase";
 import { addPurchase, getPurchase, readStore } from "@/lib/admin/store";
@@ -150,6 +151,18 @@ export async function POST(request: NextRequest) {
   });
 
   await addPurchase(purchase);
+
+  // Kaufbestätigung an den Ansprechpartner, sofern eine aktive Vorlage am
+  // Auslöser „Kauf freigegeben" hängt. Doppelt kann sie nicht kommen: eine
+  // Wiederholung mit demselben Idempotency-Key ist oben schon abgebogen.
+  //
+  // Der Versand darf die Antwort NICHT scheitern lassen. Das Add-on läuft in
+  // der App bereits; ein Fehler hier ließe sie den Kauf für ungemeldet halten
+  // und erneut schicken – dann stünde er doppelt in der Abrechnung.
+  const bestaetigung = await notifyPurchaseReleased(company, purchase, pricing);
+  if (!bestaetigung.sent) {
+    console.warn(`Kaufbestätigung für ${purchase.id}: ${bestaetigung.note}`);
+  }
 
   return NextResponse.json(
     { kaufId: purchase.id, monatlich: purchase.monthlyTotal },

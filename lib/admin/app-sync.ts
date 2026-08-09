@@ -295,6 +295,70 @@ function invitationStatus(value: unknown): TenantInvitationStatus {
     : "missing";
 }
 
+export type TenantUser = {
+  email: string;
+  name: string;
+  rolle: string;
+  aktiv: boolean;
+  letzterLogin: string | null;
+  angelegtAm: string | null;
+};
+
+export type TenantInvite = {
+  email: string;
+  name: string;
+  rolle: string;
+  laeuftAbAm: string | null;
+  eingeladenAm: string | null;
+};
+
+export type TenantUsersResult =
+  | { ok: true; benutzer: TenantUser[]; einladungen: TenantInvite[] }
+  | { ok: false; error: string };
+
+function objects(value: unknown): Record<string, unknown>[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter(
+    (entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object",
+  );
+}
+
+/**
+ * Liest die echten Benutzer eines Mandanten samt offener Einladungen.
+ *
+ * Führend ist die App: Benutzer entstehen dort, egal ob der Mandant sie selbst
+ * einlädt oder der Superadmin es über das Admin-Center tut. Das Protokoll in
+ * der Control-Plane kennt nur den zweiten Weg – wer sich darauf verlässt, sieht
+ * die halbe Belegschaft nicht.
+ */
+export async function getTenantUsers(kennung: string): Promise<TenantUsersResult> {
+  const result = await get(
+    `${TENANT_USERS_PATH}?kennung=${encodeURIComponent(kennung.trim().toLowerCase())}`,
+  );
+  if (!result.ok) return result;
+
+  return {
+    ok: true,
+    // Fehlende Felder werden zu "" statt undefined: die Liste zeigt sie roh an,
+    // und ein „undefined" in der Oberfläche wäre schlechter als eine Lücke.
+    benutzer: objects(result.payload.benutzer).map((eintrag) => ({
+      email: text(eintrag.email) ?? "",
+      name: text(eintrag.name) ?? "",
+      rolle: text(eintrag.rolle) ?? "",
+      aktiv: eintrag.aktiv !== false,
+      letzterLogin: dateText(eintrag.letzterLogin),
+      angelegtAm: dateText(eintrag.angelegtAm),
+    })),
+    einladungen: objects(result.payload.einladungen).map((eintrag) => ({
+      email: text(eintrag.email) ?? "",
+      name: text(eintrag.name) ?? "",
+      rolle: text(eintrag.rolle) ?? "",
+      laeuftAbAm: dateText(eintrag.laeuftAbAm),
+      eingeladenAm: dateText(eintrag.eingeladenAm),
+    })),
+  };
+}
+
 /** Liest Loginstatus und die letzten Anmeldungen eines Mandanten aus der App. */
 export async function getTenantActivity(kennung: string): Promise<TenantActivityResult> {
   const result = await get(

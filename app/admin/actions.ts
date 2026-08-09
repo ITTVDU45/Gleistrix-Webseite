@@ -1454,6 +1454,52 @@ async function sendeEinladung(company: Company, link?: string): Promise<Invitati
   return { sent: true, note: `Einladung an ${company.contactEmail} versendet.` };
 }
 
+/**
+ * Verschickt den Erstzugang und hält fest, dass er raus ist.
+ *
+ * `automatisch` trennt die beiden Wege, und das ist der Kern:
+ * `syncModulesIfProvisioned` ruft den Meldelauf bei JEDEM Modul-Umschalten,
+ * Statuswechsel und jeder Stammdatenänderung erneut auf. Die App liefert den
+ * Einladungslink dabei weiter mit, solange das Passwort nicht vergeben ist –
+ * ohne diesen Wächter bekäme der Kunde jedes Mal eine neue Willkommensmail.
+ *
+ * Der Knopf „Erstzugang senden" ist dagegen eine ausdrückliche Handlung und
+ * sendet immer; genau dafür gibt es ihn.
+ */
+async function versendeErstzugang(
+  company: Company,
+  link: string | undefined,
+  options: { automatisch: boolean },
+): Promise<InvitationDelivery> {
+  if (options.automatisch) {
+    if (company.autoWelcomeMail === false) {
+      return {
+        sent: false,
+        note: "Willkommensmail nicht automatisch versendet (beim Anlegen abgewählt).",
+      };
+    }
+    if (company.welcomeMailSentAt) {
+      return {
+        sent: false,
+        note: "Willkommensmail wurde bereits versendet – erneut über „Erstzugang senden“.",
+      };
+    }
+  }
+
+  const delivery = await sendeEinladung(company, link);
+
+  // Nur ein tatsächlicher Versand zählt. Nach einem Fehlschlag soll der nächste
+  // Meldelauf es wieder versuchen dürfen.
+  if (delivery.sent) {
+    await updateCompany(company.id, (current) => ({
+      ...current,
+      welcomeMailSentAt: new Date().toISOString(),
+    }));
+  }
+
+  return delivery;
+}
+
 async function runAppSync(company: Company, forPurchase?: Purchase): Promise<AppSyncOutcome> {
   const [purchases, pricing, tenantPackage] = await Promise.all([
     getPurchasesForCompany(company.id),
@@ -1485,6 +1531,12 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
   const result = await registerTenant(registration, purchase?.id ?? company.id);
   const now = new Date().toISOString();
 
+  // Vor dem Schreiben festhalten: Nur der ÜBERGANG auf „freigegeben" ist die
+  // Nachricht wert. Ein Wiederholungslauf nach einem Fehlschlag oder ein
+  // Modulabgleich meldet denselben Kauf erneut – ohne diesen Vergleich bekäme
+  // der Kunde jedes Mal eine weitere Kaufbestätigung.
+  const wurdeFreigegeben = Boolean(result.ok && purchase && purchase.status !== "freigegeben");
+
   if (purchase) {
     await updatePurchase(purchase.id, (current) => ({
       ...current,
@@ -1496,16 +1548,17 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
 
   if (!result.ok) return result;
 
-  // Die Willkommensmail geht nur automatisch raus, wenn der Superadmin das beim
-  // Anlegen so wollte. Ausgeschaltet heißt aufgeschoben, nicht abgesagt: der
-  // Link steht im Protokoll, und „Erstzugang senden" verschickt ihn jederzeit.
-  const versand =
-    company.autoWelcomeMail === false
-      ? {
-          sent: false,
-          note: "Willkommensmail nicht automatisch versendet (beim Anlegen abgewählt).",
-        }
-      : await sendeEinladung(company, result.einladungsLink);
+  const versand = await versendeErstzugang(company, result.einladungsLink, { automatisch: true });
+
+  // Kaufbestätigung an den Kunden, sofern dafür eine aktive Vorlage hinterlegt
+  // ist. Ein Fehlschlag darf die Freigabe nicht zurückdrehen – sie wirkt in der
+  // App bereits.
+  if (wurdeFreigegeben && purchase) {
+    const bestaetigung = await notifyPurchaseReleased(company, purchase, pricing);
+    if (!bestaetigung.sent) {
+      console.warn(`Kaufbestätigung für ${purchase.id}: ${bestaetigung.note}`);
+    }
+  }
 
   const details = [
     result.tenantId ? `Mandant ${result.tenantId}` : null,
@@ -1555,7 +1608,9 @@ export async function sendTenantInvitationAction(
     };
   }
 
-  const delivery = await sendeEinladung(company, invitation.einladungsLink);
+  const delivery = await versendeErstzugang(company, invitation.einladungsLink, {
+    automatisch: false,
+  });
   if (!delivery.sent) return { error: delivery.note };
 
   revalidateAdmin(company.id);
@@ -1762,7 +1817,13 @@ export async function syncPurchaseAction(
 /* -------------------------------------------------------- Mandanten-Nutzer */
 
 import { inviteTenantUser } from "@/lib/admin/app-sync";
-import { activeTemplateFor, companyValues, notify, sendTemplate } from "@/lib/admin/notify";
+import {
+  activeTemplateFor,
+  companyValues,
+  notify,
+  notifyPurchaseReleased,
+  sendTemplate,
+} from "@/lib/admin/notify";
 import {
   INVITE_FALLBACK_TEMPLATE,
   ROLE_LABEL,
