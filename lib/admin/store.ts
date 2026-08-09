@@ -137,13 +137,26 @@ export async function insertCompany(company: Company): Promise<void> {
 }
 
 /**
- * Entfernt den Mandanten aus der Control-Plane.
+ * Entfernt den Mandanten aus der Control-Plane, mitsamt seiner eingeladenen
+ * Nutzer.
  *
- * Datenbank, Bucket und der Mandant in der App bleiben bestehen – ein
- * Fernlöschen wäre stiller Datenverlust. Käufe und Nutzungsdaten bleiben als
- * Historie liegen; die Kaufseite zeigt sie als „Unbekanntes Unternehmen".
+ * Die Nutzerliste ist reine Betriebsanzeige zu diesem Mandanten – bliebe sie
+ * stehen, zeigte der Adminbereich Einladungen zu einem Unternehmen, das es
+ * nicht mehr gibt. Käufe, Nutzungsdaten und das Zugriffsprotokoll bleiben
+ * dagegen als Beleg liegen; die Kaufseite zeigt sie als „Unbekanntes
+ * Unternehmen".
+ *
+ * Datenbank, Bucket und die Rechte des App-Benutzers baut der Aufrufer ab –
+ * siehe deleteCompanyAction. Hier steht nur die Control-Plane.
  */
 export async function deleteCompany(id: string): Promise<void> {
+  // ponytail: Schleife statt deleteMany – ein Mandant hat eine Handvoll Nutzer,
+  // und so gilt derselbe Code für Datenbank und Dateispeicher. Ab dreistelligen
+  // Nutzerzahlen wäre removeMany() in repository() der Upgrade-Pfad.
+  for (const user of await listCompanyUsers(id)) {
+    await deleteCompanyUser(user.id);
+  }
+
   if (isMongoConfigured()) {
     await ready();
     return companiesDb.removeCompany(id);

@@ -16,6 +16,13 @@ import { readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Unternehmen" };
 
+/**
+ * Server Actions erben das Zeitlimit ihres Routensegments, und der Abbau eines
+ * Mandanten leert einen ganzen Bucket. Mit der Voreinstellung bräche er
+ * mittendrin ab – ohne Meldung, wie weit er gekommen ist.
+ */
+export const maxDuration = 60;
+
 /** Firmennamen vergleichbar machen – Groß-/Kleinschreibung und Ränder ignorieren. */
 function nameKey(value: string): string {
   return value.trim().toLowerCase();
@@ -166,6 +173,7 @@ export default async function CompaniesPage() {
                             contactName: company.contactName,
                             contactEmail: company.contactEmail,
                             seats: company.seats,
+                            tenant: company.tenant,
                           }}
                         />
                       </td>

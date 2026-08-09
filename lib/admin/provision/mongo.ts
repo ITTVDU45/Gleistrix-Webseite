@@ -2,6 +2,8 @@ import { randomBytes } from "node:crypto";
 import { MongoClient } from "mongodb";
 import type { Tenant } from "@/types/admin";
 
+import { teardownGuard } from "./guard";
+
 /**
  * Provisionierung der Mandanten-Datenbank (Schritte `mongo-database` und
  * `mongo-role` aus lib/admin/tenant.ts).
@@ -28,6 +30,9 @@ const PASSWORD_LENGTH = 32;
 
 /** MongoDB-Fehlercode für „Benutzer existiert bereits“. */
 const USER_ALREADY_EXISTS = 51003;
+
+/** MongoDB-Fehlercode für „Benutzer existiert nicht“ – beim Abbau der Normalfall. */
+const USER_NOT_FOUND = 11;
 
 export type Result = { ok: true; note: string } | { ok: false; error: string };
 
@@ -222,10 +227,120 @@ export async function grantAppAccess(tenant: Tenant): Promise<Result> {
   }
 }
 
+/* ------------------------------------------------------------------- Abbau */
+
+/**
+ * Entzieht dem Datenbankbenutzer der App die Rechte auf die Mandanten-Datenbank.
+ *
+ * DAS IST DER ZUGANGSSTOPP. Die App verbindet sich mit ihrem eigenen Zugang und
+ * wählt die Kundendatenbank nur über den Namen – ohne readWrite kommt sie nicht
+ * mehr heran, ganz gleich, was in ihrem eigenen Verzeichnis noch steht. Genaue
+ * Umkehrung von `grantAppAccess`, und der erste Schritt des Abbaus, weil er als
+ * einziger sofort wirkt.
+ *
+ * Ohne gesetzte Variable wird übersprungen: dann hat der App-Benutzer die
+ * Rechte auch nie bekommen.
+ */
+export async function revokeAppAccess(slug: string, tenant: Tenant): Promise<Result> {
+  const verstoss = teardownGuard(slug, tenant);
+  if (verstoss) return { ok: false, error: verstoss };
+
+  const benutzer = process.env.MONGODB_APP_USERNAME?.trim();
+  if (!benutzer) {
+    return {
+      ok: true,
+      note: `MONGODB_APP_USERNAME ist nicht gesetzt – der App-Benutzer hatte auf ${tenant.mongoDatabase} ohnehin keine Rechte.`,
+    };
+  }
+
+  try {
+    return await withAdminClient(async (client) => {
+      try {
+        await client.db("admin").command({
+          revokeRolesFromUser: benutzer,
+          roles: [{ role: "readWrite", db: tenant.mongoDatabase }],
+        });
+      } catch (error) {
+        // Gibt es den App-Benutzer nicht, gibt es auch nichts zu entziehen –
+        // der gewünschte Zustand ist erreicht. Eine nie vergebene Rolle wirft
+        // ohnehin nicht.
+        if (!isUserNotFound(error)) throw error;
+      }
+
+      return {
+        ok: true,
+        note: `App-Benutzer hat keinen Zugriff mehr auf ${tenant.mongoDatabase}.`,
+      };
+    });
+  } catch (error) {
+    return { ok: false, error: safeMessage(error) };
+  }
+}
+
+/**
+ * Löscht Mandantenbenutzer und Mandanten-Datenbank – in dieser Reihenfolge und
+ * in EINER Admin-Verbindung.
+ *
+ * Erst der Benutzer, dann die Datenbank: Der Benutzer liegt IN der
+ * Mandanten-Datenbank (siehe `createTenantUser`). Wer die Datenbank zuerst
+ * löscht, verliert den Weg zu ihm und lässt eine Karteileiche im Cluster.
+ *
+ * Idempotent, damit ein abgebrochener Abbau gefahrlos wiederholt werden kann:
+ * ein fehlender Benutzer und eine fehlende Datenbank sind der gewünschte
+ * Zustand, kein Fehler.
+ */
+export async function dropTenantMongo(slug: string, tenant: Tenant): Promise<Result> {
+  const verstoss = teardownGuard(slug, tenant);
+  if (verstoss) return { ok: false, error: verstoss };
+
+  try {
+    return await withAdminClient(async (client) => {
+      const notizen: string[] = [];
+
+      try {
+        await client.db(tenant.mongoDatabase).command({ dropUser: tenant.mongoUser });
+        notizen.push(`Benutzer ${tenant.mongoUser} gelöscht.`);
+      } catch (error) {
+        if (!isUserNotFound(error)) throw error;
+        notizen.push(`Benutzer ${tenant.mongoUser} war bereits weg.`);
+      }
+
+      const vorhanden = await client.db("admin").command({
+        listDatabases: 1,
+        nameOnly: true,
+        filter: { name: tenant.mongoDatabase },
+      });
+      if (Array.isArray(vorhanden.databases) && vorhanden.databases.length === 0) {
+        notizen.push(`Datenbank ${tenant.mongoDatabase} war bereits weg.`);
+        return { ok: true, note: notizen.join(" ") };
+      }
+
+      await client.db(tenant.mongoDatabase).dropDatabase();
+      notizen.push(`Datenbank ${tenant.mongoDatabase} mit allen Collections gelöscht.`);
+      return { ok: true, note: notizen.join(" ") };
+    });
+  } catch (error) {
+    return { ok: false, error: safeMessage(error) };
+  }
+}
+
 function isUserAlreadyExists(error: unknown): boolean {
   const code = (error as { code?: unknown } | null)?.code;
   if (code === USER_ALREADY_EXISTS) return true;
   return error instanceof Error && /already exists/i.test(error.message);
+}
+
+/**
+ * Spiegel von `isUserAlreadyExists` für den Abbau.
+ *
+ * Der Textrückfall ist bewusst eng auf „user … not found" gefasst: Ein
+ * allgemeines /not found/ würde auch eine fehlende Datenbank oder Collection
+ * schlucken, und dann sähe ein echter Fehlschlag wie ein Erfolg aus.
+ */
+export function isUserNotFound(error: unknown): boolean {
+  const code = (error as { code?: unknown } | null)?.code;
+  if (code === USER_NOT_FOUND) return true;
+  return error instanceof Error && /user.*not found/i.test(error.message);
 }
 
 /**

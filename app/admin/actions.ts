@@ -230,18 +230,121 @@ export async function updateCompanyAction(
 }
 
 /**
- * Entfernt den Mandanten aus dem Adminbereich.
+ * Zeitbudget für den Abbau, aufgeteilt zwischen Bucket und Datenbank.
  *
- * Bewusst nur hier: Datenbank, Bucket und der Mandant in der App bleiben
- * bestehen. Sie von der Ferne mitzulöschen wäre ein stiller, nicht
- * umkehrbarer Datenverlust beim Kunden.
+ * Muss unter dem `maxDuration` der Route bleiben (siehe
+ * app/admin/(shell)/unternehmen/page.tsx): Läuft die Server Action in ihr
+ * eigenes Zeitlimit, erfährt niemand, wie weit sie gekommen ist.
  */
-export async function deleteCompanyAction(data: FormData): Promise<void> {
+const TEARDOWN_BUDGET_MS = 45_000;
+
+/**
+ * Baut einen Mandanten ab.
+ *
+ * Zwei Wege, unterschieden durch `mode`:
+ * - „eintrag": nur der Datensatz der Control-Plane. Der Notausgang, wenn ein
+ *   Mandant aus der Übersicht soll, seine Ressourcen aber bleiben.
+ * - „abbauen": zusätzlich Zugriffsrecht, Bucket und Datenbank. Nicht umkehrbar.
+ *
+ * Reihenfolge beim vollständigen Abbau, und warum:
+ * 1. ZUGANGSSTOPP. Dem App-Benutzer wird readWrite auf die Mandanten-Datenbank
+ *    entzogen. Ab hier kommt die App an die Daten nicht mehr heran – das wirkt
+ *    sofort und ist der einzige Schritt, der auch allein etwas taugt.
+ * 2. Bucket. Der lange, unzuverlässige Schritt mit Zeitbudget. Scheitert er,
+ *    steht die Datenbank noch: der Mandant ist im Kern erhalten und der Abbau
+ *    wiederholbar. Andersherum wäre die Datenbank weg und der Bucket ein
+ *    Waisenkind voller Kundendateien.
+ * 3. Datenbank samt Mandantenbenutzer.
+ * 4. Der Eintrag hier – zuletzt, weil mit ihm Kennung, Datenbank- und
+ *    Bucketname verschwinden. Wer ihn zuerst löscht, hat verwaiste Ressourcen
+ *    ohne Spur und keinen Weg zurück.
+ *
+ * Jeder Schritt ist idempotent, ein abgebrochener Abbau lässt sich also
+ * gefahrlos wiederholen. Ein FEHLGESCHLAGENER Schritt bricht ab; ein NICHT
+ * KONFIGURIERTER wird mit Notiz übersprungen – sonst ließe sich im
+ * Dateispeicher-Betrieb überhaupt nichts mehr löschen.
+ */
+export async function deleteCompanyAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
   const companyId = field(data, "companyId");
-  if (!companyId) return;
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  // VOR der Modus-Weiche, denn BEIDE Wege löschen den Eintrag unwiderruflich.
+  // Serverseitig, nicht nur im Browser: Das Feld ist die einzige Absicht, die
+  // den Fehlklick vom Vorsatz trennt – und es fängt zugleich jede Absendung ohne
+  // oder mit unbekanntem `mode` ab, die sonst im Löschzweig landete.
+  if (field(data, "confirm") !== company.slug) {
+    return { error: `Zum Löschen bitte die Kennung „${company.slug}“ eingeben.` };
+  }
+
+  if (field(data, "mode") !== "abbauen") {
+    await deleteCompany(companyId);
+    revalidateAdmin();
+    return {
+      success: `„${company.name}“ aus dem Adminbereich entfernt. Datenbank, Bucket und der Zugang in der App bestehen weiter.`,
+    };
+  }
+
+  // Vorab, bevor irgendetwas passiert. Die Provider prüfen selbst noch einmal –
+  // hier steht sie, damit ein verbogener Datensatz gar nicht erst losläuft.
+  const verstoss = teardownGuard(company.slug, company.tenant);
+  if (verstoss) return { error: verstoss };
+
+  // Vor dem ersten Schritt gebildet, nicht erst vor der Bucket-Schleife: Das
+  // Budget soll die ganze Action decken, sonst reißt sie das Zeitlimit der
+  // Route und niemand erfährt, wie weit sie gekommen ist.
+  const frist = Date.now() + TEARDOWN_BUDGET_MS;
+  const notizen: string[] = [];
+  const abbruch = (fehler: string): FormState => ({
+    error: [
+      fehler,
+      notizen.length > 0 ? `Bereits erledigt: ${notizen.join(" ")}` : "",
+      "Der Mandant bleibt im Adminbereich stehen – der Abbau lässt sich wiederholen.",
+    ]
+      .filter(Boolean)
+      .join(" "),
+  });
+
+  // Ein nicht konfigurierter Provider heißt: der Abbau KANN nicht vollständig
+  // sein. Ihn mit einer Notiz zu überspringen und den Eintrag trotzdem zu
+  // löschen, hinterließe genau das, wovor die Reihenfolge oben warnt – eine
+  // Datenbank oder einen Bucket voller Kundendaten ohne Eintrag davor. Wer den
+  // Mandanten trotzdem aus der Übersicht haben will, nimmt den Notausgang
+  // „Nur aus dem Adminbereich entfernen".
+  const fehltZugang = "Zum Abbau bitte die Konfiguration nachziehen und erneut ausführen – oder den Mandanten nur aus dem Adminbereich entfernen.";
+
+  if (mongoAdminIssue()) {
+    return abbruch(`${MONGO_ADMIN_ISSUE_TEXT["no-admin-uri"]} ${fehltZugang}`);
+  }
+  const zugang = await revokeAppAccess(company.slug, company.tenant);
+  if (!zugang.ok) return abbruch(zugang.error);
+  notizen.push(zugang.note);
+
+  const speicher = minioIssue();
+  if (speicher) return abbruch(`${MINIO_ISSUE_TEXT[speicher]} ${fehltZugang}`);
+
+  const bucket = await removeTenantBucket(company.slug, company.tenant, frist);
+  if (!bucket.ok) return abbruch(bucket.error);
+  notizen.push(bucket.note);
+
+  const datenbank = await dropTenantMongo(company.slug, company.tenant);
+  if (!datenbank.ok) return abbruch(datenbank.error);
+  notizen.push(datenbank.note);
 
   await deleteCompany(companyId);
+
+  // Ins Serverprotokoll, weil die Erfolgsmeldung den Klick nicht überlebt: Mit
+  // dem Eintrag verschwindet die Tabellenzeile und mit ihr der Dialog. Das
+  // Verschwinden IST die Rückmeldung – was genau gelöscht wurde, steht hier.
+  console.info(`Mandant ${company.slug} abgebaut: ${notizen.join(" ")}`);
   revalidateAdmin();
+
+  return {
+    success: `„${company.name}“ vollständig abgebaut. ${notizen.join(" ")}`,
+  };
 }
 
 export async function assignPackageAction(data: FormData): Promise<void> {
@@ -1351,18 +1454,22 @@ export async function sendBrochureAction(
 /* --------------------------------------------------- Automatische Provisionierung */
 
 import { getCompany as loadCompany } from "@/lib/admin/store";
+import { teardownGuard } from "@/lib/admin/provision/guard";
 import {
   MINIO_ISSUE_TEXT,
   createTenantBucket,
   minioIssue,
+  removeTenantBucket,
 } from "@/lib/admin/provision/minio";
 import {
   MONGO_ADMIN_ISSUE_TEXT,
   createTenantDatabase,
   createTenantUser,
+  dropTenantMongo,
   generateTenantPassword,
   grantAppAccess,
   mongoAdminIssue,
+  revokeAppAccess,
 } from "@/lib/admin/provision/mongo";
 import {
   registerTenant,

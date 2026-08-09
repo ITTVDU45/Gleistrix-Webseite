@@ -16,6 +16,8 @@ type Props = {
     contactName: string;
     contactEmail: string;
     seats: number;
+    /** Für den Löschdialog: Er nennt beim Namen, was verschwindet. */
+    tenant: { mongoDatabase: string; minioBucket: string };
   };
 };
 
@@ -42,6 +44,13 @@ export default function CompanyRowMenu({ company }: Props) {
 
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     updateCompanyAction,
+    {},
+  );
+
+  // Eigener Zustand für den Abbau: Er kann scheitern und muss dann sagen, wie
+  // weit er gekommen ist – ein stilles `action={…}` verschluckte genau das.
+  const [teardown, teardownAction, teardownPending] = useActionState<FormState, FormData>(
+    deleteCompanyAction,
     {},
   );
 
@@ -219,28 +228,87 @@ export default function CompanyRowMenu({ company }: Props) {
         aria-labelledby={`${menuId}-delete-title`}
         className="w-[min(30rem,94vw)] rounded-xl border bg-card p-0 text-left text-foreground shadow-lg backdrop:bg-slate-950/50"
       >
-        <div className="px-6 py-5">
-          <h2 id={`${menuId}-delete-title`} className="text-sm font-semibold tracking-tight">
-            {company.name} löschen?
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Der Mandant verschwindet aus dem Adminbereich. Datenbank, MinIO-Bucket und der Zugang
-            in der App bleiben bestehen und müssen dort getrennt abgebaut werden. Käufe und
-            Nutzungsdaten bleiben als Historie erhalten.
-          </p>
-        </div>
+        <form action={teardownAction}>
+          <input type="hidden" name="companyId" value={company.id} />
 
-        <footer className="flex justify-end gap-2 border-t px-6 py-4">
-          <Button type="button" variant="ghost" onClick={() => deleteRef.current?.close()}>
-            Abbrechen
-          </Button>
-          <form action={deleteCompanyAction}>
-            <input type="hidden" name="companyId" value={company.id} />
-            <Button type="submit" variant="destructive">
-              Endgültig löschen
+          <div className="px-6 py-5">
+            <h2 id={`${menuId}-delete-title`} className="text-sm font-semibold tracking-tight">
+              {company.name} vollständig abbauen?
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Entfernt wird alles: der Zugriff der App auf die Mandantendaten, der Bucket{" "}
+              <Mono>{company.tenant.minioBucket}</Mono> mit sämtlichen Dateien und Objektversionen
+              sowie die Datenbank <Mono>{company.tenant.mongoDatabase}</Mono> samt ihrem Benutzer.
+              Das ist nicht umkehrbar – hier liegt danach keine Sicherung mehr.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Käufe, Nutzungsdaten und das Zugriffsprotokoll bleiben als Beleg erhalten.
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Reihenfolge: erst der Zugang, dann der Bucket, dann die Datenbank, zuletzt der
+              Eintrag hier. Bricht ein Schritt ab, bleibt der Mandant stehen und der Abbau lässt
+              sich wiederholen.
+            </p>
+
+            <label htmlFor={`${menuId}-confirm`} className="mt-4 block text-sm">
+              Zum Bestätigen die Kennung <Mono>{company.slug}</Mono> eingeben
+            </label>
+            <input
+              id={`${menuId}-confirm`}
+              name="confirm"
+              autoComplete="off"
+              // Zwei Submit-Knöpfe mit gegensätzlicher Wirkung liegen in
+              // diesem Formular. Enter nähme den ersten in Dokumentreihenfolge
+              // – also den Notausgang, nicht den Abbau. Beide wollen einen
+              // bewussten Klick.
+              onKeyDown={(event) => {
+                if (event.key === "Enter") event.preventDefault();
+              }}
+              className={`mt-1 ${CONTROL_CLASS}`}
+            />
+
+            {teardown.error ? (
+              <p
+                role="alert"
+                className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-600/20"
+              >
+                {teardown.error}
+              </p>
+            ) : null}
+            {teardown.success ? (
+              <p className="mt-3 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
+                {teardown.success}
+              </p>
+            ) : null}
+          </div>
+
+          <footer className="flex flex-wrap justify-end gap-2 border-t px-6 py-4">
+            <Button type="button" variant="ghost" onClick={() => deleteRef.current?.close()}>
+              Abbrechen
             </Button>
-          </form>
-        </footer>
+            {/* Der Notausgang von früher: nur der Eintrag, Ressourcen bleiben. */}
+            <Button
+              type="submit"
+              name="mode"
+              value="eintrag"
+              variant="outline"
+              disabled={teardownPending}
+            >
+              Nur aus dem Adminbereich entfernen
+            </Button>
+            <Button
+              type="submit"
+              name="mode"
+              value="abbauen"
+              variant="destructive"
+              disabled={teardownPending}
+            >
+              {/* Der Lauf kann zehn Sekunden und mehr dauern – ohne diesen Text
+                  hält der Superadmin den Klick für hängengeblieben. */}
+              {teardownPending ? "Baut ab …" : "Vollständig abbauen"}
+            </Button>
+          </footer>
+        </form>
       </dialog>
     </>
   );

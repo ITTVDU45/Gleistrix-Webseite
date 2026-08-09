@@ -2,6 +2,8 @@ import { Client } from "minio";
 
 import type { Tenant } from "@/types/admin";
 
+import { teardownGuard } from "./guard";
+
 /**
  * Provisionierungsschritt „minio-bucket“: ein eigener Bucket je Mandant.
  *
@@ -15,8 +17,14 @@ import type { Tenant } from "@/types/admin";
  * Objekt-Lock oder eigene Access Keys kommen, wenn sie gebraucht werden.
  */
 
-/** Ein hängender Speicher darf die Server Action nicht blockieren. */
-const REQUEST_TIMEOUT_MS = 15_000;
+/**
+ * Ein hängender Speicher darf die Server Action nicht blockieren.
+ *
+ * Dreimal dieser Wert ist zugleich die Reserve, die sich die Leerschleife beim
+ * Abbau zurücklegt (Objektliste + Löschung + abschließendes removeBucket) – er
+ * muss also deutlich unter TEARDOWN_BUDGET_MS in app/admin/actions.ts bleiben.
+ */
+const REQUEST_TIMEOUT_MS = 10_000;
 
 const DEFAULT_PORT = 443;
 const DEFAULT_REGION = "us-east-1";
@@ -144,5 +152,137 @@ export async function createTenantBucket(tenant: Tenant): Promise<MinioProvision
     }
   } catch (error) {
     return { ok: false, error: `Bucket ${bucket} konnte nicht angelegt werden: ${reason(error)}` };
+  }
+}
+
+/* ------------------------------------------------------------------- Abbau */
+
+/**
+ * Wieviel eine Seite der Objektliste umfasst. Genau eine Seite geht je Aufruf
+ * an removeObjects: der Treiber teilt größere Listen selbst in Stapel und
+ * feuert sie dann alle gleichzeitig ab.
+ */
+const PAGE_SIZE = 1000;
+
+/**
+ * Bereitet eine Seite der Objektliste für removeObjects auf.
+ *
+ * Ausgelagert und exportiert, weil hier der Fehler säße, den TypeScript nicht
+ * finden kann: `listObjectsQuery` liefert zur Laufzeit `versionId` mit, der Typ
+ * `ObjectInfo` kennt das Feld aber nicht. Fällt die versionId weg, schreibt
+ * MinIO in einem versionierten Bucket nur einen weiteren Delete-Marker – der
+ * Bucket wird nie leer und die Schleife läuft bis ans Zeitlimit.
+ *
+ * Delete-Marker stehen mit eigener versionId in derselben Liste und müssen mit
+ * weg. Verzeichnis-Präfixe kommen ohne `name` und fliegen raus.
+ */
+export function entriesFor(objects: unknown[]): { name: string; versionId?: string }[] {
+  return objects.flatMap((eintrag) => {
+    const objekt = eintrag as { name?: unknown; versionId?: unknown } | null;
+    const name = typeof objekt?.name === "string" ? objekt.name : null;
+    if (!name) return [];
+    return [
+      typeof objekt?.versionId === "string" ? { name, versionId: objekt.versionId } : { name },
+    ];
+  });
+}
+
+/**
+ * Löscht den Bucket des Mandanten samt Inhalt.
+ *
+ * `removeBucket` verlangt einen leeren Bucket, und „leer" heißt bei aktiver
+ * Versionierung: keine aktuellen Objekte, keine alten Versionen, keine
+ * Delete-Marker. Deshalb erst die Leerschleife, dann der Bucket.
+ *
+ * Idempotent: ein bereits entfernter Bucket ist der gewünschte Zustand.
+ *
+ * `deadline` ist ein Zeitstempel, kein Zeitraum – der Aufrufer teilt sich das
+ * Budget der Server Action zwischen mehreren Schritten auf. Reicht es nicht,
+ * bricht der Abbau sichtbar ab statt in ein Timeout zu laufen; wiederholen ist
+ * gefahrlos und macht dort weiter, wo es aufgehört hat.
+ */
+export async function removeTenantBucket(
+  slug: string,
+  tenant: Tenant,
+  deadline: number,
+): Promise<MinioProvisionResult> {
+  const verstoss = teardownGuard(slug, tenant);
+  if (verstoss) return { ok: false, error: verstoss };
+
+  const issue = minioIssue();
+  if (issue) return { ok: false, error: MINIO_ISSUE_TEXT[issue] };
+
+  const bucket = tenant.minioBucket;
+
+  try {
+    const minio = client();
+
+    if (!(await withTimeout(minio.bucketExists(bucket), "Bucket-Prüfung"))) {
+      return { ok: true, note: `Bucket ${bucket} war bereits entfernt – nichts geändert.` };
+    }
+
+    let keyMarker: string | undefined;
+    let versionIdMarker: string | undefined;
+    let geloescht = 0;
+    let seite;
+
+    do {
+      // Vorausschauend, nicht rückblickend: Ein Durchlauf kostet im
+      // schlechtesten Fall Objektliste + Löschung, danach kommt noch
+      // removeBucket. Prüfte die Schleife nur „Frist schon vorbei", startete
+      // sie einen Durchlauf, der die Server Action überzieht – und dann sieht
+      // niemand mehr, wie weit sie gekommen ist.
+      if (Date.now() + 3 * REQUEST_TIMEOUT_MS > deadline) {
+        return {
+          ok: false,
+          error: `Bucket ${bucket} ist nach ${geloescht} gelöschten Objekten noch nicht leer. Den Abbau bitte erneut ausführen – er setzt dort fort.`,
+        };
+      }
+
+      // Delimiter leer erzwingt eine flache Liste; ohne IncludeVersion blieben
+      // alte Versionen und Delete-Marker unsichtbar. Das Optionsobjekt ist
+      // Pflicht, der Treiber zerlegt es ungeprüft.
+      seite = await withTimeout(
+        minio.listObjectsQuery(bucket, "", "", {
+          Delimiter: "",
+          MaxKeys: PAGE_SIZE,
+          IncludeVersion: true,
+          keyMarker,
+          versionIdMarker,
+        }),
+        "Objektliste",
+      );
+
+      const eintraege = entriesFor(seite.objects);
+      if (eintraege.length > 0) {
+        // removeObjects wirft bei Teilfehlern nicht, sondern liefert sie zurück.
+        const fehler = await withTimeout(minio.removeObjects(bucket, eintraege), "Objekte löschen");
+        if (fehler.length > 0) {
+          return {
+            ok: false,
+            error: `${fehler.length} Objekte in ${bucket} ließen sich nicht löschen – der Bucket bleibt bestehen.`,
+          };
+        }
+        geloescht += eintraege.length;
+      }
+
+      keyMarker = seite.keyMarker;
+      versionIdMarker = seite.versionIdMarker;
+    } while (seite.isTruncated);
+
+    // ponytail: unvollständige Multipart-Uploads werden nicht aufgeräumt.
+    // Meldet MinIO hier BucketNotEmpty, obwohl die Schleife durch ist, sind sie
+    // die Ursache – dann listIncompleteUploads + removeIncompleteUpload ergänzen.
+    await withTimeout(minio.removeBucket(bucket), "Bucket löschen");
+
+    return {
+      ok: true,
+      note:
+        geloescht > 0
+          ? `Bucket ${bucket} mit ${geloescht} Objektversionen gelöscht.`
+          : `Bucket ${bucket} war leer und wurde gelöscht.`,
+    };
+  } catch (error) {
+    return { ok: false, error: `Bucket ${bucket} konnte nicht gelöscht werden: ${reason(error)}` };
   }
 }
