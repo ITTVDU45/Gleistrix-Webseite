@@ -462,6 +462,18 @@ export async function updateLead(
   });
 }
 
+export async function deleteLead(id: string): Promise<void> {
+  if (isMongoConfigured()) {
+    await ready();
+    return leadsDb.removeLead(id);
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, leads: store.leads.filter((lead) => lead.id !== id) },
+    result: undefined,
+  }));
+}
+
 /* ----------------------------------------------------------------- Kontakte */
 
 export async function listContacts(): Promise<Contact[]> {

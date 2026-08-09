@@ -10,4 +10,5 @@ export const getLead = leads.get;
 export const insertLead = leads.insert;
 export const insertLeads = leads.insertMany;
 export const patchLead = leads.patch;
+export const removeLead = leads.remove;
 export const leadsEmpty = leads.isEmpty;
