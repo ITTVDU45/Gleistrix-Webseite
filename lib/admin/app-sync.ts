@@ -29,6 +29,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 const TENANTS_PATH = "/api/internal/tenants";
 const TENANT_ACTIVITY_PATH = "/api/internal/tenant-activity";
 const TENANT_INVITATION_PATH = "/api/internal/tenant-invitation";
+const TENANT_USERS_PATH = "/api/internal/tenant-users";
 const DEMO_PATH = "/api/internal/demo";
 
 function secret(): string | null {
@@ -367,6 +368,51 @@ export async function requestTenantInvitation(kennung: string): Promise<TenantIn
     email,
     einladungsLink,
     expiresAt: dateText(result.payload.expiresAt),
+  };
+}
+
+export type TenantUserInviteResult =
+  | { ok: true; email: string; einladungsLink: string; expiresAt: string | null; reused: boolean }
+  | { ok: false; error: string };
+
+/**
+ * Legt einen weiteren Benutzer im Mandanten an und holt dessen Passwortlink.
+ *
+ * Anders als `requestTenantInvitation` gibt der Aufrufer hier Empfänger und
+ * Rolle vor – den Nutzer gibt es in der App ja noch nicht. Das Token erzeugt
+ * weiterhin ausschliesslich die App; die Control-Plane sieht nur den fertigen
+ * Link und speichert ihn nicht.
+ *
+ * Der Idempotency-Key bindet den Aufruf an Mandant und Adresse: Ein zweiter
+ * Klick auf „Einladen" darf keinen zweiten Benutzer erzeugen.
+ */
+export async function inviteTenantUser(input: {
+  kennung: string;
+  email: string;
+  name: string;
+  rolle: string;
+}): Promise<TenantUserInviteResult> {
+  const kennung = input.kennung.trim().toLowerCase();
+  const email = input.email.trim().toLowerCase();
+
+  const result = await post(
+    TENANT_USERS_PATH,
+    { kennung, email, name: input.name.trim(), rolle: input.rolle },
+    `${kennung}:${email}`,
+  );
+  if (!result.ok) return result;
+
+  const einladungsLink = text(result.payload.einladungsLink);
+  if (!einladungsLink) {
+    return { ok: false, error: "Die App hat keinen Einladungslink geliefert." };
+  }
+
+  return {
+    ok: true,
+    email: text(result.payload.email) ?? email,
+    einladungsLink,
+    expiresAt: dateText(result.payload.expiresAt),
+    reused: result.payload.reused === true,
   };
 }
 

@@ -1,4 +1,12 @@
-import type { AdminStore, BrochureRequest, Company, Lead, Package, Usage } from "@/types/admin";
+import type {
+  AdminStore,
+  BrochureRequest,
+  Company,
+  Lead,
+  NotificationTemplate,
+  Package,
+  Usage,
+} from "@/types/admin";
 
 import { provisioningPlan, tenantFor } from "../tenant";
 
@@ -214,6 +222,8 @@ export function seed(): AdminStore {
 
   return {
     companies,
+    companyUsers: [],
+    notificationTemplates: defaultNotificationTemplates(),
     packages,
     usage,
     supportAccess: [],
@@ -223,4 +233,80 @@ export function seed(): AdminStore {
     demoAccess: [],
     purchases: [],
   };
+}
+
+/**
+ * Startvorlagen, damit die Einstellungsseite nicht leer beginnt.
+ *
+ * Feste Zeitstempel statt `new Date()`: der Seed muss bei jedem Lauf dasselbe
+ * liefern, sonst unterscheiden sich Dateiablage und Datenbank grundlos.
+ *
+ * Nur die Einladung ist aktiv – sie ersetzt beim Einladen weiterer Nutzer den
+ * eingebauten Standardtext. Die beiden anderen liegen als Entwurf bereit: ein
+ * automatischer Mailversand bei jeder Sperre wäre eine Zusage, die niemand
+ * getroffen hat.
+ */
+export function defaultNotificationTemplates(): NotificationTemplate[] {
+  const at = "2026-08-01T08:00:00.000Z";
+
+  return [
+    {
+      id: "ntf_nutzer_einladung",
+      name: "Einladung weiterer Nutzer",
+      trigger: "nutzer.eingeladen",
+      subject: "Ihr Zugang zu Gleistrix – {{unternehmen}}",
+      eyebrow: "Persönlicher Zugang",
+      title: "Willkommen bei Gleistrix",
+      body: [
+        "Guten Tag {{name}},",
+        "",
+        "für Sie wurde ein Zugang zu Gleistrix für {{unternehmen}} eingerichtet. Ihre Rolle: {{rolle}}.",
+        "",
+        "Über den folgenden einmaligen Link legen Sie Ihr persönliches Passwort fest. Bitte geben Sie ihn nicht weiter.",
+      ].join("\n"),
+      actionLabel: "Passwort festlegen",
+      actionUrl: "{{link}}",
+      isActive: true,
+      createdAt: at,
+      updatedAt: at,
+    },
+    {
+      id: "ntf_zugang_gesperrt",
+      name: "Zugang gesperrt",
+      trigger: "unternehmen.gesperrt",
+      subject: "Ihr Gleistrix-Zugang wurde vorübergehend gesperrt",
+      eyebrow: "Wichtige Mitteilung",
+      title: "Zugang vorübergehend gesperrt",
+      body: [
+        "Guten Tag {{ansprechpartner}},",
+        "",
+        "der Zugang von {{unternehmen}} zu Gleistrix ist seit dem {{datum}} gesperrt. Ihre Daten bleiben dabei vollständig erhalten.",
+        "",
+        "Bitte melden Sie sich bei uns, damit wir die Sperre gemeinsam aufheben können.",
+      ].join("\n"),
+      actionLabel: "",
+      actionUrl: "",
+      isActive: false,
+      createdAt: at,
+      updatedAt: at,
+    },
+    {
+      id: "ntf_zugang_frei",
+      name: "Sperre aufgehoben",
+      trigger: "unternehmen.entsperrt",
+      subject: "Ihr Gleistrix-Zugang ist wieder freigeschaltet",
+      eyebrow: "Gute Nachricht",
+      title: "Ihr Zugang ist wieder aktiv",
+      body: [
+        "Guten Tag {{ansprechpartner}},",
+        "",
+        "der Zugang von {{unternehmen}} ist ab sofort wieder freigeschaltet. Sie können wie gewohnt weiterarbeiten.",
+      ].join("\n"),
+      actionLabel: "Zur Anwendung",
+      actionUrl: "{{app}}",
+      isActive: false,
+      createdAt: at,
+      updatedAt: at,
+    },
+  ];
 }

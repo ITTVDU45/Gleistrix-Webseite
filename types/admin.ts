@@ -58,6 +58,75 @@ export type Company = {
   createdAt: string;
 };
 
+/**
+ * Rollen der Gleistrix-App.
+ *
+ * Muss zum `role`-Enum von InviteToken/User in APP.GLEISTRIX passen – die App
+ * lehnt jeden anderen Wert ab. `subunternehmen` fehlt bewusst: dafür gibt es
+ * den eigenen Subunternehmer-Einladungsweg mit eigenem Einladungstyp.
+ */
+export type CompanyUserRole = "superadmin" | "admin" | "user" | "lager";
+
+/**
+ * Zusätzlich in einen Mandanten eingeladener Nutzer.
+ *
+ * Führend ist die App: dort entstehen Benutzer und Einladungstoken. Die
+ * Control-Plane hält nur das Protokoll, damit auf der Unternehmensseite steht,
+ * wer wann eingeladen wurde. Der Einlösestand wird hier NICHT gespiegelt – er
+ * stünde sonst veraltet neben der Wahrheit in der App.
+ */
+export type CompanyUser = {
+  id: string;
+  companyId: string;
+  name: string;
+  email: string;
+  role: CompanyUserRole;
+  invitedAt: string;
+  /** Letzter Neuversand, falls es einen gab. */
+  resentAt?: string;
+  createdAt: string;
+};
+
+/**
+ * Ereignis, das eine Benachrichtigung auslöst.
+ *
+ * `null` an einer Vorlage heißt: nur von Hand versendbar.
+ */
+export type NotificationTrigger =
+  | "nutzer.eingeladen"
+  | "unternehmen.gesperrt"
+  | "unternehmen.entsperrt"
+  | "kauf.freigegeben";
+
+/**
+ * Vorlage für eine Kunden- oder Nutzerbenachrichtigung.
+ *
+ * Der Text enthält Platzhalter in der Form {{unternehmen}}; gerendert wird er
+ * in dieselbe Hülle wie die Einladungsmail (lib/admin/email-wizard-wrapper).
+ */
+export type NotificationTemplate = {
+  id: string;
+  /** Interner Name in der Übersicht, steht nicht in der Mail. */
+  name: string;
+  trigger: NotificationTrigger | null;
+  subject: string;
+  /** Kleine Zeile über der Überschrift. */
+  eyebrow: string;
+  title: string;
+  /** Fließtext; eine Leerzeile trennt Absätze. */
+  body: string;
+  /** Leer lassen: dann steht in der Mail kein Knopf. */
+  actionLabel: string;
+  actionUrl: string;
+  /**
+   * Nur eine aktive Vorlage je Auslöser wird automatisch versendet.
+   * Inaktive Vorlagen bleiben von Hand versendbar.
+   */
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Package = {
   id: string;
   name: string;
@@ -244,6 +313,8 @@ export type Purchase = {
 
 export type AdminStore = {
   companies: Company[];
+  companyUsers: CompanyUser[];
+  notificationTemplates: NotificationTemplate[];
   packages: Package[];
   usage: Usage[];
   supportAccess: SupportAccess[];

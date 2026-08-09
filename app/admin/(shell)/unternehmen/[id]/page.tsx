@@ -29,7 +29,9 @@ import {
   moduleGrantSource,
 } from "@/lib/admin/modules";
 import { getDraftPricing, getPublishedPricing } from "@/lib/admin/pricing";
+import CompanyUsersPanel from "@/components/admin/CompanyUsersPanel";
 import NewPurchaseForm from "@/components/admin/NewPurchaseForm";
+import SendNotificationForm from "@/components/admin/SendNotificationForm";
 import ProvisioningRunForm from "@/components/admin/ProvisioningRunForm";
 import SupportAccessForm from "@/components/admin/SupportAccessForm";
 import TenantInvitationForm from "@/components/admin/TenantInvitationForm";
@@ -44,12 +46,15 @@ import {
 import { mailConfigIssue } from "@/lib/admin/mail";
 import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
 import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
+import { INVITE_FALLBACK_TEMPLATE } from "@/lib/admin/notification-templates";
 import {
   getCompany,
   getPackage,
   getPurchasesForCompany,
   getSupportAccess,
   getUsage,
+  listCompanyUsers,
+  listNotificationTemplates,
   readStore,
 } from "@/lib/admin/store";
 import { supportAccountEmail, supportConfigIssue } from "@/lib/admin/support";
@@ -87,8 +92,18 @@ export default async function CompanyDetailPage({ params }: Props) {
     "app-sync": syncBlocker ? APP_SYNC_ISSUE_TEXT[syncBlocker] : undefined,
   };
 
-  const [pkg, usage, store, supportLog, pricing, publishedPricing, purchases, tenantActivity] =
-    await Promise.all([
+  const [
+    pkg,
+    usage,
+    store,
+    supportLog,
+    pricing,
+    publishedPricing,
+    purchases,
+    tenantActivity,
+    companyUsers,
+    templates,
+  ] = await Promise.all([
       getPackage(company.packageId),
       getUsage(company.id),
       readStore(),
@@ -100,7 +115,16 @@ export default async function CompanyDetailPage({ params }: Props) {
       getPublishedPricing(),
       getPurchasesForCompany(company.id),
       appSyncDone ? getTenantActivity(company.slug) : Promise.resolve(null),
+      listCompanyUsers(company.id),
+      listNotificationTemplates(),
     ]);
+
+  // Die Vorschau im Einladungs-Popup soll zeigen, was tatsächlich rausgeht:
+  // die aktive Vorlage aus den Einstellungen, sonst der eingebaute Text.
+  const inviteTemplate =
+    templates.find(
+      (template) => template.isActive && template.trigger === "nutzer.eingeladen",
+    ) ?? INVITE_FALLBACK_TEMPLATE;
 
   const selectablePackages = store.packages.filter(
     (p) => p.isPublished || p.id === company.packageId,
@@ -319,6 +343,42 @@ export default async function CompanyDetailPage({ params }: Props) {
           canSend={canSendInvitation}
           completionHint={invitationCompletionHint}
           disabledHint={canSendInvitation ? (mailConfigIssue() ?? undefined) : undefined}
+        />
+      </Section>
+
+      <Section
+        title={`Nutzer (${companyUsers.length})`}
+        description="Weitere Benutzer dieses Mandanten. Sie werden in der Gleistrix-App angelegt und erhalten einen einmaligen Link zur Passwortvergabe."
+      >
+        <CompanyUsersPanel
+          companyId={company.id}
+          companyName={company.name}
+          contactName={company.contactName}
+          users={companyUsers}
+          canInvite={appSyncDone}
+          disabledHint={
+            appSyncDone
+              ? undefined
+              : "Nutzer lassen sich einladen, sobald der Mandant erfolgreich an die App gemeldet wurde."
+          }
+          inviteTemplate={inviteTemplate}
+        />
+      </Section>
+
+      <Section
+        title="Benachrichtigung senden"
+        description="Verschickt eine Vorlage aus den Einstellungen an den Ansprechpartner oder einen eingeladenen Nutzer."
+      >
+        <SendNotificationForm
+          companyId={company.id}
+          contactName={company.contactName}
+          contactEmail={company.contactEmail}
+          templates={templates}
+          recipients={companyUsers.map((user) => ({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+          }))}
         />
       </Section>
 

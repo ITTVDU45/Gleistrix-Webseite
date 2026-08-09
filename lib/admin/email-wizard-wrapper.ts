@@ -9,17 +9,47 @@ type EmailNotice = {
 };
 
 type EmailWizardWrapperOptions = {
-  action: EmailAction;
+  /** Ohne Angabe steht in der Mail kein Knopf – nicht jede Nachricht hat ein Ziel. */
+  action?: EmailAction;
   bodyHtml: string;
   closingHtml: string;
   eyebrow: string;
-  notice: EmailNotice;
+  /** Ohne Angabe entfällt der hervorgehobene Hinweiskasten. */
+  notice?: EmailNotice;
   preheader: string;
   title: string;
 };
 
-const BRAND_LOGO_URL =
-  "https://www.gleistrix.de/brand/gleistrix-email-logo.png";
+/**
+ * Öffentliche Adresse der Website.
+ *
+ * Absolut, nicht relativ: Eine E-Mail hat keine Basis-URL, jeder Verweis darin
+ * muss für sich stehen. Über die Umgebung überschreibbar, damit eine
+ * Testinstanz nicht auf die Produktivseite zeigt.
+ */
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.gleistrix.de").replace(
+  /\/+$/,
+  "",
+);
+
+const BRAND_LOGO_URL = `${SITE_URL}/brand/gleistrix-email-logo.png`;
+
+/**
+ * Pflichtangaben im Fuß jeder Mail.
+ *
+ * Bewusst fest verdrahtet und NICHT aus SITE_URL abgeleitet: Auch eine Mail aus
+ * einer Test- oder Vorschauinstanz muss auf die echten Rechtstexte zeigen, nicht
+ * auf eine Kopie unter einer anderen Adresse.
+ *
+ * ACHTUNG: Beide Seiten existieren derzeit noch nicht als Route – der
+ * Website-Footer verweist ersatzweise auf Anker der Startseite (siehe
+ * components/layout/footer/footer-nav.ts). Bis /impressum und /datenschutz
+ * angelegt sind, laufen diese Verweise in einen 404.
+ */
+const LEGAL_LINKS: { href: string; label: string }[] = [
+  { href: "https://www.gleistrix.de/impressum", label: "Impressum" },
+  { href: "https://www.gleistrix.de/datenschutz", label: "Datenschutz" },
+];
 
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (character) => {
@@ -52,7 +82,40 @@ export function emailWizardWrapper({
   preheader,
   title,
 }: EmailWizardWrapperOptions): string {
-  const safeActionHref = escapeHtml(action.href);
+  // Knopf und Hinweiskasten sind optional. Sie werden hier als fertiges Markup
+  // vorbereitet statt im Template verschachtelt – sonst stünde im Rumpf ein
+  // dreifach verschachtelter Ternär mitten in den Präsentationstabellen.
+  const actionHtml = action
+    ? `
+                      <table class="email-button-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:30px 0 32px; border-collapse:separate;">
+                        <tr>
+                          <td class="email-button-cell" align="center" bgcolor="#4f46e5" style="background-color:#4f46e5; border-radius:12px; box-shadow:0 7px 16px rgba(79, 70, 229, 0.20);">
+                            <a class="email-button" href="${escapeHtml(action.href)}" target="_blank" style="display:inline-block; padding:15px 24px; font-size:16px; line-height:20px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:12px; white-space:nowrap;">
+                              ${escapeHtml(action.label)}
+                            </a>
+                          </td>
+                        </tr>
+                      </table>`
+    : "";
+
+  const noticeHtml = notice
+    ? `
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f5f7ff" style="width:100%; border-collapse:separate; background-color:#f5f7ff; border:1px solid #dfe3ff; border-radius:12px;">
+                        <tr>
+                          <td style="padding:20px 22px;">
+                            <p style="margin:0 0 5px; font-size:14px; line-height:20px; font-weight:700; color:#3730a3;">
+                              ${escapeHtml(notice.title)}
+                            </p>
+                            <div style="font-size:13px; line-height:20px; color:#56627a;">
+                              ${notice.bodyHtml}
+                            </div>
+                          </td>
+                        </tr>
+                      </table>`
+    : "";
+
+  // Ohne Knopf klebte der Hinweiskasten sonst direkt am Fließtext.
+  const spacerHtml = !action && notice ? `<div style="height:26px; line-height:26px;">&nbsp;</div>` : "";
 
   return `<!doctype html>
 <html lang="de">
@@ -121,28 +184,7 @@ export function emailWizardWrapper({
                         ${bodyHtml}
                       </div>
 
-                      <table class="email-button-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:30px 0 32px; border-collapse:separate;">
-                        <tr>
-                          <td class="email-button-cell" align="center" bgcolor="#4f46e5" style="background-color:#4f46e5; border-radius:12px; box-shadow:0 7px 16px rgba(79, 70, 229, 0.20);">
-                            <a class="email-button" href="${safeActionHref}" target="_blank" style="display:inline-block; padding:15px 24px; font-size:16px; line-height:20px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:12px; white-space:nowrap;">
-                              ${escapeHtml(action.label)}
-                            </a>
-                          </td>
-                        </tr>
-                      </table>
-
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f5f7ff" style="width:100%; border-collapse:separate; background-color:#f5f7ff; border:1px solid #dfe3ff; border-radius:12px;">
-                        <tr>
-                          <td style="padding:20px 22px;">
-                            <p style="margin:0 0 5px; font-size:14px; line-height:20px; font-weight:700; color:#3730a3;">
-                              ${escapeHtml(notice.title)}
-                            </p>
-                            <div style="font-size:13px; line-height:20px; color:#56627a;">
-                              ${notice.bodyHtml}
-                            </div>
-                          </td>
-                        </tr>
-                      </table>
+${actionHtml}${spacerHtml}${noticeHtml}
 
                       <div style="margin-top:30px; padding-top:26px; border-top:1px solid #e8ecf2; font-size:15px; line-height:23px; color:#344054;">
                         ${closingHtml}
@@ -156,7 +198,13 @@ export function emailWizardWrapper({
             <tr>
               <td class="email-footer" align="center" style="padding:24px 28px 0; font-size:12px; line-height:19px; color:#7b879d;">
                 Diese Nachricht wurde automatisch von Gleistrix versendet.<br />
-                <a href="https://www.gleistrix.de" target="_blank" style="color:#59657a; text-decoration:underline;">www.gleistrix.de</a>
+                <a href="${SITE_URL}" target="_blank" style="color:#59657a; text-decoration:underline;">${SITE_URL.replace(/^https?:\/\//, "")}</a>
+                ${LEGAL_LINKS.map(
+                  (link) =>
+                    // &nbsp; um den Trenner: sonst bricht die Zeile ausgerechnet
+                    // vor dem „·" um und der Punkt steht allein in der Zeile.
+                    `<span style="color:#9aa4b6;">&nbsp;·&nbsp;</span><a href="${link.href}" target="_blank" style="color:#59657a; text-decoration:underline;">${link.label}</a>`,
+                ).join("")}
               </td>
             </tr>
           </table>

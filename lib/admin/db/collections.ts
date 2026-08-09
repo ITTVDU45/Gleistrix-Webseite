@@ -15,6 +15,8 @@ import { getDb } from "../mongo";
 
 export const COLLECTIONS = {
   companies: "companies",
+  companyUsers: "company_users",
+  notificationTemplates: "notification_templates",
   leads: "leads",
   contacts: "contacts",
   brochureRequests: "brochure_requests",

@@ -2,9 +2,11 @@ import type {
   AdminStore,
   BrochureRequest,
   Company,
+  CompanyUser,
   Contact,
   DemoAccess,
   Lead,
+  NotificationTemplate,
   Package,
   Purchase,
   SupportAccess,
@@ -14,7 +16,9 @@ import type {
 import { bootstrap } from "./db/bootstrap";
 import * as brochureDb from "./db/brochure";
 import * as companiesDb from "./db/companies";
+import * as companyUsersDb from "./db/companyUsers";
 import * as contactsDb from "./db/contacts";
+import * as templatesDb from "./db/notificationTemplates";
 import * as demoDb from "./db/demoAccess";
 import { patchFileStore, readFileStore } from "./db/file-store";
 import * as leadsDb from "./db/leads";
@@ -57,6 +61,8 @@ export async function readStore(): Promise<AdminStore> {
 
   const [
     companies,
+    companyUsers,
+    notificationTemplates,
     packages,
     usage,
     supportAccess,
@@ -67,6 +73,8 @@ export async function readStore(): Promise<AdminStore> {
     purchases,
   ] = await Promise.all([
     companiesDb.listCompanies(),
+    companyUsersDb.listCompanyUsers(),
+    templatesDb.listNotificationTemplates(),
     packagesDb.listPackages(),
     usageDb.listUsage(),
     supportDb.listSupportAccess(),
@@ -79,6 +87,8 @@ export async function readStore(): Promise<AdminStore> {
 
   return {
     companies,
+    companyUsers,
+    notificationTemplates,
     packages,
     usage,
     supportAccess,
@@ -134,6 +144,163 @@ export async function getCompany(id: string): Promise<Company | null> {
 
   const store = await readFileStore();
   return store.companies.find((c) => c.id === id) ?? null;
+}
+
+/* ------------------------------------------------------- Mandanten-Nutzer */
+
+/** Eingeladene Nutzer eines Mandanten, neueste Einladung zuerst. */
+export async function listCompanyUsers(companyId?: string): Promise<CompanyUser[]> {
+  if (isMongoConfigured()) {
+    await ready();
+    return companyUsersDb.listCompanyUsers(companyId ? { companyId } : {});
+  }
+
+  const store = await readFileStore();
+  const users = companyId
+    ? store.companyUsers.filter((user) => user.companyId === companyId)
+    : store.companyUsers;
+  return [...users].sort((a, b) => b.invitedAt.localeCompare(a.invitedAt));
+}
+
+export async function getCompanyUser(id: string): Promise<CompanyUser | null> {
+  if (isMongoConfigured()) {
+    await ready();
+    return companyUsersDb.getCompanyUser(id);
+  }
+
+  const store = await readFileStore();
+  return store.companyUsers.find((user) => user.id === id) ?? null;
+}
+
+export async function insertCompanyUser(user: CompanyUser): Promise<void> {
+  if (isMongoConfigured()) {
+    await ready();
+    return companyUsersDb.insertCompanyUser(user);
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, companyUsers: [user, ...store.companyUsers] },
+    result: undefined,
+  }));
+}
+
+export async function updateCompanyUser(
+  id: string,
+  patch: (user: CompanyUser) => CompanyUser,
+): Promise<CompanyUser | null> {
+  if (isMongoConfigured()) {
+    await ready();
+    return companyUsersDb.patchCompanyUser(id, patch);
+  }
+
+  return patchFileStore((store) => {
+    const current = store.companyUsers.find((user) => user.id === id);
+    if (!current) return { next: store, result: null };
+
+    const updated = patch(current);
+    return {
+      next: {
+        ...store,
+        companyUsers: store.companyUsers.map((user) => (user.id === id ? updated : user)),
+      },
+      result: updated,
+    };
+  });
+}
+
+/**
+ * Entfernt den Eintrag aus dem Protokoll der Control-Plane.
+ *
+ * Der Benutzer in der App bleibt bestehen – dort liegt seine Wahrheit, und ein
+ * Löschen über die Ferne wäre ein stiller Datenverlust im Mandanten.
+ */
+export async function deleteCompanyUser(id: string): Promise<void> {
+  if (isMongoConfigured()) {
+    await ready();
+    return companyUsersDb.removeCompanyUser(id);
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, companyUsers: store.companyUsers.filter((user) => user.id !== id) },
+    result: undefined,
+  }));
+}
+
+/* ------------------------------------------------ Benachrichtigungsvorlagen */
+
+export async function listNotificationTemplates(): Promise<NotificationTemplate[]> {
+  if (isMongoConfigured()) {
+    await ready();
+    return templatesDb.listNotificationTemplates();
+  }
+
+  const store = await readFileStore();
+  return [...store.notificationTemplates].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+}
+
+export async function getNotificationTemplate(id: string): Promise<NotificationTemplate | null> {
+  if (isMongoConfigured()) {
+    await ready();
+    return templatesDb.getNotificationTemplate(id);
+  }
+
+  const store = await readFileStore();
+  return store.notificationTemplates.find((template) => template.id === id) ?? null;
+}
+
+export async function insertNotificationTemplate(template: NotificationTemplate): Promise<void> {
+  if (isMongoConfigured()) {
+    await ready();
+    return templatesDb.insertNotificationTemplate(template);
+  }
+
+  await patchFileStore((store) => ({
+    next: { ...store, notificationTemplates: [template, ...store.notificationTemplates] },
+    result: undefined,
+  }));
+}
+
+export async function updateNotificationTemplate(
+  id: string,
+  patch: (template: NotificationTemplate) => NotificationTemplate,
+): Promise<NotificationTemplate | null> {
+  if (isMongoConfigured()) {
+    await ready();
+    return templatesDb.patchNotificationTemplate(id, patch);
+  }
+
+  return patchFileStore((store) => {
+    const current = store.notificationTemplates.find((template) => template.id === id);
+    if (!current) return { next: store, result: null };
+
+    const updated = patch(current);
+    return {
+      next: {
+        ...store,
+        notificationTemplates: store.notificationTemplates.map((template) =>
+          template.id === id ? updated : template,
+        ),
+      },
+      result: updated,
+    };
+  });
+}
+
+export async function deleteNotificationTemplate(id: string): Promise<void> {
+  if (isMongoConfigured()) {
+    await ready();
+    return templatesDb.removeNotificationTemplate(id);
+  }
+
+  await patchFileStore((store) => ({
+    next: {
+      ...store,
+      notificationTemplates: store.notificationTemplates.filter(
+        (template) => template.id !== id,
+      ),
+    },
+    result: undefined,
+  }));
 }
 
 /* -------------------------------------------------------- Mandanten-Pakete */

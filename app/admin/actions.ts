@@ -264,6 +264,20 @@ export async function setCompanyStatusAction(data: FormData): Promise<void> {
   // Sperren/Reaktivieren muss sofort in der App wirken: gesperrt = leere
   // Modulliste (Zugangsstopp), aktiv = voller gebuchter Umfang.
   await syncModulesIfProvisioned(updated);
+
+  // Den Kunden informieren, sofern dafür eine aktive Vorlage hinterlegt ist.
+  // Ohne Vorlage passiert nichts – dann hat sich niemand für diese Mail
+  // entschieden. Ein Fehlschlag beim Mailen darf die Sperre nicht rückgängig
+  // machen: sie wirkt bereits in der App.
+  if (updated && (status === "suspended" || status === "active")) {
+    const delivery = await notify({
+      trigger: status === "suspended" ? "unternehmen.gesperrt" : "unternehmen.entsperrt",
+      to: updated.contactEmail,
+      values: companyValues(updated, { name: updated.contactName, email: updated.contactEmail }),
+    });
+    if (!delivery.sent) console.warn(`Statusmail für ${companyId}: ${delivery.note}`);
+  }
+
   revalidateAdmin(companyId);
 }
 
@@ -1622,4 +1636,325 @@ export async function syncPurchaseAction(
   revalidateAdmin(company.id);
 
   return outcome.ok ? { success: outcome.note } : { error: outcome.error };
+}
+
+/* -------------------------------------------------------- Mandanten-Nutzer */
+
+import { inviteTenantUser } from "@/lib/admin/app-sync";
+import { companyValues, notify, sendTemplate } from "@/lib/admin/notify";
+import {
+  INVITE_FALLBACK_TEMPLATE,
+  ROLE_LABEL,
+  isCompanyUserRole,
+  isTrigger,
+  unknownPlaceholders,
+} from "@/lib/admin/notification-templates";
+import {
+  deleteCompanyUser,
+  deleteNotificationTemplate,
+  getCompanyUser,
+  getNotificationTemplate,
+  insertCompanyUser,
+  insertNotificationTemplate,
+  listCompanyUsers,
+  listNotificationTemplates,
+  updateCompanyUser,
+  updateNotificationTemplate,
+} from "@/lib/admin/store";
+import type { CompanyUser, NotificationTemplate } from "@/types/admin";
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** Legt den Benutzer in der App an und verschickt seine Einladung. */
+async function inviteAndNotify(input: {
+  company: Company;
+  name: string;
+  email: string;
+  role: CompanyUser["role"];
+}): Promise<FormState> {
+  const invitation = await inviteTenantUser({
+    kennung: input.company.slug,
+    email: input.email,
+    name: input.name,
+    rolle: input.role,
+  });
+  if (!invitation.ok) return { error: invitation.error };
+
+  const delivery = await notify({
+    trigger: "nutzer.eingeladen",
+    to: invitation.email,
+    values: companyValues(input.company, {
+      name: input.name,
+      email: invitation.email,
+      rolle: ROLE_LABEL[input.role],
+      link: invitation.einladungsLink,
+    }),
+    fallback: INVITE_FALLBACK_TEMPLATE,
+  });
+
+  // Der Benutzer ist in der App angelegt, auch wenn die Mail scheitert. Das
+  // ehrlich zu melden ist wichtiger als ein glattes „Fehler": ein zweiter Klick
+  // legte nichts Neues an und sähe trotzdem wie eine Wiederholung aus.
+  return delivery.sent
+    ? { success: delivery.note }
+    : { error: `Benutzer angelegt, aber ${delivery.note}` };
+}
+
+/** Ob der Benutzer trotz Fehlermeldung in der App entstanden ist. */
+function userWasCreated(result: FormState): boolean {
+  return !result.error || result.error.startsWith("Benutzer angelegt");
+}
+
+/**
+ * Lädt einen weiteren Nutzer in einen Mandanten ein.
+ *
+ * Reihenfolge: erst die App (dort entstehen Benutzer und Token), dann die Mail,
+ * zuletzt das Protokoll. Andersherum stünde nach einem Fehlschlag der App ein
+ * Nutzer in der Übersicht, den es nirgends gibt.
+ */
+export async function inviteCompanyUserAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const name = field(data, "name");
+  const email = field(data, "email").toLowerCase();
+  const role = field(data, "role");
+
+  if (!name) return { error: "Bitte einen Namen angeben." };
+  if (!EMAIL_PATTERN.test(email)) return { error: "Bitte eine gültige E-Mail-Adresse angeben." };
+  if (!isCompanyUserRole(role)) return { error: "Bitte eine Rolle auswählen." };
+
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  const appStep = company.provisioning.find((step) => step.id === "app-sync");
+  if (appStep?.status !== "done") {
+    return { error: "Der Mandant muss zuerst erfolgreich an die App gemeldet werden." };
+  }
+
+  if (company.contactEmail.trim().toLowerCase() === email) {
+    return { error: "Diese Adresse gehört dem Erstbenutzer – seine Einladung steht weiter oben." };
+  }
+
+  const existing = await listCompanyUsers(companyId);
+  if (existing.some((user) => user.email.toLowerCase() === email)) {
+    return { error: `${email} wurde für diesen Mandanten bereits eingeladen.` };
+  }
+
+  const result = await inviteAndNotify({ company, name, email, role });
+  // Auch bei gescheiterter Mail protokollieren: Der Benutzer existiert in der
+  // App, und der Neuversand braucht diesen Eintrag.
+  if (userWasCreated(result)) {
+    const now = new Date().toISOString();
+    await insertCompanyUser({
+      id: `cu_${Date.now().toString(36)}`,
+      companyId,
+      name,
+      email,
+      role,
+      invitedAt: now,
+      createdAt: now,
+    });
+    revalidateAdmin(companyId);
+  }
+
+  return result;
+}
+
+/** Schickt einem bereits eingeladenen Nutzer seinen Zugang erneut. */
+export async function resendCompanyUserInviteAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const userId = field(data, "userId");
+  const user = await getCompanyUser(userId);
+  if (!user) return { error: "Dieser Eintrag existiert nicht mehr." };
+
+  const company = await loadCompany(user.companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  const result = await inviteAndNotify({
+    company,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  });
+  if (!userWasCreated(result)) return result;
+
+  await updateCompanyUser(userId, (current) => ({
+    ...current,
+    resentAt: new Date().toISOString(),
+  }));
+  revalidateAdmin(user.companyId);
+
+  return result;
+}
+
+/**
+ * Entfernt den Eintrag aus der Übersicht der Control-Plane.
+ *
+ * Der Benutzer in der App bleibt bestehen – ihn aus der Ferne zu löschen wäre
+ * ein stiller Datenverlust im Mandanten. So steht es auch an der Schaltfläche.
+ */
+export async function removeCompanyUserAction(data: FormData): Promise<void> {
+  const userId = field(data, "userId");
+  const user = await getCompanyUser(userId);
+  if (!user) return;
+
+  await deleteCompanyUser(userId);
+  revalidateAdmin(user.companyId);
+}
+
+/* ------------------------------------------------ Benachrichtigungsvorlagen */
+
+type TemplateInput = Omit<NotificationTemplate, "id" | "createdAt" | "updatedAt">;
+
+function templateFromForm(data: FormData): TemplateInput | { error: string } {
+  const name = field(data, "name");
+  const subject = field(data, "subject");
+  const body = field(data, "body");
+
+  if (!name) return { error: "Bitte einen Namen für die Vorlage vergeben." };
+  if (!subject) return { error: "Bitte einen Betreff angeben." };
+  if (!body) return { error: "Bitte einen Text angeben." };
+
+  const actionLabel = field(data, "actionLabel");
+  const actionUrl = field(data, "actionUrl");
+  // Ein halber Knopf ist immer falsch: entweder führt er nirgendwohin, oder er
+  // ist unbeschriftet. Beides fällt erst beim Kunden auf.
+  if (Boolean(actionLabel) !== Boolean(actionUrl)) {
+    return { error: "Für den Knopf braucht es Beschriftung UND Ziel – oder beides leer." };
+  }
+
+  const trigger = field(data, "trigger");
+
+  return {
+    name,
+    trigger: isTrigger(trigger) ? trigger : null,
+    subject,
+    eyebrow: field(data, "eyebrow"),
+    title: field(data, "title"),
+    body,
+    actionLabel,
+    actionUrl,
+    // Ohne Auslöser gibt es nichts zu automatisieren; „aktiv" wäre dann eine
+    // Zusage ohne Wirkung.
+    isActive: field(data, "isActive") === "on" && isTrigger(trigger),
+  };
+}
+
+/**
+ * Legt eine Vorlage an oder ersetzt sie.
+ *
+ * Wird sie für einen Auslöser aktiviert, verlieren andere Vorlagen desselben
+ * Auslösers ihre Aktivierung. Sonst entschiede die Sortierreihenfolge darüber,
+ * welche Mail beim Kunden ankommt.
+ */
+export async function saveNotificationTemplateAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const parsed = templateFromForm(data);
+  if ("error" in parsed) return parsed;
+
+  const unknown = unknownPlaceholders(parsed.subject, parsed.title, parsed.body, parsed.actionUrl);
+  const warning =
+    unknown.length > 0
+      ? ` Hinweis: ${unknown.map((key) => `{{${key}}}`).join(", ")} ${
+          unknown.length === 1
+            ? "ist kein bekannter Platzhalter und bleibt im Text stehen"
+            : "sind keine bekannten Platzhalter und bleiben im Text stehen"
+        }.`
+      : "";
+
+  const id = field(data, "templateId");
+  const now = new Date().toISOString();
+
+  if (parsed.isActive && parsed.trigger) {
+    const others = await listNotificationTemplates();
+    await Promise.all(
+      others
+        .filter(
+          (template) =>
+            template.id !== id && template.isActive && template.trigger === parsed.trigger,
+        )
+        .map((template) =>
+          updateNotificationTemplate(template.id, (current) => ({
+            ...current,
+            isActive: false,
+            updatedAt: now,
+          })),
+        ),
+    );
+  }
+
+  if (id) {
+    const updated = await updateNotificationTemplate(id, (current) => ({
+      ...current,
+      ...parsed,
+      updatedAt: now,
+    }));
+    if (!updated) return { error: "Diese Vorlage existiert nicht mehr." };
+    revalidatePath("/admin/einstellungen");
+    return { success: `„${parsed.name}" gespeichert.${warning}` };
+  }
+
+  await insertNotificationTemplate({
+    ...parsed,
+    id: `ntf_${Date.now().toString(36)}`,
+    createdAt: now,
+    updatedAt: now,
+  });
+  revalidatePath("/admin/einstellungen");
+
+  return { success: `„${parsed.name}" angelegt.${warning}` };
+}
+
+export async function deleteNotificationTemplateAction(data: FormData): Promise<void> {
+  const id = field(data, "templateId");
+  if (!id) return;
+
+  await deleteNotificationTemplate(id);
+  revalidatePath("/admin/einstellungen");
+}
+
+/**
+ * Verschickt eine Vorlage von Hand an einen Mandanten.
+ *
+ * Der Empfänger kommt ausschließlich aus dem gespeicherten Stand – Ansprech-
+ * partner des Unternehmens oder ein eingeladener Nutzer. Käme er aus dem
+ * Formular, wäre der Adminbereich ein offenes Versandrelais.
+ */
+export async function sendNotificationAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const companyId = field(data, "companyId");
+  const templateId = field(data, "templateId");
+  const recipient = field(data, "recipient");
+
+  if (!templateId) return { error: "Bitte eine Vorlage auswählen." };
+
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+
+  const template = await getNotificationTemplate(templateId);
+  if (!template) return { error: "Diese Vorlage existiert nicht mehr." };
+
+  const users = await listCompanyUsers(companyId);
+  const user = users.find((entry) => entry.id === recipient);
+  const to = user ? user.email : company.contactEmail;
+
+  const delivery = await sendTemplate(
+    template,
+    to,
+    companyValues(company, {
+      name: user ? user.name : company.contactName,
+      email: to,
+      rolle: user ? ROLE_LABEL[user.role] : "Ansprechpartner",
+    }),
+  );
+
+  return delivery.sent ? { success: delivery.note } : { error: delivery.note };
 }

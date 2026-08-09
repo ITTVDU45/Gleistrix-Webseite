@@ -50,6 +50,10 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
             : company.status,
       };
     }),
+    // Ältere Stände kennen beide Listen nicht – ohne den Rückfall stünde hier
+    // `undefined`, und jedes `.map` darüber liefe in einen Fehler.
+    companyUsers: parsed.companyUsers ?? [],
+    notificationTemplates: parsed.notificationTemplates ?? [],
     packages: parsed.packages ?? [],
     usage: parsed.usage ?? [],
     supportAccess: parsed.supportAccess ?? [],
