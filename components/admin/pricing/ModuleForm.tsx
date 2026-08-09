@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 
 import {
   deletePricingModuleAction,
@@ -42,7 +42,34 @@ export default function ModuleForm({
     {},
   );
   const [hasUsage, setHasUsage] = useState(Boolean(module?.usage));
+  const [upload, setUpload] = useState<File | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const [preview, setPreview] = useState<string | null>(module?.imageSrc ?? null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const formRef = useDialogForm(state, !module);
+
+  // Blob-URL nur so lange halten, wie die Datei ausgewählt ist. Das geschieht
+  // absichtlich im Effekt: useMemo kann unter Strict Mode zweimal auswerten und
+  // dabei eine der beiden erzeugten URLs ohne Cleanup verlieren.
+  useEffect(() => {
+    if (!upload) {
+      setPreview(removeImage ? null : (module?.imageSrc ?? null));
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(upload);
+    setPreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [upload, removeImage, module?.imageSrc]);
+
+  // Nach erfolgreichem Speichern gehört die Blob-Vorschau nicht länger zum
+  // Formular. Bei einem neuen Modul wurde außerdem das native Formular geleert.
+  useEffect(() => {
+    if (!state.success) return;
+    setUpload(null);
+    setRemoveImage(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [state]);
 
   const prefix = module ? `module-${module.id}` : "module-new";
   const usage = module?.usage;
@@ -143,14 +170,54 @@ export default function ModuleForm({
       <Field
         id={`${prefix}-image`}
         label="Bild"
-        hint="Pfad unter /public, z. B. /module/lagerverwaltung.png. Leer lassen zeigt nur das Icon."
+        hint="PNG, JPEG, WebP oder AVIF bis 4 MB. Ohne Bild zeigt die Karte nur das Icon."
       >
-        <Input
-          id={`${prefix}-image`}
-          name="imageSrc"
-          defaultValue={module?.imageSrc ?? ""}
-          placeholder="/module/lagerverwaltung.png"
-        />
+        <div className="flex flex-wrap items-start gap-4">
+          {preview ? (
+            // Kein next/image: die Vorschau ist eine lokale Blob-URL, bevor die
+            // Datei überhaupt hochgeladen ist.
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={preview}
+              alt=""
+              className="h-20 w-32 rounded-md border object-cover"
+            />
+          ) : null}
+
+          <div className="min-w-56 flex-1 space-y-2">
+            <input
+              id={`${prefix}-image`}
+              ref={fileInputRef}
+              type="file"
+              name="imageFile"
+              accept="image/png,image/jpeg,image/webp,image/avif"
+              onChange={(event) => {
+                setUpload(event.target.files?.[0] ?? null);
+                setRemoveImage(false);
+              }}
+              className="block w-full text-sm file:mr-3 file:rounded-md file:border file:bg-background file:px-3 file:py-1.5 file:text-sm"
+            />
+
+            {module?.imageSrc ? (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  name="removeImage"
+                  checked={removeImage}
+                  onChange={(event) => {
+                    setRemoveImage(event.target.checked);
+                    if (event.target.checked) {
+                      setUpload(null);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }
+                  }}
+                  className={CHECKBOX_CLASS}
+                />
+                Bild entfernen
+              </label>
+            ) : null}
+          </div>
+        </div>
       </Field>
 
       <Field
