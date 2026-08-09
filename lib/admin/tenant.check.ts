@@ -18,9 +18,23 @@ const {
   reconcileProvisioning,
   statusFor,
   tenantFor,
+  validateSlug,
 } = await import("./tenant.ts");
 
 const tenant = tenantFor("muster-bau");
+
+/* ------------------------------------------------------ Reservierte Kennung */
+
+// 0. „control" muss abgelehnt werden, BEVOR daraus Ressourcen entstehen: die
+// Kennung ergibt gleistrix_control, also die Control-Plane-Datenbank selbst.
+// Ein solcher Mandant bekäme beim Schritt mongo-role readWrite auf Anfragen,
+// Kontakte und Käufe – und sein Abbau löschte den Adminbereich mit.
+assert.equal(tenantFor("control").mongoDatabase, "gleistrix_control");
+assert.equal(
+  validateSlug("control", []).ok,
+  false,
+  "Die Kennung „control“ zeigt auf die Control-Plane und darf nie vergeben werden",
+);
 
 /** So sah ein Plan vor dem Umbau aus: fünf Schritte, drei davon erledigt. */
 const legacy = [

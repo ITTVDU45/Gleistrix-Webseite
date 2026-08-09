@@ -41,6 +41,11 @@ const RESERVED_SLUGS = new Set([
   "db",
   "portal",
   "support",
+  // Der gefährlichste Eintrag der Liste: „control" ergäbe die Datenbank
+  // gleistrix_control – die Control-Plane selbst (lib/admin/mongo.ts:16). Ein
+  // solcher Mandant bekäme beim Schritt mongo-role readWrite auf Anfragen,
+  // Kontakte und Käufe, und sein Abbau löschte den Adminbereich mit.
+  "control",
 ]);
 
 /** "Muster Bau GmbH" -> "muster-bau-gmbh" */
