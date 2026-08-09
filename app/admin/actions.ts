@@ -1593,9 +1593,11 @@ import {
   revokeAppAccess,
 } from "@/lib/admin/provision/mongo";
 import {
+  demoConfirmationIssue,
   registerTenant,
   registrationFor,
   requestTenantInvitation,
+  type TenantSyncResult,
 } from "@/lib/admin/app-sync";
 import {
   addPurchase,
@@ -1756,7 +1758,18 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
     tenantPackage,
   });
 
-  const result = await registerTenant(registration, purchase?.id ?? company.id);
+  const gemeldet = await registerTenant(registration, purchase?.id ?? company.id);
+
+  // Ein befristeter Mandant gilt erst als gemeldet, wenn die App dasselbe Ende
+  // quittiert. Eine ältere App wirft das Feld still weg und legt ihn
+  // unbefristet an – die Meldung käme als Erfolg zurück, die Einladung ginge
+  // raus, und der Demozugang liefe für immer. Die Prüfung steht VOR allem
+  // Weiteren, damit weder der Kauf freigegeben noch eine Mail versendet wird.
+  const quittung = gemeldet.ok
+    ? demoConfirmationIssue(company.demoExpiresAt, gemeldet.demoLaeuftAbAm)
+    : null;
+  const result: TenantSyncResult = quittung ? { ok: false, error: quittung } : gemeldet;
+
   const now = new Date().toISOString();
 
   // Vor dem Schreiben festhalten: Nur der ÜBERGANG auf „freigegeben" ist die

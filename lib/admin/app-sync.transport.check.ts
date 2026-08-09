@@ -117,6 +117,36 @@ assert.ok(
   "Im Rumpf darf kein Passwort auftauchen",
 );
 
+/* ------------------------------------ Quittung zum Demo-Ablaufdatum */
+
+// 7. Die App quittiert das gespeicherte Laufzeitende, und die Website reicht
+// es unverändert weiter. Ohne diese Quittung liesse sich nicht erkennen, ob
+// die Gegenstelle die Befristung überhaupt kennt.
+antwort = {
+  status: 201,
+  payload: { tenantId: "tnt_demo", demoLaeuftAbAm: "2026-08-23T10:00:00.000Z" },
+};
+const demo = await registerTenant(
+  { ...registration, kennung: "demo-muster-bau", demoLaeuftAbAm: "2026-08-23T10:00:00.000Z" },
+  "cmp_demo",
+);
+assert.equal(demo.ok, true);
+if (!demo.ok) throw new Error("unreachable");
+assert.equal(demo.demoLaeuftAbAm, "2026-08-23T10:00:00.000Z");
+
+// 8. Eine ältere App kennt das Feld nicht und antwortet ohne es. Genau dieser
+// Fall muss sich von einem ausdrücklichen null unterscheiden lassen – sonst
+// liefe ein Demozugang gegen eine alte App unbefristet weiter.
+antwort = { status: 201, payload: { tenantId: "tnt_alt" } };
+const alt = await registerTenant(registration, "cmp_alt");
+assert.equal(alt.ok, true);
+if (!alt.ok) throw new Error("unreachable");
+assert.equal(
+  alt.demoLaeuftAbAm,
+  undefined,
+  "Fehlt das Feld, darf daraus kein null werden",
+);
+
 /* ----------------------------------------------------- Login-Aktivitäten */
 
 antwort = {

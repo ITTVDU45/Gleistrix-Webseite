@@ -25,7 +25,7 @@ registerHooks({
   },
 });
 
-const { registrationFor } = await import("./app-sync.ts");
+const { demoConfirmationIssue, registrationFor } = await import("./app-sync.ts");
 const { tenantFor } = await import("./tenant.ts");
 
 /**
@@ -265,4 +265,33 @@ const demo = registrationFor({
 });
 assert.equal(demo.demoLaeuftAbAm, "2026-08-23T10:00:00.000Z");
 
-console.log("app-sync.check: alle 16 Pruefungen bestanden");
+/* ------------------------------------ Quittung zum Demo-Ablaufdatum */
+
+// 17. Ohne Befristung wird nichts geprueft. Ein gewoehnlicher Mandant muss
+// auch gegen eine aeltere App weiterhin gemeldet werden koennen.
+assert.equal(demoConfirmationIssue(null, undefined), null);
+assert.equal(demoConfirmationIssue(undefined, undefined), null);
+
+// 18. Stimmt die Quittung, ist alles in Ordnung.
+assert.equal(
+  demoConfirmationIssue("2026-08-23T10:00:00.000Z", "2026-08-23T10:00:00.000Z"),
+  null,
+);
+
+// 19. Der Kern: Eine aeltere App wirft das Feld beim Parsen weg und antwortet
+// ohne es. Ohne diese Pruefung ginge die Einladung raus und der Demozugang
+// liefe unbefristet - als Erfolg im Protokoll.
+const ohneQuittung = demoConfirmationIssue("2026-08-23T10:00:00.000Z", undefined);
+assert.ok(
+  ohneQuittung && ohneQuittung.includes("aktualisieren"),
+  "Eine fehlende Quittung muss zum Aktualisieren der App auffordern",
+);
+assert.ok(demoConfirmationIssue("2026-08-23T10:00:00.000Z", null));
+
+// 20. Auch ein abweichender Zeitpunkt zaehlt nicht als Freigabe: Beide Seiten
+// muessen dasselbe Ende kennen, sonst sperrt die App zu einem anderen Termin
+// als dem, der im Protokoll steht.
+assert.ok(demoConfirmationIssue("2026-08-23T10:00:00.000Z", "2026-09-23T10:00:00.000Z"));
+assert.ok(demoConfirmationIssue("2026-08-23T10:00:00.000Z", "unlesbar"));
+
+console.log("app-sync.check: alle 20 Pruefungen bestanden");

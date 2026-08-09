@@ -236,8 +236,53 @@ export function registrationFor(input: {
 }
 
 export type TenantSyncResult =
-  | { ok: true; tenantId?: string; einladungsLink?: string }
+  | {
+      ok: true;
+      tenantId?: string;
+      einladungsLink?: string;
+      /**
+       * Was die App als Laufzeitende gespeichert hat.
+       *
+       * `undefined` heißt: Die App hat das Feld gar nicht gemeldet – dort läuft
+       * eine Version, die Demomandanten noch nicht befristen kann.
+       */
+      demoLaeuftAbAm?: string | null;
+    }
   | { ok: false; error: string };
+
+/**
+ * Prüft die Quittung der App zum Laufzeitende eines Demomandanten.
+ *
+ * Der Grund für diese Prüfung ist eine Reihenfolge, an die beim Deployen
+ * niemand denkt: Eine ältere App kennt `demoLaeuftAbAm` nicht, wirft das Feld
+ * beim Parsen still weg und legt den Mandanten UNBEFRISTET an. Die Meldung
+ * käme als Erfolg zurück, der Interessent bekäme seine Einladung, und der
+ * Zugang liefe für immer – ohne dass irgendwo ein Fehler stünde.
+ *
+ * Deshalb gilt die Meldung nur als gelungen, wenn die App denselben Zeitpunkt
+ * zurückgibt. Für Mandanten ohne Befristung wird nichts geprüft: Sie sollen
+ * auch gegen eine ältere App weiterhin funktionieren.
+ *
+ * @returns Fehlertext für das Protokoll, oder null wenn alles stimmt
+ */
+export function demoConfirmationIssue(
+  erwartet: string | null | undefined,
+  bestaetigt: string | null | undefined,
+): string | null {
+  if (!erwartet) return null;
+
+  if (!bestaetigt) {
+    return `Die App hat kein Ablaufdatum für den Demozugang bestätigt. Dort läuft vermutlich noch eine Version ohne Befristung von Demomandanten – bitte zuerst die App aktualisieren, sonst liefe der Zugang unbefristet weiter.`;
+  }
+
+  const erwarteteZeit = new Date(erwartet).getTime();
+  const bestaetigteZeit = new Date(bestaetigt).getTime();
+  if (!Number.isFinite(bestaetigteZeit) || erwarteteZeit !== bestaetigteZeit) {
+    return `Die App hat ein abweichendes Ablaufdatum gespeichert (${bestaetigt} statt ${erwartet}). Der Demozugang gilt erst als freigeschaltet, wenn beide Seiten dasselbe Ende kennen.`;
+  }
+
+  return null;
+}
 
 /**
  * Meldet einen Mandanten an die App.
@@ -256,6 +301,10 @@ export async function registerTenant(
     ok: true,
     tenantId: text(result.payload.tenantId),
     einladungsLink: text(result.payload.einladungsLink),
+    // Fehlt das Feld, bleibt es undefined – der Unterschied zu einem
+    // ausdrücklichen null ist genau die Information, die die Prüfung braucht.
+    demoLaeuftAbAm:
+      "demoLaeuftAbAm" in result.payload ? (text(result.payload.demoLaeuftAbAm) ?? null) : undefined,
   };
 }
 
