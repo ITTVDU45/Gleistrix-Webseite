@@ -245,4 +245,24 @@ assert.ok(
   "Der Paketumfang des Mandanten bleibt daneben bestehen",
 );
 
-console.log("app-sync.check: alle 14 Pruefungen bestanden");
+// 15. Ein gewoehnlicher Mandant traegt kein Ablaufdatum - aber ausdruecklich
+// null, nicht "fehlt". Nur so entfernt die App die Befristung, wenn aus einer
+// Demo ein zahlender Kunde wird.
+assert.equal(
+  ohneKauf.demoLaeuftAbAm,
+  null,
+  "Ohne Demo muss das Ablaufdatum ausdruecklich null sein",
+);
+
+// 16. Ein Demomandant meldet sein Ablaufdatum unveraendert weiter. Ohne das
+// liefe der Zugang in der App unbefristet - die Befristung ist die einzige
+// Eigenschaft, die eine Demo von einem Kunden unterscheidet.
+const demo = registrationFor({
+  company: { ...company, demoExpiresAt: "2026-08-23T10:00:00.000Z" },
+  purchases: [],
+  pricing,
+  tenantPackage,
+});
+assert.equal(demo.demoLaeuftAbAm, "2026-08-23T10:00:00.000Z");
+
+console.log("app-sync.check: alle 16 Pruefungen bestanden");

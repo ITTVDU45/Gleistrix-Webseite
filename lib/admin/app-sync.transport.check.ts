@@ -82,6 +82,8 @@ const registration = {
   erstbenutzer: { email: "info@example.test", name: "Max Mustermann" },
   paket: { id: "professional", name: "Professional", benutzer: 14 },
   module: ["einsatztafel"],
+  // Kein Demomandant: Das Feld geht trotzdem mit, weil die App es absolut setzt.
+  demoLaeuftAbAm: null,
 };
 
 /* ------------------------------------------------------------ Erfolgsfall */

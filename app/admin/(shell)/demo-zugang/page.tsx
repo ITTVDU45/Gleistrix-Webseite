@@ -50,7 +50,8 @@ export default async function AdminDemoAccessPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Demo-Zugang</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Demoversionen über die Schnittstelle der Gleistrix-App freischalten und wieder entziehen.
+          Jede Demo ist ein eigener Mandant in der Gleistrix-App – mit eigener Datenbank, eigenem
+          Speicher und einem Ablaufdatum, nach dem die App den Zugang selbst sperrt.
         </p>
       </header>
 
@@ -74,18 +75,23 @@ export default async function AdminDemoAccessPage() {
 
       <Section
         title="Demoversion freigeben"
-        description="Die Gleistrix-App legt den Zugang an und meldet Login-Adresse und Ablaufdatum zurück."
+        description="Legt Datenbank und Speicher an, meldet den Mandanten an die App und schickt dem Interessenten seinen Einladungslink."
       >
         <DemoReleaseForm
           candidates={candidates}
           companies={companies.map((company) => ({
             id: company.id,
             name: company.name,
+            contactName: company.contactName,
             contactEmail: company.contactEmail,
           }))}
           packages={packages
-            .filter((pkg) => pkg.isPublished)
-            .map((pkg) => ({ id: pkg.id, name: pkg.name }))}
+            .filter((pkg) => pkg.isPublished && pkg.moduleIds.length > 0)
+            .map((pkg) => ({
+              id: pkg.id,
+              name: pkg.name,
+              moduleCount: pkg.moduleIds.length,
+            }))}
           defaultDays={DEFAULT_DEMO_DAYS}
           maxDays={MAX_DEMO_DAYS}
           configIssue={issue ? APP_SYNC_ISSUE_TEXT[issue] : null}

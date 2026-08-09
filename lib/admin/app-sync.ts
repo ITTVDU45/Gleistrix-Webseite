@@ -30,7 +30,6 @@ const TENANTS_PATH = "/api/internal/tenants";
 const TENANT_ACTIVITY_PATH = "/api/internal/tenant-activity";
 const TENANT_INVITATION_PATH = "/api/internal/tenant-invitation";
 const TENANT_USERS_PATH = "/api/internal/tenant-users";
-const DEMO_PATH = "/api/internal/demo";
 
 function secret(): string | null {
   const value = process.env.SERVICE_SHARED_SECRET;
@@ -126,6 +125,13 @@ export type TenantRegistration = {
   erstbenutzer: { email: string; name: string };
   paket: { id: string; name: string; benutzer: number };
   module: string[];
+  /**
+   * Laufzeitende eines Demomandanten als ISO-Zeitpunkt, sonst null.
+   *
+   * Immer mitgeschickt, auch als null: Die App setzt das Feld absolut. Nur so
+   * fällt die Befristung weg, wenn aus der Demo ein zahlender Kunde wird.
+   */
+  demoLaeuftAbAm: string | null;
 };
 
 /**
@@ -150,6 +156,9 @@ function tenantRegistration(input: {
     erstbenutzer: { email: company.contactEmail, name: company.contactName },
     paket: { ...input.paket, benutzer: input.benutzer },
     module: input.module,
+    // Kein Sonderweg für Demos: Ein Demomandant unterscheidet sich allein durch
+    // dieses Datum. Bestandsmandanten haben es nicht – dann geht null hinaus.
+    demoLaeuftAbAm: company.demoExpiresAt ?? null,
   };
 }
 
@@ -482,41 +491,11 @@ export async function inviteTenantUser(input: {
 
 /* --------------------------------------------------------------- Demo-Zugang */
 
-export type DemoGrantResult =
-  | { ok: true; url?: string; expiresAt: string }
-  | { ok: false; error: string };
-
 /**
- * Schaltet eine Demoversion für eine E-Mail-Adresse frei.
- * `expiresAt` kommt bevorzugt von der App; ohne Angabe rechnen wir selbst,
- * damit im Protokoll nie ein leeres Ablaufdatum steht.
+ * Für Demozugänge gibt es hier bewusst keinen eigenen Aufruf mehr.
+ *
+ * Eine Demo ist ein gewöhnlicher Mandant mit eigener Datenbank, eigenem Bucket
+ * und einem Ablaufdatum in `demoLaeuftAbAm` – sie läuft deshalb über
+ * `registerTenant` wie jeder Kunde. Die frühere Route `/api/internal/demo`
+ * teilte allen Interessenten EINEN Demomandanten und ist entfallen.
  */
-export async function grantDemo(input: {
-  email: string;
-  company: string;
-  days: number;
-}): Promise<DemoGrantResult> {
-  const days = Math.min(Math.max(Math.trunc(input.days), 1), MAX_DEMO_DAYS);
-  const result = await post(DEMO_PATH, {
-    action: "grant",
-    email: input.email,
-    company: input.company,
-    days,
-  });
-
-  if (!result.ok) return result;
-
-  const fallback = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-  return {
-    ok: true,
-    url: text(result.payload.url),
-    expiresAt: text(result.payload.expiresAt) ?? fallback,
-  };
-}
-
-export type DemoRevokeResult = { ok: true } | { ok: false; error: string };
-
-export async function revokeDemo(email: string): Promise<DemoRevokeResult> {
-  const result = await post(DEMO_PATH, { action: "revoke", email });
-  return result.ok ? { ok: true } : result;
-}

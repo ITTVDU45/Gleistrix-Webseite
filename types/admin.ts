@@ -71,6 +71,16 @@ export type Company = {
    * den Einladungslink weiter zurück, bis das Passwort vergeben ist.
    */
   welcomeMailSentAt?: string;
+  /**
+   * Laufzeitende eines Demomandanten, sonst nicht gesetzt.
+   *
+   * Ein Demozugang ist seit dem Umbau ein vollwertiger Mandant mit eigener
+   * Datenbank und eigenem Bucket – befristet ist der Mandant, nicht der
+   * Benutzer. Der Wert geht bei jeder Meldung an die App (`demoLaeuftAbAm`);
+   * dort sperrt er den Zugang zur Minute, ohne dass hier ein Lauf nachhelfen
+   * muss. Gesetzt heißt zugleich: dieser Mandant ist eine Demo.
+   */
+  demoExpiresAt?: string | null;
   tenant: Tenant;
   provisioning: ProvisioningStep[];
   createdAt: string;

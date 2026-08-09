@@ -10,8 +10,6 @@ import {
   DEFAULT_DEMO_DAYS,
   MAX_DEMO_DAYS,
   appSyncIssue,
-  grantDemo,
-  revokeDemo,
 } from "@/lib/admin/app-sync";
 import { saveImageAsset } from "@/lib/admin/db/assets";
 import { getModule } from "@/lib/admin/modules";
@@ -52,6 +50,7 @@ import { createSupportLink } from "@/lib/admin/support";
 import {
   APP_URL,
   applyStepResult,
+  demoSlugFor,
   provisioningPlan,
   slugify,
   tenantFor,
@@ -786,7 +785,18 @@ export async function setBrochureSentAction(data: FormData): Promise<void> {
 /* ------------------------------------------------------------- Demo-Zugang */
 
 /**
- * Schaltet über die Schnittstelle der Gleistrix-App eine Demoversion frei.
+ * Legt einen Demomandanten an und schaltet ihn befristet frei.
+ *
+ * Eine Demo ist kein Sonderweg mehr, sondern ein vollwertiger Mandant: eigene
+ * MongoDB-Datenbank, eigener MinIO-Bucket, Meldung an die App, Einladungsmail
+ * mit Token und Passwortvergabe – derselbe Weg wie beim zahlenden Kunden. Der
+ * einzige Unterschied ist `demoExpiresAt`: Die App sperrt den Mandanten
+ * danach von selbst.
+ *
+ * Vorher teilten sich alle Interessenten EINEN Demomandanten mit Beispieldaten.
+ * Das setzte in der App `DEMO_TENANT_KENNUNG` voraus – ohne die Variable ging
+ * gar nichts, und jeder Interessent sah dieselben fremden Daten.
+ *
  * Jeder Versuch landet im Protokoll – auch der fehlgeschlagene, sonst bleibt
  * unklar, warum ein Interessent keinen Zugang bekommen hat.
  */
@@ -795,13 +805,14 @@ export async function releaseDemoAction(
   data: FormData,
 ): Promise<FormState> {
   const leadId = field(data, "leadId") || null;
-  const companyId = field(data, "companyId") || null;
   const email = field(data, "email").toLowerCase();
-  const company = field(data, "company");
+  const companyName = field(data, "company");
+  const contactName = field(data, "contactName");
+  const packageId = field(data, "packageId");
   const days = Number.parseInt(field(data, "days") || String(DEFAULT_DEMO_DAYS), 10);
 
-  if (!email.includes("@")) return { error: "Bitte eine gültige E-Mail-Adresse angeben." };
-  if (!company) return { error: "Bitte das Unternehmen angeben." };
+  if (!EMAIL_PATTERN.test(email)) return { error: "Bitte eine gültige E-Mail-Adresse angeben." };
+  if (!companyName) return { error: "Bitte das Unternehmen angeben." };
   if (!Number.isFinite(days) || days < 1 || days > MAX_DEMO_DAYS) {
     return { error: `Laufzeit muss zwischen 1 und ${MAX_DEMO_DAYS} Tagen liegen.` };
   }
@@ -809,35 +820,102 @@ export async function releaseDemoAction(
   const issue = appSyncIssue();
   if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
 
-  const result = await grantDemo({ email, company, days });
+  const store = await readStore();
+
+  const paket = store.packages.find((entry) => entry.id === packageId);
+  if (!paket) return { error: "Bitte ein Paket für die Demo auswählen." };
+  if (!paket.isPublished) return { error: `Paket „${paket.name}“ ist nicht freigegeben.` };
+  // Ohne Module meldet die Website eine leere Modulliste, und die App liest sie
+  // als Zugangsstopp: Der Interessent bekäme eine Einladung in einen Mandanten,
+  // den er nicht öffnen kann.
+  if (paket.moduleIds.length === 0) {
+    return {
+      error: `Paket „${paket.name}“ enthält keine Module – der Demozugang wäre in der App sofort gesperrt.`,
+    };
+  }
+
+  // Eine Adresse gehört in der App zu genau EINEM Mandanten. Läuft für sie
+  // schon eine Demo, käme die Freigabe erst beim Melden an die App zu Fall –
+  // mit angelegter Datenbank und angelegtem Bucket als Rückstand.
+  const laufend = store.demoAccess.find(
+    (entry) => entry.status === "aktiv" && entry.email.toLowerCase() === email,
+  );
+  if (laufend) {
+    return {
+      error: `Für ${email} läuft bereits ein Demozugang (${laufend.company}). Bitte diesen zuerst entziehen.`,
+    };
+  }
+  if (store.companies.some((entry) => entry.contactEmail.toLowerCase() === email)) {
+    return {
+      error: `${email} ist bereits Ansprechpartner eines Mandanten. In der App gehört eine Adresse zu genau einem Mandanten – bitte eine andere verwenden.`,
+    };
+  }
+
+  const kennung = demoSlugFor(
+    companyName,
+    store.companies.map((entry) => entry.slug),
+  );
+  if (!kennung.ok) return { error: kennung.error };
+
   const now = new Date().toISOString();
+  const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+  const tenant = tenantFor(kennung.slug);
+
+  const company: Company = {
+    id: `cmp_${kennung.slug.replace(/-/g, "")}_${Date.now().toString(36)}`,
+    name: companyName,
+    slug: kennung.slug,
+    contactName: contactName || companyName,
+    // Der Interessent selbst ist der Erstbenutzer – er bekommt den Token und
+    // vergibt sein Passwort wie jeder Kunde.
+    contactEmail: email,
+    seats: paket.includedSeats > 0 ? paket.includedSeats : 1,
+    status: "provisioning",
+    packageId: paket.id,
+    extraModuleIds: [],
+    blockedModuleIds: [],
+    autoWelcomeMail: true,
+    demoExpiresAt: expiresAt,
+    tenant,
+    provisioning: provisioningPlan(tenant),
+    createdAt: now,
+  };
+
+  // Erst speichern, dann provisionieren: Bricht ein Schritt ab, steht der
+  // Mandant im Adminbereich und lässt sich dort wiederholen oder abbauen.
+  // Andersherum bliebe eine angelegte Datenbank ohne Eintrag davor zurück.
+  await insertCompany(company);
+
+  const provisioned = await provisionCompany(company);
   const id = `demo_${Date.now().toString(36)}`;
 
-  if (!result.ok) {
+  if (!provisioned.ok) {
     await addDemoAccess({
       id,
       leadId,
-      companyId,
-      company,
+      companyId: company.id,
+      company: companyName,
       email,
       status: "fehlgeschlagen",
-      expiresAt: now,
-      error: result.error,
+      expiresAt,
+      error: provisioned.error,
       createdAt: now,
     });
-    revalidateAdmin();
-    return { error: result.error };
+    revalidateAdmin(company.id);
+    return {
+      error: `${provisioned.error} Der Demomandant „${kennung.slug}“ steht unter Unternehmen und lässt sich dort wiederholen oder abbauen.`,
+    };
   }
 
   await addDemoAccess({
     id,
     leadId,
-    companyId,
-    company,
+    companyId: company.id,
+    company: companyName,
     email,
     status: "aktiv",
-    url: result.url,
-    expiresAt: result.expiresAt,
+    url: APP_URL,
+    expiresAt,
     createdAt: now,
   });
 
@@ -848,13 +926,21 @@ export async function releaseDemoAction(
     }));
   }
 
-  revalidateAdmin();
+  revalidateAdmin(company.id);
   return {
-    success: `Demo für ${email} freigeschaltet, gültig bis ${new Date(result.expiresAt).toLocaleDateString("de-DE")}.`,
-    supportUrl: result.url,
+    success: `Demomandant „${kennung.slug}“ angelegt und freigeschaltet bis ${new Date(expiresAt).toLocaleDateString("de-DE")}. ${provisioned.note}`,
+    supportUrl: APP_URL,
   };
 }
 
+/**
+ * Entzieht einen laufenden Demozugang vor dem Ablauf.
+ *
+ * Gesperrt wird der Mandant, nicht der Benutzer: Der Statuswechsel meldet der
+ * App eine leere Modulliste, und die ist laut Vertrag der Zugangsstopp. Die
+ * Daten des Interessenten bleiben stehen – wer sie los sein will, baut den
+ * Mandanten unter Unternehmen ab.
+ */
 export async function revokeDemoAction(data: FormData): Promise<void> {
   const accessId = field(data, "accessId");
 
@@ -862,13 +948,33 @@ export async function revokeDemoAction(data: FormData): Promise<void> {
   const access = store.demoAccess.find((entry) => entry.id === accessId);
   if (!access || access.status !== "aktiv") return;
 
-  const result = await revokeDemo(access.email);
+  let fehler: string | undefined;
+
+  if (!access.companyId) {
+    // Altbestand: Freigaben vor der Umstellung hingen am geteilten
+    // Demomandanten der App, den es nicht mehr gibt.
+    fehler = "Zu diesem Eintrag gibt es keinen Demomandanten – Freigabe von vor der Umstellung.";
+  } else {
+    const updated = await updateCompany(access.companyId, (current) => ({
+      ...current,
+      status: "suspended",
+      suspendedReason: "Demozugang entzogen",
+    }));
+
+    if (!updated) {
+      fehler = "Der Demomandant wurde bereits aus dem Adminbereich entfernt.";
+    } else {
+      const outcome = await runAppSync(updated);
+      if (!outcome.ok) fehler = outcome.error;
+    }
+  }
+
   await updateDemoAccess(accessId, (current) => ({
     ...current,
-    status: result.ok ? "widerrufen" : "fehlgeschlagen",
-    error: result.ok ? undefined : result.error,
+    status: fehler ? "fehlgeschlagen" : "widerrufen",
+    error: fehler,
   }));
-  revalidateAdmin();
+  revalidateAdmin(access.companyId ?? undefined);
 }
 
 /* ------------------------------------------------------------------ Preise */
@@ -1746,6 +1852,116 @@ export async function sendTenantInvitationAction(
   };
 }
 
+/**
+ * Reihenfolge der Provisionierung. Sie ist keine Geschmacksfrage: Die Rolle
+ * braucht die Datenbank, und die Meldung an die App ergibt erst Sinn, wenn
+ * Datenbank, Rolle und Bucket stehen.
+ */
+const PROVISIONING_ORDER: ProvisioningStepId[] = [
+  "mongo-database",
+  "mongo-role",
+  "minio-bucket",
+  "app-sync",
+];
+
+/**
+ * Was für diesen Schritt in der Umgebung fehlt – geprüft, BEVOR er läuft.
+ *
+ * Bewusst getrennt vom Lauf: Eine fehlende Zugangsvariable ist kein
+ * fehlgeschlagener Schritt, sondern ein nicht durchgeführter. Der Schritt bleibt
+ * deshalb offen stehen, statt als „failed" im Protokoll zu landen.
+ */
+function stepConfigIssue(stepId: ProvisioningStepId): string | null {
+  switch (stepId) {
+    case "mongo-database":
+    case "mongo-role": {
+      const issue = mongoAdminIssue();
+      return issue ? MONGO_ADMIN_ISSUE_TEXT[issue] : null;
+    }
+    case "minio-bucket": {
+      const issue = minioIssue();
+      return issue ? MINIO_ISSUE_TEXT[issue] : null;
+    }
+    case "app-sync": {
+      const issue = appSyncIssue();
+      return issue ? APP_SYNC_ISSUE_TEXT[issue] : null;
+    }
+    default:
+      return "Für diesen Schritt gibt es keine Automatik.";
+  }
+}
+
+/** Führt einen Schritt aus, ohne etwas zu speichern. Der Aufrufer hält fest. */
+async function runStep(company: Company, stepId: ProvisioningStepId): Promise<StepOutcome> {
+  const tenant = company.tenant;
+
+  switch (stepId) {
+    case "mongo-database":
+      return createTenantDatabase(tenant);
+
+    case "mongo-role": {
+      // Das Passwort wird hier verworfen: Die App verbindet sich mit dem
+      // Zugang aus ihrer eigenen Umgebung, nicht mit einem je Mandant erzeugten.
+      const user = await createTenantUser(tenant, generateTenantPassword());
+      if (!user.ok) return { ok: false, error: user.error };
+
+      // Erst hiermit wird der Mandant für die App überhaupt lesbar. Scheitert
+      // es, gilt der Schritt als fehlgeschlagen – sonst stünde ein Mandant als
+      // fertig da, den die App nicht öffnen kann.
+      const zugriff = await grantAppAccess(tenant);
+      return zugriff.ok
+        ? { ok: true, note: `${user.note} ${zugriff.note}` }
+        : { ok: false, error: zugriff.error };
+    }
+
+    case "minio-bucket":
+      return createTenantBucket(tenant);
+
+    case "app-sync":
+      return runAppSync(company);
+
+    default:
+      return { ok: false, error: "Für diesen Schritt gibt es keine Automatik." };
+  }
+}
+
+/**
+ * Provisioniert einen frisch angelegten Mandanten in einem Zug.
+ *
+ * Beim ersten Fehlschlag ist Schluss: Ein Bucket ohne Datenbank oder eine
+ * Meldung an die App ohne lesbare Datenbank wäre schlimmer als ein halb
+ * fertiger Mandant, der im Adminbereich sichtbar stehen bleibt und sich Schritt
+ * für Schritt wiederholen lässt.
+ *
+ * Jeder Schritt wird einzeln gespeichert – genau wie beim Knopf auf der
+ * Unternehmensseite. Wer nach einem Abbruch hinschaut, sieht, wie weit es kam.
+ */
+async function provisionCompany(
+  company: Company,
+): Promise<{ ok: true; note: string } | { ok: false; error: string }> {
+  let current = company;
+  let letzteNotiz = "";
+
+  for (const stepId of PROVISIONING_ORDER) {
+    const issue = stepConfigIssue(stepId);
+    if (issue) return { ok: false, error: issue };
+
+    const outcome = await runStep(current, stepId);
+    const updated = await updateCompany(current.id, (stored) =>
+      applyStepResult(stored, stepId, {
+        status: outcome.ok ? "done" : "failed",
+        note: outcome.ok ? outcome.note : outcome.error,
+        updatedAt: new Date().toISOString(),
+      }),
+    );
+    if (updated) current = updated;
+    if (!outcome.ok) return { ok: false, error: outcome.error };
+    letzteNotiz = outcome.note;
+  }
+
+  return { ok: true, note: letzteNotiz };
+}
+
 /** Führt genau einen Provisionierungsschritt aus und hält das Ergebnis fest. */
 export async function runProvisioningStepAction(
   _prev: FormState,
@@ -1760,51 +1976,10 @@ export async function runProvisioningStepAction(
     return { error: "Unbekannter Schritt." };
   }
 
-  const tenant = company.tenant;
-  let outcome: StepOutcome;
+  const issue = stepConfigIssue(stepId);
+  if (issue) return { error: issue };
 
-  switch (stepId) {
-    case "mongo-database": {
-      const issue = mongoAdminIssue();
-      if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
-      outcome = await createTenantDatabase(tenant);
-      break;
-    }
-    case "mongo-role": {
-      const issue = mongoAdminIssue();
-      if (issue) return { error: MONGO_ADMIN_ISSUE_TEXT[issue] };
-      // Das Passwort wird hier verworfen: Die App verbindet sich mit dem
-      // Zugang aus ihrer eigenen Umgebung, nicht mit einem je Mandant erzeugten.
-      const user = await createTenantUser(tenant, generateTenantPassword());
-      if (!user.ok) {
-        outcome = { ok: false, error: user.error };
-        break;
-      }
-
-      // Erst hiermit wird der Mandant für die App überhaupt lesbar. Scheitert
-      // es, gilt der Schritt als fehlgeschlagen – sonst stünde ein Mandant als
-      // fertig da, den die App nicht öffnen kann.
-      const zugriff = await grantAppAccess(tenant);
-      outcome = zugriff.ok
-        ? { ok: true, note: `${user.note} ${zugriff.note}` }
-        : { ok: false, error: zugriff.error };
-      break;
-    }
-    case "minio-bucket": {
-      const issue = minioIssue();
-      if (issue) return { error: MINIO_ISSUE_TEXT[issue] };
-      outcome = await createTenantBucket(tenant);
-      break;
-    }
-    case "app-sync": {
-      const issue = appSyncIssue();
-      if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
-      outcome = await runAppSync(company);
-      break;
-    }
-    default:
-      return { error: "Für diesen Schritt gibt es keine Automatik." };
-  }
+  const outcome = await runStep(company, stepId);
 
   await updateCompany(companyId, (current) =>
     applyStepResult(current, stepId, {
