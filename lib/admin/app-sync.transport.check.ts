@@ -70,7 +70,7 @@ const port = (server.address() as AddressInfo).port;
 process.env.GLEISTRIX_APP_URL = `http://127.0.0.1:${port}`;
 process.env.SERVICE_SHARED_SECRET = SECRET;
 
-const { getTenantActivity, registerTenant, requestTenantInvitation } = await import(
+const { getTenantActivity, getTenantUsers, registerTenant, requestTenantInvitation } = await import(
   "./app-sync.ts"
 );
 
@@ -194,6 +194,78 @@ assert.equal(ohneGrund.ok, false);
 if (ohneGrund.ok) throw new Error("unreachable");
 assert.ok(ohneGrund.error.includes("502"), `Statuscode fehlt in: ${ohneGrund.error}`);
 
+/* --------------------------------------------------- Benutzer des Mandanten */
+
+/**
+ * Die Benutzerliste kommt aus der App, nicht aus einem Abzug.
+ *
+ * Gepinnt wird, was still schiefgehen kann: der Pfad samt Kennung in der
+ * Abfrage, und dass unvollständige Einträge die Liste nicht sprengen. Käme statt
+ * eines Namens `undefined` durch, stünde das wörtlich auf der Unternehmensseite.
+ */
+antwort = {
+  status: 200,
+  payload: {
+    benutzer: [
+      {
+        email: "chef@muster-bau.test",
+        name: "Petra Muster",
+        rolle: "superadmin",
+        aktiv: true,
+        letzterLogin: "2026-08-08T07:30:00.000Z",
+        angelegtAm: "2026-07-01T09:00:00.000Z",
+      },
+      // Absichtlich lückenhaft: so kommt es aus einer echten Datenbank, in der
+      // niemand den Namen gepflegt hat.
+      { email: "lager@muster-bau.test", rolle: "lager", aktiv: false },
+      "kein Objekt",
+    ],
+    einladungen: [
+      {
+        email: "neu@muster-bau.test",
+        name: "Jonas Weber",
+        rolle: "user",
+        laeuftAbAm: "2026-08-10T07:30:00.000Z",
+        eingeladenAm: "2026-08-09T07:30:00.000Z",
+      },
+    ],
+  },
+};
+
+const benutzerliste = await getTenantUsers("Muster-Bau");
+assert.equal(benutzerliste.ok, true, "Eine 200-Antwort muss als Erfolg gelten");
+if (!benutzerliste.ok) throw new Error("unreachable");
+
+assert.equal(letzte?.method, "GET", "Die Benutzerliste wird gelesen, nicht geschrieben");
+assert.equal(
+  letzte?.url,
+  "/api/internal/tenant-users?kennung=muster-bau",
+  `Falscher Pfad oder ungenormte Kennung: ${letzte?.url}`,
+);
+assert.equal(letzte?.authorization, `Bearer ${SECRET}`);
+
+// Der Fremdkörper in der Liste fliegt raus, die echten Einträge bleiben.
+assert.equal(benutzerliste.benutzer.length, 2, "Nur echte Objekte gehören in die Liste");
+assert.equal(benutzerliste.benutzer[0].name, "Petra Muster");
+assert.equal(benutzerliste.benutzer[0].letzterLogin, "2026-08-08T07:30:00.000Z");
+
+// Fehlende Felder werden zu "", nicht zu undefined – sonst stünde das Wort in
+// der Oberfläche.
+assert.equal(benutzerliste.benutzer[1].name, "", "Fehlender Name wird zum leeren Text");
+assert.equal(benutzerliste.benutzer[1].aktiv, false, "aktiv:false darf nicht verlorengehen");
+assert.equal(benutzerliste.benutzer[1].letzterLogin, null, "Nie angemeldet bleibt null");
+
+assert.equal(benutzerliste.einladungen.length, 1);
+assert.equal(benutzerliste.einladungen[0].email, "neu@muster-bau.test");
+
+// Fehlen die Listen ganz, ist das kein Absturz, sondern leer.
+antwort = { status: 200, payload: {} };
+const leer = await getTenantUsers("muster-bau");
+assert.equal(leer.ok, true);
+if (!leer.ok) throw new Error("unreachable");
+assert.deepEqual(leer.benutzer, [], "Fehlende Liste ergibt eine leere Liste");
+assert.deepEqual(leer.einladungen, []);
+
 /* ------------------------------------------------------- Nicht erreichbar */
 
 await new Promise<void>((resolve) => server.close(() => resolve()));
@@ -208,4 +280,6 @@ assert.ok(
   `Unerwartete Meldung bei toter Gegenstelle: ${tot.error}`,
 );
 
-console.log("app-sync.transport.check: Mandanten-, Aktivitäts- und Einladungsvertrag bestanden");
+console.log(
+  "app-sync.transport.check: Mandanten-, Aktivitäts-, Einladungs- und Benutzervertrag bestanden",
+);

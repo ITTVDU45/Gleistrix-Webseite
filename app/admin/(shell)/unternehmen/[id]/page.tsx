@@ -11,6 +11,7 @@ import {
 import {
   CompanyStatusPill,
   EmptyState,
+  formatDateTime,
   KeyValue,
   Mono,
   PurchaseStatusPill,
@@ -42,6 +43,7 @@ import {
   APP_SYNC_ISSUE_TEXT,
   appSyncIssue,
   getTenantActivity,
+  getTenantUsers,
 } from "@/lib/admin/app-sync";
 import { mailConfigIssue } from "@/lib/admin/mail";
 import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
@@ -103,6 +105,7 @@ export default async function CompanyDetailPage({ params }: Props) {
     tenantActivity,
     companyUsers,
     templates,
+    tenantUsers,
   ] = await Promise.all([
       getPackage(company.packageId),
       getUsage(company.id),
@@ -117,6 +120,8 @@ export default async function CompanyDetailPage({ params }: Props) {
       appSyncDone ? getTenantActivity(company.slug) : Promise.resolve(null),
       listCompanyUsers(company.id),
       listNotificationTemplates(),
+      // Führend ist die App. Vor dem Abgleich gibt es dort noch nichts zu holen.
+      appSyncDone ? getTenantUsers(company.slug) : Promise.resolve(null),
     ]);
 
   // Die Vorschau im Einladungs-Popup soll zeigen, was tatsächlich rausgeht:
@@ -363,6 +368,90 @@ export default async function CompanyDetailPage({ params }: Props) {
           }
           inviteTemplate={inviteTemplate}
         />
+      </Section>
+
+      {/* Die Liste darüber zeigt nur, was ÜBER DIESE SEITE eingeladen wurde.
+          Der Mandant legt seine Benutzer aber überwiegend selbst in der App an –
+          ohne diesen Abschnitt sähe der Superadmin davon nichts und hielte einen
+          gut genutzten Mandanten für verwaist. */}
+      <Section
+        title={
+          tenantUsers?.ok
+            ? `Benutzer in der App (${tenantUsers.benutzer.length})`
+            : "Benutzer in der App"
+        }
+        description="Der tatsächliche Stand aus der Gleistrix-App – auch die Benutzer, die der Mandant selbst eingeladen hat. Wird bei jedem Seitenaufruf frisch gelesen, nicht gespiegelt."
+      >
+        {!appSyncDone ? (
+          <EmptyState>
+            Sichtbar, sobald der Mandant erfolgreich an die App gemeldet wurde.
+          </EmptyState>
+        ) : !tenantUsers ? (
+          <EmptyState>Keine Angaben.</EmptyState>
+        ) : !tenantUsers.ok ? (
+          // Ehrlich melden statt „keine Benutzer" zu behaupten: eine leere Liste
+          // wegen eines Verbindungsfehlers wäre eine falsche Aussage.
+          <p
+            role="alert"
+            className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-inset ring-amber-600/20"
+          >
+            Die Benutzer konnten nicht aus der App gelesen werden: {tenantUsers.error}
+          </p>
+        ) : tenantUsers.benutzer.length === 0 && tenantUsers.einladungen.length === 0 ? (
+          <EmptyState>In der App ist noch kein Benutzer angelegt.</EmptyState>
+        ) : (
+          <div className="space-y-4">
+            {tenantUsers.benutzer.length > 0 ? (
+              <ul className="divide-y">
+                {tenantUsers.benutzer.map((benutzer) => (
+                  <li
+                    key={benutzer.email}
+                    className="flex flex-wrap items-start justify-between gap-3 py-3 first:pt-0"
+                  >
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-medium">{benutzer.name || benutzer.email}</p>
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                          {benutzer.rolle}
+                        </span>
+                        {benutzer.aktiv ? null : (
+                          <span className="rounded bg-rose-50 px-1.5 py-0.5 text-[11px] font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">
+                            deaktiviert
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-sm text-muted-foreground">{benutzer.email}</p>
+                    </div>
+                    <p className="shrink-0 text-sm text-muted-foreground">
+                      {benutzer.letzterLogin
+                        ? `zuletzt angemeldet ${formatDateTime(benutzer.letzterLogin)}`
+                        : "noch nie angemeldet"}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+
+            {tenantUsers.einladungen.length > 0 ? (
+              <div className="rounded-lg border border-dashed px-3.5 py-3">
+                <p className="text-sm font-medium">
+                  Offene Einladungen ({tenantUsers.einladungen.length})
+                </p>
+                <ul className="mt-2 space-y-1">
+                  {tenantUsers.einladungen.map((einladung) => (
+                    <li key={einladung.email} className="text-sm text-muted-foreground">
+                      {einladung.name ? `${einladung.name} · ` : ""}
+                      {einladung.email} · {einladung.rolle}
+                      {einladung.laeuftAbAm
+                        ? ` · gültig bis ${formatDateTime(einladung.laeuftAbAm)}`
+                        : ""}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        )}
       </Section>
 
       <Section

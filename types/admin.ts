@@ -62,6 +62,15 @@ export type Company = {
    * bleibt der Weg über „Erstzugang senden" auf der Unternehmensseite.
    */
   autoWelcomeMail?: boolean;
+  /**
+   * Wann die Willkommensmail zuletzt rausging.
+   *
+   * Der Provisionierungslauf schickt sie nur, solange hier nichts steht. Ohne
+   * das bekäme der Kunde bei jedem Modul-Umschalten eine neue Willkommensmail:
+   * `syncModulesIfProvisioned` meldet den Mandanten erneut, und die App gibt
+   * den Einladungslink weiter zurück, bis das Passwort vergeben ist.
+   */
+  welcomeMailSentAt?: string;
   tenant: Tenant;
   provisioning: ProvisioningStep[];
   createdAt: string;
