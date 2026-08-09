@@ -17,6 +17,7 @@ const {
   renderNotification,
   renderPlaceholders,
   sampleValues,
+  triggerLinkTarget,
   unknownPlaceholders,
 } = await import("./notification-templates.ts");
 
@@ -158,5 +159,26 @@ assert.ok(
 const einladung = renderNotification(INVITE_FALLBACK_TEMPLATE, sampleValues());
 assert.ok(!einladung.subject.includes("{{"), "Betreff der Einladung ist vollständig gefüllt");
 assert.ok(!einladung.text.includes("{{"), "Text der Einladung ist vollständig gefüllt");
+
+/* ---------------------------------------------------------- Knopf-Ziel */
+
+/**
+ * Auslöser mit Token-Link bestimmen ihr Knopf-Ziel selbst.
+ *
+ * Fiele das weg, führte der Knopf auf die Anmeldemaske – und der Empfänger
+ * stünde dort ohne Passwort, das er ja erst über diesen Link vergeben soll.
+ * Der Rückgabewert muss ein bekannter Platzhalter sein, sonst bliebe er beim
+ * Versand wörtlich in der Mail stehen.
+ */
+for (const trigger of ["unternehmen.eingerichtet", "nutzer.eingeladen"] as const) {
+  const ziel = triggerLinkTarget(trigger);
+  assert.equal(ziel, "{{link}}", `${trigger} gibt den Token-Link als Knopf-Ziel vor`);
+  assert.deepEqual(unknownPlaceholders(ziel ?? ""), [], `${trigger}: Ziel ist ein echter Platzhalter`);
+}
+
+// Auslöser ohne Token-Link lassen dem Admin freie Hand, und ohne Auslöser
+// gibt es nichts vorzugeben.
+assert.equal(triggerLinkTarget("unternehmen.gesperrt"), null, "Sperrmail behält ihr freies Ziel");
+assert.equal(triggerLinkTarget(null), null, "Ohne Auslöser gibt es keine Vorgabe");
 
 console.log("notification-templates.check.ts: alle Prüfungen bestanden");

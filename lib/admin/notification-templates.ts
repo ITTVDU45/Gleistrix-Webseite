@@ -70,6 +70,14 @@ export type TriggerInfo = {
   id: NotificationTrigger;
   label: string;
   description: string;
+  /**
+   * Festes Knopf-Ziel dieses Auslösers.
+   *
+   * Auslöser, die einen einmaligen Token-Link liefern, bestimmen ihr Ziel
+   * selbst. Ein von Hand eingetragenes {{app}} führte sonst auf die
+   * Anmeldemaske – wo der Empfänger noch gar kein Passwort hat.
+   */
+  linkTarget?: string;
 };
 
 export const TRIGGERS: TriggerInfo[] = [
@@ -78,12 +86,14 @@ export const TRIGGERS: TriggerInfo[] = [
     label: "Erster Admin-Zugang erstellt",
     description:
       "Der Mandant ist an die App gemeldet und der Erstzugang des Ansprechpartners steht bereit – nach einem Kauf wie nach manueller Anlage. {{link}} enthält den einmaligen Passwortlink.",
+    linkTarget: "{{link}}",
   },
   {
     id: "nutzer.eingeladen",
     label: "Nutzer eingeladen",
     description:
       "Ein weiterer Nutzer wurde einem Unternehmen hinzugefügt. {{link}} enthält den einmaligen Passwortlink.",
+    linkTarget: "{{link}}",
   },
   {
     id: "unternehmen.gesperrt",
@@ -105,6 +115,19 @@ export const TRIGGERS: TriggerInfo[] = [
 export function triggerLabel(trigger: NotificationTrigger | null): string {
   if (!trigger) return "Nur manueller Versand";
   return TRIGGERS.find((entry) => entry.id === trigger)?.label ?? trigger;
+}
+
+/**
+ * Das vorgegebene Knopf-Ziel eines Auslösers, oder nichts.
+ *
+ * Eine Stelle für Formular und Server Action: das Formular sperrt das Feld
+ * damit, die Action erzwingt es. Nur das Formular zu füllen reichte nicht –
+ * gespeicherte Vorlagen von vorher und abgeschickte Formulare am Browser vorbei
+ * behielten sonst ihr falsches Ziel.
+ */
+export function triggerLinkTarget(trigger: NotificationTrigger | null): string | null {
+  if (!trigger) return null;
+  return TRIGGERS.find((entry) => entry.id === trigger)?.linkTarget ?? null;
 }
 
 export function isTrigger(value: string): value is NotificationTrigger {
