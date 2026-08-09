@@ -32,7 +32,7 @@ registerHooks({
 });
 
 const ADMIN_PASSWORD = "root-geheim-xyz";
-process.env.MONGODB_ADMIN_URI = `mongodb://cluster_root:${ADMIN_PASSWORD}@5.9.22.170:57017/admin?authSource=admin&retryWrites=true`;
+process.env.MONGODB_ADMIN_URI = `mongodb://cluster_root:${ADMIN_PASSWORD}@db.example.test:27017/admin?authSource=admin&retryWrites=true`;
 
 const { generateTenantPassword, isUserNotFound, tenantMongoUri } = await import("./mongo.ts");
 
@@ -51,7 +51,7 @@ assert.ok(!uri.includes("cluster_root"), `Admin-Benutzer steht in der Mandanten-
 const parsed = new URL(uri);
 assert.equal(parsed.username, "svc_muster_bau");
 assert.equal(decodeURIComponent(parsed.password), "mandanten-passwort");
-assert.equal(parsed.host, "5.9.22.170:57017");
+assert.equal(parsed.host, "db.example.test:27017");
 assert.equal(parsed.pathname, "/gleistrix_muster_bau");
 assert.equal(parsed.searchParams.get("retryWrites"), "true", "Cluster-Parameter dürfen nicht verloren gehen");
 
@@ -65,7 +65,7 @@ assert.equal(
 // 4. Sonderzeichen im Passwort werden kodiert, statt die URI zu zerlegen.
 const tricky = tenantMongoUri(tenant, "a:b@c/d?e");
 assert.equal(decodeURIComponent(new URL(tricky).password), "a:b@c/d?e");
-assert.equal(new URL(tricky).host, "5.9.22.170:57017", "Sonderzeichen dürfen den Host nicht verschieben");
+assert.equal(new URL(tricky).host, "db.example.test:27017", "Sonderzeichen dürfen den Host nicht verschieben");
 
 // 5. Erzeugte Passwörter: feste Länge, URI-sicheres Alphabet, nicht wiederholt.
 const first = generateTenantPassword();

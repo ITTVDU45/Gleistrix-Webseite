@@ -38,7 +38,7 @@ const explicitUri = process.env.MONGODB_URI?.trim();
 
 if (!explicitUri && (!host || !username || !password)) {
   console.error("Es fehlen Angaben. Erwartet werden in .env.local:");
-  console.error("  MONGODB_HOST=5.9.22.170:57017");
+  console.error("  MONGODB_HOST=db.example.test:27017");
   console.error("  MONGODB_USERNAME=...");
   console.error("  MONGODB_PASSWORD=...");
   console.error("Alternativ eine fertige MONGODB_URI.");
