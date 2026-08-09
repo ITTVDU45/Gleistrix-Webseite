@@ -19,6 +19,8 @@ import {
   MAX_DEMO_DAYS,
   appSyncIssue,
 } from "@/lib/admin/app-sync";
+import { effectiveModuleIds } from "@/lib/admin/modules";
+import { getPublishedPricing } from "@/lib/admin/pricing";
 import { readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Demo-Zugang" };
@@ -27,31 +29,30 @@ export default async function AdminDemoAccessPage() {
   // readStore statt getDemoAccess + getLeads: das Formular braucht zusätzlich
   // die angelegten Unternehmen und – für den Anlege-Dialog – die Pakete, und
   // readStore holt ohnehin alles parallel.
-  const { demoAccess, leads, companies, packages } = await readStore();
+  const [{ demoAccess, leads, companies, packages }, pricing] = await Promise.all([
+    readStore(),
+    getPublishedPricing(),
+  ]);
   const access = [...demoAccess].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const issue = appSyncIssue();
 
-  const active = access.filter((entry) => entry.status === "aktiv");
-  const failed = access.filter((entry) => entry.status === "fehlgeschlagen");
+  // Ein Eintrag bleibt „aktiv", bis ihn jemand entzieht – abgelaufen ist er
+  // trotzdem. Ohne diese Ableitung zählte die Übersicht Zugänge als laufend,
+  // die in der App längst zu sind.
+  const jetzt = Date.now();
+  const istAbgelaufen = (entry: (typeof access)[number]) =>
+    entry.status === "aktiv" && new Date(entry.expiresAt).getTime() <= jetzt;
 
-  // Vorschläge fürs Formular: offene Anfragen, für die noch keine Demo läuft.
-  const activeEmails = new Set(active.map((entry) => entry.email));
-  const candidates = leads
-    .filter((lead) => lead.status !== "verloren" && !activeEmails.has(lead.email.toLowerCase()))
-    .map((lead) => ({
-      id: lead.id,
-      company: lead.company,
-      contactName: lead.contactName,
-      email: lead.email,
-    }));
+  const active = access.filter((entry) => entry.status === "aktiv" && !istAbgelaufen(entry));
+  const failed = access.filter((entry) => entry.status === "fehlgeschlagen");
 
   return (
     <div className="space-y-8">
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">Demo-Zugang</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Jede Demo ist ein eigener Mandant in der Gleistrix-App – mit eigener Datenbank, eigenem
-          Speicher und einem Ablaufdatum, nach dem die App den Zugang selbst sperrt.
+          Ein angelegter Mandant wird auf Zeit freigeschaltet: Ressourcen einrichten, an die App
+          melden, Einladung verschicken. Nach Ablauf sperrt die App den Zugang selbst.
         </p>
       </header>
 
@@ -75,23 +76,33 @@ export default async function AdminDemoAccessPage() {
 
       <Section
         title="Demoversion freigeben"
-        description="Legt Datenbank und Speicher an, meldet den Mandanten an die App und schickt dem Interessenten seinen Einladungslink."
+        description="Richtet Datenbank und Speicher ein, soweit sie noch fehlen, meldet den Mandanten an die App und schickt dem Ansprechpartner seinen Einladungslink."
       >
         <DemoReleaseForm
-          candidates={candidates}
+          candidates={leads
+            .filter((lead) => lead.status !== "verloren")
+            .map((lead) => ({
+              id: lead.id,
+              company: lead.company,
+              contactName: lead.contactName,
+              email: lead.email,
+            }))}
           companies={companies.map((company) => ({
             id: company.id,
             name: company.name,
             contactName: company.contactName,
             contactEmail: company.contactEmail,
+            demoExpiresAt: company.demoExpiresAt ?? null,
+            hasModules:
+              effectiveModuleIds(
+                pricing,
+                company,
+                packages.find((pkg) => pkg.id === company.packageId) ?? null,
+              ).length > 0,
           }))}
           packages={packages
-            .filter((pkg) => pkg.isPublished && pkg.moduleIds.length > 0)
-            .map((pkg) => ({
-              id: pkg.id,
-              name: pkg.name,
-              moduleCount: pkg.moduleIds.length,
-            }))}
+            .filter((pkg) => pkg.isPublished)
+            .map((pkg) => ({ id: pkg.id, name: pkg.name }))}
           defaultDays={DEFAULT_DEMO_DAYS}
           maxDays={MAX_DEMO_DAYS}
           configIssue={issue ? APP_SYNC_ISSUE_TEXT[issue] : null}
@@ -106,46 +117,57 @@ export default async function AdminDemoAccessPage() {
           <EmptyState>Es wurde noch keine Demoversion freigeschaltet.</EmptyState>
         ) : (
           <ul className="divide-y">
-            {access.map((entry) => (
-              <li
-                key={entry.id}
-                className="flex flex-wrap items-start justify-between gap-3 py-3.5 first:pt-0 last:pb-0"
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium">{entry.company}</p>
-                    <DemoStatusPill status={entry.status} />
+            {access.map((entry) => {
+              const abgelaufen = istAbgelaufen(entry);
+              return (
+                <li
+                  key={entry.id}
+                  className="flex flex-wrap items-start justify-between gap-3 py-3.5 first:pt-0 last:pb-0"
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-medium">{entry.company}</p>
+                      {abgelaufen ? (
+                        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-inset ring-slate-500/20">
+                          Abgelaufen
+                        </span>
+                      ) : (
+                        <DemoStatusPill status={entry.status} />
+                      )}
+                    </div>
+                    <p className="mt-0.5 text-sm text-muted-foreground">
+                      <Mono>{entry.email}</Mono> · angelegt {formatDate(entry.createdAt)}
+                      {entry.status === "aktiv"
+                        ? `${abgelaufen ? " · abgelaufen am " : " · läuft bis "}${formatDateTime(entry.expiresAt)}`
+                        : ""}
+                    </p>
+                    {entry.error ? (
+                      <p className="mt-1 text-sm text-rose-700">{entry.error}</p>
+                    ) : null}
+                    {entry.url ? (
+                      <a
+                        href={entry.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 inline-flex items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
+                      >
+                        Anmeldung der App öffnen
+                        <ExternalLink className="size-3.5" aria-hidden />
+                      </a>
+                    ) : null}
                   </div>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    <Mono>{entry.email}</Mono> · angelegt {formatDate(entry.createdAt)}
-                    {entry.status === "aktiv"
-                      ? ` · läuft bis ${formatDateTime(entry.expiresAt)}`
-                      : ""}
-                  </p>
-                  {entry.error ? <p className="mt-1 text-sm text-rose-700">{entry.error}</p> : null}
-                  {entry.url ? (
-                    <a
-                      href={entry.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-1 inline-flex items-center gap-1.5 text-sm text-primary underline-offset-4 hover:underline"
-                    >
-                      Demo öffnen
-                      <ExternalLink className="size-3.5" aria-hidden />
-                    </a>
-                  ) : null}
-                </div>
 
-                {entry.status === "aktiv" ? (
-                  <form action={revokeDemoAction}>
-                    <input type="hidden" name="accessId" value={entry.id} />
-                    <Button type="submit" variant="outline" size="sm">
-                      Zugang entziehen
-                    </Button>
-                  </form>
-                ) : null}
-              </li>
-            ))}
+                  {entry.status === "aktiv" && !abgelaufen ? (
+                    <form action={revokeDemoAction}>
+                      <input type="hidden" name="accessId" value={entry.id} />
+                      <Button type="submit" variant="outline" size="sm">
+                        Zugang entziehen
+                      </Button>
+                    </form>
+                  ) : null}
+                </li>
+              );
+            })}
           </ul>
         )}
       </Section>

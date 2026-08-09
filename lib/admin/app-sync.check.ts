@@ -265,6 +265,21 @@ const demo = registrationFor({
 });
 assert.equal(demo.demoLaeuftAbAm, "2026-08-23T10:00:00.000Z");
 
+// 16b. Ein Grundkauf hebt die Befristung auf. Aus einer Demo wird ein Kunde,
+// indem er kauft - bliebe das Datum stehen, spaerrte die App den bezahlten
+// Zugang am Tag des frueheren Demoendes aus.
+const gekauft = registrationFor({
+  company: { ...company, demoExpiresAt: "2026-08-23T10:00:00.000Z" },
+  purchases: [purchase],
+  pricing,
+  tenantPackage,
+});
+assert.equal(
+  gekauft.demoLaeuftAbAm,
+  null,
+  "Ein Grundkauf muss die Demo-Befristung aufheben",
+);
+
 /* ------------------------------------ Quittung zum Demo-Ablaufdatum */
 
 // 17. Ohne Befristung wird nichts geprueft. Ein gewoehnlicher Mandant muss

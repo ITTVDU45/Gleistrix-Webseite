@@ -82,50 +82,6 @@ export function validateSlug(slug: string, takenSlugs: string[]): SlugCheck {
   return { ok: true };
 }
 
-export type DemoSlugResult = { ok: true; slug: string } | { ok: false; error: string };
-
-/**
- * Kennung eines Demomandanten: „demo-<firma>", bei Kollision durchnummeriert.
- *
- * Der Präfix ist mehr als Kosmetik: Er hält die Demo von der Kennung des
- * späteren echten Mandanten fern. Bucht der Interessent, entsteht „muster-bau"
- * daneben – ohne Präfix wäre die Kennung durch die Demo belegt, und der
- * zahlende Kunde bekäme „muster-bau-2".
- *
- * Mit einer reservierten Kennung kann das nie kollidieren: `RESERVED_SLUGS`
- * kennt keinen Eintrag mit Bindestrich, „demo-…" fällt also nie hinein.
- */
-export function demoSlugFor(companyName: string, takenSlugs: string[]): DemoSlugResult {
-  // Erst der Firmenname, dann der Präfix: Bliebe vom Namen nichts übrig,
-  // hießen alle Demomandanten „demo" – und die zweite Firma bekäme „demo-2".
-  // Platz für das Zählsuffix lassen: 5 Zeichen Präfix + 31 + „-50" bleibt
-  // unter den 40 Zeichen, mit denen `slugify` kappt.
-  const firma = slugify(companyName).slice(0, 31).replace(/-+$/g, "");
-  if (!firma) {
-    return {
-      ok: false,
-      error: `Aus „${companyName}“ lässt sich keine Kennung bilden – bitte den Firmennamen anpassen.`,
-    };
-  }
-
-  const base = `demo-${firma}`;
-
-  // Form zuerst, ohne die Belegung: Sonst käme bei einem unbrauchbaren Namen
-  // am Ende „bereits vergeben" heraus statt der wahren Ursache.
-  const shape = validateSlug(base, []);
-  if (!shape.ok) return { ok: false, error: shape.error };
-
-  for (let nummer = 1; nummer <= 50; nummer += 1) {
-    const candidate = nummer === 1 ? base : `${base}-${nummer}`;
-    if (!takenSlugs.includes(candidate)) return { ok: true, slug: candidate };
-  }
-
-  return {
-    ok: false,
-    error: `Für „${companyName}“ bestehen bereits 50 Demomandanten – bitte zuerst einen davon abbauen.`,
-  };
-}
-
 /** Namensschema für alle Mandanten-Ressourcen – an genau einer Stelle definiert. */
 export function tenantFor(slug: string): Tenant {
   const flat = slug.replace(/-/g, "_");

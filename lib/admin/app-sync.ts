@@ -146,6 +146,7 @@ function tenantRegistration(input: {
   paket: { id: string; name: string };
   benutzer: number;
   module: string[];
+  demoLaeuftAbAm: string | null;
 }): TenantRegistration {
   const { company } = input;
   return {
@@ -156,9 +157,7 @@ function tenantRegistration(input: {
     erstbenutzer: { email: company.contactEmail, name: company.contactName },
     paket: { ...input.paket, benutzer: input.benutzer },
     module: input.module,
-    // Kein Sonderweg für Demos: Ein Demomandant unterscheidet sich allein durch
-    // dieses Datum. Bestandsmandanten haben es nicht – dann geht null hinaus.
-    demoLaeuftAbAm: company.demoExpiresAt ?? null,
+    demoLaeuftAbAm: input.demoLaeuftAbAm,
   };
 }
 
@@ -232,6 +231,11 @@ export function registrationFor(input: {
     paket,
     benutzer: grundkauf?.users ?? company.seats,
     module: modules,
+    // Ein Grundkauf hebt die Befristung auf – und zwar hier, nicht durch einen
+    // zusätzlichen Handgriff im Adminbereich. Aus einer Demo wird ein Kunde,
+    // indem er kauft; bliebe das Datum stehen, sperrte die App den bezahlten
+    // Zugang am Tag des früheren Demoendes aus.
+    demoLaeuftAbAm: grundkauf ? null : (company.demoExpiresAt ?? null),
   });
 }
 

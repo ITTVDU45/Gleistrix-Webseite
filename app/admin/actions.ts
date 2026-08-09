@@ -12,7 +12,7 @@ import {
   appSyncIssue,
 } from "@/lib/admin/app-sync";
 import { saveImageAsset } from "@/lib/admin/db/assets";
-import { getModule } from "@/lib/admin/modules";
+import { effectiveModuleIds, getModule } from "@/lib/admin/modules";
 import {
   discardDraft,
   getDraftPricing,
@@ -50,7 +50,6 @@ import { createSupportLink } from "@/lib/admin/support";
 import {
   APP_URL,
   applyStepResult,
-  demoSlugFor,
   provisioningPlan,
   slugify,
   tenantFor,
@@ -785,17 +784,23 @@ export async function setBrochureSentAction(data: FormData): Promise<void> {
 /* ------------------------------------------------------------- Demo-Zugang */
 
 /**
- * Legt einen Demomandanten an und schaltet ihn befristet frei.
+ * Schaltet einen angelegten Mandanten befristet frei.
  *
- * Eine Demo ist kein Sonderweg mehr, sondern ein vollwertiger Mandant: eigene
- * MongoDB-Datenbank, eigener MinIO-Bucket, Meldung an die App, Einladungsmail
- * mit Token und Passwortvergabe – derselbe Weg wie beim zahlenden Kunden. Der
- * einzige Unterschied ist `demoExpiresAt`: Die App sperrt den Mandanten
- * danach von selbst.
+ * Eine Demo ist kein eigener Mandant und kein Sonderweg, sondern eine
+ * BEFRISTUNG auf einem gewöhnlichen Mandanten: Der Superadmin legt das
+ * Unternehmen an – hier über den Dialog oder vorher unter Unternehmen –, wählt
+ * es aus, und die Freigabe richtet die Ressourcen ein, meldet den Mandanten an
+ * die App und schickt dem Ansprechpartner seinen Einladungslink. Der einzige
+ * Unterschied zum zahlenden Kunden ist `demoExpiresAt`: Die App sperrt danach
+ * von selbst, und ein Grundkauf hebt die Befristung wieder auf.
  *
- * Vorher teilten sich alle Interessenten EINEN Demomandanten mit Beispieldaten.
- * Das setzte in der App `DEMO_TENANT_KENNUNG` voraus – ohne die Variable ging
- * gar nichts, und jeder Interessent sah dieselben fremden Daten.
+ * Vorher teilten sich alle Interessenten EINEN Demomandanten in der App
+ * (`DEMO_TENANT_KENNUNG`) – ohne diese Variable ging gar nichts, und jeder
+ * Interessent sah dieselben fremden Beispieldaten.
+ *
+ * Schritte, die schon erledigt sind, werden übersprungen. Ein Mandant, dessen
+ * Datenbank von Hand quittiert wurde, lässt sich damit auch ohne
+ * Provisionierungszugänge freischalten – gemeldet wird er trotzdem.
  *
  * Jeder Versuch landet im Protokoll – auch der fehlgeschlagene, sonst bleibt
  * unklar, warum ein Interessent keinen Zugang bekommen hat.
@@ -804,15 +809,11 @@ export async function releaseDemoAction(
   _prev: FormState,
   data: FormData,
 ): Promise<FormState> {
+  const companyId = field(data, "companyId");
   const leadId = field(data, "leadId") || null;
-  const email = field(data, "email").toLowerCase();
-  const companyName = field(data, "company");
-  const contactName = field(data, "contactName");
-  const packageId = field(data, "packageId");
   const days = Number.parseInt(field(data, "days") || String(DEFAULT_DEMO_DAYS), 10);
 
-  if (!EMAIL_PATTERN.test(email)) return { error: "Bitte eine gültige E-Mail-Adresse angeben." };
-  if (!companyName) return { error: "Bitte das Unternehmen angeben." };
+  if (!companyId) return { error: "Bitte ein Unternehmen auswählen." };
   if (!Number.isFinite(days) || days < 1 || days > MAX_DEMO_DAYS) {
     return { error: `Laufzeit muss zwischen 1 und ${MAX_DEMO_DAYS} Tagen liegen.` };
   }
@@ -820,104 +821,64 @@ export async function releaseDemoAction(
   const issue = appSyncIssue();
   if (issue) return { error: APP_SYNC_ISSUE_TEXT[issue] };
 
-  const store = await readStore();
+  const company = await loadCompany(companyId);
+  if (!company) return { error: "Unbekanntes Unternehmen." };
+  if (company.status === "suspended") {
+    return {
+      error: `„${company.name}“ ist gesperrt. Ein gesperrter Mandant meldet der App eine leere Modulliste – bitte zuerst unter Unternehmen entsperren.`,
+    };
+  }
 
-  const paket = store.packages.find((entry) => entry.id === packageId);
-  if (!paket) return { error: "Bitte ein Paket für die Demo auswählen." };
-  if (!paket.isPublished) return { error: `Paket „${paket.name}“ ist nicht freigegeben.` };
   // Ohne Module meldet die Website eine leere Modulliste, und die App liest sie
   // als Zugangsstopp: Der Interessent bekäme eine Einladung in einen Mandanten,
   // den er nicht öffnen kann.
-  if (paket.moduleIds.length === 0) {
+  const [pricing, tenantPackage] = await Promise.all([
+    getPublishedPricing(),
+    getPackage(company.packageId),
+  ]);
+  if (effectiveModuleIds(pricing, company, tenantPackage).length === 0) {
     return {
-      error: `Paket „${paket.name}“ enthält keine Module – der Demozugang wäre in der App sofort gesperrt.`,
+      error: `„${company.name}“ hat kein Paket mit Modulen – der Zugang wäre in der App sofort gesperrt. Bitte auf der Unternehmensseite ein Paket zuweisen.`,
     };
   }
-
-  // Eine Adresse gehört in der App zu genau EINEM Mandanten. Läuft für sie
-  // schon eine Demo, käme die Freigabe erst beim Melden an die App zu Fall –
-  // mit angelegter Datenbank und angelegtem Bucket als Rückstand.
-  const laufend = store.demoAccess.find(
-    (entry) => entry.status === "aktiv" && entry.email.toLowerCase() === email,
-  );
-  if (laufend) {
-    return {
-      error: `Für ${email} läuft bereits ein Demozugang (${laufend.company}). Bitte diesen zuerst entziehen.`,
-    };
-  }
-  if (store.companies.some((entry) => entry.contactEmail.toLowerCase() === email)) {
-    return {
-      error: `${email} ist bereits Ansprechpartner eines Mandanten. In der App gehört eine Adresse zu genau einem Mandanten – bitte eine andere verwenden.`,
-    };
-  }
-
-  const kennung = demoSlugFor(
-    companyName,
-    store.companies.map((entry) => entry.slug),
-  );
-  if (!kennung.ok) return { error: kennung.error };
 
   const now = new Date().toISOString();
   const expiresAt = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
-  const tenant = tenantFor(kennung.slug);
 
-  const company: Company = {
-    id: `cmp_${kennung.slug.replace(/-/g, "")}_${Date.now().toString(36)}`,
-    name: companyName,
-    slug: kennung.slug,
-    contactName: contactName || companyName,
-    // Der Interessent selbst ist der Erstbenutzer – er bekommt den Token und
-    // vergibt sein Passwort wie jeder Kunde.
-    contactEmail: email,
-    seats: paket.includedSeats > 0 ? paket.includedSeats : 1,
-    status: "provisioning",
-    packageId: paket.id,
-    extraModuleIds: [],
-    blockedModuleIds: [],
-    autoWelcomeMail: true,
+  // Vor dem Melden gespeichert: Die Registrierung liest das Datum aus dem
+  // Mandanten, nicht aus dieser Action.
+  const befristet = await updateCompany(companyId, (current) => ({
+    ...current,
     demoExpiresAt: expiresAt,
-    tenant,
-    provisioning: provisioningPlan(tenant),
-    createdAt: now,
+  }));
+  if (!befristet) return { error: "Unbekanntes Unternehmen." };
+
+  const provisioned = await provisionCompany(befristet);
+
+  // Eine zweite Freigabe für denselben Mandanten verlängert, statt eine
+  // weitere Zeile aufzumachen: Es läuft ja nur eine Demo, und die Historie
+  // stünde sonst voller Einträge, die alle „aktiv" heißen.
+  const store = await readStore();
+  const laufend = store.demoAccess.find(
+    (entry) => entry.companyId === companyId && entry.status === "aktiv",
+  );
+
+  const eintrag = {
+    leadId,
+    companyId,
+    company: company.name,
+    email: company.contactEmail,
+    expiresAt,
+    ...(provisioned.ok
+      ? { status: "aktiv" as const, url: APP_URL, error: undefined }
+      : { status: "fehlgeschlagen" as const, error: provisioned.error }),
   };
 
-  // Erst speichern, dann provisionieren: Bricht ein Schritt ab, steht der
-  // Mandant im Adminbereich und lässt sich dort wiederholen oder abbauen.
-  // Andersherum bliebe eine angelegte Datenbank ohne Eintrag davor zurück.
-  await insertCompany(company);
-
-  const provisioned = await provisionCompany(company);
-  const id = `demo_${Date.now().toString(36)}`;
-
-  if (!provisioned.ok) {
-    await addDemoAccess({
-      id,
-      leadId,
-      companyId: company.id,
-      company: companyName,
-      email,
-      status: "fehlgeschlagen",
-      expiresAt,
-      error: provisioned.error,
-      createdAt: now,
-    });
-    revalidateAdmin(company.id);
-    return {
-      error: `${provisioned.error} Der Demomandant „${kennung.slug}“ steht unter Unternehmen und lässt sich dort wiederholen oder abbauen.`,
-    };
+  if (laufend) {
+    await updateDemoAccess(laufend.id, (current) => ({ ...current, ...eintrag }));
+  } else {
+    await addDemoAccess({ id: `demo_${Date.now().toString(36)}`, createdAt: now, ...eintrag });
   }
-
-  await addDemoAccess({
-    id,
-    leadId,
-    companyId: company.id,
-    company: companyName,
-    email,
-    status: "aktiv",
-    url: APP_URL,
-    expiresAt,
-    createdAt: now,
-  });
 
   if (leadId) {
     await updateLead(leadId, (lead) => ({
@@ -926,9 +887,16 @@ export async function releaseDemoAction(
     }));
   }
 
-  revalidateAdmin(company.id);
+  revalidateAdmin(companyId);
+
+  if (!provisioned.ok) {
+    return {
+      error: `${provisioned.error} Die Befristung steht am Mandanten; nach dem Beheben lässt sich die Freigabe wiederholen.`,
+    };
+  }
+
   return {
-    success: `Demomandant „${kennung.slug}“ angelegt und freigeschaltet bis ${new Date(expiresAt).toLocaleDateString("de-DE")}. ${provisioned.note}`,
+    success: `„${company.name}“ ist bis ${new Date(expiresAt).toLocaleDateString("de-DE")} freigeschaltet. ${provisioned.note}`,
     supportUrl: APP_URL,
   };
 }
@@ -936,10 +904,10 @@ export async function releaseDemoAction(
 /**
  * Entzieht einen laufenden Demozugang vor dem Ablauf.
  *
- * Gesperrt wird der Mandant, nicht der Benutzer: Der Statuswechsel meldet der
- * App eine leere Modulliste, und die ist laut Vertrag der Zugangsstopp. Die
- * Daten des Interessenten bleiben stehen – wer sie los sein will, baut den
- * Mandanten unter Unternehmen ab.
+ * Beendet wird die Laufzeit, nicht der Mandant: `demoExpiresAt` geht auf jetzt,
+ * die App sperrt daraufhin denselben Weg wie beim regulären Ablauf. Der
+ * Mandant bleibt bestehen, seine Daten auch – wer sie los sein will, baut ihn
+ * unter Unternehmen ab. Ein späterer Grundkauf hebt die Befristung wieder auf.
  */
 export async function revokeDemoAction(data: FormData): Promise<void> {
   const accessId = field(data, "accessId");
@@ -953,18 +921,17 @@ export async function revokeDemoAction(data: FormData): Promise<void> {
   if (!access.companyId) {
     // Altbestand: Freigaben vor der Umstellung hingen am geteilten
     // Demomandanten der App, den es nicht mehr gibt.
-    fehler = "Zu diesem Eintrag gibt es keinen Demomandanten – Freigabe von vor der Umstellung.";
+    fehler = "Zu diesem Eintrag gibt es keinen Mandanten – Freigabe von vor der Umstellung.";
   } else {
-    const updated = await updateCompany(access.companyId, (current) => ({
+    const beendet = await updateCompany(access.companyId, (current) => ({
       ...current,
-      status: "suspended",
-      suspendedReason: "Demozugang entzogen",
+      demoExpiresAt: new Date().toISOString(),
     }));
 
-    if (!updated) {
-      fehler = "Der Demomandant wurde bereits aus dem Adminbereich entfernt.";
+    if (!beendet) {
+      fehler = "Der Mandant wurde bereits aus dem Adminbereich entfernt.";
     } else {
-      const outcome = await runAppSync(updated);
+      const outcome = await runAppSync(beendet);
       if (!outcome.ok) fehler = outcome.error;
     }
   }
@@ -973,6 +940,7 @@ export async function revokeDemoAction(data: FormData): Promise<void> {
     ...current,
     status: fehler ? "fehlgeschlagen" : "widerrufen",
     error: fehler,
+    expiresAt: fehler ? current.expiresAt : new Date().toISOString(),
   }));
   revalidateAdmin(access.companyId ?? undefined);
 }
@@ -1939,7 +1907,16 @@ async function runStep(company: Company, stepId: ProvisioningStepId): Promise<St
 }
 
 /**
- * Provisioniert einen frisch angelegten Mandanten in einem Zug.
+ * Provisioniert einen Mandanten in einem Zug.
+ *
+ * Erledigte Schritte werden übersprungen – der Lauf ist damit wiederholbar und
+ * greift auch bei einem Mandanten, dessen Datenbank und Bucket von Hand
+ * quittiert wurden: Ohne Provisionierungszugänge in der Umgebung bleibt dann
+ * nur die Meldung an die App, und die braucht nur das gemeinsame Geheimnis.
+ *
+ * `app-sync` läuft IMMER, auch wenn er als erledigt dasteht. Er trägt den
+ * heutigen Stand des Mandanten – Module, Paket und die Befristung einer Demo.
+ * Übersprungen erführe die App von einer neuen Laufzeit nie.
  *
  * Beim ersten Fehlschlag ist Schluss: Ein Bucket ohne Datenbank oder eine
  * Meldung an die App ohne lesbare Datenbank wäre schlimmer als ein halb
@@ -1956,6 +1933,9 @@ async function provisionCompany(
   let letzteNotiz = "";
 
   for (const stepId of PROVISIONING_ORDER) {
+    const erledigt = current.provisioning.find((step) => step.id === stepId)?.status === "done";
+    if (erledigt && stepId !== "app-sync") continue;
+
     const issue = stepConfigIssue(stepId);
     if (issue) return { ok: false, error: issue };
 

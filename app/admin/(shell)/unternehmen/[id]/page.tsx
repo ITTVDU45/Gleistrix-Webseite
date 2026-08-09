@@ -182,6 +182,22 @@ export default async function CompanyDetailPage({ params }: Props) {
         </div>
       ) : null}
 
+      {/* Ohne diesen Hinweis wäre nicht erklärbar, warum ein aktiver Mandant
+          sich nicht anmelden kann: Die Befristung wirkt in der App, nicht hier. */}
+      {company.demoExpiresAt ? (
+        <div className="rounded-xl border border-amber-500/30 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <strong className="font-medium">
+            {new Date(company.demoExpiresAt).getTime() <= Date.now()
+              ? "Demozugang abgelaufen."
+              : "Demozugang befristet."}
+          </strong>{" "}
+          Die App lässt Anmeldungen{" "}
+          {new Date(company.demoExpiresAt).getTime() <= Date.now() ? "seit" : "bis"}{" "}
+          {formatDateTime(company.demoExpiresAt)} zu. Die Laufzeit wird unter Demo-Zugang gesetzt;
+          ein freigegebener Grundkauf hebt sie auf.
+        </div>
+      ) : null}
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Section
           title="Mandant & Infrastruktur"

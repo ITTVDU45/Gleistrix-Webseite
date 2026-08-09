@@ -13,7 +13,6 @@ import assert from "node:assert/strict";
 
 const {
   applyStepResult,
-  demoSlugFor,
   provisioningIsCurrent,
   provisioningPlan,
   reconcileProvisioning,
@@ -240,18 +239,4 @@ const gesperrt = applyStepResult({ ...mandant, status: "suspended" }, "app-sync"
 });
 assert.equal(gesperrt.status, "suspended", "applyStepResult darf keine Sperre aufheben");
 
-// 13. Die Kennung eines Demomandanten traegt den Praefix und weicht der
-// Kennung des spaeteren echten Mandanten aus.
-const demo = demoSlugFor("Muster Bau GmbH", ["muster-bau-gmbh"]);
-assert.deepEqual(demo, { ok: true, slug: "demo-muster-bau-gmbh" });
-
-// 14. Zweite Demo derselben Firma: durchnummeriert statt abgelehnt. Ohne das
-// koennte ein Interessent nur ein einziges Mal eine Demo bekommen.
-const zweite = demoSlugFor("Muster Bau GmbH", ["demo-muster-bau-gmbh"]);
-assert.deepEqual(zweite, { ok: true, slug: "demo-muster-bau-gmbh-2" });
-
-// 15. Ein unbrauchbarer Name meldet die wahre Ursache, nicht "vergeben".
-const leer = demoSlugFor("!!!", []);
-assert.equal(leer.ok, false, "Ohne verwertbaren Namen darf keine Kennung entstehen");
-
-console.log("tenant.check: alle 15 Pruefungen bestanden");
+console.log("tenant.check: alle 13 Pruefungen bestanden");
