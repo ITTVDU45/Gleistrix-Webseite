@@ -1734,6 +1734,7 @@ import {
   ROLE_LABEL,
   isCompanyUserRole,
   isTrigger,
+  triggerLinkTarget,
   unknownPlaceholders,
 } from "@/lib/admin/notification-templates";
 import {
@@ -1907,14 +1908,25 @@ function templateFromForm(data: FormData): TemplateInput | { error: string } {
   if (!body) return { error: "Bitte einen Text angeben." };
 
   const actionLabel = field(data, "actionLabel");
-  const actionUrl = field(data, "actionUrl");
+  const trigger = field(data, "trigger");
+
+  // Auslöser mit Token-Link bestimmen ihr Knopf-Ziel selbst. Der Empfänger hat
+  // zu diesem Zeitpunkt noch kein Passwort – ein Knopf auf die Anmeldemaske
+  // wäre eine Sackgasse, und genau die ist von Hand schnell eingetragen.
+  const vorgabe = triggerLinkTarget(isTrigger(trigger) ? trigger : null);
+  const actionUrl = vorgabe ?? field(data, "actionUrl");
+
+  if (vorgabe && actionLabel === "") {
+    return {
+      error: "Dieser Auslöser verschickt einen Passwortlink – bitte den Knopf beschriften.",
+    };
+  }
+
   // Ein halber Knopf ist immer falsch: entweder führt er nirgendwohin, oder er
   // ist unbeschriftet. Beides fällt erst beim Kunden auf.
   if (Boolean(actionLabel) !== Boolean(actionUrl)) {
     return { error: "Für den Knopf braucht es Beschriftung UND Ziel – oder beides leer." };
   }
-
-  const trigger = field(data, "trigger");
 
   return {
     name,

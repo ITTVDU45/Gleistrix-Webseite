@@ -17,6 +17,7 @@ import {
   renderNotification,
   sampleValues,
   triggerLabel,
+  triggerLinkTarget,
   unknownPlaceholders,
 } from "@/lib/admin/notification-templates";
 import type { NotificationTemplate } from "@/types/admin";
@@ -93,10 +94,20 @@ export default function NotificationTemplateManager({
     });
   };
 
-  const preview = useMemo(() => renderNotification(draft, sampleValues()), [draft]);
+  // Auslöser mit Token-Link geben das Knopf-Ziel vor; die Server Action erzwingt
+  // dasselbe noch einmal. Abgeleitet statt in den Entwurf geschrieben: sonst
+  // zeigte eine ältere Vorlage mit falsch eingetragenem Ziel es weiter an, bis
+  // jemand das Feld anfasst.
+  const linkTarget = triggerLinkTarget(draft.trigger);
+  const effective = useMemo(
+    () => (linkTarget ? { ...draft, actionUrl: linkTarget } : draft),
+    [draft, linkTarget],
+  );
+
+  const preview = useMemo(() => renderNotification(effective, sampleValues()), [effective]);
   const unknown = useMemo(
-    () => unknownPlaceholders(draft.subject, draft.title, draft.body, draft.actionUrl),
-    [draft.subject, draft.title, draft.body, draft.actionUrl],
+    () => unknownPlaceholders(effective.subject, effective.title, effective.body, effective.actionUrl),
+    [effective],
   );
 
   const register = (target: InsertTarget) => ({
@@ -393,10 +404,15 @@ export default function NotificationTemplateManager({
                     placeholder="{{app}}"
                     className={CONTROL_CLASS}
                     {...register("actionUrl")}
+                    {...(linkTarget
+                      ? { value: linkTarget, readOnly: true, "aria-readonly": true }
+                      : {})}
                   />
                 </div>
                 <p className="text-xs text-muted-foreground sm:col-span-2">
-                  Beide Felder leer lassen: dann steht in der Mail kein Knopf.
+                  {linkTarget
+                    ? "Dieser Auslöser liefert einen einmaligen Token-Link. Der Knopf führt damit direkt zur Passwortvergabe – nicht auf die Anmeldemaske, wo der Empfänger noch kein Passwort hat. Nur die Beschriftung ist frei."
+                    : "Beide Felder leer lassen: dann steht in der Mail kein Knopf."}
                 </p>
               </div>
 
