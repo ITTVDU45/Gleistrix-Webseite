@@ -371,6 +371,7 @@ export default async function CompanyDetailPage({ params }: Props) {
       >
         <SendNotificationForm
           companyId={company.id}
+          companyName={company.name}
           contactName={company.contactName}
           contactEmail={company.contactEmail}
           templates={templates}
