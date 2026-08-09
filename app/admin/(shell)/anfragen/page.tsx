@@ -3,6 +3,7 @@ import { Mail, Phone, UserCheck } from "lucide-react";
 
 import { createContactFromLeadAction, setLeadStatusAction } from "@/app/admin/actions";
 import AppointmentForm from "@/components/admin/AppointmentForm";
+import LeadRowMenu from "@/components/admin/LeadRowMenu";
 import {
   EmptyState,
   LeadStatusPill,
@@ -158,6 +159,8 @@ export default async function AdminLeadsPage() {
                         </Button>
                       </form>
                     )}
+
+                    <LeadRowMenu lead={lead} />
                   </div>
                 </div>
 

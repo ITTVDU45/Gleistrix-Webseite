@@ -32,6 +32,7 @@ import {
   addDemoAccess,
   deleteCompany,
   deleteContact,
+  deleteLead,
   getLead,
   getPurchases,
   insertCompany,
@@ -523,6 +524,39 @@ export async function setLeadAppointmentAction(
   return {
     success: `Termin auf ${parsed.toLocaleString("de-DE", { dateStyle: "medium", timeStyle: "short" })} gesetzt.`,
   };
+}
+
+/** Stammdaten einer Anfrage korrigieren – Termin und Notiz pflegt das Formular darunter. */
+export async function saveLeadAction(_prev: FormState, data: FormData): Promise<FormState> {
+  const leadId = field(data, "leadId");
+  const company = field(data, "company");
+  const contactName = field(data, "contactName");
+  const email = field(data, "email");
+
+  if (!company) return { error: "Firmenname fehlt." };
+  if (!contactName) return { error: "Bitte den Ansprechpartner angeben." };
+  if (!email.includes("@")) return { error: "Bitte eine gültige E-Mail-Adresse angeben." };
+
+  const updated = await updateLead(leadId, (lead) => ({
+    ...lead,
+    company,
+    contactName,
+    email,
+    phone: field(data, "phone") || undefined,
+    message: field(data, "message") || undefined,
+  }));
+  if (!updated) return { error: "Unbekannte Anfrage." };
+
+  revalidateAdmin();
+  return { success: "Anfrage gespeichert." };
+}
+
+export async function deleteLeadAction(data: FormData): Promise<void> {
+  const leadId = field(data, "leadId");
+  if (!leadId) return;
+
+  await deleteLead(leadId);
+  revalidateAdmin();
 }
 
 /* ---------------------------------------------------------------- Kontakte */
