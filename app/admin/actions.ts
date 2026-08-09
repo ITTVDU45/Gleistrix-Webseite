@@ -13,6 +13,7 @@ import {
   grantDemo,
   revokeDemo,
 } from "@/lib/admin/app-sync";
+import { saveImageAsset } from "@/lib/admin/db/assets";
 import { getModule } from "@/lib/admin/modules";
 import {
   discardDraft,
@@ -903,11 +904,21 @@ export async function savePricingModuleAction(
     };
   }
 
-  // Bilder liegen unter /public – eine fremde Domain würde next/image ohne
-  // Konfiguration abweisen, deshalb nur absolute Pfade.
-  const imageSrc = field(data, "imageSrc").trim();
-  if (imageSrc && !imageSrc.startsWith("/")) {
-    return { error: "Bildpfad muss mit / beginnen, z. B. /module/lager.png." };
+  // Reihenfolge: ein neuer Upload gewinnt, sonst entscheidet das Häkchen, sonst
+  // bleibt das bisherige Bild stehen.
+  let imageSrc = existing?.imageSrc;
+  const upload = data.get("imageFile");
+  if (upload instanceof File && upload.size > 0) {
+    try {
+      const stored = await saveImageAsset(upload);
+      if (!stored.ok) return { error: stored.error };
+      imageSrc = stored.src;
+    } catch (error) {
+      console.error("Modulbild konnte nicht gespeichert werden:", error);
+      return { error: "Das Bild konnte nicht gespeichert werden. Bitte erneut versuchen." };
+    }
+  } else if (checked(data, "removeImage")) {
+    imageSrc = undefined;
   }
 
   const next: PricingModule = {
@@ -918,7 +929,7 @@ export async function savePricingModuleAction(
     price: price.value,
     features: parseLines(field(data, "features")),
     extras: parseLines(field(data, "extras")),
-    imageSrc: imageSrc || undefined,
+    imageSrc,
     iconKey: iconKey.value,
     isActive: checked(data, "isActive"),
     usage,

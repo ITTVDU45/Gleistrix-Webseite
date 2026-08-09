@@ -6,6 +6,9 @@ const nextConfig: NextConfig = {
     formats: ["image/avif", "image/webp"],
   },
   experimental: {
+    // Modulbilder gehen als Server Action hoch; der Standard von 1 MB wäre für
+    // ein Screenshot-PNG zu knapp. Die Prüfung auf 4 MB steckt in assets.ts.
+    serverActions: { bodySizeLimit: "5mb" },
     optimizePackageImports: [
       "lucide-react",
       "framer-motion",
