@@ -8,7 +8,12 @@ import { provisioningIsCurrent, reconcileProvisioning, statusFor } from "../tena
 import { insertBrochureRequests, brochureRequestsEmpty } from "./brochure";
 import { COLLECTIONS, col } from "./collections";
 import { companiesEmpty, insertCompanies, listCompanies, patchCompany } from "./companies";
+import { companyUsersEmpty, insertCompanyUsers } from "./companyUsers";
 import { contactsEmpty, insertContacts } from "./contacts";
+import {
+  insertNotificationTemplates,
+  notificationTemplatesEmpty,
+} from "./notificationTemplates";
 import { demoAccessEmpty, insertDemoAccessEntries } from "./demoAccess";
 import { insertLeads, leadsEmpty } from "./leads";
 import { draftEmpty, insertRelease, releasesEmpty, writeDraft } from "./pricing";
@@ -143,6 +148,10 @@ async function migrateLegacyDocument(): Promise<boolean> {
 async function distribute(store: Partial<AdminStore>): Promise<void> {
   await Promise.all([
     fill(companiesEmpty, () => insertCompanies(store.companies ?? [])),
+    fill(companyUsersEmpty, () => insertCompanyUsers(store.companyUsers ?? [])),
+    fill(notificationTemplatesEmpty, () =>
+      insertNotificationTemplates(store.notificationTemplates ?? []),
+    ),
     fill(packagesEmpty, () => insertPackages(store.packages ?? [])),
     fill(usageEmpty, () => insertUsage(store.usage ?? [])),
     fill(supportAccessEmpty, () => insertSupportAccessEntries(store.supportAccess ?? [])),
@@ -177,6 +186,8 @@ async function seedIfEmpty(): Promise<void> {
 async function ensureIndexes(): Promise<void> {
   await Promise.all([
     index(COLLECTIONS.companies, { createdAt: 1 }),
+    index(COLLECTIONS.companyUsers, { companyId: 1, invitedAt: -1 }),
+    index(COLLECTIONS.notificationTemplates, { updatedAt: -1 }),
     index(COLLECTIONS.tenantPackages, { createdAt: 1 }),
     index(COLLECTIONS.leads, { createdAt: -1 }),
     index(COLLECTIONS.contacts, { createdAt: -1 }),

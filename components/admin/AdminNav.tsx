@@ -12,6 +12,7 @@ import {
   Package,
   PlayCircle,
   Receipt,
+  Settings,
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ const ITEMS = [
   { href: "/admin/demo-zugang", label: "Demo-Zugang", icon: PlayCircle, exact: false },
   { href: "/admin/pakete", label: "Pakete", icon: Package, exact: false },
   { href: "/admin/module", label: "Module", icon: Boxes, exact: false },
+  { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings, exact: false },
 ] as const;
 
 export default function AdminNav() {
