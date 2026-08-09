@@ -9,7 +9,12 @@ import { EmptyState, Section } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { formatPriceEUR } from "@/data/pricing";
 import { getModule } from "@/lib/admin/modules";
-import { getDraftPricing, isModuleInUse, moduleUsage } from "@/lib/admin/pricing";
+import {
+  getDraftPricing,
+  isModuleInUse,
+  moduleUsage,
+  suggestionList,
+} from "@/lib/admin/pricing";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -56,7 +61,13 @@ export default async function AddonDetailPage({ params }: Props) {
         title="Add-on bearbeiten"
         description="Änderungen landen im Entwurf und werden erst mit der Freigabe öffentlich."
       >
-        <ModuleForm module={addon} />
+        <ModuleForm
+          module={addon}
+          featureSuggestions={suggestionList(
+            config.modules.flatMap((module) => module.features),
+          )}
+          extraSuggestions={suggestionList(config.modules.flatMap((module) => module.extras))}
+        />
       </Section>
 
       <Section

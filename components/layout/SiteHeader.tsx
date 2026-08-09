@@ -113,7 +113,14 @@ export default function SiteHeader() {
               })}
             </nav>
 
-            <div className="hidden lg:block">
+            <div className="hidden items-center gap-2 lg:flex">
+              <Button
+                asChild
+                variant="ghost"
+                className="h-11 rounded-full border border-white/70 bg-white/55 px-5 text-[0.82rem] font-semibold text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_20px_-16px_rgba(15,23,42,0.4)] backdrop-blur-xl transition hover:bg-white/80 hover:text-slate-950"
+              >
+                <Link href="/admin/login">Anmelden</Link>
+              </Button>
               <Button
                 asChild
                 className="group h-11 rounded-full border border-white/35 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-5 text-white shadow-[0_12px_28px_-14px_rgba(79,70,229,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500 hover:shadow-[0_18px_34px_-14px_rgba(79,70,229,0.9)]"
@@ -188,6 +195,15 @@ export default function SiteHeader() {
                   </motion.div>
                 ))}
 
+                <Button
+                  asChild
+                  variant="ghost"
+                  className="mt-2 h-12 w-full rounded-xl border border-white/70 bg-white/60 text-slate-800 hover:bg-white/80 hover:text-slate-950"
+                >
+                  <Link href="/admin/login" onClick={() => setMenuOpen(false)}>
+                    Anmelden
+                  </Link>
+                </Button>
                 <Button
                   asChild
                   className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white shadow-[0_14px_30px_-16px_rgba(79,70,229,0.9)] hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500"

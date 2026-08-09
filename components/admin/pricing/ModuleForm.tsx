@@ -7,13 +7,13 @@ import {
   savePricingModuleAction,
   type FormState,
 } from "@/app/admin/actions";
+import FeaturesPicker from "@/components/admin/pricing/FeaturesPicker";
 import { useDialogForm } from "@/components/admin/pricing/Modal";
 import {
   CHECKBOX_CLASS,
   Field,
   FormMessage,
   SELECT_CLASS,
-  TEXTAREA_CLASS,
 } from "@/components/admin/pricing/ui";
 import { Mono } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
@@ -25,9 +25,18 @@ import type { PricingModule } from "@/types/pricing";
 const TIER_ORDER: ModuleTier[] = ["standard", "complex", "ai"];
 
 /** Ohne Modul legt das Formular ein neues an – nur dann ist die Kennung frei wählbar. */
-type Props = { module?: PricingModule };
+type Props = {
+  module?: PricingModule;
+  /** Bereits vergebene Leistungen bzw. Extras – als Auswahlvorschlag. */
+  featureSuggestions?: string[];
+  extraSuggestions?: string[];
+};
 
-export default function ModuleForm({ module }: Props) {
+export default function ModuleForm({
+  module,
+  featureSuggestions = [],
+  extraSuggestions = [],
+}: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     savePricingModuleAction,
     {},
@@ -131,13 +140,40 @@ export default function ModuleForm({ module }: Props) {
         />
       </Field>
 
-      <Field id={`${prefix}-features`} label="Merkmale" hint="Ein Merkmal je Zeile.">
-        <textarea
-          id={`${prefix}-features`}
+      <Field
+        id={`${prefix}-image`}
+        label="Bild"
+        hint="Pfad unter /public, z. B. /module/lagerverwaltung.png. Leer lassen zeigt nur das Icon."
+      >
+        <Input
+          id={`${prefix}-image`}
+          name="imageSrc"
+          defaultValue={module?.imageSrc ?? ""}
+          placeholder="/module/lagerverwaltung.png"
+        />
+      </Field>
+
+      <Field
+        id={`${prefix}-features`}
+        label="Leistungen"
+        hint="Der Umfang, den dieses Modul abdeckt."
+      >
+        <FeaturesPicker
           name="features"
-          className={TEXTAREA_CLASS}
-          rows={4}
-          defaultValue={module?.features.join("\n") ?? ""}
+          initial={module?.features ?? []}
+          suggestions={featureSuggestions}
+        />
+      </Field>
+
+      <Field
+        id={`${prefix}-extras`}
+        label="Extras"
+        hint="Zusätzliches über den Grundumfang hinaus."
+      >
+        <FeaturesPicker
+          name="extras"
+          initial={module?.extras ?? []}
+          suggestions={extraSuggestions}
         />
       </Field>
 

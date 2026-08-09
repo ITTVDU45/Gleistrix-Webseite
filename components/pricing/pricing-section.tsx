@@ -128,6 +128,18 @@ function ModuleCard({
         </span>
       </span>
 
+      {module.imageSrc ? (
+        <span className="relative mt-5 block aspect-[16/9] w-full overflow-hidden rounded-xl bg-slate-100">
+          <Image
+            src={module.imageSrc}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 100vw, 33vw"
+            className="object-cover"
+          />
+        </span>
+      ) : null}
+
       <strong className="mt-5 text-lg font-semibold tracking-tight text-slate-950">{module.title}</strong>
       <span className="mt-2 text-sm leading-relaxed text-slate-600">{module.description}</span>
       <span className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
@@ -138,6 +150,18 @@ function ModuleCard({
           </span>
         ))}
       </span>
+      {module.extras.length > 0 && (
+        <span className="mt-3 flex flex-wrap gap-1.5">
+          {module.extras.map((extra) => (
+            <span
+              key={extra}
+              className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-600"
+            >
+              {extra}
+            </span>
+          ))}
+        </span>
+      )}
       <span className="mt-auto pt-5 text-sm font-semibold text-indigo-700">+ {formatPriceEUR(module.price)} / Monat</span>
     </button>
   );
@@ -634,6 +658,17 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                           <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${selected ? "bg-indigo-600 text-white" : "bg-white/10 text-indigo-300"}`}>
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
                           </span>
+                          {module.imageSrc ? (
+                            <div className="relative mt-5 aspect-[21/9] w-full overflow-hidden rounded-xl bg-slate-100">
+                              <Image
+                                src={module.imageSrc}
+                                alt=""
+                                fill
+                                sizes="(max-width: 1024px) 100vw, 60vw"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : null}
                           <h3 className={`mt-5 text-2xl font-bold tracking-tight ${selected ? "text-slate-950" : "text-white"}`}>
                             {module.title}
                           </h3>
@@ -648,6 +683,18 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                               </span>
                             ))}
                           </div>
+                          {module.extras.length > 0 && (
+                            <div className="mt-4 flex flex-wrap gap-1.5">
+                              {module.extras.map((extra) => (
+                                <span
+                                  key={extra}
+                                  className={`rounded-full px-2.5 py-1 text-xs ${selected ? "bg-white text-slate-600" : "bg-white/10 text-slate-300"}`}
+                                >
+                                  {extra}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                         <button
                           type="button"

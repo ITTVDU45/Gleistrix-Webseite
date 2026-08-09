@@ -126,6 +126,11 @@ export function parseCount(raw: string, label: string, min = 0): ParseResult<num
   return { ok: true, value };
 }
 
+/** Bereits vergebene Werte als Auswahlvorschlag – ohne Dubletten, alphabetisch. */
+export function suggestionList(values: string[]): string[] {
+  return [...new Set(values)].sort((a, b) => a.localeCompare(b, "de"));
+}
+
 /** Zeilenweise Eingabe → Liste, leere Zeilen fallen weg. */
 export function parseLines(raw: string): string[] {
   return raw

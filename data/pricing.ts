@@ -79,6 +79,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Materialien und Betriebsmittel anlegen, planen und Projekten zuordnen.",
       price: 10,
       features: ["Projektzuordnung", "Bedarfsübersicht"],
+      extras: [],
       iconKey: "boxes",
       isActive: true,
     },
@@ -89,6 +90,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Urlaub, Krankheit, Freistellungen und Fortbildungen zentral erfassen.",
       price: 10,
       features: ["Abwesenheitsarten", "Mitarbeiterübersicht"],
+      extras: [],
       iconKey: "umbrella",
       isActive: true,
     },
@@ -99,6 +101,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Fahrzeuge, Kennzeichen, Dokumente und Projektzuordnungen verwalten.",
       price: 10,
       features: ["Fahrzeugstammdaten", "Einsatzzuordnung"],
+      extras: [],
       iconKey: "truck",
       isActive: true,
     },
@@ -109,6 +112,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Nachweise und Qualifikationen deiner Mitarbeitenden im Blick behalten.",
       price: 10,
       features: ["Gültigkeiten", "Qualifikationsmatrix"],
+      extras: [],
       iconKey: "badge-check",
       isActive: true,
     },
@@ -119,6 +123,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Personenbezogene Unterlagen strukturiert und rollenbasiert ablegen.",
       price: 10,
       features: ["Dokumentenablage", "Zugriffsrechte"],
+      extras: [],
       iconKey: "file-archive",
       isActive: true,
     },
@@ -129,6 +134,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Kontakte, Projekte und relevante Informationen je Auftraggeber bündeln.",
       price: 10,
       features: ["Kontaktstammdaten", "Projektübersicht"],
+      extras: [],
       iconKey: "building",
       isActive: true,
     },
@@ -139,6 +145,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Partnerunternehmen, Dokumente und Einsätze zentral koordinieren.",
       price: 10,
       features: ["Partnerverwaltung", "Einsatzzuordnung"],
+      extras: [],
       iconKey: "network",
       isActive: true,
     },
@@ -149,6 +156,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Wichtige Termine, Prüfungen und Fristen zuverlässig nachverfolgen.",
       price: 10,
       features: ["Fristenübersicht", "Erinnerungen"],
+      extras: [],
       iconKey: "calendar-clock",
       isActive: true,
     },
@@ -159,6 +167,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       description: "Wiederkehrende Projektstrukturen schnell und einheitlich anlegen.",
       price: 10,
       features: ["Vorlagenbibliothek", "Schnellstart"],
+      extras: [],
       iconKey: "copy",
       isActive: true,
     },
@@ -170,6 +179,7 @@ export const DEFAULT_PRICING: PricingConfig = {
         "Mitarbeiter, Teams, Fahrzeuge und Nachunternehmen nach Zeitraum und Rolle koordinieren.",
       price: 25,
       features: ["Schicht- und Rollenplanung", "Ressourcenkoordination"],
+      extras: [],
       iconKey: "board",
       isActive: true,
     },
@@ -181,6 +191,7 @@ export const DEFAULT_PRICING: PricingConfig = {
         "Arbeitszeiten, Zuschläge und Leistungen für die projektbezogene Abrechnung zusammenführen.",
       price: 25,
       features: ["Leistungserfassung", "Abrechnungsvorbereitung"],
+      extras: [],
       iconKey: "receipt",
       isActive: true,
     },
@@ -192,6 +203,7 @@ export const DEFAULT_PRICING: PricingConfig = {
         "Bestände, Werkzeuge und Betriebsmittel mit Standorten und Zuständen digital führen.",
       price: 25,
       features: ["Bestandsbewegungen", "QR-Code-Zuordnung"],
+      extras: [],
       iconKey: "warehouse",
       isActive: true,
       usage: {
@@ -210,6 +222,7 @@ export const DEFAULT_PRICING: PricingConfig = {
         "Umsätze, Kosten, Budgets und offene Posten als Grundlage für das Controlling bündeln.",
       price: 25,
       features: ["Projektbudgets", "Kennzahlen & offene Posten"],
+      extras: [],
       iconKey: "chart",
       isActive: true,
     },
@@ -226,6 +239,7 @@ export const DEFAULT_PRICING: PricingConfig = {
         "Rechnungsdaten, Dokumente und E-Mails auslesen",
         "Projektinformationen automatisch zusammenfassen",
       ],
+      extras: [],
       iconKey: "bot",
       isActive: true,
     },
@@ -507,7 +521,12 @@ export function migratePricing(stored: unknown): PricingConfig {
   const raw = stored as LegacyConfig;
 
   if (Array.isArray((raw as Partial<PricingConfig>).packages)) {
-    return stored as PricingConfig;
+    const config = stored as PricingConfig;
+    // `extras` kam später dazu – ältere Dokumente haben das Feld nicht.
+    return {
+      ...config,
+      modules: config.modules.map((module) => ({ ...module, extras: module.extras ?? [] })),
+    };
   }
 
   // Ohne die Annotation wird der Typ zur Union beider Array-Typen und der
