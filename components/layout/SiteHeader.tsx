@@ -119,7 +119,9 @@ export default function SiteHeader() {
                 variant="ghost"
                 className="h-11 rounded-full border border-white/70 bg-white/55 px-5 text-[0.82rem] font-semibold text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.9),0_8px_20px_-16px_rgba(15,23,42,0.4)] backdrop-blur-xl transition hover:bg-white/80 hover:text-slate-950"
               >
-                <Link href="/admin/login">Anmelden</Link>
+                <Link href="https://app.gleistrix.de/login" target="_blank" rel="noopener noreferrer">
+                  Anmelden
+                </Link>
               </Button>
               <Button
                 asChild
@@ -200,7 +202,12 @@ export default function SiteHeader() {
                   variant="ghost"
                   className="mt-2 h-12 w-full rounded-xl border border-white/70 bg-white/60 text-slate-800 hover:bg-white/80 hover:text-slate-950"
                 >
-                  <Link href="/admin/login" onClick={() => setMenuOpen(false)}>
+                  <Link
+                    href="https://app.gleistrix.de/login"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setMenuOpen(false)}
+                  >
                     Anmelden
                   </Link>
                 </Button>
