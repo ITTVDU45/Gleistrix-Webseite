@@ -68,7 +68,13 @@ import type {
   PricingTexts,
 } from "@/types/pricing";
 
-export type FormState = { error?: string; success?: string; supportUrl?: string };
+export type FormState = {
+  error?: string;
+  success?: string;
+  supportUrl?: string;
+  /** Nur beim Anlegen aus einem Dialog gesetzt – der Aufrufer wählt den neuen Mandanten aus. */
+  createdCompany?: { id: string; name: string; contactEmail: string };
+};
 
 function field(data: FormData, name: string): string {
   const value = data.get(name);
@@ -148,6 +154,9 @@ export async function createCompanyAction(
   // Nicht angehakte Checkboxen schicken gar nichts – daher „on" prüfen, nicht
   // auf einen fehlenden Wert schließen.
   const autoWelcomeMail = field(data, "autoWelcomeMail") === "on";
+  // Aus einem Dialog heraus angelegt: Der Aufrufer bleibt auf seiner Seite und
+  // braucht den neuen Mandanten zurück, statt auf die Detailseite zu springen.
+  const stay = field(data, "stay") === "1";
 
   if (!name) return { error: "Firmenname fehlt." };
   if (!contactEmail.includes("@")) return { error: "Bitte eine gültige Kontakt-E-Mail angeben." };
@@ -186,6 +195,12 @@ export async function createCompanyAction(
 
   await insertCompany(company);
   revalidateAdmin(company.id);
+  if (stay) {
+    return {
+      success: `${company.name} angelegt – der Mandant steht in der Provisionierung.`,
+      createdCompany: { id: company.id, name: company.name, contactEmail: company.contactEmail },
+    };
+  }
   redirect(`/admin/unternehmen/${company.id}`);
 }
 

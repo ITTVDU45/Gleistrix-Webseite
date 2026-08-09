@@ -25,8 +25,9 @@ export const metadata = { title: "Demo-Zugang" };
 
 export default async function AdminDemoAccessPage() {
   // readStore statt getDemoAccess + getLeads: das Formular braucht zusätzlich
-  // die angelegten Unternehmen, und readStore holt ohnehin alles parallel.
-  const { demoAccess, leads, companies } = await readStore();
+  // die angelegten Unternehmen und – für den Anlege-Dialog – die Pakete, und
+  // readStore holt ohnehin alles parallel.
+  const { demoAccess, leads, companies, packages } = await readStore();
   const access = [...demoAccess].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const issue = appSyncIssue();
 
@@ -82,6 +83,9 @@ export default async function AdminDemoAccessPage() {
             name: company.name,
             contactEmail: company.contactEmail,
           }))}
+          packages={packages
+            .filter((pkg) => pkg.isPublished)
+            .map((pkg) => ({ id: pkg.id, name: pkg.name }))}
           defaultDays={DEFAULT_DEMO_DAYS}
           maxDays={MAX_DEMO_DAYS}
           configIssue={issue ? APP_SYNC_ISSUE_TEXT[issue] : null}

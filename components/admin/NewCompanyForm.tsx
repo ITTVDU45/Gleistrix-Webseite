@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 
 import { createCompanyAction, type FormState } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,15 @@ import { slugify } from "@/lib/admin/tenant";
 
 type Props = {
   packages: { id: string; name: string }[];
+  /** Im Dialog: nach dem Anlegen nicht auf die Mandanten-Detailseite springen. */
+  stay?: boolean;
+  onCreated?: (company: { id: string; name: string; contactEmail: string }) => void;
 };
 
 const SELECT_CLASS =
   "h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
 
-export default function NewCompanyForm({ packages }: Props) {
+export default function NewCompanyForm({ packages, stay, onCreated }: Props) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     createCompanyAction,
     {},
@@ -26,8 +29,17 @@ export default function NewCompanyForm({ packages }: Props) {
   // Die Kennung folgt dem Firmennamen, bis sie einmal von Hand geändert wurde.
   const slug = slugOverride || slugify(name);
 
+  // Abhängigkeit ist das ganze state-Objekt: Zweimal derselbe Mandant kommt
+  // nicht vor, aber so bleibt die Meldung an den Aufrufer an den Lauf gebunden.
+  const created = state.createdCompany;
+  useEffect(() => {
+    if (created) onCreated?.(created);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- onCreated ist beim Aufrufer nicht stabil
+  }, [created]);
+
   return (
     <form action={formAction} className="space-y-4">
+      {stay ? <input type="hidden" name="stay" value="1" /> : null}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">Firmenname</Label>
