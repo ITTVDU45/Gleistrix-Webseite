@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { href: "/#module", label: "Module" },
   { href: "/#ki-agenten", label: "KI-Agenten" },
   { href: "/preise", label: "Preise" },
-  { href: "/#blog", label: "News & Ratgeber" },
+  { href: "/blog", label: "News & Ratgeber" },
   { href: "/ueber-uns", label: "Kontakt" },
 ] as const;
 

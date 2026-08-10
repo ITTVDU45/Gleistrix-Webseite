@@ -9,6 +9,7 @@ import {
   FileText,
   Inbox,
   LayoutDashboard,
+  Newspaper,
   Package,
   PlayCircle,
   Receipt,
@@ -27,6 +28,7 @@ const ITEMS = [
   { href: "/admin/demo-zugang", label: "Demo-Zugang", icon: PlayCircle, exact: false },
   { href: "/admin/pakete", label: "Pakete", icon: Package, exact: false },
   { href: "/admin/module", label: "Module", icon: Boxes, exact: false },
+  { href: "/admin/blog", label: "Blog & News", icon: Newspaper, exact: false },
   { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings, exact: false },
 ] as const;
 

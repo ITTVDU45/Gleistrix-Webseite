@@ -202,7 +202,17 @@ async function ensureIndexes(): Promise<void> {
     index(COLLECTIONS.pricingModules, { order: 1 }),
     index(COLLECTIONS.pricingIntegrations, { order: 1 }),
     index(COLLECTIONS.pricingReleases, { publishedAt: -1 }),
+    index(COLLECTIONS.blogSources, { createdAt: 1 }),
+    index(COLLECTIONS.blogSuggestions, { createdAt: 1 }),
+    index(COLLECTIONS.blogArticles, { createdAt: 1 }),
+    // Die öffentliche Adresse muss eindeutig bleiben, sonst entscheidet der
+    // Zufall, welcher Artikel unter /blog/<slug> erscheint.
+    uniqueIndex(COLLECTIONS.blogArticles, { slug: 1 }),
   ]);
+}
+
+async function uniqueIndex(name: string, keys: IndexSpecification): Promise<void> {
+  await (await col(name)).createIndex(keys, { unique: true });
 }
 
 /** createIndex ist idempotent – ein zweiter Aufruf mit gleichem Schlüssel tut nichts. */

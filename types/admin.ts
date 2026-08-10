@@ -1,3 +1,4 @@
+import type { BlogArticle, BlogSource, BlogSuggestion } from "./blog";
 import type { LandingModule, LandingModuleTexts } from "./landing";
 import type { PricingConfig } from "./pricing";
 
@@ -361,4 +362,10 @@ export type AdminStore = {
   landingModules?: LandingModule[];
   /** Kopf der Modul-Sektion. Fehlt er, greift der Auslieferungszustand. */
   landingModuleTexts?: LandingModuleTexts;
+  /** Quellen des Blog-Agenten: Links, eingefügte Texte, hochgeladene Dateien. */
+  blogSources?: BlogSource[];
+  /** Themenvorschläge, die die KI aus den Quellen gezogen hat. */
+  blogSuggestions?: BlogSuggestion[];
+  /** Blogartikel. Leer ⇒ Auslieferungszustand aus data/blog.ts. */
+  blogArticles?: BlogArticle[];
 };

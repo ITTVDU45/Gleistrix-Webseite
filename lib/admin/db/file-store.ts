@@ -71,6 +71,11 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
     // data/landingModules.ts, nicht hier.
     landingModules: parsed.landingModules,
     landingModuleTexts: parsed.landingModuleTexts,
+    // Blog: Quellen und Vorschläge starten leer, Artikel fallen bei leerer
+    // Liste auf data/blog.ts zurück (siehe lib/admin/blog/store.ts).
+    blogSources: parsed.blogSources ?? [],
+    blogSuggestions: parsed.blogSuggestions ?? [],
+    blogArticles: parsed.blogArticles ?? [],
   };
 }
 

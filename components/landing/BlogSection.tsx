@@ -1,82 +1,32 @@
-"use client";
-import Image from "next/image";
 import Link from "next/link";
-import { CAROUSEL_CARD_ATTR, CarouselControls, useSnapCarousel } from "./carousel";
-import Reveal from "./Reveal";
+import { ArrowRight } from "lucide-react";
+
+import { listPublicArticles } from "@/lib/admin/blog/store";
+
+import BlogCarousel from "./BlogCarousel";
 import SectionHeading from "./SectionHeading";
 
-type BlogPost = {
-  category: string;
-  title: string;
-  teaser: string;
-  image: string;
-  imageAlt: string;
-  date: string;
-  readTime: string;
-};
-
-const BLOG_POSTS: BlogPost[] = [
-  {
-    category: "Disposition",
-    title: "Plantafel statt Excel: Trupps in Minuten disponieren",
-    teaser: "Warum standortbezogene Einsatzplanung Fahrtwege und Leerlauf spürbar reduziert.",
-    image: "/Standortbezogene Disposition.png",
-    imageAlt: "Standortbezogene Disposition auf der Gleistrix-Plantafel",
-    date: "3 Jul 2026",
-    readTime: "4 Min. Lesezeit",
-  },
-  {
-    category: "Sicherung",
-    title: "SIPO-Einsätze rechtssicher dokumentieren",
-    teaser: "So entstehen Nachweise für Sicherungsmaßnahmen direkt aus den Projektdaten.",
-    image: "/Sicherungsmaßnahmen & Bahnübergänge.png",
-    imageAlt: "Sicherungsmaßnahmen an Bahnübergängen",
-    date: "26 Jun 2026",
-    readTime: "5 Min. Lesezeit",
-  },
-  {
-    category: "Fuhrpark",
-    title: "Fahrzeuge und Technik ohne Doppelbelegung planen",
-    teaser: "Verfügbarkeiten, Wartung und Einsatzzuordnung an einem Ort zusammenführen.",
-    image: "/Fahrzeugplanung.png",
-    imageAlt: "Fahrzeug- und Technikplanung in Gleistrix",
-    date: "18 Jun 2026",
-    readTime: "3 Min. Lesezeit",
-  },
-  {
-    category: "Abrechnung",
-    title: "Von der erfassten Stunde zur X-Rechnung",
-    teaser: "Wie geprüfte Leistungen ohne Abtippen in den Rechnungsentwurf fließen.",
-    image: "/Rechnungen.png",
-    imageAlt: "Rechnungsstellung und Abrechnung in Gleistrix",
-    date: "11 Jun 2026",
-    readTime: "6 Min. Lesezeit",
-  },
-  {
-    category: "Zeiterfassung",
-    title: "Stundenzettel mobil und prüffähig erfassen",
-    teaser: "Digitale Zeiterfassung senkt Rückfragen und beschleunigt die Freigabe.",
-    image: "/Zeiterfassung.png",
-    imageAlt: "Mobile Zeiterfassung und Stundenzettel",
-    date: "4 Jun 2026",
-    readTime: "3 Min. Lesezeit",
-  },
-  {
-    category: "Auswertung",
-    title: "Deckungsbeitrag pro Projekt sichtbar machen",
-    teaser: "Kennzahlen zu Auslastung und Marge in Echtzeit statt am Monatsende.",
-    image: "/reports.png",
-    imageAlt: "Reports und Auswertungen in Gleistrix",
-    date: "28 Mai 2026",
-    readTime: "4 Min. Lesezeit",
-  },
-];
-
-export default function BlogSection() {
-  const { trackRef, scrollCarousel } = useSnapCarousel(6200);
+/**
+ * News-Sektion der Startseite.
+ *
+ * Die sechs Artikel standen früher als Konstante in dieser Datei. Sie kommen
+ * jetzt aus der Ablage – gepflegt im Adminbereich unter „Blog & News“, mit
+ * data/blog.ts als Auslieferungszustand. Damit ist die Sektion vor der ersten
+ * Pflege genauso vollständig wie vorher, führt aber auf echte Artikelseiten
+ * statt pauschal auf die Übersicht.
+ *
+ * Server-Komponente ohne Props: einsetzbar auf jeder Seite, die sie braucht.
+ */
+export default async function BlogSection() {
+  const posts = await listPublicArticles(6);
+  if (posts.length === 0) return null;
 
   return (
-    <section id="blog" aria-labelledby="blog-heading" className="scroll-mt-24 overflow-hidden bg-[#f8fafc] py-20 md:py-28">
+    <section
+      id="blog"
+      aria-labelledby="blog-heading"
+      className="scroll-mt-24 overflow-hidden bg-[#f8fafc] py-20 md:py-28"
+    >
       <div className="page-container">
         <SectionHeading
           eyebrow="Blog"
@@ -88,64 +38,16 @@ export default function BlogSection() {
           description="Aktuelle Einblicke zu Disposition, Sicherung, Abrechnung und vernetzten Bahn-Workflows."
         />
 
-        <div className="relative mt-12 md:mt-16">
-          <div
-            ref={trackRef}
-            className="scrollbar-none -mx-6 flex snap-x snap-mandatory gap-5 overflow-x-auto px-6 pb-5"
-            style={{
-              maskImage:
-                "linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent 0, black 64px, black calc(100% - 64px), transparent 100%)",
-            }}
-            aria-label="Aktuelle Blogartikel"
-          >
-            {BLOG_POSTS.map((post, index) => (
-              <Reveal
-                key={post.title}
-                delay={index * 0.05}
-                className="min-w-[86%] snap-center sm:min-w-[70%] md:min-w-[560px] lg:min-w-[680px]"
-              >
-                <Link
-                  href="/blog"
-                  {...{ [CAROUSEL_CARD_ATTR]: true }}
-                  className="group relative block h-[420px] overflow-hidden rounded-3xl border border-slate-900/8 bg-white shadow-soft-sm transition duration-300 hover:-translate-y-1 hover:shadow-soft md:h-[460px]"
-                >
-                  <Image
-                    src={post.image}
-                    alt={post.imageAlt}
-                    fill
-                    sizes="(min-width: 1024px) 680px, (min-width: 768px) 560px, 86vw"
-                    className="object-cover transition duration-700 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/25 via-transparent to-transparent" />
-                  <div className="absolute inset-x-4 bottom-4 rounded-2xl bg-white p-5 shadow-soft md:inset-x-6 md:bottom-6 md:p-6">
-                    <span className="inline-flex rounded-full bg-indigo-50 px-4 py-1.5 text-xs font-semibold text-indigo-700">
-                      {post.category}
-                    </span>
-                    <h3 className="mt-4 text-xl font-bold leading-tight tracking-tight text-slate-900 md:text-2xl">
-                      {post.title}
-                    </h3>
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-500 md:text-base">
-                      {post.teaser}
-                    </p>
-                    <div className="mt-5 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-400">
-                      <span>{post.date}</span>
-                      <span aria-hidden>·</span>
-                      <span>{post.readTime}</span>
-                    </div>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
+        <BlogCarousel posts={posts} />
 
-          <CarouselControls
-            onScroll={scrollCarousel}
-            prevLabel="Vorherige Blogartikel anzeigen"
-            nextLabel="Nächste Blogartikel anzeigen"
-            className="mt-7"
-          />
+        <div className="mt-10 flex justify-center">
+          <Link
+            href="/blog"
+            className="inline-flex items-center gap-2 rounded-full border border-slate-900/10 bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-soft-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-soft"
+          >
+            Alle Beiträge ansehen
+            <ArrowRight className="size-4" aria-hidden />
+          </Link>
         </div>
       </div>
     </section>

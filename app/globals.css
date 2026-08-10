@@ -222,3 +222,71 @@
     animation: none;
   }
 }
+
+
+/*
+ * Fließtext eines Blogartikels.
+ *
+ * Das Projekt bindet kein @tailwindcss/typography ein; für ein Tag-Set aus
+ * sieben Elementen ist eine eigene Regel kürzer als eine weitere Abhängigkeit.
+ * Die Auswahl deckt genau das ab, was lib/admin/blog/html.ts durchlässt.
+ */
+.prose-blog {
+  color: var(--color-slate-700, #334155);
+  font-size: 1.0625rem;
+  line-height: 1.75;
+}
+
+.prose-blog > * + * {
+  margin-top: 1.25rem;
+}
+
+.prose-blog h2 {
+  margin-top: 2.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-slate-900, #0f172a);
+}
+
+.prose-blog h3 {
+  margin-top: 2rem;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  color: var(--color-slate-900, #0f172a);
+}
+
+.prose-blog h4 {
+  margin-top: 1.75rem;
+  font-weight: 600;
+  color: var(--color-slate-900, #0f172a);
+}
+
+.prose-blog ul,
+.prose-blog ol {
+  padding-left: 1.5rem;
+}
+
+.prose-blog ul { list-style: disc; }
+.prose-blog ol { list-style: decimal; }
+
+.prose-blog li + li {
+  margin-top: 0.5rem;
+}
+
+.prose-blog strong {
+  font-weight: 600;
+  color: var(--color-slate-900, #0f172a);
+}
+
+.prose-blog blockquote {
+  border-left: 3px solid var(--color-indigo-500, #6366f1);
+  padding-left: 1.25rem;
+  font-style: italic;
+}
+
+.prose-blog a {
+  color: var(--color-indigo-700, #4338ca);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

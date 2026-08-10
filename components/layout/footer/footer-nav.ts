@@ -40,6 +40,7 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
   {
     heading: "Ressourcen",
     links: [
+      { href: "/blog", label: "News & Ratgeber" },
       { href: "/#faq-heading", label: "Hilfe" },
       { href: "/produkt", label: "Dokumentation" },
       { href: "/#datenschutz", label: "Datenschutz" },

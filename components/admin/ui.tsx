@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import type { BlogAnalysisStatus, BlogArticleStatus } from "@/types/blog";
 import type {
   CompanyStatus,
   DemoAccessStatus,
@@ -134,6 +135,50 @@ const PURCHASE_STATUS: Record<PurchaseStatus, { label: string; className: string
 
 export function PurchaseStatusPill({ status }: { status: PurchaseStatus }) {
   const config = PURCHASE_STATUS[status];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset",
+        config.className,
+      )}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+const BLOG_ARTICLE_STATUS: Record<BlogArticleStatus, { label: string; className: string }> = {
+  entwurf: { label: "Entwurf", className: "bg-slate-100 text-slate-600 ring-slate-500/20" },
+  geplant: { label: "Geplant", className: "bg-violet-50 text-violet-700 ring-violet-600/20" },
+  veroeffentlicht: {
+    label: "Veröffentlicht",
+    className: "bg-emerald-50 text-emerald-700 ring-emerald-600/20",
+  },
+};
+
+export function BlogArticleStatusPill({ status }: { status: BlogArticleStatus }) {
+  const config = BLOG_ARTICLE_STATUS[status];
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset",
+        config.className,
+      )}
+    >
+      {config.label}
+    </span>
+  );
+}
+
+const BLOG_ANALYSIS_STATUS: Record<BlogAnalysisStatus, { label: string; className: string }> = {
+  offen: { label: "Nicht ausgewertet", className: "bg-slate-100 text-slate-600 ring-slate-500/20" },
+  laeuft: { label: "Läuft", className: "bg-amber-50 text-amber-700 ring-amber-600/20" },
+  fertig: { label: "Ausgewertet", className: "bg-emerald-50 text-emerald-700 ring-emerald-600/20" },
+  fehler: { label: "Fehlgeschlagen", className: "bg-rose-50 text-rose-700 ring-rose-600/20" },
+};
+
+export function BlogAnalysisStatusPill({ status }: { status: BlogAnalysisStatus }) {
+  const config = BLOG_ANALYSIS_STATUS[status];
   return (
     <span
       className={cn(
