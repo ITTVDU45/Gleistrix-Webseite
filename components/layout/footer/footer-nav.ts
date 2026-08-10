@@ -43,16 +43,16 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
       { href: "/blog", label: "News & Ratgeber" },
       { href: "/#faq-heading", label: "Hilfe" },
       { href: "/produkt", label: "Dokumentation" },
-      { href: "/#datenschutz", label: "Datenschutz" },
-      { href: "/#impressum", label: "Impressum" },
+      { href: "/datenschutz", label: "Datenschutz" },
+      { href: "/impressum", label: "Impressum" },
       { href: "/#module", label: "Module" },
     ],
   },
 ] as const;
 
 export const FOOTER_LEGAL: readonly FooterLink[] = [
-  { href: "/#datenschutz", label: "Datenschutz" },
-  { href: "/#impressum", label: "Impressum" },
+  { href: "/datenschutz", label: "Datenschutz" },
+  { href: "/impressum", label: "Impressum" },
   { href: "/#agb", label: "AGB" },
   { href: "/#cookies", label: "Cookie-Einstellungen" },
 ] as const;
