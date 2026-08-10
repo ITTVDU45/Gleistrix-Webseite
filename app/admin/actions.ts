@@ -3,8 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { VISUAL_KEYS } from "@/data/landingModules";
 import { DEFAULT_PRICING } from "@/data/pricing";
 import { login, logout } from "@/lib/admin/auth";
+import { getLandingModules, saveLandingModules } from "@/lib/admin/landing-modules";
 import {
   APP_SYNC_ISSUE_TEXT,
   DEFAULT_DEMO_DAYS,
@@ -56,6 +58,7 @@ import {
   validateSlug,
 } from "@/lib/admin/tenant";
 import type { Company, LeadStatus, Package, ProvisioningStatus } from "@/types/admin";
+import type { LandingModule, ModuleVisualVariant } from "@/types/landing";
 import type {
   ModuleTier,
   ModuleUsagePricing,
@@ -1503,6 +1506,109 @@ export async function movePricingEntryAction(data: FormData): Promise<void> {
     }
   });
   revalidateAdmin();
+}
+
+/* --------------------------------------------- Startseite: Modul-Karussell */
+
+/**
+ * Anders als die Preisseite kennt das Karussell keine Freigabe – gespeichert
+ * ist sichtbar. Deshalb muss hier die Startseite selbst neu gerendert werden.
+ */
+function revalidateLanding(): void {
+  revalidatePath("/");
+  revalidatePath("/admin/module");
+}
+
+function isVisualVariant(value: string): value is ModuleVisualVariant {
+  return (VISUAL_KEYS as string[]).includes(value);
+}
+
+/** Kennung aus dem Titel; Reihenfolge und Löschen greifen darauf zu. */
+function uniqueLandingId(title: string, taken: string[]): string {
+  const base = slugify(title) || "modul";
+  if (!taken.includes(base)) return base;
+
+  let suffix = 2;
+  while (taken.includes(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
+
+export async function saveLandingModuleAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const title = field(data, "title");
+  if (!title) return { error: "Titel fehlt." };
+
+  const visual = field(data, "visual");
+  if (!isVisualVariant(visual)) return { error: "Unbekannte Illustration." };
+
+  // Nur interne Ziele: ein fremdes Schema im href wäre eine offene Weiterleitung.
+  const href = field(data, "href");
+  if (href && !href.startsWith("/") && !href.startsWith("#")) {
+    return { error: "Der Link muss mit / oder # beginnen." };
+  }
+
+  const modules = await getLandingModules();
+  const moduleId = field(data, "moduleId");
+  const existing = moduleId ? modules.find((entry) => entry.id === moduleId) : undefined;
+  if (moduleId && !existing) return { error: "Unbekanntes Modul." };
+
+  // Reihenfolge wie beim Add-on-Bild: ein neuer Upload gewinnt, sonst
+  // entscheidet das Häkchen, sonst bleibt das bisherige Bild stehen.
+  let imageSrc = existing?.imageSrc;
+  const upload = data.get("imageFile");
+  if (upload instanceof File && upload.size > 0) {
+    try {
+      const stored = await saveImageAsset(upload);
+      if (!stored.ok) return { error: stored.error };
+      imageSrc = stored.src;
+    } catch (error) {
+      console.error("Modulbild konnte nicht gespeichert werden:", error);
+      return { error: "Das Bild konnte nicht gespeichert werden. Bitte erneut versuchen." };
+    }
+  } else if (checked(data, "removeImage")) {
+    imageSrc = undefined;
+  }
+
+  const next: LandingModule = {
+    id: existing?.id ?? uniqueLandingId(title, modules.map((entry) => entry.id)),
+    title,
+    description: field(data, "description"),
+    bullets: parseLines(field(data, "bullets")),
+    imageSrc,
+    visual,
+    href: href || undefined,
+    isActive: checked(data, "isActive"),
+  };
+
+  await saveLandingModules(
+    existing
+      ? modules.map((entry) => (entry.id === next.id ? next : entry))
+      : [...modules, next],
+  );
+  revalidateLanding();
+  return { success: `Modul „${title}“ ${existing ? "gespeichert" : "angelegt"}.` };
+}
+
+export async function deleteLandingModuleAction(data: FormData): Promise<void> {
+  const moduleId = field(data, "moduleId");
+  const modules = await getLandingModules();
+  const next = modules.filter((entry) => entry.id !== moduleId);
+  if (next.length === modules.length) return;
+
+  await saveLandingModules(next);
+  revalidateLanding();
+}
+
+export async function moveLandingModuleAction(data: FormData): Promise<void> {
+  const step = field(data, "direction") === "up" ? -1 : 1;
+  const modules = await getLandingModules();
+  const next = moveEntry(modules, field(data, "id"), step);
+  if (next === modules) return;
+
+  await saveLandingModules(next);
+  revalidateLanding();
 }
 
 /* ------------------------------------------------------- Broschürenversand */

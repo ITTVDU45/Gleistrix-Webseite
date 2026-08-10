@@ -1,13 +1,10 @@
 import { Bot, FileText, Package, TrainFront, User } from "lucide-react";
 
-export type ModuleVisualVariant =
-  | "projekte"
-  | "plantafel"
-  | "team"
-  | "dokumente"
-  | "lager"
-  | "abrechnung"
-  | "ki";
+import type { ModuleVisualVariant } from "@/types/landing";
+
+// Der Typ wohnt bei den Startseiten-Inhalten, weil ihn auch der Adminbereich
+// und die Ablage brauchen – hier bleibt er als bequemer Re-Export.
+export type { ModuleVisualVariant };
 
 /** Kompakte, CSS-basierte Produktoberflächen für die Modul-Blöcke. Rein dekorativ. */
 export default function ModuleVisual({ variant }: { variant: ModuleVisualVariant }) {

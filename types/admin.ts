@@ -1,3 +1,4 @@
+import type { LandingModule } from "./landing";
 import type { PricingConfig } from "./pricing";
 
 export type CompanyStatus = "provisioning" | "active" | "suspended";
@@ -356,4 +357,6 @@ export type AdminStore = {
   pricingDraft?: PricingConfig;
   /** Freigegebener Stand – nur dieser wird auf /preise ausgeliefert. */
   pricingPublished?: PricingConfig;
+  /** Modul-Karussell der Startseite. Leer ⇒ Auslieferungszustand. */
+  landingModules?: LandingModule[];
 };

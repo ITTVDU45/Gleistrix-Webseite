@@ -31,6 +31,7 @@ export const COLLECTIONS = {
   pricingIntegrations: "pricing_integrations",
   pricingSettings: "pricing_settings",
   pricingReleases: "pricing_releases",
+  landingModules: "landing_modules",
 } as const;
 
 /** Schema aller Collections: String-_id, sonst frei. */

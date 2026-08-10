@@ -67,6 +67,9 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
     // Preislogik bleibt.
     pricingDraft: parsed.pricingDraft,
     pricingPublished: parsed.pricingPublished,
+    // Leer heißt „noch nie gepflegt" – der Auslieferungszustand steht in
+    // data/landingModules.ts, nicht hier.
+    landingModules: parsed.landingModules,
   };
 }
 
