@@ -24,6 +24,26 @@ const nextConfig: NextConfig = {
   },
   poweredByHeader: false,
   compress: true,
+
+  /**
+   * gleistrix.de liefert dieselben Seiten aus wie www.gleistrix.de. Für Google
+   * sind das zwei Websites mit identischem Inhalt; die canonical-Links zeigen
+   * zwar auf www, aber eine Weiterleitung ist das eindeutigere Signal und
+   * verhindert, dass Besucher und Links sich auf zwei Adressen verteilen.
+   *
+   * Die Bedingung trifft ausschließlich die nackte Domain – localhost und
+   * Vorschauadressen bleiben unberührt.
+   */
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "gleistrix.de" }],
+        destination: "https://www.gleistrix.de/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
