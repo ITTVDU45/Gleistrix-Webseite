@@ -32,6 +32,7 @@ export const COLLECTIONS = {
   pricingSettings: "pricing_settings",
   pricingReleases: "pricing_releases",
   landingModules: "landing_modules",
+  landingSettings: "landing_settings",
 } as const;
 
 /** Schema aller Collections: String-_id, sonst frei. */

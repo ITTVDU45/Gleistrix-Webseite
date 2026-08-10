@@ -6,7 +6,11 @@ import { redirect } from "next/navigation";
 import { VISUAL_KEYS } from "@/data/landingModules";
 import { DEFAULT_PRICING } from "@/data/pricing";
 import { login, logout } from "@/lib/admin/auth";
-import { getLandingModules, saveLandingModules } from "@/lib/admin/landing-modules";
+import {
+  getLandingModules,
+  saveLandingModuleTexts,
+  saveLandingModules,
+} from "@/lib/admin/landing-modules";
 import {
   APP_SYNC_ISSUE_TEXT,
   DEFAULT_DEMO_DAYS,
@@ -1531,6 +1535,22 @@ function uniqueLandingId(title: string, taken: string[]): string {
   let suffix = 2;
   while (taken.includes(`${base}-${suffix}`)) suffix += 1;
   return `${base}-${suffix}`;
+}
+
+export async function saveLandingModuleTextsAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const title = field(data, "title");
+  if (!title) return { error: "Überschrift fehlt." };
+
+  await saveLandingModuleTexts({
+    eyebrow: field(data, "eyebrow"),
+    title,
+    description: field(data, "description"),
+  });
+  revalidateLanding();
+  return { success: "Überschrift gespeichert." };
 }
 
 export async function saveLandingModuleAction(

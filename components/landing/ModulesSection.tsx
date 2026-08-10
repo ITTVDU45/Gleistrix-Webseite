@@ -1,4 +1,4 @@
-import { getLandingModules } from "@/lib/admin/landing-modules";
+import { getLandingModuleTexts, getLandingModules } from "@/lib/admin/landing-modules";
 
 import ModulesCarousel from "./ModulesCarousel";
 import SectionHeading from "./SectionHeading";
@@ -11,7 +11,8 @@ import SectionHeading from "./SectionHeading";
  * dadurch zeigt der nächste Aufruf den neuen Stand ohne Deployment.
  */
 export default async function ModulesSection() {
-  const modules = (await getLandingModules()).filter((module) => module.isActive);
+  const [all, texts] = await Promise.all([getLandingModules(), getLandingModuleTexts()]);
+  const modules = all.filter((module) => module.isActive);
   if (modules.length === 0) return null;
 
   return (
@@ -22,11 +23,9 @@ export default async function ModulesSection() {
     >
       <div className="page-container">
         <SectionHeading
-          eyebrow="Module"
-          title={
-            <span id="module-heading">Eine Plattform. Alle Werkzeuge für den Bahnbetrieb.</span>
-          }
-          description="Jedes Modul löst ein konkretes Problem im Alltag von Bahndienstleistern – zusammen ergeben sie ein durchgängiges System."
+          eyebrow={texts.eyebrow}
+          title={<span id="module-heading">{texts.title}</span>}
+          description={texts.description || undefined}
         />
 
         <ModulesCarousel modules={modules} />

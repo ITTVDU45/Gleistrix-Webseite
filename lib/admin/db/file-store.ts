@@ -70,6 +70,7 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
     // Leer heißt „noch nie gepflegt" – der Auslieferungszustand steht in
     // data/landingModules.ts, nicht hier.
     landingModules: parsed.landingModules,
+    landingModuleTexts: parsed.landingModuleTexts,
   };
 }
 

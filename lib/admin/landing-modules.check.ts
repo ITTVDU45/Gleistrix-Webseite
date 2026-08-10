@@ -43,8 +43,15 @@ delete process.env.MONGODB_URI;
 delete process.env.MONGODB_HOST;
 
 try {
-  const { DEFAULT_LANDING_MODULES } = await import("../../data/landingModules.ts");
-  const { getLandingModules, saveLandingModules } = await import("./landing-modules.ts");
+  const { DEFAULT_LANDING_MODULES, DEFAULT_LANDING_MODULE_TEXTS } = await import(
+    "../../data/landingModules.ts"
+  );
+  const {
+    getLandingModuleTexts,
+    getLandingModules,
+    saveLandingModuleTexts,
+    saveLandingModules,
+  } = await import("./landing-modules.ts");
 
   // 1. Leere Ablage ⇒ Auslieferungszustand. Ohne diesen Rückfall stünde auf der
   // Startseite vor der ersten Pflege gar kein Modul.
@@ -77,6 +84,21 @@ try {
   // 4. Alles gelöscht ⇒ wieder Auslieferungszustand statt leerer Sektion.
   await saveLandingModules([]);
   assert.equal((await getLandingModules()).length, DEFAULT_LANDING_MODULES.length);
+
+  // 5. Sektionskopf: ungepflegt kommt der Auslieferungszustand, gespeichert
+  // kommt das Gespeicherte zurück.
+  assert.deepEqual(await getLandingModuleTexts(), DEFAULT_LANDING_MODULE_TEXTS);
+  await saveLandingModuleTexts({
+    eyebrow: "Bausteine",
+    title: "Alles für den Bahnbetrieb",
+    description: "",
+  });
+  const texts = await getLandingModuleTexts();
+  assert.equal(texts.title, "Alles für den Bahnbetrieb");
+  assert.equal(texts.eyebrow, "Bausteine");
+  // Leer bleibt leer – sonst käme die Standardbeschreibung zurück, obwohl sie
+  // im Adminbereich bewusst gelöscht wurde.
+  assert.equal(texts.description, "");
 
   console.log("landing-modules.check: alle Prüfungen bestanden");
 } finally {

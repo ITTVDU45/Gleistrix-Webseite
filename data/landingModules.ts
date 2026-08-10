@@ -1,4 +1,12 @@
-import type { LandingModule, ModuleVisualVariant } from "@/types/landing";
+import type { LandingModule, LandingModuleTexts, ModuleVisualVariant } from "@/types/landing";
+
+/** Kopf der Modul-Sektion, solange im Adminbereich nichts gepflegt wurde. */
+export const DEFAULT_LANDING_MODULE_TEXTS: LandingModuleTexts = {
+  eyebrow: "Module",
+  title: "Eine Plattform. Alle Werkzeuge für den Bahnbetrieb.",
+  description:
+    "Jedes Modul löst ein konkretes Problem im Alltag von Bahndienstleistern – zusammen ergeben sie ein durchgängiges System.",
+};
 
 /**
  * Auslieferungszustand des Modul-Karussells.

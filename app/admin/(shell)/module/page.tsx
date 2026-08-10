@@ -3,13 +3,14 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 import { deleteLandingModuleAction, moveLandingModuleAction } from "@/app/admin/actions";
 import LandingModuleForm from "@/components/admin/landing/LandingModuleForm";
+import LandingTextsForm from "@/components/admin/landing/LandingTextsForm";
 import Modal from "@/components/admin/pricing/Modal";
 import { NeutralBadge } from "@/components/admin/pricing/ui";
 import { EmptyState, Section, formatNumber } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { VISUAL_LABEL } from "@/data/landingModules";
 import { formatPriceEUR } from "@/data/pricing";
-import { getLandingModules } from "@/lib/admin/landing-modules";
+import { getLandingModuleTexts, getLandingModules } from "@/lib/admin/landing-modules";
 import {
   TIER_LABEL,
   effectiveModuleIds,
@@ -67,10 +68,11 @@ function LandingMoveButtons({
 
 export default async function ModulesPage() {
   // Entwurfsstand, damit ein neu angelegtes Modul hier sofort auftaucht.
-  const [{ companies, packages }, pricing, landingModules] = await Promise.all([
+  const [{ companies, packages }, pricing, landingModules, landingTexts] = await Promise.all([
     readStore(),
     getDraftPricing(),
     getLandingModules(),
+    getLandingModuleTexts(),
   ]);
   const bulletSuggestions = suggestionList(landingModules.flatMap((module) => module.bullets));
   const packageById = new Map(packages.map((p) => [p.id, p]));
@@ -108,6 +110,14 @@ export default async function ModulesPage() {
           </Modal>
         }
       >
+        <div className="mb-6 border-b pb-6">
+          <h3 className="text-sm font-semibold">Sektionskopf</h3>
+          <p className="mb-4 mt-0.5 text-sm text-muted-foreground">
+            Marke, Überschrift und Beschreibung über dem Karussell.
+          </p>
+          <LandingTextsForm texts={landingTexts} />
+        </div>
+
         {landingModules.length === 0 ? (
           <EmptyState>Noch kein Modul für die Startseite angelegt.</EmptyState>
         ) : (

@@ -16,6 +16,14 @@ export type ModuleVisualVariant =
   | "abrechnung"
   | "ki";
 
+/** Kopf der Modul-Sektion. Getrennt von den Folien, weil er einmal existiert. */
+export type LandingModuleTexts = {
+  /** Kleine Marke über der Überschrift. */
+  eyebrow: string;
+  title: string;
+  description: string;
+};
+
 export type LandingModule = {
   /** Fachlicher Schlüssel, aus dem Titel abgeleitet. Nach dem Anlegen unverändert. */
   id: string;

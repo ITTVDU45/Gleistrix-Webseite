@@ -1,4 +1,4 @@
-import type { LandingModule } from "./landing";
+import type { LandingModule, LandingModuleTexts } from "./landing";
 import type { PricingConfig } from "./pricing";
 
 export type CompanyStatus = "provisioning" | "active" | "suspended";
@@ -359,4 +359,6 @@ export type AdminStore = {
   pricingPublished?: PricingConfig;
   /** Modul-Karussell der Startseite. Leer ⇒ Auslieferungszustand. */
   landingModules?: LandingModule[];
+  /** Kopf der Modul-Sektion. Fehlt er, greift der Auslieferungszustand. */
+  landingModuleTexts?: LandingModuleTexts;
 };
