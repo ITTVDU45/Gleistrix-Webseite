@@ -3,7 +3,7 @@ import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppChrome from "@/components/layout/AppChrome";
 import { ConsentProvider } from "@/components/consent/consent-provider";
-import { SITE } from "@/lib/constants";
+import { SITE, SITE_URL } from "@/lib/constants";
 import Providers from "./providers";
 
 const inter = Inter({
@@ -19,12 +19,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Basis für alle relativen URLs in den Metadaten – ohne sie bleiben
+  // canonical- und Open-Graph-Links relativ und damit für Google wertlos.
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    // "./" löst Next je Route zur aktuellen Adresse auf. Unterseiten mit
+    // eigener generateMetadata überschreiben das bei Bedarf.
+    canonical: "./",
+  },
   title: {
     default: `${SITE.name} – Die moderne ERP-Plattform für Bahndienstleister`,
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,
   openGraph: {
+    url: SITE_URL,
+    siteName: SITE.name,
     title: `${SITE.name} – Die moderne ERP-Plattform für Bahndienstleister`,
     description: SITE.description,
     locale: "de_DE",
