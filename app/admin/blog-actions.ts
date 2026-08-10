@@ -257,6 +257,58 @@ export async function generateBlogArticleAction(
   redirect(`/admin/blog/${articleId}`);
 }
 
+/**
+ * Thema von Hand vorgeben oder einen erkannten Vorschlag nachschärfen.
+ *
+ * Dasselbe Formular für beides, weil beides derselbe Datensatz ist: ein
+ * Vorschlag mit Titel, Rubrik, Leitwort und optionaler Gliederung. Die
+ * Gliederung ist der eigentliche Hebel – steht dort eine Kette wie
+ * „Präqualifikation → Qualifikationen → Ruhezeiten“, folgt der Artikel ihr, und
+ * die Web-Recherche sucht gezielt nach genau diesen Begriffen.
+ *
+ * Quellen sind hier optional: ein vorgegebenes Thema kann sich allein auf die
+ * Recherche stützen. Für erkannte Vorschläge bleibt die Herkunft erhalten.
+ */
+export async function saveBlogTopicAction(_prev: FormState, data: FormData): Promise<FormState> {
+  const title = field(data, "title");
+  if (!title) return { error: "Titel fehlt." };
+
+  const suggestionId = field(data, "suggestionId");
+  const existing = suggestionId ? await getBlogSuggestion(suggestionId) : null;
+  if (suggestionId && !existing) return { error: "Unbekannter Vorschlag." };
+
+  const categories = await listBlogCategories();
+  const category = field(data, "category");
+  if (!categories.some((entry) => entry.name === category)) {
+    return { error: "Unbekannte Rubrik." };
+  }
+
+  // Mehrfachauswahl: getAll, nicht get – sonst käme nur die erste Quelle an.
+  const sourceIds = data
+    .getAll("sourceIds")
+    .filter((value): value is string => typeof value === "string" && value.length > 0);
+
+  await saveBlogSuggestion({
+    id: existing?.id ?? `t-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    title,
+    summary: field(data, "summary"),
+    category,
+    keyword: field(data, "keyword"),
+    instruction: field(data, "instruction") || undefined,
+    sourceIds: existing && sourceIds.length === 0 ? existing.sourceIds : sourceIds,
+    manual: existing?.manual ?? true,
+    // Ein nachgeschärfter Vorschlag ist wieder offen – auch wenn zuvor schon
+    // ein Artikel daraus entstanden ist, soll er erneut geschrieben werden können.
+    status: "offen",
+    error: undefined,
+    articleId: existing?.articleId,
+    createdAt: existing?.createdAt ?? new Date().toISOString(),
+  });
+
+  revalidatePath("/admin/blog");
+  return { success: existing ? `„${title}“ gespeichert.` : `Thema „${title}“ angelegt.` };
+}
+
 export async function deleteBlogSuggestionAction(data: FormData): Promise<void> {
   await deleteBlogSuggestion(field(data, "suggestionId"));
   revalidatePath("/admin/blog");

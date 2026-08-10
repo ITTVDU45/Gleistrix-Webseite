@@ -10,6 +10,7 @@ import {
   AnalyzeSourceButton,
   GenerateArticleButton,
   SourceForm,
+  TopicForm,
 } from "@/components/admin/blog/forms";
 import Modal from "@/components/admin/pricing/Modal";
 import { NeutralBadge } from "@/components/admin/pricing/ui";
@@ -231,12 +232,22 @@ export default async function BlogPage() {
       {/* --------------------------------------------------------- Vorschläge */}
 
       <Section
-        title={`Themenvorschläge (${formatNumber(openSuggestions.length)})`}
-        description="Aus den Quellen erkannte Themen. Erst beim Schreiben entsteht der eigentliche Artikel."
+        title={`Themen (${formatNumber(openSuggestions.length)})`}
+        description="Aus den Quellen erkannt oder von Hand vorgegeben. Erst beim Schreiben entsteht der eigentliche Artikel – mit Web-Recherche zur Ergänzung und Gegenprüfung."
+        action={
+          <Modal
+            label="Thema vorgeben"
+            title="Neues Thema"
+            description="Titel und eine Gliederungskette. Der Artikel folgt ihr Station für Station, die Websuche recherchiert gezielt dazu."
+          >
+            <TopicForm categories={categories} sources={sources} />
+          </Modal>
+        }
       >
         {openSuggestions.length === 0 ? (
           <EmptyState>
-            Keine offenen Vorschläge. Eine Quelle auswerten lassen, um welche zu bekommen.
+            Keine offenen Themen. Eine Quelle auswerten lassen – oder oben ein Thema von Hand
+            vorgeben.
           </EmptyState>
         ) : (
           <ul className="grid gap-3 lg:grid-cols-2">
@@ -244,7 +255,10 @@ export default async function BlogPage() {
               <li key={suggestion.id} className="flex flex-col rounded-xl border p-3.5">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium">{suggestion.title}</p>
-                  <NeutralBadge>{suggestion.category}</NeutralBadge>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    {suggestion.manual ? <NeutralBadge>vorgegeben</NeutralBadge> : null}
+                    <NeutralBadge>{suggestion.category}</NeutralBadge>
+                  </span>
                 </div>
 
                 <p className="mt-1.5 text-xs leading-5 text-muted-foreground">
@@ -276,6 +290,13 @@ export default async function BlogPage() {
                   })}
                 </p>
 
+                {suggestion.instruction ? (
+                  <p className="mt-2 whitespace-pre-wrap rounded-md bg-slate-50 px-3 py-2 text-xs leading-5 text-slate-600 ring-1 ring-inset ring-slate-200">
+                    <span className="font-medium">Gliederung: </span>
+                    {suggestion.instruction}
+                  </p>
+                ) : null}
+
                 {suggestion.error ? (
                   <p className="mt-2 rounded-md bg-rose-50 px-3 py-2 text-xs text-rose-700">
                     {suggestion.error}
@@ -284,12 +305,26 @@ export default async function BlogPage() {
 
                 <div className="mt-3 flex flex-wrap items-end justify-between gap-2 pt-1">
                   <GenerateArticleButton suggestionId={suggestion.id} disabled={Boolean(aiIssue)} />
-                  <form action={deleteBlogSuggestionAction}>
-                    <input type="hidden" name="suggestionId" value={suggestion.id} />
-                    <Button type="submit" size="sm" variant="ghost">
-                      Verwerfen
-                    </Button>
-                  </form>
+                  <span className="flex items-center gap-1">
+                    <Modal
+                      label="Nachschärfen"
+                      variant="outline"
+                      title={suggestion.title}
+                      description="Gliederung ergänzen oder Rubrik und Leitwort korrigieren, bevor der Artikel entsteht."
+                    >
+                      <TopicForm
+                        suggestion={suggestion}
+                        categories={categories}
+                        sources={sources}
+                      />
+                    </Modal>
+                    <form action={deleteBlogSuggestionAction}>
+                      <input type="hidden" name="suggestionId" value={suggestion.id} />
+                      <Button type="submit" size="sm" variant="ghost">
+                        Verwerfen
+                      </Button>
+                    </form>
+                  </span>
                 </div>
               </li>
             ))}

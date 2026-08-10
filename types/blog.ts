@@ -78,6 +78,17 @@ export type BlogSuggestion = {
   category: string;
   /** Leitbegriff, an dem sich Recherche und Text ausrichten. */
   keyword: string;
+  /**
+   * Kurzes Briefing für den Artikel – freier Text.
+   *
+   * Gedacht für eine Gliederungskette wie „Präqualifikation → Qualifikationen →
+   * Ruhezeiten → Einsatzplanung → Nachweise“. Steht sie hier, folgt der Artikel
+   * ihr in dieser Reihenfolge und die Web-Recherche sucht gezielt danach.
+   * Leer ⇒ das Modell gliedert selbst.
+   */
+  instruction?: string;
+  /** Von Hand vorgegebenes Thema statt aus einer Quelle erkannt. */
+  manual?: boolean;
   /** Quellen, aus denen der Vorschlag stammt. */
   sourceIds: string[];
   status: BlogSuggestionStatus;
@@ -128,6 +139,14 @@ export type BlogArticle = {
   sourceIds: string[];
   /** Vollständig von der KI geschrieben – im Adminbereich als Hinweis. */
   generatedByAi: boolean;
+  /**
+   * Adressen, die die Web-Recherche beim Schreiben herangezogen hat.
+   *
+   * Nicht für die öffentliche Seite, sondern für die Redaktion: wer eine
+   * Aussage im Entwurf prüfen will, braucht den Beleg, ohne selbst neu zu
+   * suchen.
+   */
+  researchSources?: string[];
   createdAt: string;
   updatedAt: string;
 };

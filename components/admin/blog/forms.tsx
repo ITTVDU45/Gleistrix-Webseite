@@ -10,6 +10,7 @@ import {
   saveBlogArticleAction,
   saveBlogCategoryAction,
   saveBlogSourceAction,
+  saveBlogTopicAction,
 } from "@/app/admin/blog-actions";
 import { useDialogForm } from "@/components/admin/pricing/Modal";
 import {
@@ -26,6 +27,7 @@ import type {
   BlogArticleStatus,
   BlogCategory,
   BlogSourceKind,
+  BlogSuggestion,
 } from "@/types/blog";
 
 /* ------------------------------------------------------------------ Quellen */
@@ -512,6 +514,138 @@ export function CategoryForm({ category }: { category?: BlogCategory }) {
 
       <Button type="submit" size="sm" variant={category ? "outline" : "default"} disabled={isPending}>
         {isPending ? "Wird gespeichert …" : category ? "Speichern" : "Rubrik anlegen"}
+      </Button>
+    </form>
+  );
+}
+
+/* ------------------------------------------------------------------- Themen */
+
+/**
+ * Thema vorgeben oder einen erkannten Vorschlag nachschärfen.
+ *
+ * Das Instruktionsfeld ist der Kern: eine Gliederungskette bestimmt Reihenfolge
+ * und Umfang der Abschnitte und steuert zugleich die Web-Recherche. Ohne sie
+ * gliedert das Modell selbst – das Feld bleibt deshalb optional.
+ */
+export function TopicForm({
+  suggestion,
+  categories,
+  sources,
+}: {
+  suggestion?: BlogSuggestion;
+  categories: BlogCategory[];
+  sources: { id: string; title: string }[];
+}) {
+  const [state, formAction, isPending] = useActionState<FormState, FormData>(
+    saveBlogTopicAction,
+    {},
+  );
+  const formRef = useDialogForm(state, !suggestion);
+  const prefix = suggestion ? `thema-${suggestion.id}` : "thema-neu";
+
+  return (
+    <form ref={formRef} action={formAction} className="space-y-4">
+      <input type="hidden" name="suggestionId" value={suggestion?.id ?? ""} />
+
+      <Field id={`${prefix}-title`} label="Titel des Artikels">
+        <Input
+          id={`${prefix}-title`}
+          name="title"
+          defaultValue={suggestion?.title ?? ""}
+          placeholder="Sicherungsunternehmen führen"
+          required
+        />
+      </Field>
+
+      <Field
+        id={`${prefix}-instruction`}
+        label="Instruktion"
+        hint="Die Gliederung des Artikels, Station für Station. Jede Station bekommt einen eigenen Abschnitt – in genau dieser Reihenfolge. Die Websuche recherchiert gezielt zu diesen Begriffen."
+      >
+        <textarea
+          id={`${prefix}-instruction`}
+          name="instruction"
+          rows={4}
+          defaultValue={suggestion?.instruction ?? ""}
+          placeholder="Präqualifikation → Mitarbeiterqualifikationen → Ruhezeiten → Einsatzplanung → Nachweise → Subunternehmen → Rechnungsstellung → Baustellendokumentation"
+          className={TEXTAREA_CLASS}
+        />
+      </Field>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field id={`${prefix}-category`} label="Rubrik">
+          <select
+            id={`${prefix}-category`}
+            name="category"
+            defaultValue={suggestion?.category ?? categories[0]?.name ?? ""}
+            className={SELECT_CLASS}
+            required
+          >
+            {categories.map((entry) => (
+              <option key={entry.id} value={entry.name}>
+                {entry.name}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field id={`${prefix}-keyword`} label="Leitwort" hint="Suchbegriff, unter dem gefunden werden soll.">
+          <Input
+            id={`${prefix}-keyword`}
+            name="keyword"
+            defaultValue={suggestion?.keyword ?? ""}
+            placeholder="Sicherungsunternehmen Organisation"
+          />
+        </Field>
+      </div>
+
+      <Field
+        id={`${prefix}-summary`}
+        label="Worum es geht (optional)"
+        hint="Zwei bis drei Sätze für die Übersicht. Leer lassen ist in Ordnung."
+      >
+        <textarea
+          id={`${prefix}-summary`}
+          name="summary"
+          rows={2}
+          defaultValue={suggestion?.summary ?? ""}
+          className={TEXTAREA_CLASS}
+        />
+      </Field>
+
+      {sources.length > 0 ? (
+        <Field
+          id={`${prefix}-sources`}
+          label="Quellen einbeziehen (optional)"
+          hint="Ohne Auswahl stützt sich der Artikel allein auf die Instruktion und die Web-Recherche."
+        >
+          <div className="max-h-44 space-y-1.5 overflow-y-auto rounded-md border p-3">
+            {sources.map((source) => (
+              <label key={source.id} className="flex items-start gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  name="sourceIds"
+                  value={source.id}
+                  defaultChecked={suggestion?.sourceIds.includes(source.id) ?? false}
+                  className={`${CHECKBOX_CLASS} mt-0.5`}
+                />
+                <span className="min-w-0 flex-1">{source.title}</span>
+              </label>
+            ))}
+          </div>
+        </Field>
+      ) : null}
+
+      <FormMessage state={state} />
+
+      <Button
+        type="submit"
+        size="sm"
+        variant={suggestion ? "outline" : "default"}
+        disabled={isPending}
+      >
+        {isPending ? "Wird gespeichert …" : suggestion ? "Speichern" : "Thema anlegen"}
       </Button>
     </form>
   );

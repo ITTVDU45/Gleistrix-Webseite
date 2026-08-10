@@ -106,6 +106,29 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ id
                   : "ohne Quelle angelegt"
             }
           />
+          {/* Die Rechercheadressen sind das Werkzeug fuer die Gegenpruefung:
+              wer eine Aussage im Entwurf anzweifelt, kommt hier direkt an den
+              Beleg, statt selbst neu suchen zu muessen. */}
+          {article.researchSources?.length ? (
+            <KeyValue
+              label="Web-Recherche"
+              value={
+                <span className="flex flex-col items-end gap-1">
+                  {article.researchSources.map((url) => (
+                    <a
+                      key={url}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="max-w-md truncate text-primary underline-offset-4 hover:underline"
+                    >
+                      {url}
+                    </a>
+                  ))}
+                </span>
+              }
+            />
+          ) : null}
         </dl>
       </Section>
 
