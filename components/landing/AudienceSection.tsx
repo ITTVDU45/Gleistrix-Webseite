@@ -4,23 +4,26 @@ import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 import MobileAudienceCarousel from "./MobileAudienceCarousel";
 
-type Audience = { icon: LucideIcon; title: string; description: string };
+type IconKey = "shield" | "train" | "hardhat" | "users" | "warehouse" | "briefcase";
+type Audience = { iconKey: IconKey; icon: LucideIcon; title: string; description: string };
 
 const AUDIENCES: Audience[] = [
-  { icon: ShieldCheck, title: "SIPO-Unternehmen", description: "Sicherungsposten, Qualifikationen und Einsätze rechtssicher koordinieren." },
-  { icon: TrainFront, title: "Bahndienstleister", description: "Projekte, Trupps und Maschinen über Baustellen hinweg steuern." },
-  { icon: HardHat, title: "Projektleiter", description: "Fortschritt, Ressourcen und Dokumente ohne Telefonkette im Blick." },
-  { icon: Users, title: "Backoffice", description: "Stammdaten, Nachweise und Abrechnung ohne Zettelwirtschaft." },
-  { icon: Warehouse, title: "Lagerverwaltung", description: "Material und Sicherungstechnik mit Beständen und Prüffristen." },
-  { icon: Briefcase, title: "Geschäftsführung", description: "Auslastung, Kennzahlen und Deckungsbeiträge auf einen Blick." },
+  { iconKey: "shield", icon: ShieldCheck, title: "SIPO-Unternehmen", description: "Sicherungsposten, Qualifikationen und Einsätze rechtssicher koordinieren." },
+  { iconKey: "train", icon: TrainFront, title: "Bahndienstleister", description: "Projekte, Trupps und Maschinen über Baustellen hinweg steuern." },
+  { iconKey: "hardhat", icon: HardHat, title: "Projektleiter", description: "Fortschritt, Ressourcen und Dokumente ohne Telefonkette im Blick." },
+  { iconKey: "users", icon: Users, title: "Backoffice", description: "Stammdaten, Nachweise und Abrechnung ohne Zettelwirtschaft." },
+  { iconKey: "warehouse", icon: Warehouse, title: "Lagerverwaltung", description: "Material und Sicherungstechnik mit Beständen und Prüffristen." },
+  { iconKey: "briefcase", icon: Briefcase, title: "Geschäftsführung", description: "Auslastung, Kennzahlen und Deckungsbeiträge auf einen Blick." },
 ];
 
 export default function AudienceSection() {
+  const mobileItems = AUDIENCES.map(({ iconKey, title, description }) => ({ iconKey, title, description }));
+
   return (
     <section id="vorteile" aria-labelledby="audience-heading" className="scroll-mt-24 bg-white py-16 md:py-28">
       <div className="page-container">
         <SectionHeading eyebrow="Für wen" title={<span id="audience-heading">Gemacht für alle, die den Bahnbetrieb am Laufen halten</span>} description="Vom Sicherungsposten bis zur Geschäftsführung: Jede Rolle arbeitet mit denselben aktuellen Daten." />
-        <MobileAudienceCarousel items={AUDIENCES} />
+        <MobileAudienceCarousel items={mobileItems} />
         <div className="mt-12 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-3 md:mt-16">
           {AUDIENCES.map((audience, index) => {
             const Icon = audience.icon;
