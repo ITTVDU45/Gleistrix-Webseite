@@ -4,6 +4,7 @@ import "./globals.css";
 import AppChrome from "@/components/layout/AppChrome";
 import { ConsentProvider } from "@/components/consent/consent-provider";
 import { SITE, SITE_URL } from "@/lib/constants";
+import { localBusinessJsonLd } from "@/lib/seo";
 import Providers from "./providers";
 
 const inter = Inter({
@@ -54,6 +55,13 @@ export default function RootLayout({
           components/consent/dify-chat.tsx und startet erst nach einer
           Einwilligung in die Kategorie "Funktional" (§ 25 Abs. 1 TDDDG). */}
       <body className={`${inter.variable} ${geistMono.variable} antialiased overflow-x-hidden bg-background text-foreground`}>
+        {/* Auszeichnung des Unternehmens für Google. Steht im Root-Layout und
+            damit auf jeder Seite – die feste @id sorgt dafür, dass Google das
+            als ein Unternehmen versteht und nicht als eines je Seite. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd()) }}
+        />
         <Providers>
           {/* Umschließt den gesamten Seitenrahmen: Banner, Footer-Zugang und
               die Gates für Drittinhalte lesen denselben Zustand. */}
