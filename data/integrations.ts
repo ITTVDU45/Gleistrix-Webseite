@@ -53,15 +53,15 @@ export type Integration = {
 };
 
 export const INTEGRATIONS: Integration[] = [
-  { id: "gaeb", label: "GAEB" },
-  { id: "deutsche-bahn", label: "Deutsche Bahn" },
+  { id: "gaeb", label: "GAEB", src: "/logos/gaeb.png", width: 599, height: 333 },
+  { id: "deutsche-bahn", label: "Deutsche Bahn", src: "/logos/deutsche-bahn.png", width: 738, height: 210 },
   { id: "microsoft", label: "Microsoft 365", src: "/logos/microsoft-365.png", width: 500, height: 550 },
   { id: "datev", label: "DATEV", src: "/logos/datev.png", width: 500, height: 493 },
-  { id: "lexoffice", label: "lexoffice" },
+  { id: "lexoffice", label: "lexoffice", src: "/logos/lexoffice.png", width: 600, height: 200 },
   { id: "sevdesk", label: "sevdesk", src: "/logos/sevdesk.svg", width: 400, height: 100 },
-  { id: "agenda", label: "Agenda" },
+  { id: "agenda", label: "Agenda", src: "/logos/agenda.jpeg", width: 640, height: 184 },
   { id: "stripe", label: "Stripe", src: "/logos/stripe.png", width: 500, height: 209 },
-  { id: "paypal", label: "PayPal" },
+  { id: "paypal", label: "PayPal", src: "/logos/paypal.png", width: 738, height: 210 },
   { id: "indeed", label: "Indeed", src: "/logos/indeed.png", width: 1280, height: 345 },
   { id: "stepstone", label: "StepStone", src: "/logos/stepstone.png", width: 1920, height: 329 },
   { id: "cal-com", label: "Cal.com", src: "/logos/cal-com.png", width: 512, height: 512 },
