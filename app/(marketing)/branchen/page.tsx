@@ -1,17 +1,18 @@
-import type { Metadata } from "next";
 import IndustriesGrid from "@/components/industries-grid";
 import FeaturesAccordion from "@/components/sections/FeaturesAccordion";
 import CTASection from "@/components/sections/CTASection";
 import PageHero from "@/components/landing/PageHero";
 import SectionHeading from "@/components/landing/SectionHeading";
+import { pageMetadata } from "@/lib/seo-metadata";
 
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
-  title: "Branchen",
+export const metadata = pageMetadata({
+  title: "Software für Bahnbau, Sicherungsunternehmen & Bahndienstleister",
   description:
-    "Gleistrix passt sich Ihrer Realität an – von Gleisbausicherung über Sicherungsunternehmen bis zu auftragsbasierten Dienstleistern.",
-};
+    "Gleistrix unterstützt Gleisbauunternehmen, Sicherungsunternehmen, Gleisbausicherung und weitere Bahndienstleister bei Planung, Nachweisen und Abrechnung.",
+  path: "/branchen",
+});
 
 export default function Page() {
   return (
@@ -31,7 +32,6 @@ export default function Page() {
         ]}
       />
 
-      {/* Branchen im Überblick */}
       <section aria-labelledby="industries-heading" className="bg-[#f8fafc] py-16 md:py-24">
         <div className="page-container">
           <SectionHeading
@@ -39,13 +39,10 @@ export default function Page() {
             title={<span id="industries-heading">Für jede Ausprägung des Bahnbetriebs</span>}
             description="Gleistrix bildet die Besonderheiten jeder Branche ab – von der Qualifikationsplanung bis zur normkonformen Abrechnung."
           />
-          <div className="mt-12 md:mt-16">
-            <IndustriesGrid />
-          </div>
+          <div className="mt-12 md:mt-16"><IndustriesGrid /></div>
         </div>
       </section>
 
-      {/* Funktionen (Accordion) */}
       <section id="loesungen" className="scroll-mt-24 bg-white py-16 md:py-24">
         <div className="page-container">
           <SectionHeading
@@ -53,9 +50,7 @@ export default function Page() {
             title="Alle Werkzeuge, ein System"
             description="Vom Personal über die Disposition bis zur Abrechnung – jede Funktion greift nahtlos in die nächste."
           />
-          <div className="mt-12 md:mt-16">
-            <FeaturesAccordion />
-          </div>
+          <div className="mt-12 md:mt-16"><FeaturesAccordion /></div>
         </div>
       </section>
 
