@@ -240,22 +240,32 @@
      Ändert sich der Header, muss dieser Wert mit. */
   --wf-header: 88px;
   --wf-top: calc(var(--wf-header) + 0.75rem);
-  --wf-stage-h: calc(100svh - var(--wf-top) - 1rem);
+  --wf-vh: calc(100svh - var(--wf-top) - 1rem);
+  /* Gedeckelt: der Inhalt misst rund 310px, eine volle Bildschirmhöhe liesse
+     darüber und darunter je gut 240px Leerraum – der Abstand zur Überschrift
+     wirkte dadurch wie ein Bruch in der Seite. */
+  --wf-stage-h: min(var(--wf-vh), 34rem);
 
   --wf-gap: 1.25rem; /* = gap-5, Projektkanon */
   --wf-card: clamp(268px, 26vw, 340px);
   --wf-lane: 4.5rem; /* Knotenspur über den Karten */
   --wf-pad: max(1.5rem, calc((100vw - 1200px) / 2 + 1.5rem)); /* Textkante page-container */
+  /* Rechts bewusst NICHT dieselbe Einrückung: sie wäre reiner Leerlauf, den
+     man nach der letzten Karte noch durchscrollen müsste. */
+  --wf-pad-end: 3rem;
 
   --wf-track-w: calc(
-    2 * var(--wf-pad) + var(--wf-count) * var(--wf-card) + (var(--wf-count) - 1) * var(--wf-gap)
+    var(--wf-pad) + var(--wf-pad-end) + var(--wf-count) * var(--wf-card) +
+      (var(--wf-count) - 1) * var(--wf-gap)
   );
   --wf-travel: max(0px, calc(var(--wf-track-w) - 100vw));
   /* Vertikale Anlaufstrecke je horizontalem Pixel, gedeckelt auf 1,6
      Bildschirmhöhen: sonst wächst die Seite mit jeder weiteren Karte
      unkontrolliert. Wer weniger Scrollweg will, senkt --wf-ratio auf 1. */
   --wf-ratio: 1.25;
-  --wf-extra: min(calc(var(--wf-travel) * var(--wf-ratio)), calc(var(--wf-stage-h) * 1.6));
+  /* Deckel gegen die Fensterhöhe, nicht gegen die Bühnenhöhe: sonst würde das
+     Kürzen der Bühne auch die Scrollstrecke verkürzen und das Tempo ändern. */
+  --wf-extra: min(calc(var(--wf-travel) * var(--wf-ratio)), calc(var(--wf-vh) * 1.6));
 }
 
 /* Grundzustand = heutiges Raster. Schiene, Knoten und Zähler sind reine
@@ -315,7 +325,8 @@
   .wf-track {
     display: flex; /* überschreibt grid */
     max-width: none; /* überschreibt page-container */
-    padding-inline: var(--wf-pad);
+    padding-left: var(--wf-pad);
+    padding-right: var(--wf-pad-end);
     /* Luft für hover:-translate-y-1 samt Schatten, oben zusätzlich die Knotenspur */
     padding-block: 1.5rem;
     padding-top: calc(var(--wf-lane) + 1.5rem);
@@ -331,7 +342,7 @@
     display: block;
     position: absolute;
     left: calc(var(--wf-pad) + var(--wf-card) / 2);
-    right: calc(var(--wf-pad) + var(--wf-card) / 2);
+    right: calc(var(--wf-pad-end) + var(--wf-card) / 2);
     top: calc(1.5rem + var(--wf-lane) / 2);
     height: 2px;
   }

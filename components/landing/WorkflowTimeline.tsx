@@ -258,7 +258,7 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
     <div
       ref={runwayRef}
       data-wf-runway
-      className="wf-runway relative mt-14 md:mt-16"
+      className="wf-runway relative mt-8 md:mt-10"
       style={{ "--wf-count": String(stepCount) } as CSSProperties}
     >
       <div ref={stageRef} data-wf-stage className="wf-stage">
