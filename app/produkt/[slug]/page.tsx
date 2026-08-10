@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import CatalogDetail from "@/components/catalog/CatalogDetail";
 import { MODULES, MODULE_CATALOG } from "@/data/modules";
+import { pageMetadata } from "@/lib/seo-metadata";
 
 /** Nur die Slugs aus data/modules.ts existieren – alles andere ist 404. */
 export const dynamicParams = false;
@@ -18,10 +19,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const entry = MODULES.find((item) => item.slug === slug);
   if (!entry) return {};
 
-  return {
+  return pageMetadata({
     title: entry.title,
     description: entry.description,
-  };
+    path: `/produkt/${entry.slug}`,
+  });
 }
 
 export default async function Page({ params }: PageProps) {

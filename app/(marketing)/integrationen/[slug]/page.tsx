@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import CatalogDetail from "@/components/catalog/CatalogDetail";
 import { INTEGRATION_CATALOG, INTEGRATION_PAGES } from "@/data/integration-pages";
+import { pageMetadata } from "@/lib/seo-metadata";
 
 /** Nur die Slugs aus data/integration-pages.ts existieren – alles andere ist 404. */
 export const dynamicParams = false;
@@ -18,10 +19,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const entry = INTEGRATION_PAGES.find((item) => item.slug === slug);
   if (!entry) return {};
 
-  return {
+  return pageMetadata({
     title: `${entry.title} verbinden`,
     description: entry.description,
-  };
+    path: `/integrationen/${entry.slug}`,
+  });
 }
 
 export default async function Page({ params }: PageProps) {

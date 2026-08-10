@@ -26,14 +26,6 @@ const BUSINESS = {
  */
 const SAME_AS: string[] = [];
 
-/**
- * LocalBusiness statt nur Organization: Es gibt einen Eintrag im
- * Google-Unternehmensprofil mit einer echten Anschrift, und nur der
- * LocalBusiness-Typ verbindet Website und Karteneintrag.
- *
- * Ohne openingHours – ein Softwareanbieter ohne Ladengeschäft hat keine
- * belastbaren Schalterzeiten, und erfundene Zeiten sind schlechter als keine.
- */
 export function localBusinessJsonLd() {
   return {
     "@context": "https://schema.org",
@@ -56,5 +48,19 @@ export function localBusinessJsonLd() {
     },
     areaServed: { "@type": "Country", name: "Deutschland" },
     ...(SAME_AS.length > 0 ? { sameAs: SAME_AS } : {}),
+  };
+}
+
+/** Website-Entität zur eindeutigen Zuordnung von Domain, Marke und Anbieter. */
+export function websiteJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": `${SITE_URL}/#website`,
+    url: SITE_URL,
+    name: SITE.name,
+    description: SITE.description,
+    inLanguage: "de-DE",
+    publisher: { "@id": `${SITE_URL}/#business` },
   };
 }
