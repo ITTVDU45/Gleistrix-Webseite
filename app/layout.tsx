@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./mobile.css";
 import AppChrome from "@/components/layout/AppChrome";
 import { ConsentProvider } from "@/components/consent/consent-provider";
 import { SITE, SITE_URL } from "@/lib/constants";
