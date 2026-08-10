@@ -98,20 +98,6 @@ export const DEFAULT_LANDING_MODULES: LandingModule[] = [
     href: "/produkt/rechnungsstellung",
     isActive: true,
   },
-  {
-    id: "ki-agenten",
-    title: "KI-Agenten",
-    description:
-      "Digitale Assistenten übernehmen vorbereitende Arbeit: Leistungsverzeichnisse lesen, Berichte erstellen, Ausschreibungen auswerten.",
-    bullets: [
-      "LV-Analyse und Angebotsvorbereitung",
-      "Automatische Projekt- und Tagesberichte",
-      "Ausschreibungs- und Abrechnungsprüfung",
-    ],
-    visual: "ki",
-    href: "#ki-agenten",
-    isActive: true,
-  },
 ];
 
 /** Auswahl der Rückfall-Illustration im Adminformular. */
