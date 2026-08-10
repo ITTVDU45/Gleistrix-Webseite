@@ -10,8 +10,13 @@ body {
 img,
 video,
 canvas,
-svg {
+svg,
+iframe {
   max-width: 100%;
+}
+
+iframe {
+  width: 100%;
 }
 
 main,
@@ -34,6 +39,16 @@ li,
 dd,
 dt {
   overflow-wrap: anywhere;
+}
+
+pre,
+code {
+  max-width: 100%;
+}
+
+pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Grid/flex children otherwise often keep intrinsic widths from screenshots or long labels. */
@@ -64,6 +79,30 @@ dt {
 
   table {
     font-size: 0.875rem;
+  }
+
+  /* Fixed three-column stat rows are too narrow on phones. Responsive
+     variants such as sm:grid-cols-3 still take over at the intended breakpoint. */
+  dl[class~="grid-cols-3"] {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Long CTA labels and auth links must be allowed to wrap below tablet width. */
+  a[class~="whitespace-nowrap"],
+  button[class~="whitespace-nowrap"] {
+    white-space: normal !important;
+  }
+
+  /* Embedded/scrolling content stays inside the viewport rather than growing it. */
+  [role="dialog"],
+  [role="region"] {
+    max-width: calc(100vw - 1.5rem);
+  }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+  dl[class~="grid-cols-3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   }
 }
 
