@@ -5,9 +5,7 @@ import CatalogDetail from "@/components/catalog/CatalogDetail";
 import { INTEGRATION_CATALOG, INTEGRATION_PAGES } from "@/data/integration-pages";
 import { pageMetadata } from "@/lib/seo-metadata";
 
-/** Nur die Slugs aus data/integration-pages.ts existieren – alles andere ist 404. */
 export const dynamicParams = false;
-
 type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
@@ -20,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!entry) return {};
 
   return pageMetadata({
-    title: `${entry.title} verbinden`,
+    title: `${entry.title} Integration für Bahndienstleister`,
     description: entry.description,
     path: `/integrationen/${entry.slug}`,
   });
