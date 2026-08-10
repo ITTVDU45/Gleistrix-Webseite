@@ -8,6 +8,7 @@ import {
 } from "@/app/admin/blog-actions";
 import {
   AnalyzeSourceButton,
+  ArticleForm,
   GenerateArticleButton,
   SourceForm,
   TopicForm,
@@ -337,6 +338,17 @@ export default async function BlogPage() {
       <Section
         title={`Artikel (${formatNumber(articles.length)})`}
         description={`${formatNumber(liveCount)} davon öffentlich sichtbar. Geplante Artikel erscheinen ohne weiteres Zutun, sobald ihr Zeitpunkt erreicht ist.`}
+        action={
+          <Modal
+            label="Artikel anlegen"
+            title="Neuer Artikel"
+            description="Von Hand geschrieben, ohne KI. Für einen KI-Entwurf stattdessen oben ein Thema anlegen und schreiben lassen."
+          >
+            {/* Dasselbe Formular wie auf der Detailseite, nur ohne Artikel –
+                Anlegen und Bearbeiten unterscheiden sich fachlich nicht. */}
+            <ArticleForm categories={categories} />
+          </Modal>
+        }
       >
         {articles.length === 0 ? (
           <EmptyState>Noch kein Artikel angelegt.</EmptyState>
