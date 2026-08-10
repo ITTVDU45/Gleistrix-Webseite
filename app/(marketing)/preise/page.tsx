@@ -1,12 +1,13 @@
-import type { Metadata } from "next";
 import PricingSection from "@/components/pricing/pricing-section";
 import { getPublishedPricing } from "@/lib/admin/pricing";
+import { pageMetadata } from "@/lib/seo-metadata";
 
-export const metadata: Metadata = {
-  title: "Preise",
+export const metadata = pageMetadata({
+  title: "ERP Preise für Bahndienstleister",
   description:
-    "Konfiguriere Gleistrix nach Nutzern, Projektvolumen und Modulen. Transparente Monats- und Implementierungspreise für Bahndienstleister.",
-};
+    "Gleistrix Preise für Bahndienstleister: Konfiguration nach Nutzern, Projektvolumen und Modulen mit transparenten Monats- und Implementierungskosten.",
+  path: "/preise",
+});
 
 /**
  * Die Preise kommen aus dem Admin-Store, nicht aus dem Build.

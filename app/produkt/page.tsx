@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Image from "next/image";
 import { BENEFITS } from "@/app/produkt/benefits";
 import BenefitsSlider from "@/components/sections/BenefitsSlider";
@@ -8,18 +7,14 @@ import ScreensGallery from "@/components/landing/ScreensGallery";
 import SectionHeading from "@/components/landing/SectionHeading";
 import Reveal from "@/components/landing/Reveal";
 import CTASection from "@/components/sections/CTASection";
+import { pageMetadata } from "@/lib/seo-metadata";
 
-export const metadata: Metadata = {
-  title: "Plattform",
+export const metadata = pageMetadata({
+  title: "ERP Plattform für Bahnbau: Planung, Zeiterfassung & Abrechnung",
   description:
-    "Von Angebots- und Projektmanagement bis Disposition, Stundenzettel, Lohn und X-Rechnung – effizient, transparent, prüffähig.",
-  openGraph: {
-    title: "Gleistrix – das All-in-One-ERP für sichere Bahnprojekte",
-    description:
-      "Von Angebots- und Projektmanagement bis Disposition, Stundenzettel, Lohn und X-Rechnung – effizient, transparent, prüffähig.",
-    type: "website",
-  },
-};
+    "Gleistrix bündelt Projektmanagement, Disposition, Mitarbeiter, Fahrzeuge, Zeiterfassung, Dokumente, Reports und Rechnungsstellung für Bahndienstleister.",
+  path: "/produkt",
+});
 
 export default function ProduktPage() {
   return (
@@ -52,7 +47,6 @@ export default function ProduktPage() {
         </Reveal>
       </PageHero>
 
-      {/* Funktionen */}
       <section id="features" className="scroll-mt-24 bg-[#f8fafc] py-16 md:py-24">
         <div className="page-container">
           <SectionHeading
@@ -60,13 +54,10 @@ export default function ProduktPage() {
             title="Alles, was du brauchst – in einem System"
             description="Acht Kernbereiche, die nahtlos ineinandergreifen. Klick dich durch die Module."
           />
-          <div className="mt-12 md:mt-16">
-            <FeaturesAccordion />
-          </div>
+          <div className="mt-12 md:mt-16"><FeaturesAccordion /></div>
         </div>
       </section>
 
-      {/* Vorteile */}
       <section className="bg-white py-16 md:py-24">
         <div className="page-container">
           <SectionHeading
@@ -74,13 +65,10 @@ export default function ProduktPage() {
             title="Warum Teams Gleistrix in Produktion einsetzen"
             description="Weniger Abstimmung, mehr Output – Gleistrix zahlt sich im Tagesgeschäft aus."
           />
-          <div className="mt-12 md:mt-16">
-            <BenefitsSlider items={BENEFITS} autoMs={12000} />
-          </div>
+          <div className="mt-12 md:mt-16"><BenefitsSlider items={BENEFITS} autoMs={12000} /></div>
         </div>
       </section>
 
-      {/* Screens-Galerie */}
       <section className="bg-[#f8fafc] py-16 md:py-24">
         <div className="page-container">
           <SectionHeading
@@ -88,9 +76,7 @@ export default function ProduktPage() {
             title="Gleistrix in Action"
             description="Ein Blick auf Oberflächen und Workflows aus dem echten Betrieb."
           />
-          <div className="mt-12 md:mt-16">
-            <ScreensGallery />
-          </div>
+          <div className="mt-12 md:mt-16"><ScreensGallery /></div>
         </div>
       </section>
 

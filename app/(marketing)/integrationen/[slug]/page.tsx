@@ -3,11 +3,9 @@ import { notFound } from "next/navigation";
 
 import CatalogDetail from "@/components/catalog/CatalogDetail";
 import { INTEGRATION_CATALOG, INTEGRATION_PAGES } from "@/data/integration-pages";
-import { pageMetadata } from "@/lib/seo-metadata";
+import { breadcrumbJsonLd, pageMetadata } from "@/lib/seo-metadata";
 
-/** Nur die Slugs aus data/integration-pages.ts existieren – alles andere ist 404. */
 export const dynamicParams = false;
-
 type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
@@ -20,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!entry) return {};
 
   return pageMetadata({
-    title: `${entry.title} verbinden`,
+    title: `${entry.title} Integration für Bahndienstleister`,
     description: entry.description,
     path: `/integrationen/${entry.slug}`,
   });
@@ -30,9 +28,15 @@ export default async function Page({ params }: PageProps) {
   const { slug } = await params;
   const entry = INTEGRATION_PAGES.find((item) => item.slug === slug);
   if (!entry) notFound();
+  const breadcrumbs = breadcrumbJsonLd([
+    { name: "Startseite", path: "/" },
+    { name: "Integrationen", path: "/integrationen" },
+    { name: entry.title, path: `/integrationen/${entry.slug}` },
+  ]);
 
   return (
     <main className="bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
       <CatalogDetail catalog={INTEGRATION_CATALOG} entry={entry} />
     </main>
   );
