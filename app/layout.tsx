@@ -23,12 +23,10 @@ export const metadata: Metadata = {
   // Basis für alle relativen URLs in den Metadaten – ohne sie bleiben
   // canonical- und Open-Graph-Links relativ und damit für Google wertlos.
   metadataBase: new URL(SITE_URL),
-  // Nur nötig, wenn die Search Console per HTML-Tag verifiziert wird. Bei
-  // Verifizierung über einen DNS-Eintrag bleibt die Variable leer und es wird
-  // kein Tag ausgegeben.
-  ...(process.env.GOOGLE_SITE_VERIFICATION
-    ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }
-    : {}),
+  // Google Search Console Verifizierung per HTML-Meta-Tag.
+  verification: {
+    google: "6HlbxFfA3vZBIREdh7cFGMPeFJgpXcy6S3JWDMmEUx4",
+  },
   alternates: {
     // "./" löst Next je Route zur aktuellen Adresse auf. Unterseiten mit
     // eigener generateMetadata überschreiben das bei Bedarf.
