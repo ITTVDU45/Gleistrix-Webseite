@@ -205,6 +205,7 @@ async function ensureIndexes(): Promise<void> {
     index(COLLECTIONS.blogSources, { createdAt: 1 }),
     index(COLLECTIONS.blogSuggestions, { createdAt: 1 }),
     index(COLLECTIONS.blogArticles, { createdAt: 1 }),
+    index(COLLECTIONS.blogCategories, { createdAt: 1 }),
     // Die öffentliche Adresse muss eindeutig bleiben, sonst entscheidet der
     // Zufall, welcher Artikel unter /blog/<slug> erscheint.
     uniqueIndex(COLLECTIONS.blogArticles, { slug: 1 }),

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, FileText, Link2, Type } from "lucide-react";
+import { ExternalLink, FileText, Link2, Tags, Type } from "lucide-react";
 
 import {
   deleteBlogSourceAction,
@@ -22,10 +22,11 @@ import {
   formatNumber,
 } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
-import { blogAiIssue } from "@/lib/admin/blog/agent";
+import { blogAiIssue, blogAiModel } from "@/lib/admin/blog/agent";
 import {
   isPublished,
   listBlogArticles,
+  listBlogCategories,
   listBlogSources,
   listBlogSuggestions,
 } from "@/lib/admin/blog/store";
@@ -47,15 +48,31 @@ const KIND_ICON: Record<BlogSourceKind, typeof Link2> = {
 };
 
 export default async function BlogPage() {
-  const [sources, suggestions, articles] = await Promise.all([
+  const [sources, suggestions, articles, categories] = await Promise.all([
     listBlogSources(),
     listBlogSuggestions(),
     listBlogArticles(),
+    listBlogCategories(),
   ]);
 
   const aiIssue = blogAiIssue();
+  const aiModel = blogAiModel();
   const sourceById = new Map(sources.map((source) => [source.id, source]));
   const openSuggestions = suggestions.filter((entry) => entry.status !== "erledigt");
+
+  // Nach Rubrik gruppiert statt chronologisch: bei einem Dutzend Quellen sagt
+  // eine Liste nach Anlagedatum nichts mehr darueber, was man eigentlich hat.
+  // Noch nicht ausgewertete Quellen stehen oben – dort ist etwas zu tun.
+  const UNSORTED = "Noch nicht ausgewertet";
+  const describe = new Map(categories.map((entry) => [entry.name, entry.description]));
+  const grouped = new Map<string, typeof sources>();
+  for (const source of sources) {
+    const key = source.category || UNSORTED;
+    grouped.set(key, [...(grouped.get(key) ?? []), source]);
+  }
+  const groups = [...grouped.entries()].sort(([a], [b]) =>
+    a === UNSORTED ? -1 : b === UNSORTED ? 1 : a.localeCompare(b),
+  );
   const liveCount = articles.filter((article) => isPublished(article)).length;
 
   return (
@@ -68,7 +85,14 @@ export default async function BlogPage() {
           <Link href="/blog" className="text-primary underline-offset-4 hover:underline">
             /blog
           </Link>{" "}
-          und in der Sektion der Startseite.
+          und in der Sektion der Startseite. Rubriken werden unter{" "}
+          <Link
+            href="/admin/blog/kategorien"
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            Kategorien
+          </Link>{" "}
+          gepflegt.
         </p>
       </header>
 
@@ -79,13 +103,17 @@ export default async function BlogPage() {
         >
           {aiIssue} Quellen und Artikel lassen sich weiterhin von Hand pflegen.
         </p>
-      ) : null}
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          KI-Anbindung aktiv: <span className="font-medium">{aiModel}</span>
+        </p>
+      )}
 
       {/* ------------------------------------------------------------ Quellen */}
 
       <Section
         title={`Quellen (${formatNumber(sources.length)})`}
-        description="Links, eingefügte Texte und Dokumente, aus denen Themen entstehen."
+        description="Links, eingefügte Texte und Dokumente. Die Auswertung ordnet jede Quelle einer Rubrik zu – ausgewertet wird immer nur eine Quelle, nie mehrere zusammen."
         action={
           <Modal
             label="Quelle hinzufügen"
@@ -102,71 +130,101 @@ export default async function BlogPage() {
             Projektbericht reicht als Ausgangspunkt.
           </EmptyState>
         ) : (
-          <ul className="space-y-3">
-            {sources.map((source) => {
-              const Icon = KIND_ICON[source.kind];
-              const derived = suggestions.filter((entry) => entry.sourceIds.includes(source.id));
+          <div className="space-y-6">
+            {groups.map(([group, entries]) => (
+              <div key={group}>
+                <h3 className="mb-2.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <Tags className="size-3.5" aria-hidden />
+                  {group}
+                  <span className="font-normal normal-case tracking-normal">
+                    ({formatNumber(entries.length)})
+                  </span>
+                </h3>
 
-              return (
-                <li key={source.id} className="rounded-xl border p-3.5">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="flex min-w-0 gap-3">
-                      <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{source.title}</p>
-                        <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                          {source.kind === "link" ? (
-                            <a
-                              href={source.origin}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                            >
-                              {source.origin}
-                            </a>
-                          ) : (
-                            source.origin || `${formatNumber(source.text.length)} Zeichen Text`
-                          )}
-                          {" · "}
-                          {formatDateTime(source.createdAt)}
-                        </p>
-                      </div>
-                    </div>
+                {describe.get(group) ? (
+                  <p className="mb-2.5 text-xs text-muted-foreground">{describe.get(group)}</p>
+                ) : null}
 
-                    <div className="flex shrink-0 flex-wrap items-center gap-2">
-                      <BlogAnalysisStatusPill status={source.status} />
-                      {derived.length > 0 ? (
-                        <NeutralBadge>
-                          {formatNumber(derived.length)}{" "}
-                          {derived.length === 1 ? "Vorschlag" : "Vorschläge"}
-                        </NeutralBadge>
-                      ) : null}
-                    </div>
-                  </div>
+                <ul className="space-y-3">
+                  {entries.map((source) => {
+                    const Icon = KIND_ICON[source.kind];
+                    const derived = suggestions.filter((entry) =>
+                      entry.sourceIds.includes(source.id),
+                    );
 
-                  {source.error ? (
-                    <p className="mt-2 rounded-md bg-rose-50 px-3 py-2 text-xs text-rose-700">
-                      {source.error}
-                    </p>
-                  ) : null}
+                    return (
+                      <li key={source.id} className="rounded-xl border p-3.5">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div className="flex min-w-0 gap-3">
+                            <Icon
+                              className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                              aria-hidden
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">{source.title}</p>
+                              <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                                {source.kind === "link" ? (
+                                  <a
+                                    href={source.origin}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:underline"
+                                  >
+                                    {source.origin}
+                                  </a>
+                                ) : (
+                                  source.origin ||
+                                  `${formatNumber(source.text.length)} Zeichen Text`
+                                )}
+                                {" · "}
+                                {formatDateTime(source.createdAt)}
+                              </p>
+                            </div>
+                          </div>
 
-                  <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
-                    <AnalyzeSourceButton
-                      sourceId={source.id}
-                      disabled={Boolean(aiIssue)}
-                      again={source.status === "fertig"}
-                    />
-                    <form action={deleteBlogSourceAction}>
-                      <input type="hidden" name="sourceId" value={source.id} />
-                      <Button type="submit" size="sm" variant="ghost">
-                        Löschen
-                      </Button>
-                    </form>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                          <div className="flex shrink-0 flex-wrap items-center gap-2">
+                            <BlogAnalysisStatusPill status={source.status} />
+                            {derived.length > 0 ? (
+                              <NeutralBadge>
+                                {formatNumber(derived.length)}{" "}
+                                {derived.length === 1 ? "Vorschlag" : "Vorschläge"}
+                              </NeutralBadge>
+                            ) : null}
+                          </div>
+                        </div>
+
+                        {source.summary ? (
+                          <p className="mt-2 pl-7 text-xs leading-5 text-muted-foreground">
+                            {source.summary}
+                          </p>
+                        ) : null}
+
+                        {source.error ? (
+                          <p className="mt-2 rounded-md bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                            {source.error}
+                          </p>
+                        ) : null}
+
+                        <div className="mt-3 flex flex-wrap items-end justify-between gap-2">
+                          <AnalyzeSourceButton
+                            sourceId={source.id}
+                            disabled={Boolean(aiIssue)}
+                            again={source.status === "fertig"}
+                          />
+                          <form action={deleteBlogSourceAction}>
+                            <input type="hidden" name="sourceId" value={source.id} />
+                            <Button type="submit" size="sm" variant="ghost">
+                              Löschen
+                            </Button>
+                          </form>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         )}
       </Section>
 
@@ -195,10 +253,27 @@ export default async function BlogPage() {
 
                 <p className="mt-2 text-xs text-muted-foreground">
                   Leitwort: <span className="font-medium">{suggestion.keyword || "—"}</span>
-                  {" · Quelle: "}
-                  {suggestion.sourceIds
-                    .map((id) => sourceById.get(id)?.title ?? "gelöscht")
-                    .join(", ")}
+                </p>
+                {/* Herkunft eigenstaendig und nicht als Nebensatz: bei mehreren
+                    Quellen ist das die Angabe, an der man erkennt, worauf ein
+                    Artikel spaeter beruht. */}
+                <p className="mt-1 flex flex-wrap items-center gap-1.5 text-xs">
+                  <span className="text-muted-foreground">Aus:</span>
+                  {suggestion.sourceIds.map((id) => {
+                    const source = sourceById.get(id);
+                    return (
+                      <span
+                        key={id}
+                        className={
+                          source
+                            ? "rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-700"
+                            : "rounded bg-rose-50 px-1.5 py-0.5 font-medium text-rose-700"
+                        }
+                      >
+                        {source ? source.title : "Quelle gelöscht"}
+                      </span>
+                    );
+                  })}
                 </p>
 
                 {suggestion.error ? (

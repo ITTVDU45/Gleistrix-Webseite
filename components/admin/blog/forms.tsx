@@ -8,6 +8,7 @@ import {
   analyzeBlogSourceAction,
   generateBlogArticleAction,
   saveBlogArticleAction,
+  saveBlogCategoryAction,
   saveBlogSourceAction,
 } from "@/app/admin/blog-actions";
 import { useDialogForm } from "@/components/admin/pricing/Modal";
@@ -20,8 +21,12 @@ import {
 } from "@/components/admin/pricing/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { BLOG_CATEGORIES } from "@/data/blog";
-import type { BlogArticle, BlogArticleStatus, BlogSourceKind } from "@/types/blog";
+import type {
+  BlogArticle,
+  BlogArticleStatus,
+  BlogCategory,
+  BlogSourceKind,
+} from "@/types/blog";
 
 /* ------------------------------------------------------------------ Quellen */
 
@@ -234,7 +239,13 @@ function toLocalInput(iso?: string): string {
  * nachgeschärft wird – und das erlaubte Tag-Set ist klein genug, um es zu
  * tippen. Nicht erlaubte Elemente entfernt der Server beim Speichern.
  */
-export function ArticleForm({ article }: { article?: BlogArticle }) {
+export function ArticleForm({
+  article,
+  categories,
+}: {
+  article?: BlogArticle;
+  categories: BlogCategory[];
+}) {
   const [state, formAction, isPending] = useActionState<FormState, FormData>(
     saveBlogArticleAction,
     {},
@@ -275,18 +286,32 @@ export function ArticleForm({ article }: { article?: BlogArticle }) {
           <Input id="article-teaser" name="teaser" defaultValue={article?.teaser ?? ""} />
         </Field>
 
-        <Field id="article-category" label="Rubrik">
-          <Input
+        <Field
+          id="article-category"
+          label="Rubrik"
+          hint="Gepflegt unter Blog & News → Kategorien."
+        >
+          {/* Auswahl statt Freitext: eine getippte Rubrik, die es nicht gibt,
+              taucht auf der oeffentlichen Seite als eigene Gruppe auf und
+              faellt niemandem auf, bis die Uebersicht zerfaellt. */}
+          <select
             id="article-category"
             name="category"
-            list="blog-categories"
-            defaultValue={article?.category ?? ""}
-          />
-          <datalist id="blog-categories">
-            {BLOG_CATEGORIES.map((value) => (
-              <option key={value} value={value} />
+            defaultValue={article?.category ?? categories[0]?.name ?? ""}
+            className={SELECT_CLASS}
+            required
+          >
+            {categories.map((entry) => (
+              <option key={entry.id} value={entry.name}>
+                {entry.name}
+              </option>
             ))}
-          </datalist>
+            {/* Eine Rubrik, die inzwischen geloescht wurde, bliebe sonst
+                unsichtbar und wuerde beim Speichern still ueberschrieben. */}
+            {article?.category && !categories.some((e) => e.name === article.category) ? (
+              <option value={article.category}>{article.category} (nicht mehr gepflegt)</option>
+            ) : null}
+          </select>
         </Field>
 
         <Field id="article-tags" label="Schlagwörter" hint="Mit Komma getrennt.">
@@ -439,6 +464,54 @@ export function ArticleForm({ article }: { article?: BlogArticle }) {
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Wird gespeichert …" : "Speichern"}
+      </Button>
+    </form>
+  );
+}
+
+/* ----------------------------------------------------------------- Rubriken */
+
+/**
+ * Rubrik anlegen oder bearbeiten.
+ *
+ * Die Beschreibung ist kein Beiwerk: sie steht im Prompt der Quellenauswertung
+ * und entscheidet mit, wohin das Modell eine Quelle einordnet. Eine Rubrik ohne
+ * Beschreibung wird schlechter getroffen.
+ */
+export function CategoryForm({ category }: { category?: BlogCategory }) {
+  const [state, formAction, isPending] = useActionState<FormState, FormData>(
+    saveBlogCategoryAction,
+    {},
+  );
+  const formRef = useDialogForm(state, !category);
+  const prefix = category ? `rubrik-${category.id}` : "rubrik-neu";
+
+  return (
+    <form ref={formRef} action={formAction} className="space-y-4">
+      <input type="hidden" name="categoryId" value={category?.id ?? ""} />
+
+      <Field id={`${prefix}-name`} label="Name">
+        <Input id={`${prefix}-name`} name="name" defaultValue={category?.name ?? ""} required />
+      </Field>
+
+      <Field
+        id={`${prefix}-description`}
+        label="Beschreibung"
+        hint="Wofuer steht die Rubrik? Danach ordnet die Auswertung neue Quellen ein – je konkreter, desto treffsicherer."
+      >
+        <textarea
+          id={`${prefix}-description`}
+          name="description"
+          rows={3}
+          defaultValue={category?.description ?? ""}
+          className={TEXTAREA_CLASS}
+        />
+      </Field>
+
+      <FormMessage state={state} />
+
+      <Button type="submit" size="sm" variant={category ? "outline" : "default"} disabled={isPending}>
+        {isPending ? "Wird gespeichert …" : category ? "Speichern" : "Rubrik anlegen"}
       </Button>
     </form>
   );

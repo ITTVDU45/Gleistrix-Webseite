@@ -76,6 +76,7 @@ export function normalize(parsed: Partial<AdminStore>): AdminStore {
     blogSources: parsed.blogSources ?? [],
     blogSuggestions: parsed.blogSuggestions ?? [],
     blogArticles: parsed.blogArticles ?? [],
+    blogCategories: parsed.blogCategories ?? [],
   };
 }
 

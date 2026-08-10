@@ -13,7 +13,13 @@ import {
   formatDateTime,
 } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
-import { getBlogArticle, isPublished, listBlogSources, readMinutes } from "@/lib/admin/blog/store";
+import {
+  getBlogArticle,
+  isPublished,
+  listBlogCategories,
+  listBlogSources,
+  readMinutes,
+} from "@/lib/admin/blog/store";
 
 /** Wie in der Übersicht: das Speichern kann einen Bild-Upload anstoßen. */
 export const maxDuration = 300;
@@ -27,9 +33,8 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ id
   const article = await getBlogArticle((await params).id);
   if (!article) notFound();
 
-  const sources = (await listBlogSources()).filter((source) =>
-    article.sourceIds.includes(source.id),
-  );
+  const [allSources, categories] = await Promise.all([listBlogSources(), listBlogCategories()]);
+  const sources = allSources.filter((source) => article.sourceIds.includes(source.id));
   const live = isPublished(article);
 
   return (
@@ -65,7 +70,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ id
       </header>
 
       <Section title="Artikel bearbeiten">
-        <ArticleForm article={article} />
+        <ArticleForm article={article} categories={categories} />
       </Section>
 
       <Section

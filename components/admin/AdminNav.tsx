@@ -10,6 +10,7 @@ import {
   Inbox,
   LayoutDashboard,
   Newspaper,
+  Tags,
   Package,
   PlayCircle,
   Receipt,
@@ -29,16 +30,26 @@ const ITEMS = [
   { href: "/admin/pakete", label: "Pakete", icon: Package, exact: false },
   { href: "/admin/module", label: "Module", icon: Boxes, exact: false },
   { href: "/admin/blog", label: "Blog & News", icon: Newspaper, exact: false },
+  { href: "/admin/blog/kategorien", label: "Kategorien", icon: Tags, exact: false, indent: true },
   { href: "/admin/einstellungen", label: "Einstellungen", icon: Settings, exact: false },
 ] as const;
 
 export default function AdminNav() {
   const pathname = usePathname() ?? "";
 
+  // Die laengste passende Adresse gewinnt. Ohne das waere auf
+  // /admin/blog/kategorien auch der Elterneintrag markiert, weil startsWith
+  // auf beide passt – und niemand wuesste, wo er gerade ist.
+  const current = ITEMS.filter((item) =>
+    item.exact ? pathname === item.href : pathname.startsWith(item.href),
+  ).sort((a, b) => b.href.length - a.href.length)[0]?.href;
+
   return (
     <nav aria-label="Adminbereich" className="flex flex-col gap-1">
-      {ITEMS.map(({ href, label, icon: Icon, exact }) => {
-        const isActive = exact ? pathname === href : pathname.startsWith(href);
+      {ITEMS.map((item) => {
+        const { href, label, icon: Icon } = item;
+        const isActive = href === current;
+        const indent = "indent" in item && item.indent;
 
         return (
           <Link
@@ -47,6 +58,7 @@ export default function AdminNav() {
             aria-current={isActive ? "page" : undefined}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+              indent && "ml-3 py-1.5 text-[13px]",
               isActive
                 ? "bg-white/10 font-medium text-white"
                 : "text-slate-400 hover:bg-white/5 hover:text-slate-100",

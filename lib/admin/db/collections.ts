@@ -36,6 +36,7 @@ export const COLLECTIONS = {
   blogSources: "blog_sources",
   blogSuggestions: "blog_suggestions",
   blogArticles: "blog_articles",
+  blogCategories: "blog_categories",
   blogFiles: "blog_files",
 } as const;
 

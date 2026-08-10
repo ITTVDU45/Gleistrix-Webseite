@@ -43,7 +43,7 @@ delete process.env.MONGODB_URI;
 delete process.env.MONGODB_HOST;
 
 try {
-  const { DEFAULT_BLOG_ARTICLES } = await import("../../../data/blog.ts");
+  const { DEFAULT_BLOG_ARTICLES, DEFAULT_BLOG_CATEGORIES } = await import("../../../data/blog.ts");
   const {
     deleteBlogArticle,
     getPublicArticle,
@@ -52,6 +52,10 @@ try {
     listPublicArticles,
     readMinutes,
     saveBlogArticle,
+    saveBlogCategory,
+    deleteBlogCategory,
+    listBlogCategories,
+    articleCountByCategory,
     uniqueSlug,
   } = await import("./store.ts");
   const { sanitizeArticleHtml } = await import("./html.ts");
@@ -169,6 +173,58 @@ try {
 
   // 14. Lesezeit zählt Wörter, keine Tags.
   assert.equal(readMinutes("<p>ein wort</p>"), 1);
+
+  /* ----------------------------------------------------------------- Rubriken */
+
+  // 15. Leere Ablage ⇒ Auslieferungszustand. Sonst stünde im Artikelformular
+  // vor der ersten Pflege eine leere Auswahl.
+  assert.equal((await listBlogCategories()).length, DEFAULT_BLOG_CATEGORIES.length);
+
+  // 16. Eine neue Rubrik kommt dazu, ohne die Standardliste zu verdrängen.
+  const neu = {
+    id: "sperrpausen",
+    name: "Sperrpausen",
+    slug: "sperrpausen",
+    description: "Planung und Nachweis von Sperrpausen.",
+    createdAt: "2026-08-10T12:00:00.000Z",
+  };
+  await saveBlogCategory(neu);
+  const nachAnlegen = await listBlogCategories();
+  assert.equal(
+    nachAnlegen.length,
+    DEFAULT_BLOG_CATEGORIES.length + 1,
+    "Anlegen muss den Auslieferungszustand verankern, nicht ersetzen",
+  );
+  assert.ok(nachAnlegen.some((entry) => entry.name === "Sperrpausen"));
+
+  // 17. Der Kern: Umbenennen zieht auf die Artikel durch. Ohne das trüge der
+  // Artikel eine Rubrik, die es in der Verwaltung nicht mehr gibt – und wäre
+  // im Formular nicht mehr auswählbar.
+  await saveBlogArticle({ ...base, id: "rubrik-test", slug: "rubrik-test", category: "Sperrpausen" });
+  await saveBlogCategory({ ...neu, name: "Sperrzeiten" });
+  const umbenannt = await listBlogArticles();
+  assert.equal(
+    umbenannt.find((a) => a.id === "rubrik-test")?.category,
+    "Sperrzeiten",
+    "Ein umbenannte Rubrik muss auf die Artikel durchziehen",
+  );
+
+  // 18. Zählung je Rubrik – Grundlage für die Warnung vor dem Löschen.
+  assert.equal((await articleCountByCategory()).get("Sperrzeiten"), 1);
+
+  // 19. Löschen entfernt die Rubrik, lässt den Artikel aber stehen. Ein
+  // veröffentlichter Artikel darf nicht verschwinden, weil jemand aufgeräumt hat.
+  await deleteBlogCategory(neu.id);
+  assert.equal(
+    (await listBlogCategories()).some((entry) => entry.id === neu.id),
+    false,
+    "Die gelöschte Rubrik ist weg",
+  );
+  assert.equal(
+    (await listBlogArticles()).find((a) => a.id === "rubrik-test")?.category,
+    "Sperrzeiten",
+    "Der Artikel behält seine Rubrik als Text",
+  );
 
   console.log("blog/store.check: alle Prüfungen bestanden");
 } finally {

@@ -15,14 +15,18 @@ import {
 import { sanitizeArticleHtml } from "@/lib/admin/blog/html";
 import {
   deleteBlogArticle,
+  deleteBlogCategory,
   deleteBlogSource,
   deleteBlogSuggestion,
   getBlogArticle,
+  getBlogCategory,
   getBlogSource,
   getBlogSuggestion,
   listBlogArticles,
+  listBlogCategories,
   listBlogSources,
   saveBlogArticle,
+  saveBlogCategory,
   saveBlogSource,
   saveBlogSuggestion,
   slugify,
@@ -168,18 +172,22 @@ export async function analyzeBlogSourceAction(
   await saveBlogSource({ ...source, status: "laeuft", error: undefined });
 
   try {
-    const suggestions = await analyzeSource(source);
-    for (const suggestion of suggestions) await saveBlogSuggestion(suggestion);
+    const analysis = await analyzeSource(source, await listBlogCategories());
+    for (const suggestion of analysis.suggestions) await saveBlogSuggestion(suggestion);
 
     await saveBlogSource({
       ...source,
+      category: analysis.category,
+      summary: analysis.summary,
       status: "fertig",
       error: undefined,
       analyzedAt: new Date().toISOString(),
     });
     revalidatePath("/admin/blog");
+
+    const count = analysis.suggestions.length;
     return {
-      success: `${suggestions.length} ${suggestions.length === 1 ? "Vorschlag" : "Vorschläge"} aus „${source.title}“.`,
+      success: `„${source.title}“ eingeordnet unter ${analysis.category} – ${count} ${count === 1 ? "Vorschlag" : "Vorschläge"}.`,
     };
   } catch (error) {
     const text = message(error, "Die Analyse ist fehlgeschlagen.");
@@ -222,7 +230,12 @@ export async function generateBlogArticleAction(
     );
     const taken = (await listBlogArticles()).map((article) => article.slug);
 
-    const article = await writeArticleFromSuggestion(suggestion, sources, taken);
+    const article = await writeArticleFromSuggestion(
+      suggestion,
+      sources,
+      taken,
+      await listBlogCategories(),
+    );
     await saveBlogArticle(article);
     await saveBlogSuggestion({
       ...suggestion,
@@ -388,6 +401,61 @@ export async function setBlogArticleStatusAction(data: FormData): Promise<void> 
   });
   revalidateBlog(article.slug);
 }
+
+/* ----------------------------------------------------------------- Rubriken */
+
+/**
+ * Legt eine Rubrik an oder benennt sie um.
+ *
+ * Die Kennung bleibt beim Umbenennen erhalten, der Name zieht auf Artikel und
+ * Quellen durch (siehe saveBlogCategory in store.ts). Zwei Rubriken mit
+ * demselben Namen wären in der Auswahl nicht unterscheidbar – deshalb der
+ * Namensabgleich vorab.
+ */
+export async function saveBlogCategoryAction(
+  _prev: FormState,
+  data: FormData,
+): Promise<FormState> {
+  const name = field(data, "name");
+  if (!name) return { error: "Name fehlt." };
+
+  const categoryId = field(data, "categoryId");
+  const existing = categoryId ? await getBlogCategory(categoryId) : null;
+  if (categoryId && !existing) return { error: "Unbekannte Rubrik." };
+
+  const all = await listBlogCategories();
+  const clash = all.find(
+    (entry) => entry.id !== categoryId && entry.name.toLowerCase() === name.toLowerCase(),
+  );
+  if (clash) return { error: `Die Rubrik „${clash.name}“ gibt es bereits.` };
+
+  const slug = slugify(name);
+  if (!slug) return { error: "Aus dem Namen lässt sich keine Adresse bilden." };
+
+  await saveBlogCategory({
+    id: existing?.id ?? uniqueSlug(name, all.map((entry) => entry.id), "rubrik"),
+    name,
+    slug: existing?.slug ?? uniqueSlug(name, all.map((entry) => entry.slug), "rubrik"),
+    description: field(data, "description"),
+    createdAt: existing?.createdAt ?? new Date().toISOString(),
+  });
+
+  revalidateBlog();
+  revalidatePath("/admin/blog/kategorien");
+  return {
+    success: existing
+      ? `Rubrik „${name}“ gespeichert.${existing.name !== name ? " Artikel und Quellen wurden mitgezogen." : ""}`
+      : `Rubrik „${name}“ angelegt.`,
+  };
+}
+
+export async function deleteBlogCategoryAction(data: FormData): Promise<void> {
+  await deleteBlogCategory(field(data, "categoryId"));
+  revalidatePath("/admin/blog/kategorien");
+  revalidatePath("/admin/blog");
+}
+
+/* ------------------------------------------------------------------ Artikel */
 
 export async function deleteBlogArticleAction(data: FormData): Promise<void> {
   const id = field(data, "articleId");

@@ -1,6 +1,12 @@
-import { DEFAULT_BLOG_ARTICLES, WORDS_PER_MINUTE } from "@/data/blog";
+import { DEFAULT_BLOG_ARTICLES, DEFAULT_BLOG_CATEGORIES, WORDS_PER_MINUTE } from "@/data/blog";
 import type { AdminStore } from "@/types/admin";
-import type { BlogArticle, BlogSource, BlogSuggestion, PublicBlogArticle } from "@/types/blog";
+import type {
+  BlogArticle,
+  BlogCategory,
+  BlogSource,
+  BlogSuggestion,
+  PublicBlogArticle,
+} from "@/types/blog";
 
 import { bootstrap } from "../db/bootstrap";
 import { COLLECTIONS, col, fromDoc, toDoc } from "../db/collections";
@@ -20,7 +26,7 @@ import { isMongoConfigured } from "../mongo";
  */
 
 type Entity = { id: string };
-type StoreKey = "blogSources" | "blogSuggestions" | "blogArticles";
+type StoreKey = "blogSources" | "blogSuggestions" | "blogArticles" | "blogCategories";
 
 /**
  * Ein Eimer je Entität.
@@ -125,6 +131,90 @@ export const listBlogSuggestions = suggestions.list;
 export const getBlogSuggestion = suggestions.get;
 export const saveBlogSuggestion = suggestions.save;
 export const deleteBlogSuggestion = suggestions.remove;
+
+/* ---------------------------------------------------------------- Rubriken */
+
+const categories = bucket<BlogCategory>(COLLECTIONS.blogCategories, "blogCategories");
+
+export const getBlogCategory = categories.get;
+
+/**
+ * Alle Rubriken – älteste zuerst, damit die Liste im Adminbereich stabil bleibt.
+ *
+ * Leere Ablage ⇒ Auslieferungszustand, wie bei den Artikeln. Ohne diesen
+ * Rückfall stünde im Artikelformular vor der ersten Pflege eine leere Auswahl,
+ * und die sechs Standardartikel trügen Rubriken, die es „nicht gibt“.
+ */
+export async function listBlogCategories(): Promise<BlogCategory[]> {
+  try {
+    const stored = await categories.list();
+    return stored.length > 0 ? [...stored].reverse() : DEFAULT_BLOG_CATEGORIES;
+  } catch (error) {
+    console.error("Blog-Rubriken konnten nicht gelesen werden:", error);
+    return DEFAULT_BLOG_CATEGORIES;
+  }
+}
+
+/** Nur die Namen – das ist die Form, in der Artikel und Quellen darauf verweisen. */
+export async function categoryNames(): Promise<string[]> {
+  return (await listBlogCategories()).map((entry) => entry.name);
+}
+
+async function materializeDefaultCategories(): Promise<void> {
+  if ((await categories.list()).length > 0) return;
+  for (const entry of DEFAULT_BLOG_CATEGORIES) await categories.save(entry);
+}
+
+/**
+ * Legt eine Rubrik an oder benennt sie um.
+ *
+ * Beim Umbenennen ziehen Artikel und Quellen mit: sie verweisen über den Namen,
+ * ein stehengebliebener alter Name wäre eine Rubrik, die es nicht mehr gibt.
+ * Genau deshalb ist das hier und nicht in der Server Action – ein zweiter
+ * Schreiber, der das vergisst, hinterlässt stille Waisen.
+ */
+export async function saveBlogCategory(category: BlogCategory): Promise<void> {
+  await materializeDefaultCategories();
+  const previous = await categories.get(category.id);
+  await categories.save(category);
+
+  if (!previous || previous.name === category.name) return;
+
+  await materializeDefaults();
+  for (const article of await articles.list()) {
+    if (article.category === previous.name) {
+      await articles.save({ ...article, category: category.name });
+    }
+  }
+  for (const source of await sources.list()) {
+    if (source.category === previous.name) {
+      await sources.save({ ...source, category: category.name });
+    }
+  }
+}
+
+/**
+ * Löscht eine Rubrik. Artikel behalten ihren Namen als Text.
+ *
+ * Bewusst kein Kaskadenlöschen und kein Umhängen: ein veröffentlichter Artikel
+ * darf nicht verschwinden oder stillschweigend die Rubrik wechseln, weil jemand
+ * im Adminbereich aufgeräumt hat. Der Adminbereich zeigt stattdessen an, wie
+ * viele Artikel betroffen wären.
+ */
+export async function deleteBlogCategory(id: string): Promise<void> {
+  await materializeDefaultCategories();
+  await categories.remove(id);
+}
+
+/** Wie viele Artikel hängen an einer Rubrik – für die Warnung vor dem Löschen. */
+export async function articleCountByCategory(): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  for (const article of await listBlogArticles()) {
+    if (!article.category) continue;
+    counts.set(article.category, (counts.get(article.category) ?? 0) + 1);
+  }
+  return counts;
+}
 
 /* ------------------------------------------------------------------ Artikel */
 

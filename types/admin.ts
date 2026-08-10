@@ -1,4 +1,4 @@
-import type { BlogArticle, BlogSource, BlogSuggestion } from "./blog";
+import type { BlogArticle, BlogCategory, BlogSource, BlogSuggestion } from "./blog";
 import type { LandingModule, LandingModuleTexts } from "./landing";
 import type { PricingConfig } from "./pricing";
 
@@ -368,4 +368,6 @@ export type AdminStore = {
   blogSuggestions?: BlogSuggestion[];
   /** Blogartikel. Leer ⇒ Auslieferungszustand aus data/blog.ts. */
   blogArticles?: BlogArticle[];
+  /** Rubriken für Quellen und Artikel. Leer ⇒ Auslieferungszustand. */
+  blogCategories?: BlogCategory[];
 };

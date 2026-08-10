@@ -1,4 +1,4 @@
-import type { BlogArticle } from "@/types/blog";
+import type { BlogArticle, BlogCategory } from "@/types/blog";
 
 /**
  * Auslieferungszustand des Blogs.
@@ -11,16 +11,73 @@ import type { BlogArticle } from "@/types/blog";
  * jetzt mit Adresse, Text und SEO-Feldern, damit sie eine eigene Seite haben.
  */
 
-/** Vorschlagsliste für das Kategoriefeld – frei überschreibbar. */
-export const BLOG_CATEGORIES = [
-  "Disposition",
-  "Sicherung",
-  "Fuhrpark",
-  "Abrechnung",
-  "Zeiterfassung",
-  "Auswertung",
-  "Digitalisierung",
-] as const;
+function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/ä/g, "ae")
+    .replace(/ö/g, "oe")
+    .replace(/ü/g, "ue")
+    .replace(/ß/g, "ss")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
+ * Auslieferungszustand der Rubriken.
+ *
+ * Wie bei den Artikeln: leere Ablage ⇒ diese Liste. Gepflegt wird sie unter
+ * /admin/blog/kategorien. Die Beschreibung geht in den Prompt der Auswertung
+ * ein – daran erkennt das Modell, wohin eine Quelle gehört. Eine Rubrik ohne
+ * Beschreibung ist deshalb eine schlechtere Rubrik.
+ */
+export const DEFAULT_BLOG_CATEGORIES: BlogCategory[] = (
+  [
+    ["Disposition", "Einsatzplanung, Plantafel, Truppzuordnung, Anfahrt und kurzfristige Umplanung."],
+    ["Sicherung", "Sicherungsposten, Sperrpausen, Bahnübergänge, Nachweise und Qualifikationen."],
+    ["Fuhrpark", "Fahrzeuge, Zweiwegetechnik, Messtechnik, Verfügbarkeit, Wartung und Prüffristen."],
+    ["Zeiterfassung", "Stundenzettel, Zuschläge, Freigabe, Kostenstellen und mobile Erfassung."],
+    ["Abrechnung", "Leistungsnachweis, Nachträge, X-Rechnung und öffentliche Auftraggeber."],
+    ["Auswertung", "Auslastung, Deckungsbeitrag, Soll-Ist-Vergleich und Controlling."],
+    ["Dokumentation", "Bautagebuch, Fotos, Mängel, Übergaben und revisionssichere Ablage."],
+    ["Digitalisierung", "Medienbrüche, Einführung, Schnittstellen und Arbeit ohne Netz im Gleisbereich."],
+  ] as const
+).map(([name, description]) => ({
+  id: slugifyName(name),
+  name,
+  slug: slugifyName(name),
+  description,
+  createdAt: "2026-06-01T08:00:00.000Z",
+}));
+
+/**
+ * Was Gleistrix kann – Grundlage für den Produktbezug in jedem Artikel.
+ *
+ * Steht hier und nicht im Prompt-Text, weil es sich ändert, sobald ein Modul
+ * dazukommt: eine Stelle zum Pflegen statt drei Stellen zum Suchen. Bewusst als
+ * nüchterne Aufzählung – das Modell soll daraus ableiten, nicht abschreiben.
+ * Der Abschnitt „Was Gleistrix NICHT ist“ steht dort gegen erfundene
+ * Fähigkeiten: ein Blogartikel, der etwas verspricht, was das Produkt nicht
+ * kann, kostet im Vertriebsgespräch mehr, als er vorher eingebracht hat.
+ */
+export const GLEISTRIX_CONTEXT = `Gleistrix ist eine ERP-Plattform für Bahndienstleister, Gleisbau- und
+Infrastrukturbetriebe. Alles läuft auf einem Datenstand, damit zwischen Planung,
+Einsatz und Abrechnung keine Medienbrüche entstehen.
+
+Module:
+- Projektplanung und Disposition: Einsätze, Trupps und Termine auf einer Plantafel,
+  mit Prüfung von Qualifikation und Verfügbarkeit schon beim Zuordnen.
+- Kalender und Einsatzübersicht: Personal, Fahrzeuge und Projekte auf derselben Zeitachse.
+- Mitarbeiterverwaltung: Qualifikationen, Nachweise und Fristen mit Ablaufwarnung.
+- Dokumentenmanagement: Bautagebuch, Fotos und Nachweise am Projekt statt im Ordner.
+- Fahrzeuge und Technik: Belegung, Wartungsfenster und Prüftermine als planbare Zeiten.
+- Zeiterfassung und Stundenzettel: mobil am Einsatzort, auch ohne Netz, mit Freigabelauf.
+- Rechnungsstellung: Rechnungsentwurf aus freigegebenen Leistungen, inklusive X-Rechnung.
+- Reports und Auswertungen: Auslastung und Deckungsbeitrag je Projekt, laufend statt zum Monatsende.
+
+KI-Agenten: LV-Agent, Dokumentationsagent, Mängel-Agent, Ausschreibungsagent, Abrechnungsagent.
+
+Was Gleistrix NICHT ist: kein Planungsbüro, keine Vermessungssoftware, kein Ersatz für
+betriebliche Regelwerke. Fähigkeiten, die oben nicht stehen, werden nicht behauptet.`;
 
 /** Wörter je Minute für die Lesezeit – bewusst konservativ für Fachtexte. */
 export const WORDS_PER_MINUTE = 200;

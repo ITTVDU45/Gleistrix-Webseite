@@ -19,10 +19,35 @@ export type BlogSourceKind = "link" | "text" | "datei";
 /** Wie weit die KI-Auswertung einer Quelle ist. */
 export type BlogAnalysisStatus = "offen" | "laeuft" | "fertig" | "fehler";
 
+/**
+ * Rubrik, unter der Quellen und Artikel geführt werden.
+ *
+ * Der Name ist die Identität – Artikel verweisen über `category` auf ihn, nicht
+ * über die Kennung. Das spart einen Verweis bei jedem Lesen und hält die
+ * öffentliche Seite unabhängig von der Verwaltung. Preis dafür: Umbenennen muss
+ * auf die Artikel durchziehen, siehe saveBlogCategory in store.ts.
+ */
+export type BlogCategory = {
+  /** Aus dem Namen abgeleitet, nach dem Anlegen unverändert. */
+  id: string;
+  name: string;
+  /** Für spätere Rubrikseiten unter /blog/kategorie/<slug>. */
+  slug: string;
+  description: string;
+  createdAt: string;
+};
+
 export type BlogSource = {
   id: string;
   title: string;
   kind: BlogSourceKind;
+  /**
+   * Rubrik, die die Auswertung der Quelle zugeordnet hat. Vor der Analyse leer –
+   * dann steht die Quelle im Adminbereich unter „Noch nicht ausgewertet“.
+   */
+  category?: string;
+  /** Worum es in der Quelle geht, in zwei Sätzen. Ergebnis der Auswertung. */
+  summary?: string;
   /** Bei "link" die Adresse, bei "datei" der Dateiname – sonst leer. */
   origin: string;
   /**
