@@ -5,9 +5,7 @@ import CatalogDetail from "@/components/catalog/CatalogDetail";
 import { INDUSTRIES, INDUSTRY_CATALOG } from "@/data/industries";
 import { pageMetadata } from "@/lib/seo-metadata";
 
-/** Nur die Slugs aus data/industries.ts existieren – alles andere ist 404. */
 export const dynamicParams = false;
-
 type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
@@ -20,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!entry) return {};
 
   return pageMetadata({
-    title: entry.title,
+    title: `Software für ${entry.title}`,
     description: entry.description,
     path: `/branchen/${entry.slug}`,
   });
