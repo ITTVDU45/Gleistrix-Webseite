@@ -223,6 +223,143 @@
   }
 }
 
+/* ─────────────────────────── Prozess-Timeline (WorkflowSection) ───────────
+ *
+ * Die gesamte Geometrie steht hier, nicht im JavaScript. Damit sind Server-
+ * und Client-HTML pixelgleich (kein Hydrationssprung, CLS strukturell 0), und
+ * die Media Query unten ist die EINZIGE Stelle, an der entschieden wird, ob
+ * gepinnt wird. Das JavaScript liest die Entscheidung per
+ * getComputedStyle(stage).position zurück statt sie zu wiederholen.
+ *
+ * Ausserhalb der Query bleibt exakt das bisherige Kartenraster stehen – mobil,
+ * bei reduzierter Bewegung, in kurzen Fenstern und ohne JavaScript ändert sich
+ * nichts gegenüber vorher.
+ */
+.wf-runway {
+  /* Header: SiteHeader.tsx:51 (top-3/md:top-4) + :66 (h-16/md:h-[4.5rem]).
+     Ändert sich der Header, muss dieser Wert mit. */
+  --wf-header: 88px;
+  --wf-top: calc(var(--wf-header) + 0.75rem);
+  --wf-stage-h: calc(100svh - var(--wf-top) - 1rem);
+
+  --wf-gap: 1.25rem; /* = gap-5, Projektkanon */
+  --wf-card: clamp(268px, 26vw, 340px);
+  --wf-lane: 4.5rem; /* Knotenspur über den Karten */
+  --wf-pad: max(1.5rem, calc((100vw - 1200px) / 2 + 1.5rem)); /* Textkante page-container */
+
+  --wf-track-w: calc(
+    2 * var(--wf-pad) + var(--wf-count) * var(--wf-card) + (var(--wf-count) - 1) * var(--wf-gap)
+  );
+  --wf-travel: max(0px, calc(var(--wf-track-w) - 100vw));
+  /* Vertikale Anlaufstrecke je horizontalem Pixel, gedeckelt auf 1,6
+     Bildschirmhöhen: sonst wächst die Seite mit jeder weiteren Karte
+     unkontrolliert. Wer weniger Scrollweg will, senkt --wf-ratio auf 1. */
+  --wf-ratio: 1.25;
+  --wf-extra: min(calc(var(--wf-travel) * var(--wf-ratio)), calc(var(--wf-stage-h) * 1.6));
+}
+
+/* Grundzustand = heutiges Raster. Schiene, Knoten und Zähler sind reine
+   Dekoration und tragen keine Information, die nicht als „Schritt N" im Text
+   steht – sie bleiben hier aus. */
+.wf-rail,
+.wf-node,
+.wf-counter {
+  display: none;
+}
+
+/* Einzug: EIN Beobachter auf dem Runway statt sechs Reveal-Wrapper. Der
+   Startzustand hängt an [data-anim], das ausschliesslich JavaScript setzt –
+   ohne JS und vor der Hydration sind alle Karten sofort sichtbar. */
+.wf-runway[data-anim] .wf-col {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Der Übergang hängt am ZIELzustand, nicht am Startzustand: [data-anim] wird
+   erst nach dem ersten Paint gesetzt, ein Übergang dort liesse die Karten
+   sichtbar herausblenden, bevor sie hereinkommen. */
+.wf-runway[data-anim][data-in] .wf-col {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+@media (min-width: 1024px) and (min-height: 700px) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .wf-runway {
+    height: calc(var(--wf-stage-h) + var(--wf-extra));
+  }
+
+  .wf-stage {
+    position: sticky;
+    top: var(--wf-top);
+    height: var(--wf-stage-h);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .wf-viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+  }
+
+  .wf-inner {
+    position: relative;
+    width: max-content;
+  }
+
+  .wf-track {
+    display: flex; /* überschreibt grid */
+    max-width: none; /* überschreibt page-container */
+    padding-inline: var(--wf-pad);
+    /* Luft für hover:-translate-y-1 samt Schatten, oben zusätzlich die Knotenspur */
+    padding-block: 1.5rem;
+    padding-top: calc(var(--wf-lane) + 1.5rem);
+    align-items: stretch;
+    width: max-content;
+  }
+
+  .wf-col {
+    flex: 0 0 var(--wf-card);
+  }
+
+  .wf-rail {
+    display: block;
+    position: absolute;
+    left: calc(var(--wf-pad) + var(--wf-card) / 2);
+    right: calc(var(--wf-pad) + var(--wf-card) / 2);
+    top: calc(1.5rem + var(--wf-lane) / 2);
+    height: 2px;
+  }
+
+  .wf-node {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: calc(-1 * var(--wf-lane) / 2);
+    margin-left: -0.4375rem; /* halbe Knotenbreite (h-3.5 = 0.875rem) */
+    margin-top: -0.4375rem;
+  }
+
+  .wf-counter {
+    display: block;
+  }
+
+  /* Die Schiene zeichnet sich mit dem Einzug von links nach rechts. */
+  .wf-runway[data-anim] .wf-rail-base {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .wf-runway[data-anim][data-in] .wf-rail-base {
+    transform: scaleX(1);
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
 
 /*
  * Fließtext eines Blogartikels.
