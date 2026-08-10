@@ -1,3 +1,5 @@
+import { MODULES, MODULE_CATALOG } from "@/data/modules";
+
 /**
  * `action: "consent"` öffnet statt eines Seitenwechsels den
  * Datenschutz-Dialog. `href` bleibt trotzdem gesetzt und zeigt auf die
@@ -12,20 +14,23 @@ export type FooterLink = {
 export type FooterColumn = { heading: string; links: readonly FooterLink[] };
 
 /**
+ * Die Modulspalte kommt aus dem Katalog, nicht aus einer zweiten Liste. Sonst
+ * fehlt hier jedes Modul, das später dazukommt – genau das war vorher der Fall.
+ */
+const MODULE_LINKS: readonly FooterLink[] = MODULES.map((module) => ({
+  href: `${MODULE_CATALOG.basePath}/${module.slug}`,
+  label: module.title,
+}));
+
+/**
  * Footer-Navigation. Links zeigen auf vorhandene Routen bzw. Landing-Anker.
- * Rein rechtliche Seiten (Datenschutz, Impressum, AGB) existieren noch nicht
- * als eigene Route und verweisen als Platzhalter auf die Startseite.
+ * `/#agb` ist der einzige verbliebene Platzhalter – eine AGB-Seite gibt es
+ * noch nicht.
  */
 export const FOOTER_COLUMNS: readonly FooterColumn[] = [
   {
     heading: "Plattform",
-    links: [
-      { href: "/produkt/projektplanung-disposition", label: "Projektmanagement" },
-      { href: "/produkt/kalender-einsatzuebersicht", label: "Plantafel" },
-      { href: "/produkt/dokumentenmanagement", label: "Dokumentenmanagement" },
-      { href: "/produkt", label: "Lagerverwaltung" },
-      { href: "/produkt/rechnungsstellung", label: "Abrechnung" },
-    ],
+    links: MODULE_LINKS,
   },
   {
     heading: "KI-Agenten",
@@ -52,10 +57,9 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
     links: [
       { href: "/blog", label: "News & Ratgeber" },
       { href: "/#faq-heading", label: "Hilfe" },
-      { href: "/produkt", label: "Dokumentation" },
+      { href: "/integrationen", label: "Integrationen" },
       { href: "/datenschutz", label: "Datenschutz" },
       { href: "/impressum", label: "Impressum" },
-      { href: "/#module", label: "Module" },
     ],
   },
 ] as const;

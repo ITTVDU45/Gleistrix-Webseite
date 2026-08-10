@@ -1,11 +1,22 @@
-import { Check } from "lucide-react";
-import type { Industry } from "@/data/industries";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Check } from "lucide-react";
 
-export default function IndustryCard({ item, reverse = false }: { item: Industry; reverse?: boolean }) {
+import type { CatalogEntry } from "@/data/catalog";
+import { INDUSTRY_CATALOG } from "@/data/industries";
+
+export default function IndustryCard({
+  item,
+  reverse = false,
+}: {
+  item: CatalogEntry;
+  reverse?: boolean;
+}) {
   const Icon = item.icon;
+  const href = `${INDUSTRY_CATALOG.basePath}/${item.slug}`;
+
   return (
-    <article className="overflow-hidden rounded-3xl border border-slate-900/8 bg-white shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft">
+    <article className="group relative overflow-hidden rounded-3xl border border-slate-900/8 bg-white shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft">
       <div className="grid items-center gap-6 p-5 md:grid-cols-2 md:gap-10 md:p-8">
         {/* Bild */}
         {item.image && (
@@ -28,9 +39,18 @@ export default function IndustryCard({ item, reverse = false }: { item: Industry
             <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
               <Icon aria-hidden className="h-5 w-5" />
             </span>
-            <h3 className="text-xl font-bold text-slate-900">{item.title}</h3>
+            <h3 className="text-xl font-bold text-slate-900">
+              {/* Ein Link deckt die ganze Karte ab – so bleibt es ein einziges
+                  Ziel für Maus und Vorlesesoftware. */}
+              <Link
+                href={href}
+                className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20"
+              >
+                {item.title}
+              </Link>
+            </h3>
           </div>
-          <p className="mt-3 leading-relaxed text-slate-500">{item.blurb}</p>
+          <p className="mt-3 leading-relaxed text-slate-500">{item.description}</p>
 
           <p className="mt-5 text-sm font-semibold text-slate-900">Speziell dafür entwickelt:</p>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -43,6 +63,14 @@ export default function IndustryCard({ item, reverse = false }: { item: Industry
               </li>
             ))}
           </ul>
+
+          <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+            Branche im Detail
+            <ArrowRight
+              aria-hidden
+              className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
+            />
+          </span>
         </div>
       </div>
     </article>

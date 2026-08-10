@@ -6,7 +6,7 @@ export default function IndustriesGrid() {
   return (
     <div className="grid grid-cols-1 gap-6">
       {INDUSTRIES.map((item, index) => (
-        <Reveal key={item.id} delay={index * 0.04}>
+        <Reveal key={item.slug} delay={index * 0.04}>
           <IndustryCard item={item} reverse={index % 2 === 1} />
         </Reveal>
       ))}
