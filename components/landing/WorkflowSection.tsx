@@ -45,13 +45,8 @@ const STEPS: WorkflowStep[] = [
   },
 ];
 
-/**
- * Karte ohne `.glass`: backdrop-filter auf sechs Karten in einem pro Frame
- * verschobenen Elternelement ist der teuerste Effekt der Sektion, und auf dem
- * flachen Sektionsband ist der optische Gewinn null.
- */
 const CARD_CLASSES =
-  "relative flex h-full flex-col rounded-3xl border border-slate-900/8 bg-white/80 p-6 " +
+  "relative flex h-full flex-col rounded-3xl border border-slate-900/8 bg-white/80 p-5 sm:p-6 " +
   "shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft";
 
 const ICON_TILE_CLASSES =
@@ -65,9 +60,7 @@ const NODE_CLASSES =
 
 export default function WorkflowSection() {
   return (
-    // Kein overflow-hidden auf dieser Sektion: das würde das position:sticky
-    // der Timeline-Bühne sofort abschneiden.
-    <section aria-labelledby="workflow-heading" className="bg-[#f3f6fb] py-20 md:py-28">
+    <section aria-labelledby="workflow-heading" className="bg-[#f3f6fb] py-16 md:py-28">
       <div className="page-container">
         <SectionHeading
           eyebrow="So arbeitet Gleistrix"
@@ -80,8 +73,6 @@ export default function WorkflowSection() {
         />
       </div>
 
-      {/* Bewusst ausserhalb von page-container: die Bühne läuft über die volle
-          Breite, sonst stimmt die 100vw-Geometrie in globals.css nicht. */}
       <WorkflowTimeline stepCount={STEPS.length}>
         {STEPS.map((step, index) => {
           const Icon = step.icon;
@@ -91,15 +82,10 @@ export default function WorkflowSection() {
               data-step
               aria-current={index === 0 ? "step" : undefined}
               style={{ "--i": index } as CSSProperties}
-              className="wf-col relative h-full"
+              className="wf-col relative h-full max-md:w-[min(82vw,20rem)] max-md:shrink-0 max-md:snap-center"
             >
               <span aria-hidden data-node data-active={index === 0} className={NODE_CLASSES} />
 
-              {/* Drei Ebenen, drei Besitzer desselben Stilfelds: das <li> trägt
-                  den Einzug aus CSS, dieses <div> die Skalierung aus GSAP, das
-                  <article> das Anheben beim Überfahren. Lägen zwei davon auf
-                  demselben Element, würde GSAP den fremden Transform beim
-                  Anlegen seines Setters einlesen und dauerhaft mitschreiben. */}
               <div data-scale className="h-full">
                 <article className={CARD_CLASSES}>
                   <div className="flex items-center gap-3">
@@ -121,9 +107,8 @@ export default function WorkflowSection() {
         })}
       </WorkflowTimeline>
 
-      {/* Einblicke: Gleistrix in Action */}
       <div className="page-container">
-        <div className="mt-20 md:mt-24">
+        <div className="mt-16 md:mt-24">
           <Reveal className="mx-auto max-w-3xl text-center">
             <span className="inline-flex items-center rounded-full border border-indigo-200/70 bg-indigo-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-indigo-700">
               Einblicke
@@ -135,7 +120,7 @@ export default function WorkflowSection() {
               Ein Blick auf Oberflächen und Workflows aus dem echten Betrieb.
             </p>
           </Reveal>
-          <div className="mt-12 md:mt-14">
+          <div className="mt-10 md:mt-14">
             <ScreensGallery />
           </div>
         </div>
