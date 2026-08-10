@@ -6,6 +6,7 @@ import { Suspense, useEffect, useState } from "react";
 import Cal, { getCalApi } from "@calcom/embed-react";
 import { ArrowLeft, Star } from "lucide-react";
 
+import { ConsentGate } from "@/components/consent/consent-gate";
 import ConfigurationRequest from "@/components/demo/ConfigurationRequest";
 
 export default function DemoBuchenPage() {
@@ -64,7 +65,18 @@ export default function DemoBuchenPage() {
       {/* Zwei-Spalten-Layout */}
       <div className="page-container relative z-10 mt-10 pb-24">
         <div className="grid items-start gap-6 md:grid-cols-2">
-          <CalEmbed />
+          {/* Kein Overlay, sondern ein Tor: Ohne Einwilligung wird das Embed
+              gar nicht erst gerendert – ein verdeckter Kalender hätte die
+              IP-Adresse längst an den Anbieter übertragen. */}
+          <div className="h-[720px] md:h-[780px]">
+            <ConsentGate
+              category="functional"
+              service="Cal.com Terminbuchung"
+              provider="Cal.com, Inc., San Francisco, USA"
+            >
+              <CalEmbed />
+            </ConsentGate>
+          </div>
           <TestimonialsSlider />
         </div>
       </div>

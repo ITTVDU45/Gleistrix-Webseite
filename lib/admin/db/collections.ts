@@ -38,6 +38,7 @@ export const COLLECTIONS = {
   blogArticles: "blog_articles",
   blogCategories: "blog_categories",
   blogFiles: "blog_files",
+  consentProofs: "consent_proofs",
 } as const;
 
 /** Schema aller Collections: String-_id, sonst frei. */

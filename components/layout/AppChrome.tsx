@@ -1,6 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { ConsentManager } from "@/components/consent/consent-manager";
+import { DifyChat } from "@/components/consent/dify-chat";
 import SiteHeader from "./SiteHeader";
 import SiteFooter from "./SiteFooter";
 
@@ -15,6 +17,12 @@ export default function AppChrome({ children }: { children: React.ReactNode }) {
       {!hideHeader && <SiteHeader />}
       {children}
       {!isAdmin && <SiteFooter />}
+      {/* Der Adminbereich ist ein angemeldeter Arbeitsplatz, kein
+          Website-Besuch: dort setzt nur das Sitzungs-Cookie auf, das für den
+          Betrieb erforderlich ist. Ein Einwilligungsbanner wäre dort ohne
+          Gegenstand. */}
+      {!isAdmin && <ConsentManager />}
+      {!isAdmin && <DifyChat />}
     </>
   );
 }

@@ -1,4 +1,14 @@
-export type FooterLink = { href: string; label: string };
+/**
+ * `action: "consent"` öffnet statt eines Seitenwechsels den
+ * Datenschutz-Dialog. `href` bleibt trotzdem gesetzt und zeigt auf die
+ * Datenschutzerklärung – ohne JavaScript führt der Eintrag dorthin, statt
+ * ins Leere zu laufen.
+ */
+export type FooterLink = {
+  href: string;
+  label: string;
+  action?: "consent";
+};
 export type FooterColumn = { heading: string; links: readonly FooterLink[] };
 
 /**
@@ -54,5 +64,5 @@ export const FOOTER_LEGAL: readonly FooterLink[] = [
   { href: "/datenschutz", label: "Datenschutz" },
   { href: "/impressum", label: "Impressum" },
   { href: "/#agb", label: "AGB" },
-  { href: "/#cookies", label: "Cookie-Einstellungen" },
+  { href: "/datenschutz", label: "Cookie-Einstellungen", action: "consent" },
 ] as const;

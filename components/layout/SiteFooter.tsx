@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Github, Linkedin, Mail, Twitter } from "lucide-react";
 import BrandLogo from "@/components/brand/BrandLogo";
+import { ConsentSettingsButton } from "@/components/consent/consent-settings-button";
 import Reveal from "@/components/landing/Reveal";
 import FooterCTA from "./footer/FooterCTA";
 import { FOOTER_COLUMNS, FOOTER_LEGAL } from "./footer/footer-nav";
@@ -95,12 +96,18 @@ export default function SiteFooter() {
               <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 {FOOTER_LEGAL.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="transition-colors duration-200 hover:text-slate-700"
-                    >
-                      {link.label}
-                    </Link>
+                    {link.action === "consent" ? (
+                      // Widerruf muss so einfach sein wie die Einwilligung
+                      // (Art. 7 Abs. 3 DSGVO) – deshalb auf jeder Seite hier.
+                      <ConsentSettingsButton className="transition-colors duration-200 hover:text-slate-700" />
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="transition-colors duration-200 hover:text-slate-700"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
               </ul>

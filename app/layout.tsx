@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AppChrome from "@/components/layout/AppChrome";
+import { ConsentProvider } from "@/components/consent/consent-provider";
 import { SITE } from "@/lib/constants";
 import Providers from "./providers";
-import Script from "next/script";
 
 const inter = Inter({
   // map Inter to the variable expected by globals.css
@@ -39,47 +39,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="de">
-      <head>
-        <Script id="dify-config" strategy="beforeInteractive">
-          {`
-            window.difyChatbotConfig = {
-              token: 'FCVbQpF4fRXpkXb2',
-              baseUrl: 'https://dify.hostiteasy.com',
-              inputs: {
-                // You can define the inputs from the Start node here
-                // key is the variable name
-                // e.g.
-                // name: "NAME"
-              },
-              systemVariables: {
-                // user_id: 'YOU CAN DEFINE USER ID HERE',
-                // conversation_id: 'YOU CAN DEFINE CONVERSATION ID HERE, IT MUST BE A VALID UUID',
-              },
-              userVariables: {
-                // avatar_url: 'YOU CAN DEFINE USER AVATAR URL HERE',
-                // name: 'YOU CAN DEFINE USER NAME HERE',
-              },
-            }
-          `}
-        </Script>
-        <Script
-          src="https://dify.hostiteasy.com/embed.min.js"
-          id="FCVbQpF4fRXpkXb2"
-          strategy="afterInteractive"
-        />
-        <style>{`
-          #dify-chatbot-bubble-button {
-            background-color: #4F46E5 !important;
-          }
-          #dify-chatbot-bubble-window {
-            width: 24rem !important;
-            height: 40rem !important;
-          }
-        `}</style>
-      </head>
+      {/* Der Chat-Assistent lag hier als fest eingebundenes Fremdskript und
+          lud bei jedem Seitenaufruf ungefragt. Er wohnt jetzt in
+          components/consent/dify-chat.tsx und startet erst nach einer
+          Einwilligung in die Kategorie "Funktional" (§ 25 Abs. 1 TDDDG). */}
       <body className={`${inter.variable} ${geistMono.variable} antialiased overflow-x-hidden bg-background text-foreground`}>
         <Providers>
-          <AppChrome>{children}</AppChrome>
+          {/* Umschließt den gesamten Seitenrahmen: Banner, Footer-Zugang und
+              die Gates für Drittinhalte lesen denselben Zustand. */}
+          <ConsentProvider>
+            <AppChrome>{children}</AppChrome>
+          </ConsentProvider>
         </Providers>
       </body>
     </html>
