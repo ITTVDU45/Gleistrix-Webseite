@@ -1,0 +1,114 @@
+/* Mobile-first safety net for all public pages. Keep layout-specific styling in components. */
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  -webkit-text-size-adjust: 100%;
+}
+
+img,
+video,
+canvas,
+svg,
+iframe {
+  max-width: 100%;
+}
+
+iframe {
+  width: 100%;
+}
+
+main,
+section,
+article,
+aside,
+nav,
+header,
+footer {
+  min-width: 0;
+}
+
+h1,
+h2,
+h3,
+p,
+a,
+button,
+li,
+dd,
+dt {
+  overflow-wrap: anywhere;
+}
+
+pre,
+code {
+  max-width: 100%;
+}
+
+pre {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Grid/flex children otherwise often keep intrinsic widths from screenshots or long labels. */
+.grid > *,
+.flex > * {
+  min-width: 0;
+}
+
+/* Touch targets stay usable on phones. */
+@media (max-width: 767px) {
+  .page-container {
+    width: 100%;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+
+  button,
+  a[role="button"] {
+    touch-action: manipulation;
+  }
+
+  input,
+  select,
+  textarea {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  table {
+    font-size: 0.875rem;
+  }
+
+  /* Fixed three-column stat rows are too narrow on phones. Responsive
+     variants such as sm:grid-cols-3 still take over at the intended breakpoint. */
+  dl[class~="grid-cols-3"] {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+
+  /* Long CTA labels and auth links must be allowed to wrap below tablet width. */
+  a[class~="whitespace-nowrap"],
+  button[class~="whitespace-nowrap"] {
+    white-space: normal !important;
+  }
+
+  /* Embedded/scrolling content stays inside the viewport rather than growing it. */
+  [role="dialog"],
+  [role="region"] {
+    max-width: calc(100vw - 1.5rem);
+  }
+}
+
+@media (min-width: 480px) and (max-width: 767px) {
+  dl[class~="grid-cols-3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 374px) {
+  .page-container {
+    padding-left: max(0.875rem, env(safe-area-inset-left));
+    padding-right: max(0.875rem, env(safe-area-inset-right));
+  }
+}
