@@ -5,9 +5,7 @@ import CatalogDetail from "@/components/catalog/CatalogDetail";
 import { MODULES, MODULE_CATALOG } from "@/data/modules";
 import { pageMetadata } from "@/lib/seo-metadata";
 
-/** Nur die Slugs aus data/modules.ts existieren – alles andere ist 404. */
 export const dynamicParams = false;
-
 type PageProps = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
@@ -20,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!entry) return {};
 
   return pageMetadata({
-    title: entry.title,
+    title: `${entry.title} für Bahndienstleister`,
     description: entry.description,
     path: `/produkt/${entry.slug}`,
   });
