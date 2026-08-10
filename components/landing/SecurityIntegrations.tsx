@@ -29,7 +29,12 @@ function LogoItem({ item }: { item: Integration }) {
       // Wird nie breiter als 128px dargestellt – ohne sizes lieferte Next.js
       // Varianten bis 3840px aus.
       sizes="128px"
-      className="h-7 w-auto max-w-32 object-contain transition-transform duration-300 hover:scale-110 md:h-8"
+      className={cn(
+        "w-auto max-w-32 object-contain transition-transform duration-300 hover:scale-110",
+        // Randlose Dateien eine Stufe kleiner: ohne Weissraum liefen sie sonst
+        // bis an die Kante ihres Platzes und wirkten angeschnitten.
+        item.tight ? "h-5 md:h-6" : "h-7 md:h-8",
+      )}
     />
   );
 }
