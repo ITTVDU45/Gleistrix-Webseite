@@ -19,7 +19,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return pageMetadata({
     title: `${entry.title} für Bahndienstleister`,
-    description: entry.description,
+    // `description` ist der Fliesstext im Seitenkopf und als Suchergebnis oft
+    // zu lang. Module bringen dafür eine eigene, kürzere Fassung mit.
+    description: entry.metaDescription ?? entry.description,
     path: `/produkt/${entry.slug}`,
   });
 }

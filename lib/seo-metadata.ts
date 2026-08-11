@@ -52,3 +52,23 @@ export function breadcrumbJsonLd(items: readonly { name: string; path: string }[
     })),
   };
 }
+
+/**
+ * FAQPage für Detailseiten mit Fragenabschnitt.
+ *
+ * Google zeigt daraus seit 2023 nur noch selten ein aufklappbares Rich Result,
+ * ordnet die Antworten aber weiterhin der Seite zu – und Antwortmaschinen lesen
+ * sie direkt aus. Bedingung: Frage und Antwort müssen genau so auch sichtbar
+ * auf der Seite stehen, sonst gilt die Auszeichnung als Spam.
+ */
+export function faqPageJsonLd(faqs: readonly { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: { "@type": "Answer", text: faq.answer },
+    })),
+  };
+}

@@ -1,15 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check } from "lucide-react";
+import { AlertTriangle, ArrowRight, Check, ChevronDown } from "lucide-react";
 
 import type { Catalog, CatalogEntry } from "@/data/catalog";
 import { fillHeading, relatedEntries } from "@/data/catalog";
 import Reveal from "@/components/landing/Reveal";
 import CTASection from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/button";
+import { faqPageJsonLd } from "@/lib/seo-metadata";
 
 type CatalogDetailProps = { catalog: Catalog; entry: CatalogEntry };
 
+/**
+ * Drei Abschnitte hängen an optionalen Feldern des Eintrags und erscheinen nur,
+ * wenn er sie mitbringt: Herausforderung & Lösung, Ablauf und FAQ. Ihre
+ * Überschriften stehen hier fest statt im Katalog – gepflegt sind die Felder
+ * bisher nur für Module. Sobald ein zweiter Katalog sie nutzt und andere
+ * Formulierungen braucht, gehören sie neben `scopeHeading` in den Katalogkopf.
+ */
 export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
   const Icon = entry.icon;
   const related = relatedEntries(catalog.entries, entry.slug);
@@ -96,6 +104,109 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
           </div>
         </div>
       </section>
+
+      {entry.challenges && entry.challenges.length > 0 && (
+        <section aria-labelledby="catalog-challenges" className="bg-[#f8fafc] py-12 sm:py-16 md:py-24">
+          <div className="page-container">
+            <Reveal className="min-w-0">
+              <div className="max-w-2xl">
+                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Herausforderung &amp; Lösung</span>
+                <h2 id="catalog-challenges" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Was sich mit {entry.title} ändert</h2>
+                <p className="mt-4 text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">Situationen, die im Bahnalltag regelmäßig Zeit und Nerven kosten – und daneben, wie derselbe Vorgang in Gleistrix abläuft.</p>
+              </div>
+            </Reveal>
+
+            <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 md:mt-14">
+              {entry.challenges.map((item, index) => (
+                <Reveal key={item.problem} delay={index * 0.06}>
+                  <article className="grid min-w-0 overflow-hidden rounded-2xl border border-slate-900/8 shadow-soft-sm sm:rounded-3xl md:grid-cols-2">
+                    {/* Die linke Hälfte liegt bewusst tiefer als die rechte: Ohne den
+                        Helligkeitsunterschied lesen sich Problem und Lösung wie zwei
+                        gleichrangige Absätze. */}
+                    <div className="min-w-0 bg-slate-100/70 p-5 sm:p-6 md:p-8">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-slate-500 ring-1 ring-inset ring-slate-900/8 sm:text-xs">
+                        <AlertTriangle aria-hidden className="h-3.5 w-3.5 shrink-0" />
+                        Ohne System
+                      </span>
+                      <p className="mt-3.5 text-[15px] leading-7 text-slate-500 sm:mt-4 sm:text-base sm:leading-relaxed">{item.problem}</p>
+                    </div>
+                    <div className="min-w-0 border-t border-slate-900/8 bg-white p-5 sm:p-6 md:border-l md:border-t-0 md:p-8">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 sm:text-xs">
+                        <Check aria-hidden className="h-3.5 w-3.5 shrink-0" />
+                        Mit Gleistrix
+                      </span>
+                      <p className="mt-3.5 text-[15px] leading-7 text-slate-700 sm:mt-4 sm:text-base sm:leading-relaxed">{item.solution}</p>
+                    </div>
+                  </article>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {entry.steps && entry.steps.length > 0 && (
+        <section aria-labelledby="catalog-steps" className="relative overflow-hidden bg-slate-950 py-12 sm:py-16 md:py-24">
+          <div aria-hidden className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-32 left-1/4 h-[320px] w-[420px] max-w-[150vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.30),transparent)] sm:h-[440px] sm:w-[640px]" />
+            <div className="absolute -bottom-40 right-0 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.22),transparent)] sm:h-[400px] sm:w-[400px]" />
+          </div>
+
+          <div className="page-container relative">
+            <Reveal className="min-w-0">
+              <div className="max-w-2xl">
+                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Ablauf</span>
+                <h2 id="catalog-steps" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">So arbeitest du mit {entry.title}</h2>
+                <p className="mt-4 text-[15px] leading-7 text-slate-300 sm:text-base sm:leading-relaxed">Jeder Schritt baut auf dem vorherigen auf. Daten, die einmal im System stehen, werden weitergereicht statt erneut erfasst.</p>
+              </div>
+            </Reveal>
+
+            <Reveal delay={0.08} className="min-w-0">
+              <ol className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 md:mt-14 lg:grid-cols-4">
+                {entry.steps.map((step, index) => (
+                  <li key={step.title} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm sm:rounded-3xl sm:p-6">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-sm font-bold tabular-nums text-indigo-200 ring-1 ring-inset ring-indigo-400/30 sm:rounded-2xl">{String(index + 1).padStart(2, "0")}</span>
+                    <h3 className="mt-4 text-base font-bold text-white sm:mt-5">{step.title}</h3>
+                    <p className="mt-2.5 text-sm leading-6 text-slate-300 sm:leading-relaxed">{step.text}</p>
+                  </li>
+                ))}
+              </ol>
+            </Reveal>
+          </div>
+        </section>
+      )}
+
+      {entry.faqs && entry.faqs.length > 0 && (
+        <section aria-labelledby="catalog-faq" className="bg-white py-12 sm:py-16 md:py-24">
+          {/* Auszeichnung der Fragen. Steht bewusst neben dem sichtbaren Text und
+              nicht anstelle davon – Google verlangt beides deckungsgleich. */}
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(entry.faqs)) }} />
+
+          <div className="page-container">
+            <div className="grid min-w-0 gap-8 sm:gap-10 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-14">
+              <Reveal className="min-w-0">
+                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">FAQ</span>
+                <h2 id="catalog-faq" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Häufige Fragen zu {entry.title}</h2>
+                <p className="mt-4 max-w-sm text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">Das fragen Bahndienstleister vor der Einführung am häufigsten. Was offen bleibt, klären wir in einer kurzen Demo.</p>
+              </Reveal>
+
+              <Reveal delay={0.08} className="min-w-0">
+                <div className="divide-y divide-slate-900/8 overflow-hidden rounded-2xl border border-slate-900/8 bg-[#f8fafc] sm:rounded-3xl">
+                  {entry.faqs.map((faq) => (
+                    <details key={faq.question} name="catalog-faq" className="group px-4 py-3.5 sm:px-5 sm:py-4 md:px-7 md:py-5">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold text-slate-900 transition-colors hover:text-indigo-700 sm:gap-4 sm:text-base [&::-webkit-details-marker]:hidden">
+                        <span className="min-w-0">{faq.question}</span>
+                        <ChevronDown aria-hidden className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-180" />
+                      </summary>
+                      <p className="mt-3 text-sm leading-6 text-slate-600 sm:leading-relaxed md:text-base">{faq.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+      )}
 
       {related.length > 0 && (
         <section aria-labelledby="catalog-related" className="bg-[#f8fafc] py-12 sm:py-16 md:py-20">

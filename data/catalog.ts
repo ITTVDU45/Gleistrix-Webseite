@@ -19,6 +19,31 @@ export type CatalogHighlight = {
   text: string;
 };
 
+/**
+ * Gegenüberstellung im Abschnitt "Herausforderung & Lösung": links die
+ * Situation ohne System, rechts dieselbe Situation mit Gleistrix.
+ */
+export type CatalogChallenge = {
+  problem: string;
+  solution: string;
+};
+
+/** Ein Schritt im Ablaufabschnitt der Detailseite. */
+export type CatalogStep = {
+  title: string;
+  text: string;
+};
+
+/**
+ * Frage und Antwort im FAQ-Abschnitt. Der Text steht sichtbar im Markup und
+ * wird zusätzlich als FAQPage ausgezeichnet – deshalb ganze Sätze ohne
+ * Aufzählungen, Links oder Auszeichnungen.
+ */
+export type CatalogFaq = {
+  question: string;
+  answer: string;
+};
+
 export type CatalogEntry = {
   /** Letztes Segment der URL. Innerhalb eines Katalogs eindeutig. */
   slug: string;
@@ -27,6 +52,14 @@ export type CatalogEntry = {
   tagline: string;
   /** Absatz im Seitenkopf der Detailseite. */
   description: string;
+  /**
+   * Beschreibung für das Suchergebnis. Ohne Angabe greift `description` – die
+   * ist als Fließtext im Seitenkopf gedacht und dafür oft zu lang: Google
+   * schneidet den Ausschnitt bei rund 160 Zeichen ab, und was dahinter steht,
+   * sieht niemand. Deshalb hier eine eigene, kürzere Fassung mit den Begriffen
+   * vorn, nach denen tatsächlich gesucht wird.
+   */
+  metaDescription?: string;
   icon: LucideIcon;
   /** Spaltenüberschrift im Megamenü und in der Übersicht. */
   group: string;
@@ -36,6 +69,15 @@ export type CatalogEntry = {
   logo?: { src: string; width: number; height: number };
   highlights: CatalogHighlight[];
   bullets: string[];
+  /**
+   * Die folgenden drei Abschnitte sind optional: Ohne Angabe entfällt der
+   * jeweilige Abschnitt ersatzlos. Gepflegt sind sie bisher nur für die Module
+   * – Branchen und Integrationen rendern dieselbe Vorlage ohne diese Blöcke.
+   */
+  challenges?: CatalogChallenge[];
+  steps?: CatalogStep[];
+  /** Erzeugt zusätzlich die FAQPage-Auszeichnung der Detailseite. */
+  faqs?: CatalogFaq[];
 };
 
 export type CatalogGroup = {
