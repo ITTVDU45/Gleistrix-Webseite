@@ -21,6 +21,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${entry.title} Integration für Bahndienstleister`,
     description: entry.description,
     path: `/integrationen/${entry.slug}`,
+    // Nur das Foto, nicht `entry.logo`: Integrationslogos sind schmale
+    // Freisteller mit Transparenz und ergeben als Vorschaubild eine Karte, die
+    // auf dunklen Oberflächen unsichtbar ist.
+    image: entry.image,
   });
 }
 

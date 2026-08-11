@@ -21,6 +21,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `Software für ${entry.title}`,
     description: entry.description,
     path: `/branchen/${entry.slug}`,
+    image: entry.image,
   });
 }
 

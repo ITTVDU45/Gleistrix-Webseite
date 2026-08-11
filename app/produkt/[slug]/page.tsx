@@ -23,6 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // zu lang. Module bringen dafür eine eigene, kürzere Fassung mit.
     description: entry.metaDescription ?? entry.description,
     path: `/produkt/${entry.slug}`,
+    image: entry.image,
   });
 }
 

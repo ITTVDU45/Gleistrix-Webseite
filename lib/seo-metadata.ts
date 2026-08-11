@@ -6,17 +6,28 @@ export function pageMetadata({
   title,
   description,
   path,
+  image,
   type = "website",
   index = true,
 }: {
   title: string;
   description: string;
   path: string;
+  /**
+   * Vorschaubild für geteilte Links, als Pfad ab der Wurzel (z. B.
+   * "/reports.png"). Wird gegen SITE_URL zur vollen Adresse aufgelöst –
+   * relative Angaben ignorieren Facebook, LinkedIn und Slack.
+   *
+   * Ohne Bild fällt die Karte auf `summary` zurück: `summary_large_image` ohne
+   * Bild verspricht eine große Fläche, die dann leer bleibt.
+   */
+  image?: string;
   type?: "website" | "article";
   index?: boolean;
 }): Metadata {
   const url = new URL(path, SITE_URL).toString();
   const socialTitle = `${title} | ${SITE.name}`;
+  const images = image ? [new URL(image, SITE_URL).toString()] : undefined;
 
   return {
     title,
@@ -30,11 +41,13 @@ export function pageMetadata({
       siteName: SITE.name,
       locale: "de_DE",
       type,
+      ...(images ? { images } : {}),
     },
     twitter: {
-      card: "summary_large_image",
+      card: images ? "summary_large_image" : "summary",
       title: socialTitle,
       description,
+      ...(images ? { images } : {}),
     },
   };
 }
