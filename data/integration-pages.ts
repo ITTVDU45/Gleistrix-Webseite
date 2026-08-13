@@ -37,6 +37,8 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Leistungsverzeichnisse im GAEB-Format einlesen, kalkulieren und wieder ausgeben – ohne Positionen von Hand zu übertragen.",
     icon: FileSpreadsheet,
     group: "Bahn & Ausschreibung",
+    metaDescription:
+      "GAEB-Schnittstelle für Bahnprojekte: Leistungsverzeichnisse einlesen, Positionen kalkulieren und das Angebot im geforderten Austauschformat zurückgeben.",
     logo: logoOf("gaeb"),
     highlights: [
       {
@@ -58,6 +60,66 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Abrechnung nach LV-Positionen",
       "Export im vom Auftraggeber geforderten Format",
     ],
+    challenges: [
+      {
+        problem:
+          "Das Leistungsverzeichnis kommt als GAEB-Datei, kalkuliert wird in einer Tabelle. Die Positionen wandern per Hand von einem Format ins andere.",
+        solution:
+          "Die Datei wird eingelesen und steht mit allen Positionen und Mengen im Projekt. Der Übertragungsschritt entfällt samt seiner Tippfehler.",
+      },
+      {
+        problem:
+          "Beim Umbau in ein eigenes Angebotsdokument gehen Nummerierung und Gliederung verloren. Der Auftraggeber weist die Rückgabe zurück.",
+        solution:
+          "Preise werden an der Originalposition gepflegt. Die Struktur des Leistungsverzeichnisses bleibt unverändert, auch bei der Rückgabe.",
+      },
+      {
+        problem:
+          "Zur Abrechnung wird verglichen, welche LV-Position wie weit erbracht ist – in einer zweiten Tabelle neben dem Projekt.",
+        solution:
+          "Abgerechnet wird direkt gegen die LV-Positionen, die schon im Projekt liegen. Ein separater Abgleich entfällt.",
+      },
+    ],
+    steps: [
+      {
+        title: "Leistungsverzeichnis einlesen",
+        text: "Die GAEB-Datei des Auftraggebers wird importiert, Positionen und Mengen übernimmt Gleistrix unverändert.",
+      },
+      {
+        title: "Kalkulieren",
+        text: "Preise entstehen an der jeweiligen Position, ohne die Gliederung des Verzeichnisses anzutasten.",
+      },
+      {
+        title: "Angebot zurückgeben",
+        text: "Die Ausgabe erfolgt in dem GAEB-Austauschformat, das der Auftraggeber angefordert hat.",
+      },
+      {
+        title: "Nach Positionen abrechnen",
+        text: "Erbrachte Leistungen werden gegen die Positionen des Verzeichnisses abgerechnet.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Muss das Angebot in einem zweiten Werkzeug erstellt werden?",
+        answer:
+          "Nein. Kalkulation und Ausgabe passieren an demselben Leistungsverzeichnis, das eingelesen wurde. Ein separates Angebotsdokument entsteht gar nicht erst.",
+      },
+      {
+        question: "Bleibt die Struktur des Leistungsverzeichnisses erhalten?",
+        answer:
+          "Ja, das ist der Zweck des Formats. Positionen behalten Nummerierung und Gliederung, weil die Preise an der Originalposition gepflegt werden statt in einer nachgebauten Fassung.",
+      },
+      {
+        question: "Lässt sich auf Basis des Leistungsverzeichnisses abrechnen?",
+        answer:
+          "Ja. Weil die Positionen im Projekt liegen, entsteht die Abrechnung aus denselben Daten wie das Angebot – ohne zweite Aufstellung daneben.",
+      },
+      {
+        question: "In welchem Format geht das Angebot zurück?",
+        answer:
+          "In dem GAEB-Austauschformat, das der Auftraggeber vorgibt. Welche Fassung das ist, entscheidet die Ausschreibung, nicht die Software.",
+      },
+    ],
   },
   {
     slug: "deutsche-bahn",
@@ -67,6 +129,8 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Nachweise, Rückmeldungen und Rechnungen so aufbereiten, wie sie im Bahnumfeld erwartet werden – strukturiert und prüffähig.",
     icon: Train,
     group: "Bahn & Ausschreibung",
+    metaDescription:
+      "Anforderungen der Deutschen Bahn erfüllen: Qualifikationsnachweise je Einsatz, strukturierte Leistungsrückmeldungen, X-Rechnung und revisionssichere Ablage.",
     logo: logoOf("deutsche-bahn"),
     highlights: [
       {
@@ -88,6 +152,66 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "X-Rechnung für öffentliche Auftraggeber",
       "Revisionssichere Ablage aller Nachweise",
     ],
+    challenges: [
+      {
+        problem:
+          "Die Rückmeldung wird im geforderten Aufbau von Hand erstellt. Jede Abweichung führt zu einer Nachforderung und verzögert die Freigabe.",
+        solution:
+          "Leistungen und Stunden werden im vereinbarten Format zurückgemeldet, weil sie strukturiert im Projekt liegen und nicht erst aufbereitet werden.",
+      },
+      {
+        problem:
+          "Bei der Prüfung fehlt ein Qualifikationsnachweis zu einem einzelnen Einsatz. Die Leistung wurde erbracht, wird aber nicht anerkannt.",
+        solution:
+          "Nachweise hängen am Einsatz und tragen ihre Gültigkeit. Was zum Prüfzeitpunkt nicht mehr gilt, fällt vor dem Einsatz auf.",
+      },
+      {
+        problem:
+          "Was in welcher Fassung geliefert wurde, lässt sich Monate später nur noch aus Mailverläufen rekonstruieren.",
+        solution:
+          "Gelieferte Nachweise bleiben mit Stand und Zeitpunkt abgelegt und damit nachvollziehbar, auch lange nach dem Vorgang.",
+      },
+    ],
+    steps: [
+      {
+        title: "Anforderungen hinterlegen",
+        text: "Was an Nachweisen und Formaten erwartet wird, gilt für alle Einsätze des Auftrags.",
+      },
+      {
+        title: "Einsätze belegen",
+        text: "Qualifikationen und Dokumente werden je Einsatz geführt, nicht als allgemeine Personalakte daneben.",
+      },
+      {
+        title: "Leistungen rückmelden",
+        text: "Stunden und erbrachte Leistungen gehen im vereinbarten Aufbau zurück.",
+      },
+      {
+        title: "Abrechnen und ablegen",
+        text: "Für öffentliche Auftraggeber als X-Rechnung, mit revisionssicherer Ablage der Nachweise.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Was heißt hier Integration?",
+        answer:
+          "Es geht nicht um eine technische Kopplung an ein System der Deutschen Bahn, sondern darum, dass Nachweise, Rückmeldungen und Rechnungen in der Form entstehen, die im Bahnumfeld erwartet wird.",
+      },
+      {
+        question: "Wird die X-Rechnung unterstützt?",
+        answer:
+          "Ja. Geprüfte Leistungen und Stunden lassen sich als X-Rechnung ausgeben, wie sie öffentliche Auftraggeber verlangen.",
+      },
+      {
+        question: "Wie werden Nachweise je Einsatz geführt?",
+        answer:
+          "Qualifikationen und Dokumente sind dem einzelnen Einsatz zugeordnet und nicht nur dem Mitarbeiter. Damit ist zu jeder Schicht belegbar, wer sie mit welchem gültigen Nachweis besetzt hat.",
+      },
+      {
+        question: "Wie lange bleiben die Nachweise nachvollziehbar?",
+        answer:
+          "Die Ablage ist revisionssicher angelegt: Was geliefert wurde, bleibt mit Stand und Zeitpunkt erhalten, statt durch spätere Änderungen überschrieben zu werden.",
+      },
+    ],
   },
   {
     slug: "datev",
@@ -97,6 +221,8 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Geprüfte Stunden, Belege und Rechnungen an DATEV-Prozesse übergeben – ohne Sammelmappe und ohne Rückfragen zum Monatsende.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
+    metaDescription:
+      "DATEV-Übergabe aus Gleistrix: geprüfte Stunden mit Zuschlägen, Belege mit Projektbezug und buchungsrelevante Daten strukturiert an die Kanzlei geben.",
     logo: logoOf("datev"),
     highlights: [
       {
@@ -118,6 +244,66 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Belege den Projekten zugeordnet",
       "Monatsabschluss ohne Sammelmappe",
     ],
+    challenges: [
+      {
+        problem:
+          "Zum Monatsende werden Belege, Stundenlisten und Rechnungen zusammengesucht und als Sammlung einzelner Dateien an die Kanzlei geschickt.",
+        solution:
+          "Die Kanzlei erhält einen geprüften Übergabestand statt einer Mappe, aus der sie sich die Zuordnung selbst erschließen muss.",
+      },
+      {
+        problem:
+          "Es kommen Rückfragen, zu welchem Projekt oder welcher Kostenstelle ein Beleg gehört. Beantwortet werden sie Wochen nach dem Vorgang.",
+        solution:
+          "Die Zuordnung passiert bei der Erfassung, nicht in der Nachbereitung. Wer den Beleg anlegt, weiß noch, wozu er gehört.",
+      },
+      {
+        problem:
+          "Für die Lohnabrechnung werden Stunden und Zuschläge aus den Stundenzetteln erneut aufbereitet.",
+        solution:
+          "Freigegebene Stunden stehen inklusive Zuschlägen bereit. Was in der Zeiterfassung geprüft wurde, wird nicht ein zweites Mal gerechnet.",
+      },
+    ],
+    steps: [
+      {
+        title: "Zeiten erfassen und freigeben",
+        text: "Stunden entstehen am Einsatz und werden in der Verwaltung geprüft – einmal, verbindlich für alles Weitere.",
+      },
+      {
+        title: "Belege zuordnen",
+        text: "Eingangsbelege bekommen ihren Projekt- und Kostenbezug beim Erfassen.",
+      },
+      {
+        title: "Übergabe zusammenstellen",
+        text: "Buchungsrelevante Daten, Stunden und Belege gehen strukturiert an die Kanzlei.",
+      },
+      {
+        title: "Monat abschließen",
+        text: "Der Abschluss beginnt mit vollständigen Daten statt mit dem Zusammentragen von Unterlagen.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Werden Zuschläge mit übergeben?",
+        answer:
+          "Ja. Freigegebene Stunden stehen inklusive der Zuschläge für die Lohnabrechnung bereit, weil sie in der Zeiterfassung bereits mit erfasst und geprüft wurden.",
+      },
+      {
+        question: "Wie kommt der Projektbezug in die Buchhaltung?",
+        answer:
+          "Er entsteht bei der Erfassung. Ein Beleg trägt Projekt und Kostenstelle von Anfang an mit sich, sodass die Zuordnung nicht nachträglich rekonstruiert wird.",
+      },
+      {
+        question: "Was ändert sich am Monatsabschluss?",
+        answer:
+          "Der Sammelschritt entfällt. Statt Unterlagen aus Postfächern und Ordnern zusammenzutragen, steht der Übergabestand am Monatsende bereits.",
+      },
+      {
+        question: "Ersetzt das die Zusammenarbeit mit der Kanzlei?",
+        answer:
+          "Nein. Es verändert nur, in welcher Form die Kanzlei die Daten bekommt: geprüft und zugeordnet statt als Sammlung, die dort erst sortiert werden muss.",
+      },
+    ],
   },
   {
     slug: "lexoffice",
@@ -127,6 +313,8 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Rechnungen und Belege aus Gleistrix in lexoffice weiterführen – die Buchhaltung arbeitet mit denselben Zahlen wie die Disposition.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
+    metaDescription:
+      "lexoffice mit Gleistrix verbinden: Rechnungen aus dem Projekt übernehmen, Belege mit Projektbezug führen und Zahlungsstände nachvollziehbar halten.",
     logo: logoOf("lexoffice"),
     highlights: [
       {
@@ -148,6 +336,66 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Zahlungsstände nachvollziehbar",
       "Weniger Doppelerfassung im Monatsabschluss",
     ],
+    challenges: [
+      {
+        problem:
+          "Eine gestellte Rechnung wird in der Buchhaltung ein zweites Mal angelegt. Weichen die Zahlen voneinander ab, fällt das erst beim Abgleich auf.",
+        solution:
+          "Was abgerechnet wurde, wird in lexoffice weitergeführt statt neu erfasst. Disposition und Buchhaltung rechnen mit demselben Stand.",
+      },
+      {
+        problem:
+          "Eingangsbelege liegen in der Buchhaltung, die Projektauswertung kennt sie nicht. Die Kosten eines Projekts sind dort unvollständig.",
+        solution:
+          "Belege behalten ihren Projektbezug und tauchen in der Auswertung des Projekts auf, zu dem sie gehören.",
+      },
+      {
+        problem:
+          "Ob eine Rechnung bezahlt ist, weiß die Buchhaltung. Gefragt wird danach aber im Projekt, beim Gespräch mit dem Kunden.",
+        solution:
+          "Zahlungsstände sind dort sichtbar, wo über das Projekt gesprochen wird – ohne Rückfrage in einem anderen Werkzeug.",
+      },
+    ],
+    steps: [
+      {
+        title: "Rechnung im Projekt stellen",
+        text: "Die Abrechnung entsteht aus den geprüften Leistungen des Projekts.",
+      },
+      {
+        title: "Nach lexoffice übernehmen",
+        text: "Die Rechnung wird weitergeführt, statt in der Buchhaltung erneut angelegt zu werden.",
+      },
+      {
+        title: "Belege zuordnen",
+        text: "Eingangsbelege behalten den Bezug zum Projekt, aus dem sie stammen.",
+      },
+      {
+        title: "Zahlungsstand verfolgen",
+        text: "Ob und wann bezahlt wurde, bleibt am Projekt nachvollziehbar.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Muss eine Rechnung zweimal erfasst werden?",
+        answer:
+          "Nein. Sie entsteht im Projekt aus den geprüften Leistungen und wird nach lexoffice weitergeführt. Eine zweite Eingabe entfällt und damit auch die Möglichkeit, dass beide Stände auseinanderlaufen.",
+      },
+      {
+        question: "Bleibt der Projektbezug von Belegen erhalten?",
+        answer:
+          "Ja. Ein Eingangsbeleg trägt sein Projekt mit sich und erscheint deshalb auch in der Auswertung dieses Projekts, nicht nur in der Buchhaltung.",
+      },
+      {
+        question: "Wo sehe ich, ob eine Rechnung bezahlt wurde?",
+        answer:
+          "Am Projekt. Der Zahlungsstand ist dort sichtbar, wo über das Projekt entschieden wird, statt nur in der Buchhaltung zu liegen.",
+      },
+      {
+        question: "Was ändert sich am Monatsabschluss?",
+        answer:
+          "Er beginnt nicht mit dem Zusammensuchen von Unterlagen. Weil Rechnungen und Belege bereits zugeordnet sind, entfällt der Sortierschritt davor.",
+      },
+    ],
   },
   {
     slug: "sevdesk",
@@ -157,6 +405,8 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Rechnungs- und Belegdaten an sevdesk weitergeben, statt sie ein zweites Mal einzutippen.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
+    metaDescription:
+      "sevdesk mit Gleistrix verbinden: Rechnungsdaten ohne Zweiterfassung weitergeben, offene Posten verfolgen und den Jahresabschluss sauber vorbereiten.",
     logo: logoOf("sevdesk"),
     highlights: [
       {
@@ -178,6 +428,66 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Offene Posten im Blick",
       "Sauberer Übergang in den Jahresabschluss",
     ],
+    challenges: [
+      {
+        problem:
+          "Rechnungsdaten werden als Datei exportiert, geprüft und in der Buchhaltung wieder eingelesen. Jeder Zwischenschritt kann schiefgehen.",
+        solution:
+          "Gestellte Rechnungen laufen direkt in die Buchhaltung, ohne den Umweg über Exportdateien und deren Nachbereitung.",
+      },
+      {
+        problem:
+          "In der Buchhaltung ist nicht mehr erkennbar, aus welchem Projekt ein Beleg stammt. Die Kostenzuordnung geht auf dem Weg verloren.",
+        solution:
+          "Belege behalten Projekt- und Kostenbezug auch nach der Übergabe. Die Zuordnung überlebt den Wechsel zwischen den Systemen.",
+      },
+      {
+        problem:
+          "Offene Posten stehen in der Buchhaltung, entschieden wird aber im Projekt – etwa darüber, ob weitergearbeitet wird.",
+        solution:
+          "Offene Posten sind dort im Blick, wo die Entscheidung fällt, statt in einem getrennten Werkzeug nachgeschlagen zu werden.",
+      },
+    ],
+    steps: [
+      {
+        title: "Rechnung stellen",
+        text: "Die Rechnung entsteht im Projekt aus den geprüften Leistungen.",
+      },
+      {
+        title: "An sevdesk weitergeben",
+        text: "Die Daten laufen direkt weiter, ohne Exportdatei als Zwischenschritt.",
+      },
+      {
+        title: "Offene Posten verfolgen",
+        text: "Zahlungseingänge bleiben am Projekt sichtbar.",
+      },
+      {
+        title: "Jahresabschluss vorbereiten",
+        text: "Weil Belege und Rechnungen zugeordnet sind, ist der Bestand am Jahresende bereits sortiert.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Braucht es Exportdateien für die Übergabe?",
+        answer:
+          "Nein. Gestellte Rechnungen laufen direkt in die Buchhaltung. Der Zwischenschritt über eine Datei entfällt und damit auch die Fehlerquelle, die er darstellt.",
+      },
+      {
+        question: "Ist in sevdesk noch erkennbar, zu welchem Projekt ein Beleg gehört?",
+        answer:
+          "Ja. Projekt- und Kostenbezug gehen bei der Übergabe nicht verloren, sodass sich Kosten auch später noch dem richtigen Vorgang zuordnen lassen.",
+      },
+      {
+        question: "Wo sehe ich offene Posten?",
+        answer:
+          "Am Projekt, nicht nur in der Buchhaltung. Das ist die Stelle, an der über Weiterarbeit oder Nachfassen entschieden wird.",
+      },
+      {
+        question: "Worin unterscheidet sich das von der lexoffice-Anbindung?",
+        answer:
+          "Im Schwerpunkt, nicht im Prinzip: Beide vermeiden die Zweiterfassung. Welches der beiden Werkzeuge passt, entscheidet die Buchhaltung, nicht Gleistrix.",
+      },
+    ],
   },
   {
     slug: "agenda",
@@ -187,6 +497,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Stunden- und Abrechnungsdaten für die Agenda-Lohn- und Finanzbuchhaltung bereitstellen – geprüft und im passenden Schnitt.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
+    canonicalTo: "/integrationen",
     logo: logoOf("agenda"),
     highlights: [
       {
@@ -217,6 +528,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Zahlungen über Stripe abwickeln und automatisch der richtigen Rechnung zuordnen.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
+    canonicalTo: "/integrationen",
     logo: logoOf("stripe"),
     highlights: [
       {
@@ -247,6 +559,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "PayPal als zusätzlichen Zahlungsweg anbieten – mit derselben Zuordnung zu Rechnung und Projekt.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
+    canonicalTo: "/integrationen",
     logo: logoOf("paypal"),
     highlights: [
       {
@@ -277,6 +590,8 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Mit Microsoft 365 arbeiten, ohne die Plattform zu verlassen – Termine, Nachrichten und Dokumente bleiben verbunden.",
     icon: Mail,
     group: "Kommunikation & Kalender",
+    metaDescription:
+      "Microsoft 365 mit Gleistrix verbinden: Einsätze im gewohnten Kalender, Projektbezug für Nachrichten und Dokumente, Anmeldung über bestehende Konten.",
     logo: logoOf("microsoft"),
     highlights: [
       {
@@ -298,6 +613,66 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Dokumente ohne Medienbruch",
       "Anmeldung über bestehende Konten",
     ],
+    challenges: [
+      {
+        problem:
+          "Der Einsatzplan liegt in der Plattform, der Arbeitsalltag im Outlook-Kalender. Wer beides im Blick behalten will, pflegt zwei Kalender.",
+        solution:
+          "Einsätze und Schichten erscheinen im gewohnten Kalender. Der Plan bleibt an einer Stelle geführt und trotzdem dort sichtbar, wo hingeschaut wird.",
+      },
+      {
+        problem:
+          "Die entscheidende Absprache zu einem Projekt steht in einem Postfach. Wer nicht im Verteiler war, findet sie nicht.",
+        solution:
+          "Wichtige Nachrichten lassen sich dem Projekt zuordnen und liegen damit in der Projektakte statt nur beim einzelnen Empfänger.",
+      },
+      {
+        problem:
+          "Für ein weiteres Werkzeug braucht es weitere Zugänge. Jeder neue Mitarbeiter bedeutet einen zusätzlichen Verwaltungsschritt.",
+        solution:
+          "Die Anmeldung läuft über die bestehenden Konten. Zugänge werden dort verwaltet, wo sie ohnehin verwaltet werden.",
+      },
+    ],
+    steps: [
+      {
+        title: "Konten verbinden",
+        text: "Die Anmeldung erfolgt über die vorhandenen Microsoft-365-Konten des Unternehmens.",
+      },
+      {
+        title: "Kalender koppeln",
+        text: "Geplante Einsätze und Schichten erscheinen im Kalender des Teams.",
+      },
+      {
+        title: "Nachrichten zuordnen",
+        text: "Projektrelevante Mails landen in der Projektakte statt nur im Postfach.",
+      },
+      {
+        title: "Dokumente weiterverwenden",
+        text: "Dateien bleiben zugänglich, ohne den Umweg über einen zusätzlichen Speicherort.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Muss das Team seine gewohnten Werkzeuge aufgeben?",
+        answer:
+          "Nein, das ist der Zweck der Anbindung. Kalender, Postfach und Dateien bleiben, wo sie sind – die Daten laufen trotzdem im Projekt zusammen.",
+      },
+      {
+        question: "Erscheinen Einsätze im Outlook-Kalender?",
+        answer:
+          "Ja. Einsätze und Schichten werden als Kalendereinträge geführt, sodass der Plan im gewohnten Kalender sichtbar ist, ohne ihn dort zweitpflegen zu müssen.",
+      },
+      {
+        question: "Braucht jeder Mitarbeiter einen eigenen neuen Zugang?",
+        answer:
+          "Nein. Die Anmeldung läuft über die bestehenden Konten, sodass die Benutzerverwaltung an einer Stelle bleibt.",
+      },
+      {
+        question: "Was passiert mit Nachrichten, die nicht zum Projekt gehören?",
+        answer:
+          "Nichts – zugeordnet wird bewusst und einzeln. Die Projektakte füllt sich mit dem, was hineingehört, nicht mit dem gesamten Postfach.",
+      },
+    ],
   },
   {
     slug: "telegram",
@@ -307,6 +682,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Einsatzinformationen und Rückmeldungen über Telegram austauschen – dort, wo die Teams ohnehin erreichbar sind.",
     icon: MessageCircle,
     group: "Kommunikation & Kalender",
+    canonicalTo: "/integrationen",
     logo: logoOf("telegram"),
     highlights: [
       {
@@ -337,6 +713,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Termine über Cal.com buchbar machen – Verfügbarkeiten kommen aus der Planung, nicht aus dem Bauchgefühl.",
     icon: CalendarCheck,
     group: "Kommunikation & Kalender",
+    canonicalTo: "/integrationen",
     logo: logoOf("cal-com"),
     highlights: [
       {
@@ -367,6 +744,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Beratungs- und Bewerbungstermine über Calendly anbieten und automatisch in die Planung übernehmen.",
     icon: CalendarCheck,
     group: "Kommunikation & Kalender",
+    canonicalTo: "/integrationen",
     logo: logoOf("calendly"),
     highlights: [
       {
@@ -397,6 +775,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Offene Stellen über Indeed ausschreiben und Bewerbungen dort weiterverfolgen, wo auch geplant wird.",
     icon: UserSearch,
     group: "Personal & Recruiting",
+    canonicalTo: "/integrationen",
     logo: logoOf("indeed"),
     highlights: [
       {
@@ -427,6 +806,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Fachkräfte über StepStone erreichen und den Bewerbungsprozess an die Einsatzplanung anschließen.",
     icon: UserSearch,
     group: "Personal & Recruiting",
+    canonicalTo: "/integrationen",
     logo: logoOf("stepstone"),
     highlights: [
       {

@@ -17,6 +17,7 @@ export function pageMetadata({
   description,
   path,
   image,
+  canonical,
   type = "website",
   publishedTime,
   index = true,
@@ -33,19 +34,28 @@ export function pageMetadata({
    * hat.
    */
   image?: string;
+  /**
+   * Abweichende kanonische Adresse. Ohne Angabe zeigt der Canonical auf die
+   * Seite selbst.
+   */
+  canonical?: string;
   type?: "website" | "article";
   /** Veröffentlichungsdatum als ISO-String, nur für `type: "article"`. */
   publishedTime?: string;
   index?: boolean;
 }): Metadata {
   const url = new URL(path, SITE_URL).toString();
+  // Kein `noindex` daneben: Canonical und noindex zusammen sind ein
+  // widersprüchliches Signal – das eine verweist auf die zu indexierende
+  // Fassung, das andere verbietet die Indexierung überhaupt.
+  const canonicalUrl = canonical ? new URL(canonical, SITE_URL).toString() : url;
   const socialTitle = `${title} | ${SITE.name}`;
   const images = [new URL(image ?? DEFAULT_OG_IMAGE, SITE_URL).toString()];
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: canonicalUrl },
     robots: index ? { index: true, follow: true } : { index: false, follow: true },
     openGraph: {
       title: socialTitle,

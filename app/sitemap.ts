@@ -35,7 +35,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...STATIC_PATHS.map((path) => ({ url: `${SITE_URL}${path}` })),
     ...MODULES.map((entry) => ({ url: `${SITE_URL}/produkt/${entry.slug}` })),
     ...INDUSTRIES.map((entry) => ({ url: `${SITE_URL}/branchen/${entry.slug}` })),
-    ...INTEGRATION_PAGES.map((entry) => ({ url: `${SITE_URL}/integrationen/${entry.slug}` })),
+    // Integrationen, die auf die Übersicht kanonisieren, bleiben draußen: eine
+    // URL, die selbst auf eine andere als die zu indexierende Fassung
+    // verweist, gehört nicht in die Sitemap.
+    ...INTEGRATION_PAGES.filter((entry) => !entry.canonicalTo).map((entry) => ({
+      url: `${SITE_URL}/integrationen/${entry.slug}`,
+    })),
     ...articles.map((article) => ({
       url: `${SITE_URL}/blog/${article.slug}`,
       lastModified: new Date(article.date),
