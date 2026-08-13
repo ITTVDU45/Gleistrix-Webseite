@@ -13,6 +13,8 @@ export const INDUSTRIES: CatalogEntry[] = [
     tagline: "Sicherungsplanung und Nachweise",
     description:
       "Gleistrix ist aus der Gleisbausicherung entstanden – hier spielt die Plattform ihre Stärken am deutlichsten aus.",
+    metaDescription:
+      "Software für Gleisbausicherung und Bauüberwachung: qualifikationsbasierte Schichtplanung, Nachweise, Stundenzettel und Abrechnung – aus der Praxis entstanden.",
     icon: ShieldCheck,
     group: "Sicherung & Überwachung",
     image: "/Sicherungspersonal%20gleis.png",
@@ -37,6 +39,66 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Digitale Stundenzettel, Nachweise und Dokumente",
       "Dashboard mit allen wichtigen Kennzahlen",
       "Integrierte Kommunikation",
+    ],
+    challenges: [
+      {
+        problem:
+          "Wer welche Schicht übernimmt, wird per Telefon und Nachricht abgestimmt. Der verbindliche Stand liegt am Ende bei einer Person.",
+        solution:
+          "Auftragsverwaltung, Dienstplan und Disposition liegen zusammen. Alle Beteiligten arbeiten auf demselben Stand, ohne ihn erst erfragen zu müssen.",
+      },
+      {
+        problem:
+          "Vor einer Prüfung werden Stundenzettel, Protokolle und Qualifikationsnachweise aus Ordnern und Postfächern zusammengetragen.",
+        solution:
+          "Nachweise und Dokumente hängen an Projekt und Schicht. Was zu einem Einsatz gehört, ist über den Einsatz auffindbar.",
+      },
+      {
+        problem:
+          "Positionen aus dem Leistungsverzeichnis werden für jedes Angebot von Hand in ein eigenes Dokument übertragen.",
+        solution:
+          "Angebote entstehen im GAEB-Format, sodass Positionen und Mengen nicht abgetippt werden müssen.",
+      },
+    ],
+    steps: [
+      {
+        title: "Auftrag erfassen",
+        text: "Auftraggeber, Strecke und Zeitraum werden einmal hinterlegt und gelten für alle Schichten des Auftrags.",
+      },
+      {
+        title: "Schichten besetzen",
+        text: "Die Planung schlägt nur Personal vor, dessen Nachweise am jeweiligen Einsatztag gültig sind.",
+      },
+      {
+        title: "Einsatz dokumentieren",
+        text: "Zeiten, Stundenzettel und Protokolle entstehen am Einsatz und bleiben dort verknüpft.",
+      },
+      {
+        title: "Abrechnen und auswerten",
+        text: "Geprüfte Leistungen gehen in die Abrechnung, das Dashboard zeigt die Kennzahlen dazu.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Was unterscheidet Gleistrix von einer allgemeinen Dispositionssoftware?",
+        answer:
+          "Die Plattform ist entlang echter Sicherungsaufträge entstanden. Qualifikationen, Gültigkeiten und Nachweise sind deshalb keine nachträglich ergänzten Felder, sondern Teil der Planung selbst.",
+      },
+      {
+        question: "Lassen sich Angebote im GAEB-Format erstellen?",
+        answer:
+          "Ja. Die Angebotserstellung unterstützt das GAEB-Format, sodass Leistungsverzeichnisse nicht in ein separates Dokument übertragen werden müssen.",
+      },
+      {
+        question: "Wie werden Nachweise für eine Prüfung bereitgestellt?",
+        answer:
+          "Stundenzettel, Protokolle und Dokumente sind dem Projekt und der einzelnen Schicht zugeordnet. Die Zusammenstellung für eine Prüfung entsteht daraus, statt nachträglich rekonstruiert zu werden.",
+      },
+      {
+        question: "Lässt sich die Abstimmung mit dem Team abbilden?",
+        answer:
+          "Ja. Die Kommunikation ist in die Plattform integriert, sodass Absprachen zu einem Einsatz nicht in einem getrennten Kanal liegen.",
+      },
     ],
   },
   {
@@ -142,6 +204,8 @@ export const INDUSTRIES: CatalogEntry[] = [
     tagline: "Baustellen, Sperrpausen und Geräte",
     description:
       "Baustellen im Griff: Ressourcen, Sperrpausen, Geräte und Kosten transparent steuern – vom Angebot bis zur Schlussrechnung.",
+    metaDescription:
+      "Software für Gleisbauunternehmen: Baustellen und Sperrpausen planen, Zweiwegefahrzeuge disponieren, nach LV und GAEB abrechnen, Deckungsbeiträge verfolgen.",
     icon: HardHat,
     group: "Bau & Infrastruktur",
     image: "/Gleisbauunternehmen.png",
@@ -166,6 +230,66 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Sicherheits- und Qualifikationsmanagement",
       "Projekt- und Kostencontrolling über Reports",
     ],
+    challenges: [
+      {
+        problem:
+          "Die Sperrpause verschiebt sich um eine Woche. Personalplan, Gerätedisposition und Materialbestellung hängen an drei getrennten Stellen.",
+        solution:
+          "Sperrpause und Bauabschnitt gehören zum Projekt. Wer und was im Zeitfenster eingeplant ist, verschiebt sich mit – in einer Planung statt in dreien.",
+      },
+      {
+        problem:
+          "Ein Zweiwegefahrzeug steht für zwei Baustellen gleichzeitig im Plan. Bemerkt wird das, wenn es an der falschen Stelle steht.",
+        solution:
+          "Fahrzeuge und Geräte laufen in derselben Planung wie die Trupps. Doppelbelegungen meldet Gleistrix beim Zuweisen.",
+      },
+      {
+        problem:
+          "Ob ein Projekt gedeckt hat, zeigt sich erst nach der Schlussrechnung – dann ist für Gegenmaßnahmen kein Spielraum mehr.",
+        solution:
+          "Leistungen, Stunden und Kosten laufen ins selbe Projekt. Der Deckungsbeitrag ist während der Bauzeit sichtbar, nicht erst danach.",
+      },
+    ],
+    steps: [
+      {
+        title: "Angebot und Leistungsverzeichnis",
+        text: "Positionen und Mengen kommen über GAEB ins Projekt, statt für das Angebot abgetippt zu werden.",
+      },
+      {
+        title: "Baustelle und Sperrpause planen",
+        text: "Bauabschnitte und Zeitfenster werden hinterlegt und bilden den Rahmen für alle Schichten darin.",
+      },
+      {
+        title: "Ressourcen zuweisen",
+        text: "Trupps, Zweiwegefahrzeuge, Geräte und Material werden gemeinsam eingeplant – mit Qualifikationsprüfung beim Personal.",
+      },
+      {
+        title: "Nachweisen und abrechnen",
+        text: "Erbrachte Leistungen gehen nach LV in die Abrechnung, Reports zeigen Projektstatus und Kosten.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Lassen sich Sperrpausen mit Personal und Technik zusammen planen?",
+        answer:
+          "Ja, das ist der Kern der Baustellenplanung. Das Zeitfenster gehört zum Projekt, und Personal, Fahrzeuge und Geräte werden direkt darin disponiert statt in getrennten Listen.",
+      },
+      {
+        question: "Können Zweiwegefahrzeuge und Geräte mitgeplant werden?",
+        answer:
+          "Ja. Fahrzeuge und Technik laufen in derselben Disposition wie die Trupps, inklusive Verfügbarkeiten und Prüffristen.",
+      },
+      {
+        question: "Wie funktioniert die Abrechnung nach LV und GAEB?",
+        answer:
+          "Leistungsverzeichnisse lassen sich im GAEB-Format einlesen und wieder ausgeben. Erbrachte Leistungen werden gegen die Positionen abgerechnet, ohne die Mengen erneut zu erfassen.",
+      },
+      {
+        question: "Wann ist der Deckungsbeitrag eines Projekts sichtbar?",
+        answer:
+          "Laufend. Weil Stunden, Leistungen und Kosten in dasselbe Projekt laufen, entsteht die Auswertung aus dem operativen Betrieb und nicht erst aus der Schlussrechnung.",
+      },
+    ],
   },
   {
     slug: "subunternehmen-db",
@@ -173,6 +297,8 @@ export const INDUSTRIES: CatalogEntry[] = [
     tagline: "Anforderungen erfüllen, Daten sauber liefern",
     description:
       "Daten sauber liefern und Anforderungen erfüllen – mit strukturierten Nachweisen, Exporten und revisionssicherer Ablage.",
+    metaDescription:
+      "Software für Subunternehmen der DB: Nachweise vollständig halten, Leistungen und Stunden rückmelden, X-Rechnung stellen und revisionssicher ablegen.",
     icon: Building2,
     group: "Bau & Infrastruktur",
     image: "/subunternehmer.png",
@@ -197,6 +323,66 @@ export const INDUSTRIES: CatalogEntry[] = [
       "X-Rechnung und revisionssichere Ablage",
       "Transparente Status- und Freigabeprozesse",
     ],
+    challenges: [
+      {
+        problem:
+          "Der Auftraggeber erwartet die Daten in einer bestimmten Struktur. Aufbereitet wird sie jedes Mal von Hand aus mehreren Quellen.",
+        solution:
+          "Standardisierte Exporte liefern das angeforderte Format aus dem Projekt heraus; für wiederkehrende Übergaben lassen sich Schnittstellen einrichten.",
+      },
+      {
+        problem:
+          "Zum Prüfzeitpunkt fehlt ein Qualifikationsnachweis. Der Einsatz wird nicht anerkannt, obwohl die Leistung erbracht wurde.",
+        solution:
+          "Qualifikationen und Dokumente liegen mit ihrer Gültigkeit am Mitarbeiter. Was zum Prüfzeitpunkt nicht mehr gilt, fällt vorher auf – nicht danach.",
+      },
+      {
+        problem:
+          "Rückmeldungen und Freigaben laufen über Mail. Was bereits bestätigt ist und was noch offen, weiß keine der beiden Seiten sicher.",
+        solution:
+          "Leistungs- und Stundenrückmeldungen tragen ihren Status im System. Freigaben sind für Auftraggeber und Auftragnehmer gleichermaßen nachvollziehbar.",
+      },
+    ],
+    steps: [
+      {
+        title: "Auftrag und Anforderungen erfassen",
+        text: "Was der Auftraggeber an Nachweisen und Formaten erwartet, wird einmal hinterlegt und gilt für alle Einsätze darin.",
+      },
+      {
+        title: "Nachweise aktuell halten",
+        text: "Qualifikationen und Dokumente liegen zentral mit Gültigkeitsdatum, statt vor jeder Prüfung eingesammelt zu werden.",
+      },
+      {
+        title: "Leistungen rückmelden",
+        text: "Erbrachte Leistungen und Stunden gehen strukturiert zurück, mit nachvollziehbarem Freigabestatus.",
+      },
+      {
+        title: "Abrechnen und ablegen",
+        text: "Geprüfte Leistungen werden als X-Rechnung gestellt und revisionssicher abgelegt.",
+      },
+    ],
+    faqs: [
+      {
+        question: "In welchen Formaten lassen sich Daten übergeben?",
+        answer:
+          "Über standardisierte Exporte aus dem Projekt, für Ausschreibung und Abrechnung unter anderem im GAEB-Format und als X-Rechnung. Für wiederkehrende Übergaben lassen sich zusätzlich Schnittstellen einrichten.",
+      },
+      {
+        question: "Was passiert, wenn ein Nachweis abläuft?",
+        answer:
+          "Qualifikationen und Dokumente tragen ihr Gültigkeitsdatum. Die Einsatzplanung prüft es gegen den geplanten Tag, sodass ein abgelaufener Nachweis vor dem Einsatz auffällt und nicht bei der Prüfung.",
+      },
+      {
+        question: "Wie werden Freigaben nachvollziehbar?",
+        answer:
+          "Rückmeldungen und Freigaben hängen am jeweiligen Vorgang und tragen ihren Status. Beide Seiten sehen denselben Stand, ohne ihn aus einem Mailverlauf rekonstruieren zu müssen.",
+      },
+      {
+        question: "Unterstützt Gleistrix die X-Rechnung?",
+        answer:
+          "Ja. Geprüfte Leistungen und Stunden lassen sich ohne erneute Erfassung als X-Rechnung ausgeben und werden revisionssicher abgelegt.",
+      },
+    ],
   },
   {
     slug: "auftragsbasierte-dienstleister",
@@ -204,6 +390,8 @@ export const INDUSTRIES: CatalogEntry[] = [
     tagline: "Vom Angebot bis zur Abrechnung",
     description:
       "Von der Anfrage bis zur Abrechnung: Angebot, Auftrag, Schichtplanung, Zeiterfassung, Stundenzettel und Rechnung in einer Kette.",
+    metaDescription:
+      "Software für auftragsbasierte Dienstleister: Angebot, Auftrag, Einsatzplanung, Zeiterfassung und Rechnung in einer Kette – ohne Übertragen zwischen Werkzeugen.",
     icon: Briefcase,
     group: "Service & Dienstleistung",
     image: "/Auftragsbasierter dienstleister.png",
@@ -227,6 +415,66 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Einsatzplanung und -steuerung",
       "Automatisierte Lohnabrechnung",
       "Effiziente Rechnungsstellung",
+    ],
+    challenges: [
+      {
+        problem:
+          "Das Angebot entsteht im Textprogramm, der Auftrag in einer Tabelle, die Stunden auf Papier. Dieselbe Angabe wird dreimal erfasst.",
+        solution:
+          "Jeder Schritt übernimmt die Daten des vorherigen. Aus dem Angebot wird der Auftrag, aus dem Einsatz die Stunden, aus den Stunden die Rechnung.",
+      },
+      {
+        problem:
+          "Leistungen, die in fast jedem Auftrag vorkommen, werden für jedes Angebot neu zusammengestellt und neu kalkuliert.",
+        solution:
+          "Wiederkehrende Leistungen sind hinterlegt und stehen beim nächsten Angebot bereit, statt jedes Mal rekonstruiert zu werden.",
+      },
+      {
+        problem:
+          "Für die Rechnung und für den Lohn werden dieselben Stunden zweimal aufbereitet – mit dem Risiko, dass beide Auswertungen auseinanderlaufen.",
+        solution:
+          "Freigegebene Stunden gehen aus derselben Erfassung in Abrechnung und Lohnvorbereitung. Es gibt nur einen Stand.",
+      },
+    ],
+    steps: [
+      {
+        title: "Anfrage und Angebot",
+        text: "Hinterlegte Leistungen machen aus einer Anfrage ein Angebot, ohne Positionen neu zusammenzusuchen.",
+      },
+      {
+        title: "Auftrag und Einsatzplanung",
+        text: "Aus dem angenommenen Angebot entsteht der Auftrag, aus dem Auftrag die Einsatzplanung.",
+      },
+      {
+        title: "Zeiten erfassen und freigeben",
+        text: "Das Team erfasst Zeiten am Einsatz, die Verwaltung prüft und gibt sie frei.",
+      },
+      {
+        title: "Abrechnen und Lohn vorbereiten",
+        text: "Freigegebene Stunden gehen ohne erneute Eingabe in Rechnungsstellung und Lohnvorbereitung.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Lassen sich wiederkehrende Leistungen hinterlegen?",
+        answer:
+          "Ja. Leistungen, die regelmäßig angeboten werden, sind hinterlegt und stehen bei der Angebotserstellung zur Auswahl. Das verkürzt vor allem den Weg von der Anfrage zum Angebot.",
+      },
+      {
+        question: "Müssen Stunden für Rechnung und Lohn getrennt erfasst werden?",
+        answer:
+          "Nein. Beide greifen auf dieselbe freigegebene Erfassung zu, sodass Abrechnung und Lohnvorbereitung nicht auseinanderlaufen können.",
+      },
+      {
+        question: "Wie hängen Angebot, Auftrag und Rechnung zusammen?",
+        answer:
+          "Als durchgehende Kette: Das Angebot wird zum Auftrag, der Auftrag trägt die Einsätze, die Einsätze liefern die Stunden, und aus den geprüften Stunden entsteht die Rechnung – ohne Übertragen zwischen Werkzeugen.",
+      },
+      {
+        question: "Eignet sich das auch für viele kleine Aufträge?",
+        answer:
+          "Ja. Gerade dann zahlt sich die Kette aus, weil der Aufwand pro Auftrag vor allem in den Übergängen zwischen Angebot, Einsatz und Rechnung steckt und nicht in der Größe des einzelnen Auftrags.",
+      },
     ],
   },
 ];
