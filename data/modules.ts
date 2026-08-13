@@ -32,6 +32,11 @@ export const MODULES: CatalogEntry[] = [
       "Projekte anlegen und Ressourcen wie Technik, Fahrzeuge und Personal präzise zuweisen – ohne Doppelbelegungen und ohne Rückfragen per Telefon.",
     metaDescription:
       "Bahnprojekte planen und Personal, Fahrzeuge und Technik disponieren – ohne Doppelbelegung, mit Sperrpausen, Meilensteinen und Live-Status im Blick.",
+    // Übernimmt den Titel der weitergeleiteten Landingpage /disposition-bahnbau.
+    // Ohne diese Angabe hieße die Seite "Projektplanung & Disposition für
+    // Bahndienstleister" und trüge das gesuchte "Disposition Software für
+    // Bahnbau" nicht mehr.
+    metaTitle: "Disposition Software für Bahnbau & Gleisbau",
     icon: KanbanSquare,
     group: "Planung & Steuerung",
     image: "/Einsatzvorbereitung & Logistik.png",

@@ -56,6 +56,16 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true,
       },
+      /**
+       * Dieselbe Doppelung: /disposition-bahnbau (134 Wörter) und die
+       * Modulseite (546 Wörter) beantworteten dieselbe Frage. Die Modulseite
+       * gewinnt und übernimmt per `metaTitle` das Keyword der Landingpage.
+       */
+      {
+        source: "/disposition-bahnbau",
+        destination: "/produkt/projektplanung-disposition",
+        permanent: true,
+      },
     ];
   },
 };

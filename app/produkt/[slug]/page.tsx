@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!entry) return {};
 
   return pageMetadata({
-    title: `${entry.title} für Bahndienstleister`,
+    title: entry.metaTitle ?? `${entry.title} für Bahndienstleister`,
     // `description` ist der Fliesstext im Seitenkopf und als Suchergebnis oft
     // zu lang. Module bringen dafür eine eigene, kürzere Fassung mit.
     description: entry.metaDescription ?? entry.description,

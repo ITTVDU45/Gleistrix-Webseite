@@ -22,11 +22,11 @@ const STATIC_PATHS = [
   // Suchintention-orientierte Landingpages. Jede Seite deckt ein eigenständiges
   // Thema ab und verlinkt in die tieferen Modul- und Branchenseiten.
   //
-  // /erp-bahnbau fehlt hier bewusst: die Seite leitet dauerhaft auf die
-  // Startseite weiter (siehe next.config.ts). Weitergeleitete URLs gehören
-  // nicht in die Sitemap.
+  // /erp-bahnbau und /disposition-bahnbau fehlen hier bewusst: beide leiten
+  // dauerhaft weiter (siehe next.config.ts), auf die Startseite bzw. auf
+  // /produkt/projektplanung-disposition. Weitergeleitete URLs gehören nicht
+  // in die Sitemap.
   "/software-sicherungsunternehmen",
-  "/disposition-bahnbau",
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

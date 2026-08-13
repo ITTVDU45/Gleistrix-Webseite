@@ -22,7 +22,8 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
       // eingehenden Links.
       { href: "/produkt", label: "ERP-Plattform im Überblick" },
       { href: "/software-sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
-      { href: "/disposition-bahnbau", label: "Disposition Bahnbau" },
+      // /disposition-bahnbau leitet auf die Modulseite weiter, die in der
+      // Spalte "Plattform" bereits verlinkt ist – hier kein zweiter Verweis.
       { href: "/branchen", label: "Alle Branchen" },
       { href: "/integrationen", label: "Integrationen" },
     ],
