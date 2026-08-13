@@ -6,6 +6,7 @@ import PageHero from "@/components/landing/PageHero";
 import ScreensGallery from "@/components/landing/ScreensGallery";
 import SectionHeading from "@/components/landing/SectionHeading";
 import Reveal from "@/components/landing/Reveal";
+import MediaFrame from "@/components/media/MediaFrame";
 import CTASection from "@/components/sections/CTASection";
 import { pageMetadata } from "@/lib/seo-metadata";
 
@@ -64,6 +65,16 @@ export default function ProduktPage() {
             eyebrow="Vorteile"
             title="Warum Teams Gleistrix in Produktion einsetzen"
             description="Weniger Abstimmung, mehr Output – Gleistrix zahlt sich im Tagesgeschäft aus."
+          />
+          {/* Der Slider zeigt nur Text; ein Motiv davor verankert die Vorteile
+              im Baustellenalltag, statt sie als Behauptung stehen zu lassen. */}
+          <MediaFrame
+            src="/placeholders/szene-bauleitung-tablet.svg"
+            alt="Bauleitung mit Tablet auf der Baustelle"
+            ratio="banner"
+            caption="Dieselben Daten – auf der Strecke wie im Büro"
+            sizes="(min-width: 768px) 1100px, 100vw"
+            className="mt-10 md:mt-14"
           />
           <div className="mt-12 md:mt-16"><BenefitsSlider items={BENEFITS} autoMs={12000} /></div>
         </div>

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Reveal from "./Reveal";
@@ -150,8 +151,20 @@ export default function FAQSection() {
                   className="min-w-0"
                 >
                   {isExpanded ? (
-                    <div className="flex h-full min-h-[300px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-7 shadow-soft ring-1 ring-white/10 md:min-h-[380px] md:p-9">
-                      <div className="flex items-center justify-between">
+                    <div className="relative flex h-full min-h-[300px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-7 shadow-soft ring-1 ring-white/10 md:min-h-[380px] md:p-9">
+                      {/* Motiv liegt hinter der Antwort, nicht daneben: Die
+                          Karten wechseln animiert die Breite, ein zusätzliches
+                          Layout-Element würde bei jedem Wechsel springen. */}
+                      <Image
+                        src="/placeholders/szene-bauueberwachung.svg"
+                        alt=""
+                        aria-hidden
+                        fill
+                        sizes="(min-width: 768px) 55vw, 100vw"
+                        unoptimized
+                        className="pointer-events-none object-cover opacity-20 mix-blend-luminosity"
+                      />
+                      <div className="relative flex items-center justify-between">
                         <span className="text-sm font-bold tabular-nums text-white/60">
                           {String(faqIndex + 1).padStart(2, "0")}
                         </span>
@@ -159,7 +172,7 @@ export default function FAQSection() {
                           Antwort
                         </span>
                       </div>
-                      <div>
+                      <div className="relative">
                         <motion.h3
                           layout="position"
                           className="text-xl font-semibold leading-snug text-white md:text-2xl"
@@ -185,7 +198,7 @@ export default function FAQSection() {
                       onClick={() => jumpTo(faqIndex)}
                       className="group flex h-full min-h-[160px] w-full flex-col justify-between rounded-3xl border border-slate-200 bg-slate-50 p-7 text-left transition-colors duration-200 hover:border-slate-300 hover:bg-slate-100 md:min-h-[380px] md:p-8"
                     >
-                      <span className="text-sm font-bold tabular-nums text-slate-300 transition-colors group-hover:text-slate-400">
+                      <span className="text-sm font-bold tabular-nums text-slate-500 transition-colors group-hover:text-slate-600">
                         {String(faqIndex + 1).padStart(2, "0")}
                       </span>
                       <motion.h3

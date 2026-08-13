@@ -5,8 +5,11 @@ import { AlertTriangle, ArrowRight, Check, ChevronDown } from "lucide-react";
 import type { Catalog, CatalogEntry } from "@/data/catalog";
 import { fillHeading, relatedEntries } from "@/data/catalog";
 import Reveal from "@/components/landing/Reveal";
+import CardMedia from "@/components/media/CardMedia";
+import MediaFrame from "@/components/media/MediaFrame";
 import CTASection from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/button";
+import { sceneFor } from "@/lib/placeholders";
 import { faqPageJsonLd } from "@/lib/seo-metadata";
 
 type CatalogDetailProps = { catalog: Catalog; entry: CatalogEntry };
@@ -21,6 +24,9 @@ type CatalogDetailProps = { catalog: Catalog; entry: CatalogEntry };
 export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
   const Icon = entry.icon;
   const related = relatedEntries(catalog.entries, entry.slug);
+  // Vier Motive je Seite, aus dem Slug abgeleitet – so bekommt jede Unterseite
+  // eine eigene Bildfolge, ohne dass der Katalog Bildfelder pflegen muss.
+  const scenes = [0, 1, 2, 3].map((offset) => sceneFor(entry.slug, offset));
 
   return (
     <>
@@ -71,10 +77,13 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
           <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
             {entry.highlights.map((highlight, index) => (
               <Reveal key={highlight.title} delay={index * 0.06}>
-                <article className="h-full rounded-2xl border border-slate-900/8 bg-white p-5 shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft sm:rounded-3xl sm:p-7">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 sm:h-11 sm:w-11 sm:rounded-2xl"><Icon aria-hidden className="h-5 w-5" /></span>
-                  <h3 className="mt-4 text-base font-bold text-slate-900 sm:mt-5 sm:text-lg">{highlight.title}</h3>
-                  <p className="mt-2.5 text-sm leading-6 text-slate-500 sm:leading-relaxed">{highlight.text}</p>
+                <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-900/8 bg-white shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft sm:rounded-3xl">
+                  <CardMedia src={scenes[index % scenes.length].src} alt={scenes[index % scenes.length].alt} aspect="aspect-[3/2]" sizes="(min-width: 768px) 33vw, 100vw" />
+                  <div className="relative flex flex-1 flex-col p-5 sm:p-7">
+                    <span className="absolute -top-5 left-5 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-soft ring-1 ring-slate-900/5 sm:left-7 sm:h-11 sm:w-11 sm:rounded-2xl"><Icon aria-hidden className="h-5 w-5" /></span>
+                    <h3 className="mt-4 text-base font-bold text-slate-900 sm:mt-5 sm:text-lg">{highlight.title}</h3>
+                    <p className="mt-2.5 text-sm leading-6 text-slate-500 sm:leading-relaxed">{highlight.text}</p>
+                  </div>
                 </article>
               </Reveal>
             ))}
@@ -89,6 +98,9 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
               <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Im Detail</span>
               <h2 id="catalog-scope" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{fillHeading(catalog.scopeHeading, entry.title)}</h2>
               <p className="mt-4 max-w-md text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">{entry.tagline} – abgestimmt auf den Alltag von Bahndienstleistern und im Zusammenspiel mit allen anderen Bereichen der Plattform.</p>
+              {/* Bild statt weiterer Fließtext: Die rechte Spalte ist bereits
+                  eine Liste, die linke bliebe sonst halbleer. */}
+              <MediaFrame src={scenes[3].src} alt={scenes[3].alt} ratio="landscape" delay={0.06} sizes="(min-width: 768px) 40vw, 100vw" className="mt-7 sm:mt-8" />
             </Reveal>
 
             <Reveal delay={0.08} className="min-w-0">
@@ -153,13 +165,18 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
           </div>
 
           <div className="page-container relative">
-            <Reveal className="min-w-0">
-              <div className="max-w-2xl">
-                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Ablauf</span>
-                <h2 id="catalog-steps" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">So arbeitest du mit {entry.title}</h2>
-                <p className="mt-4 text-[15px] leading-7 text-slate-300 sm:text-base sm:leading-relaxed">Jeder Schritt baut auf dem vorherigen auf. Daten, die einmal im System stehen, werden weitergereicht statt erneut erfasst.</p>
-              </div>
-            </Reveal>
+            <div className="grid min-w-0 items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] md:gap-12">
+              <Reveal className="min-w-0">
+                <div className="max-w-2xl">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Ablauf</span>
+                  <h2 id="catalog-steps" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">So arbeitest du mit {entry.title}</h2>
+                  <p className="mt-4 text-[15px] leading-7 text-slate-300 sm:text-base sm:leading-relaxed">Jeder Schritt baut auf dem vorherigen auf. Daten, die einmal im System stehen, werden weitergereicht statt erneut erfasst.</p>
+                </div>
+              </Reveal>
+              {/* Der dunkle Abschnitt ist der einzige Bruch im hellen Seitenlauf –
+                  ein Bild hier trägt ihn, ohne die nummerierten Schritte zu stören. */}
+              <MediaFrame src={scenes[2].src} alt={scenes[2].alt} ratio="wide" delay={0.08} sizes="(min-width: 768px) 45vw, 100vw" className="[&_figure]:border-white/10" />
+            </div>
 
             <Reveal delay={0.08} className="min-w-0">
               <ol className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 md:mt-14 lg:grid-cols-4">

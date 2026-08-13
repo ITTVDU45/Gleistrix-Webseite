@@ -8,6 +8,7 @@ import { ArrowLeft, Star } from "lucide-react";
 
 import { ConsentGate } from "@/components/consent/consent-gate";
 import ConfigurationRequest from "@/components/demo/ConfigurationRequest";
+import MediaFrame from "@/components/media/MediaFrame";
 
 export default function DemoBuchenPage() {
   return (
@@ -77,7 +78,19 @@ export default function DemoBuchenPage() {
               <CalEmbed />
             </ConsentGate>
           </div>
-          <TestimonialsSlider />
+          {/* Der Kalender ist rund 780 px hoch, die Stimmen füllen davon keine
+              Hälfte – ohne ein zweites Element endet die rechte Spalte auf
+              halber Höhe im Leeren. */}
+          <div className="space-y-6">
+            <TestimonialsSlider />
+            <MediaFrame
+              src="/placeholders/szene-bauleitung-tablet.svg"
+              alt="Gleistrix im Einsatz auf der Baustelle"
+              ratio="landscape"
+              caption="20 Minuten genügen für einen echten Eindruck"
+              sizes="(min-width: 768px) 50vw, 100vw"
+            />
+          </div>
         </div>
       </div>
     </main>

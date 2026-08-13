@@ -1,6 +1,7 @@
 import CatalogGrid from "@/components/catalog/CatalogGrid";
 import PageHero from "@/components/landing/PageHero";
 import SectionHeading from "@/components/landing/SectionHeading";
+import MediaFrame from "@/components/media/MediaFrame";
 import CTASection from "@/components/sections/CTASection";
 import { INTEGRATION_CATALOG } from "@/data/integration-pages";
 import { pageMetadata } from "@/lib/seo-metadata";
@@ -30,7 +31,16 @@ export default function Page() {
           { label: "Demo anfragen", href: "/demo-buchen" },
           { label: "Alle Anbindungen", href: "#anbindungen", variant: "outline" },
         ]}
-      />
+      >
+        <MediaFrame
+          src="/placeholders/uebersicht-integrationen.svg"
+          alt="Buchhaltung, Kalender und Ausschreibung im Zusammenspiel mit Gleistrix"
+          ratio="banner"
+          priority
+          caption="Bestehende Systeme bleiben – die Daten laufen nur nicht mehr getrennt"
+          sizes="(min-width: 768px) 1100px, 100vw"
+        />
+      </PageHero>
 
       <section id="anbindungen" className="scroll-mt-24 bg-[#f8fafc] py-16 md:py-24">
         <div className="page-container">

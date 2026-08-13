@@ -1,5 +1,6 @@
 import { Bot, FileSearch, FileText, Mail, Receipt, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import MediaFrame from "@/components/media/MediaFrame";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -107,6 +108,18 @@ export default function AgentsSection() {
               </Reveal>
             );
           })}
+
+          {/* Bildkachel: zeigt den Arbeitsschritt, den die Agenten übernehmen.
+              Ohne sie besteht das Bento-Grid nur aus Icon-Karten. */}
+          <MediaFrame
+            src="/placeholders/agenten-arbeitsvorbereitung.svg"
+            alt="Leistungsverzeichnis einer Ausschreibung am Bildschirm"
+            ratio="fill"
+            caption="Vorarbeit, die sonst am Schreibtisch liegen bleibt"
+            delay={0.26}
+            sizes="(min-width: 1024px) 66vw, 100vw"
+            className="h-full lg:col-span-2"
+          />
 
           {/* Hinweis-Karte: Agenten sind optional */}
           <Reveal delay={0.3} className="h-full">

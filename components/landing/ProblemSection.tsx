@@ -1,5 +1,6 @@
 import { CalendarX2, FileWarning, Receipt, Table2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import MediaFrame from "@/components/media/MediaFrame";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -51,21 +52,35 @@ export default function ProblemSection() {
           description="Bahnprojekte scheitern selten an der Arbeit auf der Strecke – sondern an der Koordination dahinter."
         />
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 md:mt-16">
-          {PAIN_POINTS.map((point, index) => {
-            const Icon = point.icon;
-            return (
-              <Reveal key={point.title} delay={index * 0.07} className="h-full">
-                <article className="group h-full rounded-3xl border border-slate-900/8 bg-[#f8fafc] p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-soft-sm transition-colors duration-300 group-hover:bg-indigo-50 group-hover:text-indigo-600">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-5 text-base font-semibold text-slate-900">{point.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{point.description}</p>
-                </article>
-              </Reveal>
-            );
-          })}
+        {/* Bild und Karten stehen nebeneinander: Der Alltag links, seine vier
+            Symptome rechts – ohne das Bild liest sich der Abschnitt als reine
+            Aufzählung. */}
+        <div className="mt-12 grid items-stretch gap-6 md:mt-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-8">
+          <MediaFrame
+            src="/placeholders/problem-zettelwirtschaft.svg"
+            alt="Papierpläne, Stundenzettel und Ordner auf einem Baustellentisch"
+            ratio="fill"
+            caption="Der Alltag ohne durchgängiges System"
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            className="lg:h-full"
+          />
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            {PAIN_POINTS.map((point, index) => {
+              const Icon = point.icon;
+              return (
+                <Reveal key={point.title} delay={index * 0.07} className="h-full">
+                  <article className="group h-full rounded-3xl border border-slate-900/8 bg-[#f8fafc] p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-soft-sm transition-colors duration-300 group-hover:bg-indigo-50 group-hover:text-indigo-600">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <h3 className="mt-5 text-base font-semibold text-slate-900">{point.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-500">{point.description}</p>
+                  </article>
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
 
         {/* Nutzenbrücke */}
