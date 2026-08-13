@@ -21,8 +21,15 @@ export const FOOTER_COLUMNS: readonly FooterColumn[] = [
       // Der Platz geht an /produkt: eine Hub-Seite mit bislang sehr wenigen
       // eingehenden Links.
       { href: "/produkt", label: "ERP-Plattform im Überblick" },
-      // Ersetzt /software-sicherungsunternehmen, das jetzt hierher weiterleitet.
+      // Die Branchenseiten stehen einzeln in der Fusszeile, nicht nur als
+      // Sammelpunkt: Die Spalte "Plattform" verlinkt alle neun Modulseiten,
+      // während die Branchenseiten bisher nur ueber ihre Uebersicht erreichbar
+      // waren und entsprechend wenige interne Links abbekamen.
       { href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { href: "/branchen/gleisbausicherung-bauueberwachung", label: "Gleisbausicherung & Bauüberwachung" },
+      { href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+      { href: "/branchen/auftragsbasierte-dienstleister", label: "Auftragsbasierte Dienstleister" },
       // /disposition-bahnbau leitet auf die Modulseite weiter, die in der
       // Spalte "Plattform" bereits verlinkt ist – hier kein zweiter Verweis.
       { href: "/branchen", label: "Alle Branchen" },

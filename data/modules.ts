@@ -26,6 +26,10 @@ import type { Catalog, CatalogEntry } from "./catalog";
 export const MODULES: CatalogEntry[] = [
   {
     slug: "projektplanung-disposition",
+    crossLinks: [
+      { text: "Wie Sperrpausen mit Personal und Technik zusammen geplant werden, zeigt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Qualifikationsbasierte Besetzung im Detail beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+    ],
     title: "Projektplanung & Disposition",
     tagline: "Projekte, Ressourcen und Meilensteine",
     description:
@@ -123,6 +127,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "kalender-einsatzuebersicht",
+    crossLinks: [
+      { text: "Einsätze im gewohnten Kalender des Teams ermöglicht", href: "/integrationen/microsoft", label: "die Microsoft-365-Anbindung" },
+      { text: "Wechselnde Nacht- und Wochenendschichten behandelt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+    ],
     title: "Plantafel & Einsatzübersicht",
     tagline: "Schichten, Termine und Trupps in einer Ansicht",
     description:
@@ -215,6 +223,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "reports-auswertungen",
+    crossLinks: [
+      { text: "Deckungsbeiträge während der Bauzeit behandelt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Woher die abgerechneten Zahlen stammen, zeigt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+    ],
     title: "Reports & Auswertungen",
     tagline: "Kennzahlen zu Auslastung und Kosten",
     description:
@@ -307,6 +319,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "mitarbeiterverwaltung",
+    crossLinks: [
+      { text: "Wie Qualifikationen die Einsatzplanung steuern, zeigt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Nachweispflichten gegenüber Auftraggebern behandelt", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+    ],
     title: "Mitarbeiterverwaltung",
     tagline: "Qualifikationen, Fristen und Abwesenheiten",
     description:
@@ -399,6 +415,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "fahrzeug-technik",
+    crossLinks: [
+      { text: "Zweiwegefahrzeuge und Geräte im Baustellenkontext behandelt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Bestände und Prüffristen von Sicherungstechnik zeigt", href: "/produkt/lagerverwaltung", label: "die Lagerverwaltung" },
+    ],
     title: "Fahrzeuge & Technik",
     tagline: "Prüffristen, Wartung und Zuordnung",
     description:
@@ -491,6 +511,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "lagerverwaltung",
+    crossLinks: [
+      { text: "Material und Technik gemeinsam mit Trupps planen beschreibt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Fahrzeuge und Geräte mit Prüffristen verwaltet", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik" },
+    ],
     title: "Lagerverwaltung",
     tagline: "Bestände, Reservierungen und Prüfhistorie",
     description:
@@ -583,6 +607,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "zeiterfassung-stundenzettel",
+    crossLinks: [
+      { text: "Prüffähige Nachweise je Schicht beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Die Übergabe von Stunden und Zuschlägen an die Lohnabrechnung übernimmt", href: "/integrationen/datev", label: "die DATEV-Anbindung" },
+    ],
     title: "Zeiterfassung & Stundenzettel",
     tagline: "Mobil erfasst, prüffähig abgelegt",
     description:
@@ -675,6 +703,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "dokumentenmanagement",
+    crossLinks: [
+      { text: "Nachweise für die Bauüberwachung beschreibt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
+      { text: "Was Auftraggeber im Bahnumfeld an Unterlagen erwarten, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
+    ],
     title: "Dokumentenmanagement",
     tagline: "Revisionssicher in der Projektakte",
     description:
@@ -767,6 +799,11 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "rechnungsstellung",
+    crossLinks: [
+      { text: "Die Weitergabe an die Buchhaltung übernehmen", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
+      { text: "Abrechnung nach Leistungsverzeichnis erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "X-Rechnung für öffentliche Auftraggeber behandelt", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+    ],
     title: "Abrechnung & Rechnungsstellung",
     tagline: "Von der Leistung zur X-Rechnung",
     description:

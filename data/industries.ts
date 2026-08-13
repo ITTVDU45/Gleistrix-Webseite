@@ -9,6 +9,11 @@ import type { Catalog, CatalogEntry } from "./catalog";
 export const INDUSTRIES: CatalogEntry[] = [
   {
     slug: "gleisbausicherung-bauueberwachung",
+    crossLinks: [
+      { text: "Wie Protokolle und Nachweise abgelegt werden, beschreibt", href: "/produkt/dokumentenmanagement", label: "Dokumentenmanagement für Bahnprojekte" },
+      { text: "Angebote auf Basis eines Leistungsverzeichnisses erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "Für die reine Personaldisposition ohne Bauüberwachung passt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+    ],
     title: "Gleisbausicherung & Bauüberwachung",
     tagline: "Sicherungsplanung und Nachweise",
     description:
@@ -103,6 +108,11 @@ export const INDUSTRIES: CatalogEntry[] = [
   },
   {
     slug: "sicherungsunternehmen",
+    crossLinks: [
+      { text: "Wie Schichten und Stundenzettel im Detail zusammenhängen, steht unter", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundenzettel" },
+      { text: "Die Plantafel dahinter beschreibt", href: "/produkt/projektplanung-disposition", label: "Projektplanung und Disposition" },
+      { text: "Was Auftraggeber im Bahnumfeld an Nachweisen erwarten, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
+    ],
     title: "Sicherungsunternehmen",
     tagline: "Regelbasierte Einsätze, lückenlose Doku",
     description:
@@ -200,6 +210,11 @@ export const INDUSTRIES: CatalogEntry[] = [
   },
   {
     slug: "gleisbauunternehmen",
+    crossLinks: [
+      { text: "Zweiwegefahrzeuge, Geräte und Prüffristen behandelt", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik disponieren" },
+      { text: "Leistungsverzeichnisse einlesen und zurückgeben erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "Deckungsbeiträge und Projektkennzahlen zeigt", href: "/produkt/reports-auswertungen", label: "Reports und Auswertungen" },
+    ],
     title: "Gleisbauunternehmen",
     tagline: "Baustellen, Sperrpausen und Geräte",
     description:
@@ -293,6 +308,11 @@ export const INDUSTRIES: CatalogEntry[] = [
   },
   {
     slug: "subunternehmen-db",
+    crossLinks: [
+      { text: "Welche Nachweise und Formate erwartet werden, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
+      { text: "Die X-Rechnung und den Weg dorthin beschreibt", href: "/produkt/rechnungsstellung", label: "Rechnungsstellung für Bahndienstleister" },
+      { text: "Qualifikationen und ihre Gültigkeit verwaltet", href: "/produkt/mitarbeiterverwaltung", label: "die Mitarbeiterverwaltung" },
+    ],
     title: "Subunternehmen der DB",
     tagline: "Anforderungen erfüllen, Daten sauber liefern",
     description:
@@ -386,6 +406,11 @@ export const INDUSTRIES: CatalogEntry[] = [
   },
   {
     slug: "auftragsbasierte-dienstleister",
+    crossLinks: [
+      { text: "Vom geprüften Stundenzettel zur Rechnung führt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+      { text: "Die Übergabe an die Buchhaltung übernimmt", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
+      { text: "Wie Zeiten am Einsatz erfasst und freigegeben werden, zeigt", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundenzettel" },
+    ],
     title: "Auftragsbasierte Dienstleister",
     tagline: "Vom Angebot bis zur Abrechnung",
     description:

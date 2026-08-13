@@ -31,6 +31,10 @@ function logoOf(id: string): NonNullable<CatalogEntry["logo"]> {
 export const INTEGRATION_PAGES: CatalogEntry[] = [
   {
     slug: "gaeb",
+    crossLinks: [
+      { text: "Wer nach Leistungsverzeichnis abrechnet, findet die Details unter", href: "/produkt/rechnungsstellung", label: "Rechnungsstellung nach LV" },
+      { text: "Im Gleisbau hängt das Verzeichnis an der Baustellenplanung – siehe", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+    ],
     title: "GAEB",
     tagline: "Leistungsverzeichnisse ein- und ausgeben",
     description:
@@ -123,6 +127,10 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "deutsche-bahn",
+    crossLinks: [
+      { text: "Für Auftragnehmer der DB im Detail beschrieben unter", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+      { text: "Wie Nachweise abgelegt und wiedergefunden werden, zeigt", href: "/produkt/dokumentenmanagement", label: "das Dokumentenmanagement" },
+    ],
     title: "Deutsche Bahn",
     tagline: "Anforderungen der Auftraggeberseite",
     description:
@@ -215,6 +223,10 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "datev",
+    crossLinks: [
+      { text: "Woher die Stunden mit ihren Zuschlägen kommen, zeigt", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundenzettel" },
+      { text: "Den Weg zur gestellten Rechnung beschreibt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+    ],
     title: "DATEV",
     tagline: "Übergabe an Steuerberatung und Lohn",
     description:
@@ -307,6 +319,10 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "lexoffice",
+    crossLinks: [
+      { text: "Wo die Rechnung entsteht, beschreibt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+      { text: "Für die durchgehende Kette vom Angebot bis zur Rechnung siehe", href: "/branchen/auftragsbasierte-dienstleister", label: "Software für auftragsbasierte Dienstleister" },
+    ],
     title: "lexoffice",
     tagline: "Rechnungen und Belege synchron",
     description:
@@ -399,6 +415,10 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "sevdesk",
+    crossLinks: [
+      { text: "Wo die Rechnungsdaten herkommen, zeigt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+      { text: "Die Alternative in derselben Rolle ist", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
+    ],
     title: "sevdesk",
     tagline: "Buchhaltung ohne Doppelerfassung",
     description:
@@ -584,6 +604,10 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "microsoft",
+    crossLinks: [
+      { text: "Welche Einsätze im Kalender landen, entscheidet", href: "/produkt/kalender-einsatzuebersicht", label: "die Plantafel und Einsatzübersicht" },
+      { text: "Wie Dokumente am Projekt abgelegt werden, zeigt", href: "/produkt/dokumentenmanagement", label: "das Dokumentenmanagement" },
+    ],
     title: "Microsoft 365",
     tagline: "Postfach, Kalender und Dateien",
     description:
