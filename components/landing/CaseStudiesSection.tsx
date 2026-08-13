@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { CASE_STUDIES, type CaseStudy } from "@/data/caseStudies";
 import { cn } from "@/lib/utils";
 import { CAROUSEL_CARD_ATTR, CarouselControls, useSnapCarousel } from "./carousel";
@@ -61,13 +62,25 @@ function CaseStudyCard({ study, isDark }: { study: CaseStudy; isDark: boolean })
             <div key={metric.label} className="min-w-0">
               <dt className="sr-only">{metric.label}</dt>
               <dd className={cn("text-lg font-bold sm:text-xl", isDark ? "text-indigo-300" : "text-indigo-600")}>{metric.value}</dd>
-              <dd className="mt-0.5 text-[11px] leading-snug text-slate-400 sm:text-xs">{metric.label}</dd>
+              <dd className={cn("mt-0.5 text-[11px] leading-snug sm:text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{metric.label}</dd>
             </div>
           ))}
         </dl>
       </div>
 
-      <div className={cn("relative flex min-h-[220px] min-w-0 flex-col justify-between overflow-hidden rounded-2xl p-5 sm:min-h-64 sm:p-6 md:min-h-0 md:p-8", isDark ? "bg-slate-950 ring-1 ring-white/10" : "bg-slate-900")}>
+      <div className={cn("group relative flex min-h-[220px] min-w-0 flex-col justify-between overflow-hidden rounded-2xl p-5 sm:min-h-64 sm:p-6 md:min-h-0 md:p-8", isDark ? "bg-slate-950 ring-1 ring-white/10" : "bg-slate-900")}>
+        {/* Foto liegt unter den Kennzahlen, nicht daneben: Die Karte hat nur
+            zwei Spalten – ein drittes Element würde sie sprengen. Der Verlauf
+            darüber hält den Text auch auf hellen Motiven lesbar. */}
+        <Image
+          src={study.image.src}
+          alt={study.image.alt}
+          fill
+          sizes="(min-width: 768px) 50vw, 100vw"
+          unoptimized={study.image.src.endsWith(".svg")}
+          className="object-cover opacity-45 transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
+        />
+        <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
         <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-indigo-500/25 blur-3xl" />
         <p className="relative text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50 sm:text-xs sm:tracking-[0.16em]">{study.branche}</p>
         <div className="relative mt-5 sm:mt-6">

@@ -87,7 +87,7 @@ export default function Hero() {
             </motion.div>
 
             <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-9 lg:justify-start" {...fadeUp(0.32)}>
-              <span className="w-full text-center text-xs font-medium text-slate-400 sm:mr-1 sm:w-auto sm:text-left">Gemacht für</span>
+              <span className="w-full text-center text-xs font-medium text-slate-500 sm:mr-1 sm:w-auto sm:text-left">Gemacht für</span>
               {HERO_SLIDES.map((s, i) => (
                 <button key={s.id} type="button" onClick={() => setActive(i)} aria-pressed={i === active} className={"min-h-9 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all " + (i === active ? "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-soft-sm" : "border-slate-200 bg-white/70 text-slate-500 hover:border-slate-300 hover:text-slate-700")}>{s.audienceShort}</button>
               ))}

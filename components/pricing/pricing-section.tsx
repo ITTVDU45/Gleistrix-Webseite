@@ -846,6 +846,15 @@ function ImplementationSection({ config }: { config: PricingConfig }) {
               </div>
             ))}
           </div>
+          {/* Einzige Sektion der Preisseite ohne Bild: links standen bisher nur
+              Überschrift und Preisliste, rechts eine Häkchenliste. */}
+          <MediaFrame
+            src="/placeholders/uebersicht-preise.svg"
+            alt="Einführung und Betreuung durch das Gleistrix-Team"
+            ratio="landscape"
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            className="mt-8"
+          />
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-soft-sm sm:p-8 lg:p-10">

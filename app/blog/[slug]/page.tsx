@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
 import { getPublicArticle, listPublicArticles } from "@/lib/admin/blog/store";
+import { pageMetadata } from "@/lib/seo-metadata";
 
 /** Wie die Übersicht: geplante Artikel erscheinen ohne Hintergrundlauf. */
 export const revalidate = 600;
@@ -33,19 +34,14 @@ export async function generateMetadata({
   const article = await getPublicArticle((await params).slug);
   if (!article) return { title: "Beitrag nicht gefunden" };
 
-  const description = article.seo.description || article.teaser;
-  return {
+  return pageMetadata({
     title: article.seo.title || article.title,
-    description,
-    alternates: { canonical: `/blog/${article.slug}` },
-    openGraph: {
-      title: article.seo.title || article.title,
-      description,
-      type: "article",
-      publishedTime: article.date,
-      images: article.imageSrc ? [{ url: article.imageSrc }] : undefined,
-    },
-  };
+    description: article.seo.description || article.teaser,
+    path: `/blog/${article.slug}`,
+    image: article.imageSrc || undefined,
+    type: "article",
+    publishedTime: article.date,
+  });
 }
 
 export default async function BlogArticlePage({ params }: { params: Promise<{ slug: string }> }) {

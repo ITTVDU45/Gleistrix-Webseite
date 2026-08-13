@@ -12,8 +12,12 @@ import FAQSection from "@/components/landing/FAQSection";
 import BlogSection from "@/components/landing/BlogSection";
 import { pageMetadata } from "@/lib/seo-metadata";
 
+// Marke gehört in den Startseitentitel: Root-Layout und Startseite sind
+// dasselbe Segment, deshalb greift das "%s | Gleistrix"-Template hier nicht.
+// Die Formulierung unterscheidet sich bewusst von /erp-bahnbau, damit nicht
+// zwei URLs mit identischem Titel um dieselbe Anfrage konkurrieren.
 export const metadata = pageMetadata({
-  title: "ERP Software für Bahnbau & Bahndienstleister",
+  title: "Gleistrix – ERP-Plattform für Bahnbau und Bahndienstleister",
   description:
     "Gleistrix verbindet Projektplanung, Disposition, Personal, Fahrzeuge, Zeiterfassung, Dokumente und Abrechnung in einer ERP-Plattform für Bahndienstleister.",
   path: "/",
