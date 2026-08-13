@@ -10,6 +10,12 @@ import { pageMetadata } from "@/lib/seo-metadata";
 /** Wie die Übersicht: geplante Artikel erscheinen ohne Hintergrundlauf. */
 export const revalidate = 600;
 
+/** Beitragsbild für Artikel, die noch keines hinterlegt haben. */
+const FALLBACK_IMAGE = {
+  src: "/placeholders/uebersicht-blog.svg",
+  alt: "Fachbeitrag aus der Bahnbranche",
+};
+
 const dateFormat = new Intl.DateTimeFormat("de-DE", {
   day: "numeric",
   month: "long",
@@ -86,20 +92,22 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
           </div>
         </header>
 
-        {article.imageSrc ? (
-          <div className="page-container">
-            <div className="relative mx-auto aspect-[16/9] max-w-4xl overflow-hidden rounded-3xl border border-slate-900/8 shadow-soft-sm">
-              <Image
-                src={article.imageSrc}
-                alt={article.imageAlt}
-                fill
-                sizes="(min-width: 1024px) 896px, 100vw"
-                priority
-                className="object-cover"
-              />
-            </div>
+        {/* Ohne Fallback beginnt ein bildloser Artikel direkt mit einer Wand
+            aus Fließtext. Der Platzhalter wird pro Artikel im Adminbereich
+            durch ein echtes Beitragsbild ersetzt. */}
+        <div className="page-container">
+          <div className="relative mx-auto aspect-[16/9] max-w-4xl overflow-hidden rounded-3xl border border-slate-900/8 shadow-soft-sm">
+            <Image
+              src={article.imageSrc || FALLBACK_IMAGE.src}
+              alt={article.imageSrc ? article.imageAlt : FALLBACK_IMAGE.alt}
+              fill
+              sizes="(min-width: 1024px) 896px, 100vw"
+              priority
+              unoptimized={!article.imageSrc}
+              className="object-cover"
+            />
           </div>
-        ) : null}
+        </div>
 
         <div className="page-container py-14 md:py-20">
           {/* Der Text ist beim Speichern durch sanitizeArticleHtml gelaufen –
