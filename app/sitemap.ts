@@ -21,7 +21,10 @@ const STATIC_PATHS = [
   "/datenschutz",
   // Suchintention-orientierte Landingpages. Jede Seite deckt ein eigenständiges
   // Thema ab und verlinkt in die tieferen Modul- und Branchenseiten.
-  "/erp-bahnbau",
+  //
+  // /erp-bahnbau fehlt hier bewusst: die Seite leitet dauerhaft auf die
+  // Startseite weiter (siehe next.config.ts). Weitergeleitete URLs gehören
+  // nicht in die Sitemap.
   "/software-sicherungsunternehmen",
   "/disposition-bahnbau",
 ] as const;
