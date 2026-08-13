@@ -26,6 +26,7 @@ import {
   formatPriceEUR,
   modulesByTier,
 } from "@/data/pricing";
+import MediaFrame from "@/components/media/MediaFrame";
 import { moduleIcon } from "@/lib/pricing/icons";
 import type {
   PricingConfig,
