@@ -45,6 +45,12 @@ export const INDUSTRIES: CatalogEntry[] = [
     tagline: "Regelbasierte Einsätze, lückenlose Doku",
     description:
       "Einsätze qualifikations- und regelbasiert planen – mit lückenloser Dokumentation und prüffähigen Nachweisen.",
+    // Übernimmt Titel und Beschreibung der weitergeleiteten Landingpage
+    // /software-sicherungsunternehmen. Der abgeleitete Titel hieße sonst nur
+    // "Software für Sicherungsunternehmen" und verlöre "Gleisbausicherung".
+    metaTitle: "Software für Sicherungsunternehmen & Gleisbausicherung",
+    metaDescription:
+      "Software für Sicherungsunternehmen: qualifikationsbasierte Disposition, Schichtplanung, Zeiterfassung, Nachweise und Abrechnung für die Gleisbausicherung.",
     icon: Network,
     group: "Sicherung & Überwachung",
     image: "/Sicherungsunternehmen.png",
@@ -68,6 +74,66 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Mobile Zeiterfassung und prüffähige Stundenzettel",
       "Standardisierte Exporte und optionale Schnittstellen",
       "X-Rechnung und Compliance-Unterstützung",
+    ],
+    challenges: [
+      {
+        problem:
+          "Eine Tauglichkeit läuft mitten im Einsatzzeitraum ab. Auffallen tut das, wenn der Posten schon auf der Strecke steht.",
+        solution:
+          "Qualifikationen und ihre Gültigkeit liegen am Mitarbeiter. Wer für den geplanten Tag nicht mehr gültig ist, wird bei der Besetzung nicht vorgeschlagen.",
+      },
+      {
+        problem:
+          "Der Auftraggeber fragt Nachweise zu einer Schicht von vor acht Wochen an. Die Suche geht durch Ordner, Fotos und drei Postfächer.",
+        solution:
+          "Jede Schicht trägt ihre Nachweise und Signaturen bei sich und bleibt über das Projekt auffindbar – ohne Rekonstruktion aus Einzelteilen.",
+      },
+      {
+        problem:
+          "Nacht- und Wochenendeinsätze stehen in einer Tabelle, die Verfügbarkeit der Posten im Kalender. Beides wird von Hand abgeglichen.",
+        solution:
+          "Schichten, Abwesenheiten und Verfügbarkeiten liegen in derselben Plantafel. Doppelbelegungen meldet Gleistrix beim Zuweisen, nicht am Einsatztag.",
+      },
+    ],
+    steps: [
+      {
+        title: "Einsatz anlegen",
+        text: "Auftrag, Streckenabschnitt und Sperrpause werden einmal erfasst und gelten für alle Schichten darin.",
+      },
+      {
+        title: "Nach Regeln besetzen",
+        text: "Pro Schicht steht fest, welche Qualifikationen gebraucht werden – SiPo, SaKra oder HIB. Vorgeschlagen wird nur, wer sie zum Einsatztag gültig besitzt.",
+      },
+      {
+        title: "Vor Ort erfassen",
+        text: "Das Team meldet Zeiten und Vorkommnisse direkt vom Einsatzort, inklusive Signatur.",
+      },
+      {
+        title: "Prüfen und abrechnen",
+        text: "Freigegebene Stunden gehen ohne erneute Eingabe in die Abrechnung, auf Wunsch als X-Rechnung.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Welche Qualifikationen lassen sich hinterlegen?",
+        answer:
+          "Die in der Gleisbausicherung üblichen Nachweise wie Sicherungsposten, Sicherungsaufsicht mit Kranausbildung oder Handbedienung von Bahnübergängen, jeweils mit Gültigkeitsdatum. Weitere Qualifikationen und Tauglichkeiten lassen sich ergänzen, weil die Liste je Unternehmen konfiguriert wird.",
+      },
+      {
+        question: "Was passiert, wenn eine Qualifikation während des Einsatzzeitraums abläuft?",
+        answer:
+          "Gleistrix prüft die Gültigkeit gegen den geplanten Einsatztag, nicht gegen das heutige Datum. Ein Posten, dessen Nachweis am Freitag ausläuft, taucht für den Montag danach nicht mehr als Vorschlag auf.",
+      },
+      {
+        question: "Wie kommen die Nachweise zum Auftraggeber?",
+        answer:
+          "Über standardisierte Exporte aus dem Projekt heraus. Weil Schicht, Zeiterfassung und Nachweis am selben Vorgang hängen, entsteht die Zusammenstellung aus dem laufenden Betrieb statt in einer Nachbearbeitung.",
+      },
+      {
+        question: "Eignet sich das auch für kurzfristige Umplanungen?",
+        answer:
+          "Ja. Änderungen an einer Schicht sind sofort für Disposition und Trupp sichtbar, weil alle Beteiligten dieselbe Plantafel sehen. Es gibt keine zweite Fassung des Plans, die noch verteilt werden müsste.",
+      },
     ],
   },
   {

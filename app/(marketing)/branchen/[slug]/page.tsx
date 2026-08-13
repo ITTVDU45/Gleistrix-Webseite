@@ -18,8 +18,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!entry) return {};
 
   return pageMetadata({
-    title: `Software für ${entry.title}`,
-    description: entry.description,
+    title: entry.metaTitle ?? `Software für ${entry.title}`,
+    description: entry.metaDescription ?? entry.description,
     path: `/branchen/${entry.slug}`,
     image: entry.image,
   });
