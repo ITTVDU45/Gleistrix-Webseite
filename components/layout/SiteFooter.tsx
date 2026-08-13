@@ -46,7 +46,9 @@ export default function SiteFooter() {
                 {FOOTER_COLUMNS.map((column, index) => (
                   <Reveal key={column.heading} delay={0.1 + index * 0.06} className="min-w-0">
                     <nav aria-label={column.heading} className="min-w-0">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900">{column.heading}</h4>
+                      {/* h2 statt h4: die Fußzeilenspalten folgen im Dokument auf
+                          h2-Abschnitte, ein h4 überspringt eine Ebene. */}
+                      <h2 className="text-xs font-bold uppercase tracking-wider text-slate-900">{column.heading}</h2>
                       <ul className="mt-3 space-y-2.5 sm:mt-4">
                         {column.links.map((link) => (
                           <li key={link.label} className="min-w-0">

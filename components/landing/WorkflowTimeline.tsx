@@ -245,7 +245,9 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
         </div>
 
         <div className="page-container mt-4 flex items-center justify-between md:hidden">
-          <p className="text-xs font-semibold text-slate-500">Seitlich wischen</p>
+          {/* slate-600 statt -500: der Abschnitt liegt auf #f3f6fb, dort
+              erreicht slate-500 nur 4,39:1 und verfehlt den Grenzwert. */}
+          <p className="text-xs font-semibold text-slate-600">Seitlich wischen</p>
           <div aria-hidden className="flex items-center gap-1.5">
             {Array.from({ length: stepCount }).map((_, index) => (
               <span

@@ -60,6 +60,12 @@ export type CatalogEntry = {
    * vorn, nach denen tatsächlich gesucht wird.
    */
   metaDescription?: string;
+  /**
+   * Titel für das Suchergebnis. Ohne Angabe bildet die Detailseite ihn aus
+   * `title`. Gesetzt wird er dort, wo eine weitergeleitete Landingpage ihr
+   * Keyword an diese Seite abgibt und der abgeleitete Titel es nicht trägt.
+   */
+  metaTitle?: string;
   icon: LucideIcon;
   /** Spaltenüberschrift im Megamenü und in der Übersicht. */
   group: string;

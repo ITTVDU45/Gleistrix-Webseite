@@ -43,7 +43,10 @@ export default function FoxShowcase({ active }: FoxShowcaseProps) {
       <motion.div className="absolute inset-0" style={shouldReduceMotion ? undefined : { x: foxX, y: foxY, rotateY: foxRotate, transformStyle: "preserve-3d" }}>
         {HERO_SLIDES.map((s, i) => (
           <motion.div key={s.id} className="absolute inset-x-0 bottom-0 top-2" initial={false} animate={i === active ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.96, y: 10 }} transition={fade ?? { duration: 0.65, ease: EASE_OUT }} style={{ pointerEvents: "none" }}>
-            <Image src={s.image} alt={i === active ? s.alt : ""} fill priority={i === 0} sizes="(min-width: 1024px) 560px, 92vw" className="object-contain object-bottom" />
+            {/* Kein priority: das Bild steht unterhalb der ersten Bildschirmhöhe.
+                Vorgeladen belegte es Bandbreite im kritischen Pfad, die dem
+                LCP-Element fehlte – Chrome meldete es als ungenutzten Preload. */}
+            <Image src={s.image} alt={i === active ? s.alt : ""} fill sizes="(min-width: 1024px) 560px, 92vw" className="object-contain object-bottom" />
           </motion.div>
         ))}
       </motion.div>

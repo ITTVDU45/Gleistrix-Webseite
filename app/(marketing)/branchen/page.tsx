@@ -3,6 +3,7 @@ import FeaturesAccordion from "@/components/sections/FeaturesAccordion";
 import CTASection from "@/components/sections/CTASection";
 import PageHero from "@/components/landing/PageHero";
 import SectionHeading from "@/components/landing/SectionHeading";
+import MediaFrame from "@/components/media/MediaFrame";
 import { pageMetadata } from "@/lib/seo-metadata";
 
 export const dynamic = "force-static";
@@ -30,7 +31,16 @@ export default function Page() {
           { label: "Demo anfragen", href: "/demo-buchen" },
           { label: "Lösungen ansehen", href: "#loesungen", variant: "outline" },
         ]}
-      />
+      >
+        <MediaFrame
+          src="/placeholders/uebersicht-branchen.svg"
+          alt="Bahnbetrieb aus verschiedenen Gewerken"
+          ratio="banner"
+          priority
+          caption="Vom Sicherungsunternehmen bis zum auftragsbasierten Dienstleister"
+          sizes="(min-width: 768px) 1100px, 100vw"
+        />
+      </PageHero>
 
       <section aria-labelledby="industries-heading" className="bg-[#f8fafc] py-16 md:py-24">
         <div className="page-container">

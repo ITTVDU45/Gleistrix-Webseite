@@ -1,6 +1,16 @@
 import type { Metadata } from "next";
 import { SITE, SITE_URL } from "@/lib/constants";
 
+/**
+ * Standard-Vorschaubild für geteilte Links.
+ *
+ * Next.js liefert `app/opengraph-image.tsx` nur so lange automatisch aus, wie
+ * eine Seite kein eigenes `openGraph`-Objekt setzt – genau das tut diese
+ * Funktion. Ohne diese Vorbelegung verlieren alle Seiten außer der Startseite
+ * ihr og:image, und geteilte Links erscheinen als bildlose Textzeile.
+ */
+const DEFAULT_OG_IMAGE = "/opengraph-image";
+
 /** Einheitliche vollständige Metadaten für öffentliche Seiten. */
 export function pageMetadata({
   title,
@@ -8,26 +18,29 @@ export function pageMetadata({
   path,
   image,
   type = "website",
+  publishedTime,
   index = true,
 }: {
   title: string;
   description: string;
   path: string;
   /**
-   * Vorschaubild für geteilte Links, als Pfad ab der Wurzel (z. B.
-   * "/reports.png"). Wird gegen SITE_URL zur vollen Adresse aufgelöst –
-   * relative Angaben ignorieren Facebook, LinkedIn und Slack.
+   * Seiteneigenes Vorschaubild, als Pfad ab der Wurzel (z. B. "/reports.png").
+   * Wird gegen SITE_URL zur vollen Adresse aufgelöst – relative Angaben
+   * ignorieren Facebook, LinkedIn und Slack.
    *
-   * Ohne Bild fällt die Karte auf `summary` zurück: `summary_large_image` ohne
-   * Bild verspricht eine große Fläche, die dann leer bleibt.
+   * Ohne Angabe greift DEFAULT_OG_IMAGE, sodass jede Seite eine gefüllte Karte
+   * hat.
    */
   image?: string;
   type?: "website" | "article";
+  /** Veröffentlichungsdatum als ISO-String, nur für `type: "article"`. */
+  publishedTime?: string;
   index?: boolean;
 }): Metadata {
   const url = new URL(path, SITE_URL).toString();
   const socialTitle = `${title} | ${SITE.name}`;
-  const images = image ? [new URL(image, SITE_URL).toString()] : undefined;
+  const images = [new URL(image ?? DEFAULT_OG_IMAGE, SITE_URL).toString()];
 
   return {
     title,
@@ -40,14 +53,16 @@ export function pageMetadata({
       url,
       siteName: SITE.name,
       locale: "de_DE",
-      type,
-      ...(images ? { images } : {}),
+      images,
+      ...(type === "article"
+        ? { type: "article" as const, ...(publishedTime ? { publishedTime } : {}) }
+        : { type: "website" as const }),
     },
     twitter: {
-      card: images ? "summary_large_image" : "summary",
+      card: "summary_large_image",
       title: socialTitle,
       description,
-      ...(images ? { images } : {}),
+      images,
     },
   };
 }

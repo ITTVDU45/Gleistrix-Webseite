@@ -4,6 +4,8 @@ import { Cpu, Target, Sparkles, History, X, Check } from "lucide-react";
 import PageHero from "@/components/landing/PageHero";
 import Reveal from "@/components/landing/Reveal";
 import SectionHeading from "@/components/landing/SectionHeading";
+import CardMedia from "@/components/media/CardMedia";
+import MediaFrame from "@/components/media/MediaFrame";
 import CTASection from "@/components/sections/CTASection";
 import ProfileCard from "@/components/visuals/ProfileCard";
 
@@ -44,7 +46,16 @@ export default function Page() {
           </>
         }
         description="Gleistrix verbindet die Realität von Bahndienstleistern mit einer Plattform, in der Sicherheit, Nachvollziehbarkeit und Effizienz an erster Stelle stehen."
-      />
+      >
+        <MediaFrame
+          src="/placeholders/szene-truppbesprechung.svg"
+          alt="Team im Austausch vor Schichtbeginn"
+          ratio="banner"
+          priority
+          caption="Aus dem Bahnalltag entstanden, nicht am Reißbrett"
+          sizes="(min-width: 768px) 1100px, 100vw"
+        />
+      </PageHero>
 
       {/* Tech-Vision */}
       <section className="bg-[#f8fafc] py-16 md:py-20">
@@ -81,7 +92,9 @@ export default function Page() {
       <section className="bg-white py-16 md:py-20">
         <div className="page-container grid gap-5 md:grid-cols-2">
           <Reveal>
-            <article className="h-full rounded-3xl border border-slate-900/8 bg-[#f8fafc] p-7 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
+            <article className="group h-full overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
+              <CardMedia src="/placeholders/szene-sicherungsposten.svg" alt="Sicherungsposten an der Strecke" aspect="aspect-[21/9]" sizes="(min-width: 768px) 50vw, 100vw" />
+              <div className="p-7">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
                 <Target className="h-5 w-5" />
               </span>
@@ -91,10 +104,13 @@ export default function Page() {
                 überflüssiger Komplexität. Herausragende Prozesse beruhen auf klaren Strukturen, verlässlichen Daten
                 und einfacher Bedienung.
               </p>
+              </div>
             </article>
           </Reveal>
           <Reveal delay={0.08}>
-            <article className="h-full rounded-3xl border border-slate-900/8 bg-[#f8fafc] p-7 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
+            <article className="group h-full overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
+              <CardMedia src="/placeholders/szene-gleisfeld.svg" alt="Gleisfeld aus der Vogelperspektive" aspect="aspect-[21/9]" sizes="(min-width: 768px) 50vw, 100vw" />
+              <div className="p-7">
               <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
                 <Sparkles className="h-5 w-5" />
               </span>
@@ -103,6 +119,7 @@ export default function Page() {
                 Ein ERP, das nicht im Weg steht, sondern Leistung freisetzt – von der Schichtplanung bis zur
                 X-Rechnung. Transparenz, Nachvollziehbarkeit und Skalierbarkeit stehen im Mittelpunkt.
               </p>
+              </div>
             </article>
           </Reveal>
         </div>
@@ -148,6 +165,14 @@ export default function Page() {
             eyebrow="Digitale Transformation"
             title="Von der Zettelwirtschaft zur zentralen Steuerung"
             description="Durchschnittlich 40 % Zeitersparnis in der Administration – so verändert Gleistrix den Alltag."
+          />
+          <MediaFrame
+            src="/placeholders/problem-zettelwirtschaft.svg"
+            alt="Papierpläne und Stundenzettel vor der Umstellung"
+            ratio="banner"
+            caption="Was vorher auf Papier lag, entsteht heute im System"
+            sizes="(min-width: 768px) 1100px, 100vw"
+            className="mt-10 md:mt-14"
           />
           <div className="mt-12 grid gap-5 md:grid-cols-2 md:mt-16">
             <Reveal>

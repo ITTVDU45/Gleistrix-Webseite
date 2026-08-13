@@ -35,8 +35,8 @@ const projekteVisual = (
     <p className="text-xs font-semibold text-slate-700">Aktive Projekte</p>
     {[
       { name: "Gleisbau Abschnitt 12", status: "In Umsetzung", tone: "bg-indigo-50 text-indigo-600", progress: "w-2/3", bar: "bg-indigo-500" },
-      { name: "BÜ-Sicherung Linie S4", status: "Geplant", tone: "bg-sky-50 text-sky-600", progress: "w-1/4", bar: "bg-sky-500" },
-      { name: "Weichenerneuerung W8", status: "Abnahme", tone: "bg-emerald-50 text-emerald-600", progress: "w-11/12", bar: "bg-emerald-500" },
+      { name: "BÜ-Sicherung Linie S4", status: "Geplant", tone: "bg-sky-50 text-sky-700", progress: "w-1/4", bar: "bg-sky-500" },
+      { name: "Weichenerneuerung W8", status: "Abnahme", tone: "bg-emerald-50 text-emerald-700", progress: "w-11/12", bar: "bg-emerald-500" },
     ].map((project) => (
       <RowShell key={project.name}>
         <div className="min-w-0 flex-1">
@@ -99,7 +99,7 @@ const teamVisual = (
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-semibold text-slate-800">{entry.name}</p>
-          <p className="truncate text-[10px] text-slate-400">{entry.meta}</p>
+          <p className="truncate text-[10px] text-slate-500">{entry.meta}</p>
         </div>
         <span className={`h-2 w-2 shrink-0 rounded-full ${entry.dot}`} />
       </RowShell>
@@ -111,9 +111,9 @@ const dokumenteVisual = (
   <div className="space-y-2.5">
     <p className="text-xs font-semibold text-slate-700">Projektakte · Abschnitt 12</p>
     {[
-      { name: "Sicherungsplan_v3.pdf", meta: "Freigegeben · heute", tone: "text-emerald-600 bg-emerald-50" },
+      { name: "Sicherungsplan_v3.pdf", meta: "Freigegeben · heute", tone: "text-emerald-700 bg-emerald-50" },
       { name: "Tagesbericht_KW28.pdf", meta: "KI-generiert · gestern", tone: "text-indigo-600 bg-indigo-50" },
-      { name: "Abnahmeprotokoll_W8.pdf", meta: "Signatur ausstehend", tone: "text-amber-600 bg-amber-50" },
+      { name: "Abnahmeprotokoll_W8.pdf", meta: "Signatur ausstehend", tone: "text-amber-700 bg-amber-50" },
     ].map((doc) => (
       <RowShell key={doc.name}>
         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-900/6">
@@ -121,7 +121,7 @@ const dokumenteVisual = (
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-semibold text-slate-800">{doc.name}</p>
-          <p className="text-[10px] text-slate-400">{doc.meta}</p>
+          <p className="text-[10px] text-slate-500">{doc.meta}</p>
         </div>
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${doc.tone}`}>
           revisionssicher
@@ -146,7 +146,7 @@ const lagerVisual = (
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between">
             <p className="truncate text-xs font-semibold text-slate-800">{item.name}</p>
-            <span className="text-[10px] font-medium text-slate-400">{item.level}</span>
+            <span className="text-[10px] font-medium text-slate-500">{item.level}</span>
           </div>
           <div className="mt-1.5 h-1.5 rounded-full bg-slate-200/70">
             <div className={`h-1.5 rounded-full ${item.bar} ${item.stock}`} />

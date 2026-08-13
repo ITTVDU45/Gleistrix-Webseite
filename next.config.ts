@@ -42,6 +42,30 @@ const nextConfig: NextConfig = {
         destination: "https://www.gleistrix.de/:path*",
         permanent: true,
       },
+      /**
+       * /erp-bahnbau trug denselben Titel wie die Startseite und zielte auf
+       * dieselbe Suchanfrage. Zwei URLs, die um eine Anfrage konkurrieren,
+       * teilen ihre Links und Autorität auf – Google wählt eine aus, und das
+       * war hier die inhaltsärmere Seite. Die Startseite übernimmt das Thema.
+       *
+       * `permanent: true` sendet 308, nicht 301. Google wertet beide gleich;
+       * anders als 301 darf 308 die HTTP-Methode nicht ändern.
+       */
+      {
+        source: "/erp-bahnbau",
+        destination: "/",
+        permanent: true,
+      },
+      /**
+       * Dieselbe Doppelung: /disposition-bahnbau (134 Wörter) und die
+       * Modulseite (546 Wörter) beantworteten dieselbe Frage. Die Modulseite
+       * gewinnt und übernimmt per `metaTitle` das Keyword der Landingpage.
+       */
+      {
+        source: "/disposition-bahnbau",
+        destination: "/produkt/projektplanung-disposition",
+        permanent: true,
+      },
     ];
   },
 };

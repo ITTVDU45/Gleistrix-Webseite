@@ -98,14 +98,14 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
       </div>
 
       <div className="mt-5 grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:mt-6 sm:gap-4">
-        <p className="text-xs tabular-nums text-slate-400 sm:text-sm">
+        <p className="text-xs tabular-nums text-slate-500 sm:text-sm">
           <span className="font-semibold text-slate-900">{String(active + 1).padStart(2, "0")}</span>{" / "}{String(modules.length).padStart(2, "0")}
         </p>
 
         <ul className="flex min-w-0 items-center justify-center gap-1.5 overflow-hidden sm:gap-2">
           {modules.map((module, index) => (
             <li key={module.id} className="shrink-0">
-              <button type="button" onClick={() => goTo(index)} aria-label={`Zu Folie ${index + 1}: ${module.title}`} aria-current={index === active ? "true" : undefined} className={`h-1.5 rounded-full transition-all duration-300 ${index === active ? "w-6 bg-indigo-600 sm:w-8" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`} />
+              <button type="button" onClick={() => goTo(index)} aria-label={`Zu Folie ${index + 1}: ${module.title}`} aria-current={index === active ? "true" : undefined} className={`relative h-1.5 rounded-full transition-all duration-300 after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-[''] ${index === active ? "w-6 bg-indigo-600 sm:w-8" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`} />
             </li>
           ))}
         </ul>

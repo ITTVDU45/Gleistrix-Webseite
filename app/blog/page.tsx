@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import PageHero from "@/components/landing/PageHero";
+import MediaFrame from "@/components/media/MediaFrame";
 import { listPublicArticles } from "@/lib/admin/blog/store";
 
 /**
@@ -43,7 +44,15 @@ export default async function BlogIndexPage() {
         }
         description="Fachbeiträge zu Disposition, Sicherung, Zeiterfassung, Fuhrpark und Abrechnung – aus der Praxis von Gleisbaubetrieben."
         breadcrumbs={[{ label: "Start", href: "/" }, { label: "News & Ratgeber" }]}
-      />
+      >
+        <MediaFrame
+          src="/placeholders/uebersicht-blog.svg"
+          alt="Fachwissen aus der Bahnbranche"
+          ratio="strip"
+          priority
+          sizes="(min-width: 768px) 1100px, 100vw"
+        />
+      </PageHero>
 
       <section className="page-container pb-20 pt-14 md:pb-28 md:pt-16">
         {articles.length === 0 ? (

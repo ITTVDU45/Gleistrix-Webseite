@@ -16,6 +16,11 @@ export type CaseStudy = {
    * Mindestens drei Einträge.
    */
   metrics: CaseMetric[];
+  /**
+   * Motiv im Kennzahlen-Panel. Zeigt derzeit einen Platzhalter; sobald
+   * Baustellenfotos vorliegen, wird nur der Pfad getauscht.
+   */
+  image: { src: string; alt: string };
 };
 
 /**
@@ -35,6 +40,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "120", label: "SiPo im Einsatz" },
       { value: "0", label: "abgelaufene Nachweise" },
     ],
+    image: { src: "/placeholders/case-schichtplanung.svg", alt: "Schichtplanung im Sicherungsunternehmen" },
   },
   {
     id: "gleisbau-abrechnung",
@@ -48,6 +54,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "−78 %", label: "Nacherfassung" },
       { value: "6", label: "Trupps im System" },
     ],
+    image: { src: "/placeholders/case-abrechnung.svg", alt: "Abrechnung im Gleisbau" },
   },
   {
     id: "schweissbetrieb-protokolle",
@@ -61,6 +68,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "−90 %", label: "Rückfragen" },
       { value: "2.400", label: "Prüfungen pro Jahr" },
     ],
+    image: { src: "/placeholders/case-dokumentation.svg", alt: "Dokumentation auf der Baustelle" },
   },
   {
     id: "ingenieurbuero-nachweise",
@@ -74,5 +82,6 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "100 %", label: "revisionssichere Ablage" },
       { value: "5 Std", label: "weniger Büro pro Woche" },
     ],
+    image: { src: "/placeholders/case-auslastung.svg", alt: "Auslastung und Kennzahlen im Ingenieurbüro" },
   },
 ];

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
@@ -6,6 +7,13 @@ type CTASectionProps = {
   description?: string;
   ctaLabel?: string;
   ctaHref?: string;
+  /** Abschluss-Motiv hinter dem Glas-Block. Platzhalter, bis echte Fotos vorliegen. */
+  image?: { src: string; alt: string };
+};
+
+const DEFAULT_IMAGE = {
+  src: "/placeholders/szene-gleisfeld.svg",
+  alt: "Gleisfeld aus der Vogelperspektive",
 };
 
 export default function CTASection({
@@ -13,11 +21,24 @@ export default function CTASection({
   description = "Wir zeigen dir Gleistrix live – in 30 Minuten und mit echten Anwendungsfällen aus dem Bahnbetrieb.",
   ctaLabel = "Demo anfragen",
   ctaHref = "/demo-buchen",
+  image = DEFAULT_IMAGE,
 }: CTASectionProps) {
   return (
     <section aria-labelledby="shared-cta-heading" className="bg-[#f8fafc] py-20 md:py-24">
       <div className="page-container">
         <div className="glass relative overflow-hidden rounded-[2rem] px-6 py-14 text-center shadow-soft md:px-16 md:py-20">
+          {/* Der Abschluss stand als einziger Block der Seite ganz ohne Bild.
+              Das Motiv liegt weit zurückgenommen darunter, damit Überschrift
+              und Button ihren Kontrast behalten. */}
+          <Image
+            src={image.src}
+            alt=""
+            aria-hidden
+            fill
+            sizes="(min-width: 768px) 1100px, 100vw"
+            unoptimized={image.src.endsWith(".svg")}
+            className="pointer-events-none object-cover opacity-[0.14]"
+          />
           <div aria-hidden className="pointer-events-none absolute inset-0">
             <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.16),transparent)]" />
             <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.16),transparent)]" />
