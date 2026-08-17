@@ -41,8 +41,16 @@ export default function FoxShowcase({ active }: FoxShowcaseProps) {
       <div aria-hidden className="absolute bottom-[4%] left-1/2 h-10 w-[68%] -translate-x-1/2 rounded-[100%] bg-slate-900/12 blur-2xl sm:h-14" />
 
       <motion.div className="absolute inset-0" style={shouldReduceMotion ? undefined : { x: foxX, y: foxY, rotateY: foxRotate, transformStyle: "preserve-3d" }}>
+        {/* Kein scale-Unterschied zwischen aktiv und inaktiv: Ein inaktives
+            Motiv mit scale 0.96 malt eine kleinere Fläche als das aktive
+            (534x568 gegen 556x592 px). Beim Wechsel wüchse das einrotierende
+            Element über die bisher größte sichtbare Fläche hinaus, und Chrome
+            protokolliert dann einen neuen, späteren Largest Contentful Paint –
+            alle fünf Sekunden erneut. Der Übergang läuft jetzt über Deckkraft
+            und eine leichte Verschiebung, die die gemalte Fläche nicht
+            verändern. */}
         {HERO_SLIDES.map((s, i) => (
-          <motion.div key={s.id} className="absolute inset-x-0 bottom-0 top-2" initial={false} animate={i === active ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.96, y: 10 }} transition={fade ?? { duration: 0.65, ease: EASE_OUT }} style={{ pointerEvents: "none" }}>
+          <motion.div key={s.id} className="absolute inset-x-0 bottom-0 top-2" initial={false} animate={i === active ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }} transition={fade ?? { duration: 0.65, ease: EASE_OUT }} style={{ pointerEvents: "none" }}>
             {/* priority auf dem ersten Motiv: Auf breiten Viewports steht es
                 neben der Überschrift und ist dort das LCP-Element. Chrome
                 meldete den Preload zwischenzeitlich als ungenutzt – das lag
