@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 
 import { savePricingIntegrationAction, type FormState } from "@/app/admin/actions";
+import LogoDropzone from "@/components/admin/pricing/LogoDropzone";
 import { Field, FormMessage } from "@/components/admin/pricing/ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,39 +69,6 @@ export default function IntegrationForm({ integration, categories }: Props) {
           />
         </Field>
 
-        <Field
-          id={`${prefix}-src`}
-          label="Logo-Pfad"
-          hint="Datei unter /public. Ohne Logo werden die Initialen gezeigt."
-        >
-          <Input
-            id={`${prefix}-src`}
-            name="src"
-            defaultValue={integration?.src ?? ""}
-            placeholder="/logos/datev.svg"
-          />
-        </Field>
-
-        <Field id={`${prefix}-width`} label="Logo-Breite (px)">
-          <Input
-            id={`${prefix}-width`}
-            name="width"
-            type="number"
-            min={0}
-            defaultValue={integration?.width ?? ""}
-          />
-        </Field>
-
-        <Field id={`${prefix}-height`} label="Logo-Höhe (px)">
-          <Input
-            id={`${prefix}-height`}
-            name="height"
-            type="number"
-            min={0}
-            defaultValue={integration?.height ?? ""}
-          />
-        </Field>
-
         <Field id={`${prefix}-initials`} label="Initialen">
           <Input
             id={`${prefix}-initials`}
@@ -110,6 +78,21 @@ export default function IntegrationForm({ integration, categories }: Props) {
           />
         </Field>
       </div>
+
+      <Field
+        id={`${prefix}-logo`}
+        label="Logo"
+        hint="Ohne Logo werden die Initialen gezeigt. Bereits vorhandene Pfade unter /public bleiben erhalten, bis ein neues Logo abgelegt wird."
+      >
+        <LogoDropzone
+          id={`${prefix}-logo`}
+          name="logoFile"
+          currentSrc={integration?.src}
+          currentWidth={integration?.width}
+          currentHeight={integration?.height}
+          savedSignal={state.success ? state : null}
+        />
+      </Field>
 
       <FormMessage state={state} />
 

@@ -67,7 +67,11 @@ function region(): string {
  */
 const globalForMinio = globalThis as unknown as { gleistrixMinio?: Client };
 
-function client(): Client {
+/**
+ * Auch der Bildspeicher der Website (lib/admin/db/assets.ts) legt seine Dateien
+ * in MinIO ab und teilt sich diese Verbindung – deshalb exportiert.
+ */
+export function minioClient(): Client {
   const host = endpoint();
   const account = credentials();
   if (!host || !account) throw new Error("MinIO ist nicht konfiguriert.");
@@ -120,7 +124,7 @@ export async function createTenantBucket(tenant: Tenant): Promise<MinioProvision
   const bucket = tenant.minioBucket;
 
   try {
-    const minio = client();
+    const minio = minioClient();
 
     if (await withTimeout(minio.bucketExists(bucket), "Bucket-Prüfung")) {
       return { ok: true, note: `Bucket ${bucket} war bereits vorhanden – nichts geändert.` };
@@ -215,7 +219,7 @@ export async function removeTenantBucket(
   const bucket = tenant.minioBucket;
 
   try {
-    const minio = client();
+    const minio = minioClient();
 
     if (!(await withTimeout(minio.bucketExists(bucket), "Bucket-Prüfung"))) {
       return { ok: true, note: `Bucket ${bucket} war bereits entfernt – nichts geändert.` };

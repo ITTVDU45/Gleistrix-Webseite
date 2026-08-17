@@ -880,13 +880,16 @@ function ImplementationSection({ config }: { config: PricingConfig }) {
 }
 
 function IntegrationLogo({ integration }: { integration: PricingIntegration }) {
-  if (integration.src && integration.width && integration.height) {
+  if (integration.src) {
     return (
       <Image
         src={integration.src}
         alt={`${integration.title} Logo`}
-        width={integration.width}
-        height={integration.height}
+        // Die Maße kommen beim Hochladen aus der Datei. Ältere Einträge haben
+        // sie nicht – dann genügt das Seitenverhältnis der Anzeigefläche, denn
+        // die tatsächliche Größe steckt ohnehin in der Klasse darunter.
+        width={integration.width ?? 56}
+        height={integration.height ?? 36}
         sizes="56px"
         className="h-9 w-14 object-contain"
       />
