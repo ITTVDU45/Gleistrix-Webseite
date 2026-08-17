@@ -66,6 +66,25 @@ export type CatalogEntry = {
    * Keyword an diese Seite abgibt und der abgeleitete Titel es nicht trägt.
    */
   metaTitle?: string;
+  /**
+   * Kanonische Adresse, falls nicht die Seite selbst. Gesetzt bei
+   * Detailseiten, die zu dünn sind, um eigenständig zu ranken: Die Seite
+   * bleibt erreichbar und verlinkt, benennt aber die Übersichtsseite als die
+   * Fassung, die Google indexieren soll. Solche URLs gehören dann auch nicht
+   * mehr in die Sitemap – siehe app/sitemap.ts.
+   */
+  canonicalTo?: string;
+  /**
+   * Verweise in die anderen Kataloge. Die `related`-Karten am Seitenende
+   * zeigen nur Geschwister desselben Katalogs – eine Modulseite verlinkt damit
+   * nie eine Branche oder Integration, und Detailseiten außerhalb der eigenen
+   * Übersicht bekommen kaum interne Links ab.
+   *
+   * `text` ist der Satz um den Link herum, `label` der Linktext selbst. Beides
+   * getrennt, weil ein beschreibender Ankertext ("Zeiterfassung für
+   * Sicherungsunternehmen") mehr über das Ziel sagt als ein "mehr erfahren".
+   */
+  crossLinks?: readonly { href: string; label: string; text: string }[];
   icon: LucideIcon;
   /** Spaltenüberschrift im Megamenü und in der Übersicht. */
   group: string;

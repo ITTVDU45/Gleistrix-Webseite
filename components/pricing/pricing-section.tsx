@@ -349,7 +349,7 @@ function PricingHero({ config }: { config: PricingConfig }) {
         <figure className="relative mx-auto w-full max-w-xl overflow-hidden rounded-2xl border border-white bg-white shadow-[0_32px_100px_-40px_rgba(15,23,42,0.3)]">
           <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-indigo-50 to-slate-100">
             <Image
-              src="/ChatGPT Image 22. Juli 2026, 15_44_00.png"
+              src="/preise-vorschau.webp"
               alt="Gleistrix Maskottchen mit digitaler Streckenplanung"
               fill
               priority
@@ -1067,7 +1067,7 @@ function CustomDevelopmentSection() {
         <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-soft-sm">
           <div className="relative aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5]">
             <Image
-              src="/Lösungen.png"
+              src="/loesungen.webp"
               alt="Digitaler Gleistrix-Arbeitsplatz mit Blick auf eine Gleisbaustelle"
               fill
               sizes="(max-width: 1024px) 100vw, 44vw"

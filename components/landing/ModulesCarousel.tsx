@@ -102,10 +102,15 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
           <span className="font-semibold text-slate-900">{String(active + 1).padStart(2, "0")}</span>{" / "}{String(modules.length).padStart(2, "0")}
         </p>
 
-        <ul className="flex min-w-0 items-center justify-center gap-1.5 overflow-hidden sm:gap-2">
+        {/* 18 px Abstand statt 6: Zusammen mit der um 9 px erweiterten
+            Trefferfläche ergibt das 24 x 24 px pro Punkt, ohne dass sich
+            benachbarte Flächen überlappen – beides fordert WCAG 2.5.8. Neun
+            Punkte brauchen damit rund 198 px, was auch auf 375 px Breite neben
+            Zähler und Pfeilen passt. */}
+        <ul className="flex min-w-0 items-center justify-center gap-[18px] overflow-hidden">
           {modules.map((module, index) => (
             <li key={module.id} className="shrink-0">
-              <button type="button" onClick={() => goTo(index)} aria-label={`Zu Folie ${index + 1}: ${module.title}`} aria-current={index === active ? "true" : undefined} className={`relative h-1.5 rounded-full transition-all duration-300 after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-[''] ${index === active ? "w-6 bg-indigo-600 sm:w-8" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`} />
+              <button type="button" onClick={() => goTo(index)} aria-label={`Zu Folie ${index + 1}: ${module.title}`} aria-current={index === active ? "true" : undefined} className={`relative h-1.5 rounded-full transition-all duration-300 after:absolute after:-inset-[9px] after:content-[''] ${index === active ? "w-6 bg-indigo-600 sm:w-8" : "w-1.5 bg-slate-300 hover:bg-slate-400"}`} />
             </li>
           ))}
         </ul>

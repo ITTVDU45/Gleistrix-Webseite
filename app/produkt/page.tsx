@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { BENEFITS } from "@/app/produkt/benefits";
 import BenefitsSlider from "@/components/sections/BenefitsSlider";
 import FeaturesAccordion from "@/components/sections/FeaturesAccordion";
@@ -37,7 +38,7 @@ export default function ProduktPage() {
         <Reveal>
           <div className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] shadow-soft">
             <Image
-              src="/Standortbezogene Disposition.png"
+              src="/standortbezogene-disposition.webp"
               alt="Gleistrix Standortbezogene Disposition"
               fill
               sizes="(min-width: 768px) 960px, 100vw"
@@ -88,6 +89,62 @@ export default function ProduktPage() {
             description="Ein Blick auf Oberflächen und Workflows aus dem echten Betrieb."
           />
           <div className="mt-12 md:mt-16"><ScreensGallery /></div>
+        </div>
+      </section>
+
+      <section aria-labelledby="produkt-erklaerung" className="bg-white py-14 md:py-20">
+        <div className="page-container">
+          <h2 id="produkt-erklaerung" className="max-w-3xl text-[1.75rem] font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+            Warum eine Plattform statt neun Werkzeuge
+          </h2>
+          <div className="mt-6 grid gap-8 md:mt-8 md:grid-cols-2 md:gap-10">
+            <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+              <p>
+                Die Module sind keine Sammlung einzelner Programme, sondern Sichten auf denselben Datenstand. Ein
+                Auftrag, der in der Projektplanung angelegt wird, trägt seine Bauabschnitte und Sperrpausen in die
+                Plantafel. Wer dort eine Schicht besetzt, greift auf die Qualifikationen aus der Mitarbeiterverwaltung
+                zu. Die Stunden, die auf dieser Schicht erfasst werden, sind dieselben, die später in der Rechnung
+                stehen.
+              </p>
+              <p>
+                Der Unterschied wird an den Übergängen sichtbar. In getrennten Werkzeugen entsteht an jeder Grenze
+                Arbeit: Daten werden exportiert, geprüft, neu eingegeben. Jeder dieser Schritte kann schiefgehen, und
+                jeder erzeugt eine zweite Fassung derselben Information. Genau daraus entstehen die Rückfragen, die im
+                Bahnbau erst am Einsatztag auffallen.
+              </p>
+              <p>
+                Deshalb erkennt Gleistrix Doppelbelegungen über Projektgrenzen hinweg, hält Nachweise am Einsatz statt
+                in einer allgemeinen Personalakte und rechnet gegen die Positionen des Leistungsverzeichnisses ab, das
+                schon im Projekt liegt.
+              </p>
+            </div>
+            <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+              <h3 className="text-lg font-bold text-slate-900">Was das im Alltag bedeutet</h3>
+              <p>
+                Für die Disposition heißt es: eine Plantafel, in der Personal, Fahrzeuge und Sicherungstechnik
+                gemeinsam liegen, statt drei Listen, die von Hand abgeglichen werden. Konflikte meldet das System beim
+                Zuweisen, nicht am Einsatztag.
+              </p>
+              <p>
+                Für die Baustelle heißt es: Zeiten und Vorkommnisse werden dort erfasst, wo sie entstehen, mit
+                Signatur. Für das Backoffice: geprüfte Stunden gehen ohne erneute Eingabe in Abrechnung und
+                Lohnvorbereitung. Für die Geschäftsführung: Auslastung und Deckungsbeitrag entstehen aus dem laufenden
+                Betrieb und nicht erst aus der Schlussrechnung.
+              </p>
+              <p>
+                Welche Module ein Unternehmen braucht, hängt vom Gewerk ab. Die Detailseiten beschreiben jedes
+                einzeln, die <Link className="font-semibold text-indigo-700" href="/branchen">Branchenseiten</Link>{" "}
+                zeigen typische Zusammenstellungen, und unter{" "}
+                <Link className="font-semibold text-indigo-700" href="/integrationen">Integrationen</Link> steht, wie
+                Gleistrix an vorhandene Buchhaltungs-, Kalender- und Ausschreibungssysteme anschließt.
+              </p>
+              <p>
+                Die KI-Agenten sind dabei durchgängig optional. Sie lassen sich pro Unternehmen zuschalten oder
+                abschalten, und die Plattform funktioniert vollständig ohne sie – das ist eine bewusste Entscheidung,
+                weil im Bahnumfeld nachvollziehbar bleiben muss, wer eine Freigabe erteilt hat.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 

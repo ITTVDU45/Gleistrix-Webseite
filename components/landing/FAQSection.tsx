@@ -3,47 +3,15 @@ import { useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { HOME_FAQS, HOME_FAQ_VISIBLE_COUNT, type FAQ } from "@/data/faqs";
 import Reveal from "./Reveal";
 
-type FAQ = {
-  question: string;
-  answer: string;
-};
+// Die Fragen liegen in data/faqs.ts, weil app/page.tsx daraus die
+// FAQPage-Auszeichnung erzeugt und beide Stellen denselben Wortlaut brauchen.
+const FAQS: readonly FAQ[] = HOME_FAQS;
 
-const FAQS: FAQ[] = [
-  {
-    question: "Für wen ist Gleistrix geeignet?",
-    answer:
-      "Gleistrix richtet sich an Bahndienstleister jeder Größe: Sicherungsunternehmen (SIPO), Gleisbauunternehmen, Subunternehmer und Dienstleister rund um Bahninfrastruktur. Vom Zwei-Mann-Betrieb bis zum Unternehmen mit mehreren Standorten.",
-  },
-  {
-    question: "Welche Module sind enthalten?",
-    answer:
-      "Projektmanagement, Plantafel & Einsatzplanung, Mitarbeiter- und Fahrzeugverwaltung, Dokumentenmanagement, Lagerverwaltung sowie Abrechnung mit vorbereitender Buchhaltung. KI-Agenten lassen sich optional zuschalten.",
-  },
-  {
-    question: "Können bestehende Prozesse abgebildet werden?",
-    answer:
-      "Ja. Gleistrix wird auf deine Abläufe eingerichtet – von der Schichtplanung über Freigabeprozesse bis zu Abrechnungszyklen. In der Demo schauen wir uns deine konkreten Prozesse gemeinsam an.",
-  },
-  {
-    question: "Gibt es Rollen und Berechtigungen?",
-    answer:
-      "Ja. Jede Rolle – Disposition, Projektleitung, Monteur, Backoffice, Geschäftsführung – sieht genau die Daten und Funktionen, die sie braucht. Berechtigungen sind pro Modul und Projekt steuerbar.",
-  },
-  {
-    question: "Können Dokumente und Abrechnungen verwaltet werden?",
-    answer:
-      "Ja. Dokumente liegen revisionssicher in der Projektakte, mit Versionen und Freigaben. Erfasste Leistungen und Stunden fließen direkt in Rechnungsentwürfe – inklusive sauberer Übergabe an die Buchhaltung.",
-  },
-  {
-    question: "Sind KI-Agenten optional?",
-    answer:
-      "Ja, vollständig. Alle KI-Agenten – vom LV-Agenten bis zum Abrechnungsagenten – lassen sich pro Unternehmen aktivieren oder deaktivieren. Gleistrix funktioniert auch komplett ohne KI-Funktionen.",
-  },
-];
-
-const VISIBLE_COUNT = 3;
+// Geteilt mit app/page.tsx, das nur die ausgelieferten Fragen auszeichnet.
+const VISIBLE_COUNT = HOME_FAQ_VISIBLE_COUNT;
 // Kräftige Ease-out-Kurve für Ein-/Austritte (Emil Kowalski).
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
@@ -214,6 +182,26 @@ export default function FAQSection() {
             })}
           </AnimatePresence>
         </ul>
+
+        {/* Alle Fragen und Antworten vollständig im DOM.
+            Das Karussell zeigt drei Karten und darin nur eine Antwort – die
+            übrigen entstehen erst beim Weiterklicken. Für die
+            FAQPage-Auszeichnung in app/page.tsx muss aber jede ausgezeichnete
+            Frage samt Antwort auch ausgeliefert werden; Markup ohne sichtbare
+            Entsprechung gilt bei Google als Spam. Nebeneffekt: Wer einen
+            Screenreader nutzt, erreicht damit alle Antworten, ohne sich durch
+            das Karussell klicken zu müssen. */}
+        <div className="sr-only">
+          <h3>Alle Fragen und Antworten im Überblick</h3>
+          <dl>
+            {FAQS.map((faq) => (
+              <div key={faq.question}>
+                <dt>{faq.question}</dt>
+                <dd>{faq.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
     </section>
   );

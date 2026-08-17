@@ -248,6 +248,27 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
         </section>
       )}
 
+      {entry.crossLinks && entry.crossLinks.length > 0 && (
+        <section aria-labelledby="catalog-crosslinks" className="bg-white py-10 sm:py-12 md:py-16">
+          <div className="page-container">
+            <h2 id="catalog-crosslinks" className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Passt dazu</h2>
+            <ul className="mt-5 grid gap-3 sm:mt-6 sm:gap-4 md:grid-cols-2">
+              {entry.crossLinks.map((link) => (
+                <li key={link.href} className="min-w-0 text-[15px] leading-7 text-slate-600">
+                  {link.text}{" "}
+                  <Link
+                    href={link.href}
+                    className="font-semibold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
       <CTASection title={fillHeading(catalog.ctaHeading, entry.title)} description="In einer kurzen Demo zeigen wir dir den Bereich im Zusammenspiel mit der gesamten Plattform." />
     </>
   );

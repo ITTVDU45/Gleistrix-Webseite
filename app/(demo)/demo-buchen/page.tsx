@@ -93,6 +93,65 @@ export default function DemoBuchenPage() {
           </div>
         </div>
       </div>
+
+      <section aria-labelledby="demo-ablauf" className="page-container relative z-10 pb-20 pt-4">
+        <h2 id="demo-ablauf" className="max-w-3xl text-[1.75rem] font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+          Was in den 14 Tagen passiert
+        </h2>
+        <div className="mt-6 grid gap-8 md:mt-8 md:grid-cols-2 md:gap-10">
+          <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+            <p>
+              Der Termin ist kein Verkaufsgespräch mit Folien. Wir gehen deine eigenen Abläufe durch: Wie ein Auftrag
+              bei dir hereinkommt, wer die Schichten besetzt, wie Qualifikationen geprüft werden, woher die Stunden
+              kommen und wie daraus eine Rechnung wird. Genau an diesen Übergängen entscheidet sich, ob eine Plattform
+              trägt oder zusätzliche Arbeit erzeugt. Wenn eine Stelle dabei nicht passt, sagen wir das im Termin –
+              eine Einführung, die an einem ungelösten Ablauf scheitert, kostet beide Seiten mehr als ein ehrliches
+              Nein.
+            </p>
+            <p>
+              Danach steht Gleistrix 14 Tage zum Ausprobieren bereit. Ein Zugang mit fremden Beispielprojekten zeigt,
+              dass die Software funktioniert – ein Zugang mit den eigenen Aufträgen zeigt, ob sie zu den eigenen
+              Abläufen passt. Deshalb richten wir die Umgebung auf dein Gewerk aus, bevor du sie in die Hand bekommst.
+            </p>
+          </div>
+          <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+            <h3 className="text-lg font-bold text-slate-900">Was du mitbringen solltest</h3>
+            <p>
+              Nichts Vorbereitetes – aber es hilft, wenn du ein typisches Projekt im Kopf hast: einen Auftrag mit
+              mehreren Schichten, wechselndem Personal und einem Nachweis, der am Ende zum Auftraggeber muss. Daran
+              lässt sich am schnellsten zeigen, wo Gleistrix Arbeit abnimmt und wo nicht.
+            </p>
+            <p>
+              Sinnvoll ist außerdem, wer dabei ist: Disposition und Backoffice sehen unterschiedliche Teile desselben
+              Ablaufs, und Fragen zur Abrechnung beantworten sich leichter, wenn beide Seiten am Tisch sitzen.
+            </p>
+            <p>
+              Wenn du vorher lesen willst, worum es geht: Die{" "}
+              <Link className="font-semibold text-indigo-700" href="/produkt">Module und die Plattform</Link> sind
+              einzeln beschrieben, nach Gewerk sortiert unter{" "}
+              <Link className="font-semibold text-indigo-700" href="/branchen">Branchen</Link>, und die{" "}
+              <Link className="font-semibold text-indigo-700" href="/preise">Preise</Link> stehen mit Monats- und
+              Implementierungskosten offen auf der Seite.
+            </p>
+            <h3 className="pt-2 text-lg font-bold text-slate-900">Häufige Fragen vor dem Termin</h3>
+            <p>
+              <strong className="text-slate-900">Wie lange dauert das Gespräch?</strong> Zwanzig Minuten genügen für
+              einen belastbaren Eindruck. Wer tiefer einsteigen will, bekommt einen längeren Termin – aber wir setzen
+              keine Stunde an, um eine Stunde zu füllen.
+            </p>
+            <p>
+              <strong className="text-slate-900">Müssen wir vorher Daten liefern?</strong> Nein. Für den Termin genügt
+              das Gespräch. Für die 14 Tage danach ist es hilfreich, ein laufendes Projekt einzurichten, weil sich die
+              Plattform erst an echten Aufträgen beurteilen lässt.
+            </p>
+            <p>
+              <strong className="text-slate-900">Was passiert nach den 14 Tagen?</strong> Nichts automatisch. Es gibt
+              keine hinterlegten Zahlungsdaten und keine Verlängerung, die von allein greift. Wenn es passt, sprechen
+              wir über Konfiguration und Einführung; wenn nicht, endet der Zugang.
+            </p>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -26,6 +26,10 @@ import type { Catalog, CatalogEntry } from "./catalog";
 export const MODULES: CatalogEntry[] = [
   {
     slug: "projektplanung-disposition",
+    crossLinks: [
+      { text: "Wie Sperrpausen mit Personal und Technik zusammen geplant werden, zeigt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Qualifikationsbasierte Besetzung im Detail beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+    ],
     title: "Projektplanung & Disposition",
     tagline: "Projekte, Ressourcen und Meilensteine",
     description:
@@ -39,7 +43,7 @@ export const MODULES: CatalogEntry[] = [
     metaTitle: "Disposition Software für Bahnbau & Gleisbau",
     icon: KanbanSquare,
     group: "Planung & Steuerung",
-    image: "/Einsatzvorbereitung & Logistik.png",
+    image: "/einsatzvorbereitung-logistik.webp",
     highlights: [
       {
         title: "Eine Projektakte",
@@ -123,6 +127,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "kalender-einsatzuebersicht",
+    crossLinks: [
+      { text: "Einsätze im gewohnten Kalender des Teams ermöglicht", href: "/integrationen/microsoft", label: "die Microsoft-365-Anbindung" },
+      { text: "Wechselnde Nacht- und Wochenendschichten behandelt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+    ],
     title: "Plantafel & Einsatzübersicht",
     tagline: "Schichten, Termine und Trupps in einer Ansicht",
     description:
@@ -131,7 +139,7 @@ export const MODULES: CatalogEntry[] = [
       "Alle Schichten und Einsätze in einer Plantafel: gefiltert nach Trupp und Projekt, mit Nacht- und Wochenendschichten – live für Disposition und Team.",
     icon: CalendarRange,
     group: "Planung & Steuerung",
-    image: "/Standortbezogene Disposition.png",
+    image: "/standortbezogene-disposition.webp",
     highlights: [
       {
         title: "Woche, Monat, Trupp",
@@ -215,6 +223,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "reports-auswertungen",
+    crossLinks: [
+      { text: "Deckungsbeiträge während der Bauzeit behandelt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Woher die abgerechneten Zahlen stammen, zeigt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+    ],
     title: "Reports & Auswertungen",
     tagline: "Kennzahlen zu Auslastung und Kosten",
     description:
@@ -223,7 +235,7 @@ export const MODULES: CatalogEntry[] = [
       "Auslastung, Kosten und Deckungsbeiträge je Bahnprojekt in Echtzeit – gebildet aus Schichten, Stunden und Rechnungen, als Bericht exportierbar.",
     icon: BarChart3,
     group: "Planung & Steuerung",
-    image: "/reports.png",
+    image: "/reports.webp",
     highlights: [
       {
         title: "Auslastung sehen",
@@ -307,6 +319,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "mitarbeiterverwaltung",
+    crossLinks: [
+      { text: "Wie Qualifikationen die Einsatzplanung steuern, zeigt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Nachweispflichten gegenüber Auftraggebern behandelt", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+    ],
     title: "Mitarbeiterverwaltung",
     tagline: "Qualifikationen, Fristen und Abwesenheiten",
     description:
@@ -315,7 +331,7 @@ export const MODULES: CatalogEntry[] = [
       "Personal, Qualifikationen und Abwesenheiten verwalten: Sicherungsposten, Sicherungsaufsicht und Tauglichkeiten mit Fristenwarnung, Urlaub in der Plantafel.",
     icon: Users,
     group: "Team & Ressourcen",
-    image: "/Sicherungspersonal%20gleis.png",
+    image: "/sicherungspersonal-gleis.webp",
     highlights: [
       {
         title: "Qualifikationen im Blick",
@@ -399,6 +415,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "fahrzeug-technik",
+    crossLinks: [
+      { text: "Zweiwegefahrzeuge und Geräte im Baustellenkontext behandelt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Bestände und Prüffristen von Sicherungstechnik zeigt", href: "/produkt/lagerverwaltung", label: "die Lagerverwaltung" },
+    ],
     title: "Fahrzeuge & Technik",
     tagline: "Prüffristen, Wartung und Zuordnung",
     description:
@@ -407,7 +427,7 @@ export const MODULES: CatalogEntry[] = [
       "Fahrzeuge, Geräte und Sicherungstechnik zentral führen: HU, UVV und Prüffristen mit Warnung, Wartungshistorie dokumentiert, direkt disponierbar.",
     icon: Wrench,
     group: "Team & Ressourcen",
-    image: "/Fahrzeugplanung.png",
+    image: "/fahrzeugplanung.webp",
     highlights: [
       {
         title: "Fristen laufen nicht ab",
@@ -491,6 +511,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "lagerverwaltung",
+    crossLinks: [
+      { text: "Material und Technik gemeinsam mit Trupps planen beschreibt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Fahrzeuge und Geräte mit Prüffristen verwaltet", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik" },
+    ],
     title: "Lagerverwaltung",
     tagline: "Bestände, Reservierungen und Prüfhistorie",
     description:
@@ -499,7 +523,7 @@ export const MODULES: CatalogEntry[] = [
       "Material, Geräte und Sicherungstechnik mit Beständen, Mindestmengen und Reservierungen verwalten – Entnahmen laufen projektbezogen in die Abrechnung.",
     icon: Package,
     group: "Team & Ressourcen",
-    image: "/Einsatzvorbereitung & Logistik.png",
+    image: "/einsatzvorbereitung-logistik.webp",
     highlights: [
       {
         title: "Bestand in Echtzeit",
@@ -583,6 +607,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "zeiterfassung-stundenzettel",
+    crossLinks: [
+      { text: "Prüffähige Nachweise je Schicht beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Die Übergabe von Stunden und Zuschlägen an die Lohnabrechnung übernimmt", href: "/integrationen/datev", label: "die DATEV-Anbindung" },
+    ],
     title: "Zeiterfassung & Stundenzettel",
     tagline: "Mobil erfasst, prüffähig abgelegt",
     description:
@@ -591,7 +619,7 @@ export const MODULES: CatalogEntry[] = [
       "Zeiten mobil auf der Baustelle erfassen: prüffähige Stundenzettel mit Nacht- und Wochenendzuschlägen, ohne Abtippen direkt in Abrechnung und Lohn.",
     icon: Clock,
     group: "Nachweise & Abrechnung",
-    image: "/Zeiterfassung.png",
+    image: "/zeiterfassung.webp",
     highlights: [
       {
         title: "Erfassung vor Ort",
@@ -675,6 +703,10 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "dokumentenmanagement",
+    crossLinks: [
+      { text: "Nachweise für die Bauüberwachung beschreibt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
+      { text: "Was Auftraggeber im Bahnumfeld an Unterlagen erwarten, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
+    ],
     title: "Dokumentenmanagement",
     tagline: "Revisionssicher in der Projektakte",
     description:
@@ -683,7 +715,7 @@ export const MODULES: CatalogEntry[] = [
       "Pläne, Nachweise und Protokolle revisionssicher in der Projektakte: Versionen und Freigaben dokumentiert, bei Audits in Sekunden auskunftsfähig.",
     icon: FolderOpen,
     group: "Nachweise & Abrechnung",
-    image: "/Lösungen.png",
+    image: "/loesungen.webp",
     highlights: [
       {
         title: "Alles am Projekt",
@@ -767,6 +799,11 @@ export const MODULES: CatalogEntry[] = [
   },
   {
     slug: "rechnungsstellung",
+    crossLinks: [
+      { text: "Die Weitergabe an die Buchhaltung übernehmen", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
+      { text: "Abrechnung nach Leistungsverzeichnis erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "X-Rechnung für öffentliche Auftraggeber behandelt", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+    ],
     title: "Abrechnung & Rechnungsstellung",
     tagline: "Von der Leistung zur X-Rechnung",
     description:
@@ -775,7 +812,7 @@ export const MODULES: CatalogEntry[] = [
       "Aus geprüften Stunden und Leistungen zur Rechnung: X-Rechnung für öffentliche Auftraggeber, Abrechnung nach LV und GAEB, saubere Übergabe an DATEV.",
     icon: FileText,
     group: "Nachweise & Abrechnung",
-    image: "/Rechnungen.png",
+    image: "/rechnungen.webp",
     highlights: [
       {
         title: "Ohne Zweiterfassung",

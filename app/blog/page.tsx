@@ -148,6 +148,61 @@ export default async function BlogIndexPage() {
           </>
         )}
       </section>
+
+      <section aria-labelledby="blog-einordnung" className="bg-[#f8fafc] py-14 md:py-20">
+        <div className="page-container">
+          <h2 id="blog-einordnung" className="max-w-3xl text-[1.75rem] font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+            Worüber wir hier schreiben
+          </h2>
+          <div className="mt-6 grid gap-8 md:mt-8 md:grid-cols-2 md:gap-10">
+            <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+              <p>
+                Die Beiträge kommen aus der Arbeit an Gleistrix und aus den Fragen, die dabei aufkommen. Sie behandeln
+                keine allgemeinen Digitalisierungsthemen, sondern die konkreten Stellen, an denen im Bahnbau Zeit
+                verloren geht: die Plantafel, die noch als Tabelle per Mail wandert. Den Nachweis, der zum Prüfzeitpunkt
+                fehlt, obwohl die Leistung erbracht wurde. Den Stundenzettel, der zweimal aufbereitet wird – einmal für
+                die Rechnung, einmal für den Lohn.
+              </p>
+              <p>
+                Fünf Themenfelder ziehen sich durch: <strong>Disposition</strong> mit Sperrpausen, Schichten und
+                Doppelbelegungen. <strong>Sicherung</strong> mit Qualifikationen, Gültigkeiten und prüffähiger
+                Dokumentation. <strong>Zeiterfassung</strong> vom Einsatzort bis zur Freigabe. <strong>Fuhrpark</strong>{" "}
+                mit Zweiwege-Technik und Prüffristen. Und <strong>Abrechnung</strong> von der geprüften Stunde bis zur
+                X-Rechnung.
+              </p>
+            </div>
+            <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+              <h3 className="text-lg font-bold text-slate-900">Für wen die Beiträge gedacht sind</h3>
+              <p>
+                In erster Linie für Disposition, Bauleitung und Backoffice in Sicherungsunternehmen, Gleisbaubetrieben
+                und bei Subunternehmern der Bahn – also für die Rollen, die den Aufwand an den Übergängen zwischen
+                Planung, Einsatz und Abrechnung selbst tragen. Für Geschäftsführung und Controlling sind die Beiträge
+                zu Auslastung und Deckungsbeitrag gedacht, weil dort dieselben Daten aus einer anderen Höhe gelesen
+                werden.
+              </p>
+              <p>
+                Die Beiträge sind bewusst keine Produktankündigungen. Wo eine Funktion von Gleistrix ein beschriebenes
+                Problem löst, steht es dabei – aber der Ausgangspunkt ist der Ablauf, nicht das Modul. Wer die
+                Funktionen systematisch sucht, findet sie unter{" "}
+                <Link className="font-semibold text-indigo-700" href="/produkt">Module und Plattform</Link>, nach Gewerk
+                sortiert unter <Link className="font-semibold text-indigo-700" href="/branchen">Branchen</Link>.
+              </p>
+              <p>
+                Neue Beiträge erscheinen unregelmäßig, dann aber mit Substanz: lieber ein Text, der einen Ablauf
+                vollständig beschreibt, als ein wöchentlicher Beitrag ohne Erkenntnis.
+              </p>
+              <p>
+                Wer einen der beschriebenen Abläufe im eigenen Betrieb wiedererkennt, kann ihn in einer Demo an den
+                eigenen Projekten durchspielen. Das ist meist aussagekräftiger als jeder Text, weil sich erst dort
+                zeigt, wo die Besonderheiten liegen – etwa welche Qualifikationen geführt werden müssen, in welcher
+                Form der Auftraggeber Nachweise erwartet und wie die Abrechnungszyklen aussehen. Terminvorschläge und
+                der Zugang für 14 Tage stehen unter{" "}
+                <Link className="font-semibold text-indigo-700" href="/demo-buchen">Demo buchen</Link>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }

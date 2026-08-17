@@ -66,6 +66,18 @@ const nextConfig: NextConfig = {
         destination: "/produkt/projektplanung-disposition",
         permanent: true,
       },
+      /**
+       * Hier waren beide Seiten gleich duenn (162 und 166 Woerter). Die
+       * Branchenseite gewinnt nicht wegen ihres Umfangs, sondern wegen ihrer
+       * Position: sie steht zwischen vier Geschwisterseiten unter einer
+       * Hub-Seite, die Landingpage stand allein. Sie ist dafuer ausgebaut
+       * worden und uebernimmt per metaTitle das Keyword.
+       */
+      {
+        source: "/software-sicherungsunternehmen",
+        destination: "/branchen/sicherungsunternehmen",
+        permanent: true,
+      },
     ];
   },
 };
