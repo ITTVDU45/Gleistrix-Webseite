@@ -10,7 +10,8 @@ import AudienceSection from "@/components/landing/AudienceSection";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
 import FAQSection from "@/components/landing/FAQSection";
 import BlogSection from "@/components/landing/BlogSection";
-import { pageMetadata } from "@/lib/seo-metadata";
+import { HOME_FAQS, HOME_FAQ_VISIBLE_COUNT } from "@/data/faqs";
+import { faqPageJsonLd, pageMetadata } from "@/lib/seo-metadata";
 
 // Marke gehört in den Startseitentitel: Root-Layout und Startseite sind
 // dasselbe Segment, deshalb greift das "%s | Gleistrix"-Template hier nicht.
@@ -26,6 +27,17 @@ export const metadata = pageMetadata({
 export default function Home() {
   return (
     <main>
+      {/* Nur die Fragen, die FAQSection ohne Interaktion rendert. Das
+          Karussell zeigt HOME_FAQ_VISIBLE_COUNT Stück gleichzeitig und legt
+          die übrigen nicht versteckt ab, sondern erzeugt sie erst beim
+          Weiterklicken. Sie auszuzeichnen wäre Markup ohne sichtbare
+          Entsprechung – und das gilt bei Google als Spam. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqPageJsonLd(HOME_FAQS.slice(0, HOME_FAQ_VISIBLE_COUNT))),
+        }}
+      />
       <Hero />
       <SecurityIntegrations />
       <CaseStudiesSection />
