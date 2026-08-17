@@ -5,7 +5,7 @@ import "./mobile.css";
 import AppChrome from "@/components/layout/AppChrome";
 import { ConsentProvider } from "@/components/consent/consent-provider";
 import { SITE, SITE_URL } from "@/lib/constants";
-import { localBusinessJsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import Providers from "./providers";
 
 const inter = Inter({
@@ -69,14 +69,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Organization vor LocalBusiness: die Firma ist die Hauptentität, der
-  // Standort hängt über parentOrganization daran.
+  // Organization ist die einzige Unternehmensentität – kein LocalBusiness,
+  // weil bundesweit ohne aufsuchbaren Standort gearbeitet wird. Begründung
+  // steht in lib/seo.ts.
   //
   // SoftwareApplication steht bewusst nicht hier, sondern nur auf /preise: Im
   // Root-Layout erschiene es auch im Impressum, und der Knoten dort trägt das
   // Angebot mit echtem Preis. Zwei Knoten mit derselben @id, einmal mit und
   // einmal ohne offers, wären ein Widerspruch.
-  const structuredData = [organizationJsonLd(), localBusinessJsonLd(), websiteJsonLd()];
+  const structuredData = [organizationJsonLd(), websiteJsonLd()];
 
   return (
     <html lang="de">

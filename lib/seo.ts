@@ -29,11 +29,10 @@ const SAME_AS: string[] = [];
 /**
  * Das Unternehmen als Anbieter der Software.
  *
- * Getrennt vom LocalBusiness, weil beide unterschiedliche Fragen beantworten:
- * LocalBusiness beschreibt den Standort für Karten- und Umgebungssuchen,
- * Organization den bundesweit tätigen Anbieter, auf den sich Website und
- * Software beziehen. Verknüpft über `parentOrganization`, damit Google sie als
- * eine Firma liest und nicht als zwei.
+ * Die einzige Unternehmensentität der Website. `address` ist die Anschrift aus
+ * dem Impressum, nicht die Angabe eines Ladenlokals; das Einsatzgebiet steht in
+ * `areaServed`. Siehe den Hinweis weiter unten, warum hier kein LocalBusiness
+ * mehr ausgeliefert wird.
  *
  * `sameAs` bleibt leer, bis die Profil-URLs vorliegen – ein erfundener Link
  * wäre eine falsche Identitätsangabe.
@@ -107,31 +106,22 @@ export function softwareApplicationJsonLd(options?: { lowPrice?: number }) {
   };
 }
 
-export function localBusinessJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "@id": `${SITE_URL}/#business`,
-    parentOrganization: { "@id": `${SITE_URL}/#organization` },
-    name: SITE.name,
-    legalName: BUSINESS.legalName,
-    description: SITE.description,
-    url: SITE_URL,
-    logo: `${SITE_URL}/brand/gleistrix-email-logo.png`,
-    image: `${SITE_URL}/brand/gleistrix-email-logo.png`,
-    email: BUSINESS.email,
-    telephone: BUSINESS.phone,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: BUSINESS.street,
-      postalCode: BUSINESS.postalCode,
-      addressLocality: BUSINESS.city,
-      addressCountry: BUSINESS.country,
-    },
-    areaServed: { "@type": "Country", name: "Deutschland" },
-    ...(SAME_AS.length > 0 ? { sameAs: SAME_AS } : {}),
-  };
-}
+/*
+ * Kein LocalBusiness mehr.
+ *
+ * Der Typ beschreibt einen Betrieb, den Kunden aufsuchen, und verlangt dafür
+ * eine Adresse als Standortangabe. Das Google-Unternehmensprofil von Gleistrix
+ * ist aber bewusst ohne Adresse geführt, weil bundesweit gearbeitet wird – ein
+ * LocalBusiness mit Straßenanschrift hätte etwas anderes behauptet als das
+ * Profil, und abweichende Angaben wertet Google ab.
+ *
+ * Die Anschrift steht weiterhin in der Organization: Dort ist sie die Adresse
+ * des Unternehmens, wie sie auch im Impressum steht, und kein Versprechen einer
+ * Ladentheke. Das Einsatzgebiet trägt `areaServed`.
+ *
+ * Sollte später ein Standort dazukommen, den Kunden tatsächlich besuchen, gehört
+ * LocalBusiness zurück – dann aber mit einem Profil, das dieselbe Adresse zeigt.
+ */
 
 /** Website-Entität zur eindeutigen Zuordnung von Domain, Marke und Anbieter. */
 export function websiteJsonLd() {
