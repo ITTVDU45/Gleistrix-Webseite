@@ -235,6 +235,52 @@ export default function Page() {
         </div>
       </section>
 
+      <section aria-labelledby="ueber-uns-herkunft" className="bg-white py-14 md:py-20">
+        <div className="page-container">
+          <h2 id="ueber-uns-herkunft" className="max-w-3xl text-[1.75rem] font-bold leading-tight tracking-tight text-slate-900 sm:text-3xl">
+            Woher Gleistrix kommt
+          </h2>
+          <div className="mt-6 grid gap-8 md:mt-8 md:grid-cols-2 md:gap-10">
+            <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+              <p>
+                Die Plattform ist aus der Gleisbausicherung entstanden, nicht am Reißbrett. Das prägt bis heute, wie sie
+                aufgebaut ist: Qualifikationen und ihre Gültigkeit sind keine nachträglich ergänzten Felder, sondern Teil
+                der Planung. Sperrpausen sind Zeitfenster am Bauabschnitt, nicht ein Freitextfeld. Nachweise hängen an
+                der einzelnen Schicht, nicht in einer allgemeinen Personalakte.
+              </p>
+              <p>
+                Solche Entscheidungen trifft man anders, wenn man den Ablauf kennt. Wer schon einmal um fünf Uhr morgens
+                gemerkt hat, dass ein Sicherungsposten an zwei Baustellen im Plan steht, baut die Konflikterkennung in
+                das Zuweisen ein und nicht in einen nächtlichen Prüflauf.
+              </p>
+              <p>
+                Deshalb sind auch die KI-Agenten durchgängig abschaltbar. Im Bahnumfeld muss nachvollziehbar bleiben, wer
+                eine Freigabe erteilt hat – eine Automatisierung, die diese Zuordnung verwischt, wäre in einer Prüfung
+                mehr Last als Hilfe.
+              </p>
+            </div>
+            <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
+              <h3 className="text-lg font-bold text-slate-900">Wie wir arbeiten</h3>
+              <p>
+                Eine Einführung beginnt mit den Abläufen, nicht mit der Software. In der Demo gehen wir durch, wie ein
+                Auftrag hereinkommt, wer die Schichten besetzt, woher die Stunden kommen und wie daraus eine Rechnung
+                wird. Erst danach lässt sich sagen, welche Module tragen und welche nicht gebraucht werden.
+              </p>
+              <p>
+                Wenn eine Stelle nicht passt, sagen wir das. Eine Einführung, die an einem ungelösten Ablauf scheitert,
+                kostet beide Seiten mehr als ein frühes Nein – und im Bahnbau spricht sich beides herum.
+              </p>
+              <p>
+                Bestehende Systeme bleiben, wo sie sind. Gleistrix ersetzt weder die Steuerberatung noch das
+                Buchhaltungsprogramm noch den Kalender des Teams; es verändert, in welcher Form diese Systeme ihre Daten
+                bekommen. Das ist der Unterschied zwischen einer Plattform, die eingeführt wird, und einer, die im
+                Angebot bleibt.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <CTASection />
     </main>
   );
