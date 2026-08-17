@@ -79,7 +79,11 @@ export default function Hero() {
                   </motion.span>
                 ))}
               </span>
-              <span className="sr-only">Zettelchaos, Doppelarbeit, Papierkram und Planungschaos – Gleistrix ist die ERP-Plattform für alle Gewerke im Bahnbau.</span>
+              {/* Beginnt mit dem Thema, nicht mit der Problemaufzählung: Dieser
+                  Satz ist der crawlbare Teil der H1, weil das rotierende Wort
+                  aria-hidden ist. Vorher stand das wichtigste Wort der Seite an
+                  letzter Stelle ihrer wichtigsten Überschrift. */}
+              <span className="sr-only">ERP Software für Bahnbau: Gleistrix ist die Plattform für alle Gewerke im Bahnbetrieb und ersetzt Zettelchaos, Doppelarbeit, Papierkram und Planungschaos.</span>
             </h1>
 
             <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-slate-500 sm:mt-6 sm:text-lg sm:leading-relaxed lg:mx-0">

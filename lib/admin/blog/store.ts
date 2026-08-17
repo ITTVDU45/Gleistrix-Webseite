@@ -223,6 +223,47 @@ const articles = bucket<BlogArticle>(COLLECTIONS.blogArticles, "blogArticles");
 export const getBlogArticle = articles.get;
 
 /**
+ * Beitragsbilder, die vor der WebP-Umstellung gesetzt wurden.
+ *
+ * Die Artikel liegen in der Datenbank, nicht in data/blog.ts – dort steht nur
+ * der Auslieferungszustand. Beim Umstellen der Fotos von PNG auf WebP wurden
+ * deshalb die Quelldateien erfasst, nicht die bereits gespeicherten Datensätze.
+ * Statt die Altdateien liegen zu lassen oder in die Datenbank zu schreiben,
+ * werden die Pfade hier beim Lesen umgeschrieben.
+ *
+ * Die Zuordnung darf verschwinden, sobald kein Datensatz mehr auf einen der
+ * Altpfade zeigt – bis dahin verhindert sie fehlende Bilder auf /blog.
+ */
+const LEGACY_IMAGE_PATHS: Readonly<Record<string, string>> = {
+  "/Fahrzeugplanung.png": "/fahrzeugplanung.webp",
+  "/Rechnungen.png": "/rechnungen.webp",
+  "/Sicherungsmaßnahmen & Bahnübergänge.png": "/sicherungsmassnahmen-bahnuebergaenge.webp",
+  "/Standortbezogene Disposition.png": "/standortbezogene-disposition.webp",
+  "/Zeiterfassung.png": "/zeiterfassung.webp",
+  "/reports.png": "/reports.webp",
+};
+
+/** Schreibt einen Altpfad um; alles andere bleibt unverändert. */
+function normalisiereBildpfad(src: string): string {
+  if (!src) return src;
+  const direkt = LEGACY_IMAGE_PATHS[src];
+  if (direkt) return direkt;
+  // Datensätze aus dem Adminbereich speichern Leerzeichen teils kodiert.
+  try {
+    const dekodiert = decodeURI(src);
+    return LEGACY_IMAGE_PATHS[dekodiert] ?? src;
+  } catch {
+    return src;
+  }
+}
+
+/** Artikel mit umgeschriebenem Beitragsbild. */
+function mitAktuellemBild(article: BlogArticle): BlogArticle {
+  const src = normalisiereBildpfad(article.imageSrc ?? "");
+  return src === article.imageSrc ? article : { ...article, imageSrc: src };
+}
+
+/**
  * Alle Artikel für den Adminbereich – neueste zuerst.
  *
  * Leere Ablage ⇒ Auslieferungszustand. Sonst stünde der Adminbereich nach dem
@@ -232,7 +273,10 @@ export const getBlogArticle = articles.get;
 export async function listBlogArticles(): Promise<BlogArticle[]> {
   try {
     const stored = await articles.list();
-    return stored.length > 0 ? stored : [...DEFAULT_BLOG_ARTICLES].reverse();
+    const liste = stored.length > 0 ? stored : [...DEFAULT_BLOG_ARTICLES].reverse();
+    // Eine Stelle für alle Leser: listPublicArticles und getPublicArticle gehen
+    // beide hier durch, der Adminbereich ebenfalls.
+    return liste.map(mitAktuellemBild);
   } catch (error) {
     console.error("Blogartikel konnten nicht gelesen werden:", error);
     return [...DEFAULT_BLOG_ARTICLES].reverse();

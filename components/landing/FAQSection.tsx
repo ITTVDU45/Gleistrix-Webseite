@@ -182,6 +182,26 @@ export default function FAQSection() {
             })}
           </AnimatePresence>
         </ul>
+
+        {/* Alle Fragen und Antworten vollständig im DOM.
+            Das Karussell zeigt drei Karten und darin nur eine Antwort – die
+            übrigen entstehen erst beim Weiterklicken. Für die
+            FAQPage-Auszeichnung in app/page.tsx muss aber jede ausgezeichnete
+            Frage samt Antwort auch ausgeliefert werden; Markup ohne sichtbare
+            Entsprechung gilt bei Google als Spam. Nebeneffekt: Wer einen
+            Screenreader nutzt, erreicht damit alle Antworten, ohne sich durch
+            das Karussell klicken zu müssen. */}
+        <div className="sr-only">
+          <h3>Alle Fragen und Antworten im Überblick</h3>
+          <dl>
+            {FAQS.map((faq) => (
+              <div key={faq.question}>
+                <dt>{faq.question}</dt>
+                <dd>{faq.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
     </section>
   );

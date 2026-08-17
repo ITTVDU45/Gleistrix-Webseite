@@ -12,15 +12,7 @@ export type FAQ = {
  * Antwort genau so auch sichtbar auf der Seite stehen – bei zwei getrennten
  * Fassungen liefen sie irgendwann auseinander.
  */
-/**
- * Wie viele Fragen FAQSection gleichzeitig rendert.
- *
- * Steht hier, weil app/page.tsx die Zahl braucht: Das Karussell rendert die
- * übrigen Fragen nicht versteckt, sondern gar nicht – sie stehen erst nach
- * einem Klick im DOM. Ausgezeichnet werden darf deshalb nur, was ohne
- * Interaktion ausgeliefert wird. Wer den Wert hier ändert, ändert beides
- * zugleich und kann die zwei Stellen nicht auseinanderlaufen lassen.
- */
+/** Wie viele Karten das FAQ-Karussell gleichzeitig zeigt. */
 export const HOME_FAQ_VISIBLE_COUNT = 3;
 
 export const HOME_FAQS: readonly FAQ[] = [
