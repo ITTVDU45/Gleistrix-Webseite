@@ -32,10 +32,19 @@ export default function Hero() {
     return () => clearInterval(id);
   }, [shouldReduceMotion, active]);
 
-  const fadeUp = (delay: number) =>
-    shouldReduceMotion
-      ? {}
-      : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.7, delay, ease: EASE_OUT } };
+  // Bewusst keine Einblend-Animation über dem Falz mehr.
+  //
+  // Die frühere `fadeUp`-Staffelung setzte initial `opacity: 0`. Das steht so
+  // auch im Server-HTML – und Chrome zählt unsichtbare Elemente nicht für den
+  // Largest Contentful Paint. Der Hero konnte deshalb erst erscheinen, wenn das
+  // Bundle geladen, React hydriert und framer-motion die Animation gestartet
+  // hatte: gemessen 1364 ms Renderverzögerung bei 45 ms Serverantwort.
+  //
+  // Die rotierenden Wörter behalten ihre Animation: sie laufen mit
+  // `initial={false}`, werden also bereits im Server-HTML sichtbar angelegt und
+  // verzögern nichts. Wer `prefers-reduced-motion` gesetzt hat, sah den Hero
+  // ohnehin schon ohne Einblendung – die Gestaltung trägt diesen Zustand also
+  // bereits.
 
   return (
     <section aria-labelledby="hero-heading" className="relative overflow-hidden bg-white pb-14 pt-28 sm:pb-16 sm:pt-32 md:pb-20 md:pt-40">
@@ -47,14 +56,14 @@ export default function Hero() {
       <div className="page-container relative">
         <div className="grid min-w-0 items-center gap-10 sm:gap-14 lg:grid-cols-2 lg:gap-10">
           <div className="min-w-0 text-center lg:text-left">
-            <motion.div {...fadeUp(0)}>
+            <div>
               <span className="glass inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold leading-5 text-slate-600 shadow-soft-sm sm:px-4 sm:text-xs">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
                 ERP-Plattform für den Bahnbetrieb
               </span>
-            </motion.div>
+            </div>
 
-            <motion.h1 id="hero-heading" className="mt-5 min-w-0 text-[2.05rem] font-bold leading-[1.08] tracking-tight text-slate-900 min-[375px]:text-[2.3rem] sm:mt-6 sm:text-5xl xl:text-6xl" {...fadeUp(0.08)}>
+            <h1 id="hero-heading" className="mt-5 min-w-0 text-[2.05rem] font-bold leading-[1.08] tracking-tight text-slate-900 min-[375px]:text-[2.3rem] sm:mt-6 sm:text-5xl xl:text-6xl">
               <span className="block">Du sparst dir</span>
               <span aria-hidden className="relative mx-auto mt-3 block w-full max-w-full leading-none lg:mx-0">
                 <span className="invisible inline-flex max-w-full rounded-2xl px-3 py-2 text-[0.82em] sm:px-5 sm:text-[1em]">{LONGEST_WORD}</span>
@@ -71,32 +80,32 @@ export default function Hero() {
                 ))}
               </span>
               <span className="sr-only">Zettelchaos, Doppelarbeit, Papierkram und Planungschaos – Gleistrix ist die ERP-Plattform für alle Gewerke im Bahnbau.</span>
-            </motion.h1>
+            </h1>
 
-            <motion.p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-slate-500 sm:mt-6 sm:text-lg sm:leading-relaxed lg:mx-0" {...fadeUp(0.16)}>
+            <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-slate-500 sm:mt-6 sm:text-lg sm:leading-relaxed lg:mx-0">
               Gleistrix macht aus jedem Auftrag einen fertig vorbereiteten Einsatz – mit Personal, Technik, Dokumentation und Abrechnung in einer Plattform.
-            </motion.p>
+            </p>
 
-            <motion.div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:mt-9 sm:flex-row sm:items-center lg:justify-start" {...fadeUp(0.24)}>
+            <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:mt-9 sm:flex-row sm:items-center lg:justify-start">
               <Button asChild size="lg" className="h-12 w-full rounded-xl bg-indigo-600 px-6 text-sm text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-indigo-500 sm:w-auto sm:px-7 sm:text-base">
                 <Link href="/demo-buchen">Demo anfragen</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-12 w-full rounded-xl border-slate-200 bg-white/70 px-6 text-sm text-slate-700 backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-slate-900 sm:w-auto sm:px-7 sm:text-base">
                 <Link href="#module">Module entdecken</Link>
               </Button>
-            </motion.div>
+            </div>
 
-            <motion.div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-9 lg:justify-start" {...fadeUp(0.32)}>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-9 lg:justify-start">
               <span className="w-full text-center text-xs font-medium text-slate-500 sm:mr-1 sm:w-auto sm:text-left">Gemacht für</span>
               {HERO_SLIDES.map((s, i) => (
                 <button key={s.id} type="button" onClick={() => setActive(i)} aria-pressed={i === active} className={"min-h-9 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all " + (i === active ? "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-soft-sm" : "border-slate-200 bg-white/70 text-slate-500 hover:border-slate-300 hover:text-slate-700")}>{s.audienceShort}</button>
               ))}
-            </motion.div>
+            </div>
           </div>
 
-          <motion.div className="min-w-0" {...fadeUp(0.2)}>
+          <div className="min-w-0">
             <FoxShowcase active={active} />
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
