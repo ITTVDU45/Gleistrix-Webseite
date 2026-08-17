@@ -26,7 +26,7 @@ export function pageMetadata({
   description: string;
   path: string;
   /**
-   * Seiteneigenes Vorschaubild, als Pfad ab der Wurzel (z. B. "/reports.png").
+   * Seiteneigenes Vorschaubild, als Pfad ab der Wurzel (z. B. "/reports.webp").
    * Wird gegen SITE_URL zur vollen Adresse aufgelöst – relative Angaben
    * ignorieren Facebook, LinkedIn und Slack.
    *

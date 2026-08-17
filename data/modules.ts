@@ -43,7 +43,7 @@ export const MODULES: CatalogEntry[] = [
     metaTitle: "Disposition Software für Bahnbau & Gleisbau",
     icon: KanbanSquare,
     group: "Planung & Steuerung",
-    image: "/Einsatzvorbereitung & Logistik.png",
+    image: "/einsatzvorbereitung-logistik.webp",
     highlights: [
       {
         title: "Eine Projektakte",
@@ -139,7 +139,7 @@ export const MODULES: CatalogEntry[] = [
       "Alle Schichten und Einsätze in einer Plantafel: gefiltert nach Trupp und Projekt, mit Nacht- und Wochenendschichten – live für Disposition und Team.",
     icon: CalendarRange,
     group: "Planung & Steuerung",
-    image: "/Standortbezogene Disposition.png",
+    image: "/standortbezogene-disposition.webp",
     highlights: [
       {
         title: "Woche, Monat, Trupp",
@@ -235,7 +235,7 @@ export const MODULES: CatalogEntry[] = [
       "Auslastung, Kosten und Deckungsbeiträge je Bahnprojekt in Echtzeit – gebildet aus Schichten, Stunden und Rechnungen, als Bericht exportierbar.",
     icon: BarChart3,
     group: "Planung & Steuerung",
-    image: "/reports.png",
+    image: "/reports.webp",
     highlights: [
       {
         title: "Auslastung sehen",
@@ -331,7 +331,7 @@ export const MODULES: CatalogEntry[] = [
       "Personal, Qualifikationen und Abwesenheiten verwalten: Sicherungsposten, Sicherungsaufsicht und Tauglichkeiten mit Fristenwarnung, Urlaub in der Plantafel.",
     icon: Users,
     group: "Team & Ressourcen",
-    image: "/Sicherungspersonal%20gleis.png",
+    image: "/sicherungspersonal-gleis.webp",
     highlights: [
       {
         title: "Qualifikationen im Blick",
@@ -427,7 +427,7 @@ export const MODULES: CatalogEntry[] = [
       "Fahrzeuge, Geräte und Sicherungstechnik zentral führen: HU, UVV und Prüffristen mit Warnung, Wartungshistorie dokumentiert, direkt disponierbar.",
     icon: Wrench,
     group: "Team & Ressourcen",
-    image: "/Fahrzeugplanung.png",
+    image: "/fahrzeugplanung.webp",
     highlights: [
       {
         title: "Fristen laufen nicht ab",
@@ -523,7 +523,7 @@ export const MODULES: CatalogEntry[] = [
       "Material, Geräte und Sicherungstechnik mit Beständen, Mindestmengen und Reservierungen verwalten – Entnahmen laufen projektbezogen in die Abrechnung.",
     icon: Package,
     group: "Team & Ressourcen",
-    image: "/Einsatzvorbereitung & Logistik.png",
+    image: "/einsatzvorbereitung-logistik.webp",
     highlights: [
       {
         title: "Bestand in Echtzeit",
@@ -619,7 +619,7 @@ export const MODULES: CatalogEntry[] = [
       "Zeiten mobil auf der Baustelle erfassen: prüffähige Stundenzettel mit Nacht- und Wochenendzuschlägen, ohne Abtippen direkt in Abrechnung und Lohn.",
     icon: Clock,
     group: "Nachweise & Abrechnung",
-    image: "/Zeiterfassung.png",
+    image: "/zeiterfassung.webp",
     highlights: [
       {
         title: "Erfassung vor Ort",
@@ -715,7 +715,7 @@ export const MODULES: CatalogEntry[] = [
       "Pläne, Nachweise und Protokolle revisionssicher in der Projektakte: Versionen und Freigaben dokumentiert, bei Audits in Sekunden auskunftsfähig.",
     icon: FolderOpen,
     group: "Nachweise & Abrechnung",
-    image: "/Lösungen.png",
+    image: "/loesungen.webp",
     highlights: [
       {
         title: "Alles am Projekt",
@@ -812,7 +812,7 @@ export const MODULES: CatalogEntry[] = [
       "Aus geprüften Stunden und Leistungen zur Rechnung: X-Rechnung für öffentliche Auftraggeber, Abrechnung nach LV und GAEB, saubere Übergabe an DATEV.",
     icon: FileText,
     group: "Nachweise & Abrechnung",
-    image: "/Rechnungen.png",
+    image: "/rechnungen.webp",
     highlights: [
       {
         title: "Ohne Zweiterfassung",

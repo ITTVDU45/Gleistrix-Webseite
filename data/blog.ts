@@ -103,7 +103,7 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
     teaser: "Warum standortbezogene Einsatzplanung Fahrtwege und Leerlauf spürbar reduziert.",
     category: "Disposition",
     tags: ["Disposition", "Plantafel", "Einsatzplanung"],
-    imageSrc: "/Standortbezogene Disposition.png",
+    imageSrc: "/standortbezogene-disposition.webp",
     imageAlt: "Standortbezogene Disposition auf der Gleistrix-Plantafel",
     publishedAt: "2026-07-03T06:00:00.000Z",
     seo: {
@@ -131,7 +131,7 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
     teaser: "So entstehen Nachweise für Sicherungsmaßnahmen direkt aus den Projektdaten.",
     category: "Sicherung",
     tags: ["Sicherung", "SIPO", "Dokumentation", "Bahnübergang"],
-    imageSrc: "/Sicherungsmaßnahmen & Bahnübergänge.png",
+    imageSrc: "/sicherungsmassnahmen-bahnuebergaenge.webp",
     imageAlt: "Sicherungsmaßnahmen an Bahnübergängen",
     publishedAt: "2026-06-26T06:00:00.000Z",
     seo: {
@@ -158,7 +158,7 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
     teaser: "Verfügbarkeiten, Wartung und Einsatzzuordnung an einem Ort zusammenführen.",
     category: "Fuhrpark",
     tags: ["Fuhrpark", "Technik", "Wartung", "Verfügbarkeit"],
-    imageSrc: "/Fahrzeugplanung.png",
+    imageSrc: "/fahrzeugplanung.webp",
     imageAlt: "Fahrzeug- und Technikplanung in Gleistrix",
     publishedAt: "2026-06-18T06:00:00.000Z",
     seo: {
@@ -185,7 +185,7 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
     teaser: "Wie geprüfte Leistungen ohne Abtippen in den Rechnungsentwurf fließen.",
     category: "Abrechnung",
     tags: ["Abrechnung", "X-Rechnung", "Leistungsnachweis"],
-    imageSrc: "/Rechnungen.png",
+    imageSrc: "/rechnungen.webp",
     imageAlt: "Rechnungsstellung und Abrechnung in Gleistrix",
     publishedAt: "2026-06-11T06:00:00.000Z",
     seo: {
@@ -212,7 +212,7 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
     teaser: "Digitale Zeiterfassung senkt Rückfragen und beschleunigt die Freigabe.",
     category: "Zeiterfassung",
     tags: ["Zeiterfassung", "Stundenzettel", "Mobil"],
-    imageSrc: "/Zeiterfassung.png",
+    imageSrc: "/zeiterfassung.webp",
     imageAlt: "Mobile Zeiterfassung und Stundenzettel",
     publishedAt: "2026-06-04T06:00:00.000Z",
     seo: {
@@ -239,7 +239,7 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
     teaser: "Kennzahlen zu Auslastung und Marge in Echtzeit statt am Monatsende.",
     category: "Auswertung",
     tags: ["Auswertung", "Deckungsbeitrag", "Controlling"],
-    imageSrc: "/reports.png",
+    imageSrc: "/reports.webp",
     imageAlt: "Reports und Auswertungen in Gleistrix",
     publishedAt: "2026-05-28T06:00:00.000Z",
     seo: {

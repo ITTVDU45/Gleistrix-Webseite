@@ -22,7 +22,7 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Software für Gleisbausicherung und Bauüberwachung: qualifikationsbasierte Schichtplanung, Nachweise, Stundenzettel und Abrechnung – aus der Praxis entstanden.",
     icon: ShieldCheck,
     group: "Sicherung & Überwachung",
-    image: "/Sicherungspersonal%20gleis.png",
+    image: "/sicherungspersonal-gleis.webp",
     highlights: [
       {
         title: "Aus der Praxis entstanden",
@@ -125,7 +125,7 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Software für Sicherungsunternehmen: qualifikationsbasierte Disposition, Schichtplanung, Zeiterfassung, Nachweise und Abrechnung für die Gleisbausicherung.",
     icon: Network,
     group: "Sicherung & Überwachung",
-    image: "/Sicherungsunternehmen.png",
+    image: "/sicherungsunternehmen.webp",
     highlights: [
       {
         title: "Regeln statt Erfahrungswissen",
@@ -223,7 +223,7 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Software für Gleisbauunternehmen: Baustellen und Sperrpausen planen, Zweiwegefahrzeuge disponieren, nach LV und GAEB abrechnen, Deckungsbeiträge verfolgen.",
     icon: HardHat,
     group: "Bau & Infrastruktur",
-    image: "/Gleisbauunternehmen.png",
+    image: "/gleisbauunternehmen.webp",
     highlights: [
       {
         title: "Sperrpausen planbar",
@@ -321,7 +321,7 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Software für Subunternehmen der DB: Nachweise vollständig halten, Leistungen und Stunden rückmelden, X-Rechnung stellen und revisionssicher ablegen.",
     icon: Building2,
     group: "Bau & Infrastruktur",
-    image: "/subunternehmer.png",
+    image: "/subunternehmer.webp",
     highlights: [
       {
         title: "Formate, die passen",
@@ -419,7 +419,7 @@ export const INDUSTRIES: CatalogEntry[] = [
       "Software für auftragsbasierte Dienstleister: Angebot, Auftrag, Einsatzplanung, Zeiterfassung und Rechnung in einer Kette – ohne Übertragen zwischen Werkzeugen.",
     icon: Briefcase,
     group: "Service & Dienstleistung",
-    image: "/Auftragsbasierter dienstleister.png",
+    image: "/auftragsbasierter-dienstleister.webp",
     highlights: [
       {
         title: "Eine Kette, kein Bruch",

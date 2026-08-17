@@ -37,7 +37,7 @@ export default function ProduktPage() {
         <Reveal>
           <div className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] shadow-soft">
             <Image
-              src="/Standortbezogene Disposition.png"
+              src="/standortbezogene-disposition.webp"
               alt="Gleistrix Standortbezogene Disposition"
               fill
               sizes="(min-width: 768px) 960px, 100vw"
