@@ -1357,15 +1357,32 @@ export async function savePricingIntegrationAction(
     id = check.value;
   }
 
-  const src = field(data, "src");
+  // Reihenfolge wie beim Modulbild: ein neuer Upload gewinnt, sonst entscheidet
+  // das Häkchen, sonst bleibt das bisherige Logo stehen.
+  let src = existing?.src;
+  const upload = data.get("logoFile");
+  if (upload instanceof File && upload.size > 0) {
+    try {
+      const stored = await saveImageAsset(upload);
+      if (!stored.ok) return { error: stored.error };
+      src = stored.src;
+    } catch (error) {
+      console.error("Integrationslogo konnte nicht gespeichert werden:", error);
+      return { error: "Das Logo konnte nicht gespeichert werden. Bitte erneut versuchen." };
+    }
+  } else if (checked(data, "removeLogo")) {
+    src = undefined;
+  }
+
   const next: PricingIntegration = {
     id,
     title,
     category,
     description: field(data, "description"),
-    src: src || undefined,
-    width: width.value,
-    height: height.value,
+    src,
+    // Ohne Logo haben die Maße keinen Zweck – sie gehören zum Bild, nicht zum Eintrag.
+    width: src ? width.value : undefined,
+    height: src ? height.value : undefined,
     initials: field(data, "initials") || undefined,
   };
 
