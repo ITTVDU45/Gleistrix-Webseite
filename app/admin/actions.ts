@@ -52,7 +52,7 @@ import {
   updateLead,
   updatePackage,
 } from "@/lib/admin/store";
-import { createSupportLink } from "@/lib/admin/support";
+import { createSupportRequest } from "@/lib/admin/support";
 import {
   APP_URL,
   applyStepResult,
@@ -77,6 +77,7 @@ export type FormState = {
   error?: string;
   success?: string;
   supportUrl?: string;
+  supportRequest?: { action: string; token: string };
   /** Nur beim Anlegen aus einem Dialog gesetzt – der Aufrufer wählt den neuen Mandanten aus. */
   createdCompany?: { id: string; name: string; contactEmail: string };
 };
@@ -487,11 +488,11 @@ export async function setProvisioningStepAction(data: FormData): Promise<void> {
 /* --------------------------------------------------------- Support-Zugriff */
 
 /**
- * Erzeugt einen kurzlebigen Support-Link in die Instanz eines Mandanten.
+ * Erzeugt eine kurzlebige Support-Anfrage für die Instanz eines Mandanten.
  *
  * Bewusst mit eigenem Passwort abgesichert: Eine Control-Plane-Session allein
  * darf keine Kundendaten öffnen. Jeder Zugriff wird protokolliert – auch der,
- * bei dem am Ende niemand den Link benutzt.
+ * bei dem am Ende niemand den POST-Übergang benutzt.
  */
 export async function openSupportSessionAction(
   _prev: FormState,
@@ -511,20 +512,20 @@ export async function openSupportSessionAction(
 
   // Alle Mandanten teilen sich eine App – die Kennung im Token sagt der App,
   // wessen Daten der Support sehen darf.
-  const link = createSupportLink(company.slug, APP_URL, password, reason);
-  if (!link.ok) return { error: link.error };
+  const request = createSupportRequest(company.slug, APP_URL, password, reason);
+  if (!request.ok) return { error: request.error };
 
   await recordSupportAccess({
     companyId: company.id,
     companyName: company.name,
-    actor: link.actor,
+    actor: request.actor,
     reason: reason.trim(),
   });
   revalidateAdmin(companyId);
 
   return {
-    success: `Support-Link erstellt, gültig bis ${new Date(link.expiresAt).toLocaleTimeString("de-DE")}.`,
-    supportUrl: link.url,
+    success: `Support-Zugang erstellt, gültig bis ${new Date(request.expiresAt).toLocaleTimeString("de-DE")}.`,
+    supportRequest: { action: request.action, token: request.token },
   };
 }
 

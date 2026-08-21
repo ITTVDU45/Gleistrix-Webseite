@@ -61,24 +61,24 @@ function sign(payload: string): string {
   return createHmac("sha256", secret() ?? "").update(payload).digest("hex");
 }
 
-export type SupportLinkResult =
-  | { ok: true; url: string; actor: string; expiresAt: string }
+export type SupportRequestResult =
+  | { ok: true; action: string; token: string; actor: string; expiresAt: string }
   | { ok: false; error: string };
 
 /**
- * Baut einen kurzlebigen Support-Link auf einen Mandanten.
+ * Baut eine kurzlebige Support-Anfrage für einen Mandanten.
  * Das Passwort wird hier geprüft (Step-up) und nicht in das Token übernommen.
  *
  * `kennung` ist die Audience des Tokens, `baseUrl` das Ziel des Links – beide
  * kommen vom Aufrufer, damit dieses Modul nichts über das Namensschema der
  * Mandanten wissen muss (das liegt allein in `tenant.ts`).
  */
-export function createSupportLink(
+export function createSupportRequest(
   kennung: string,
   baseUrl: string,
   password: string,
   reason: string,
-): SupportLinkResult {
+): SupportRequestResult {
   const account = credentials();
   if (!account) {
     return {
@@ -116,12 +116,12 @@ export function createSupportLink(
   const encoded = Buffer.from(payload, "utf8").toString("base64url");
   const token = `${encoded}.${sign(encoded)}`;
 
-  const url = new URL(SUPPORT_LOGIN_PATH, baseUrl);
-  url.searchParams.set("token", token);
+  const action = new URL(SUPPORT_LOGIN_PATH, baseUrl);
 
   return {
     ok: true,
-    url: url.toString(),
+    action: action.toString(),
+    token,
     actor: account.email,
     expiresAt: new Date(expires * 1000).toISOString(),
   };
