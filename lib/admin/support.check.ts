@@ -4,7 +4,7 @@
  * Ausführen: `node lib/admin/support.check.ts`
  *
  * Warum es diesen Check gibt: Signatur und Prüfung liegen in ZWEI Repos –
- * `createSupportLink` hier und `verifyToken` in
+ * `createSupportRequest` hier und `verifyToken` in
  * Gleistrix/apps/admin/app/api/internal/support-login/route.ts. Driftet eines
  * der beiden ab, kommt niemand mehr in eine Kundeninstanz (oder, schlimmer,
  * jemand kommt rein, der nicht sollte). Der Check pinnt das Tokenformat und
@@ -20,7 +20,7 @@ process.env.SERVICE_SHARED_SECRET = SECRET;
 process.env.GLEISTRIX_SUPPORT_EMAIL = "support@example.test";
 process.env.GLEISTRIX_SUPPORT_PASSWORD = PASSWORD;
 
-const { createSupportLink } = await import("./support.ts");
+const { createSupportRequest } = await import("./support.ts");
 
 /**
  * Seit dem Umbau auf die mandantenfähige App ist die Audience die Kennung des
@@ -59,23 +59,15 @@ function verifyLikeInstance(token: string, kennung: string) {
   return { ok: true as const, email: sub, audience: aud };
 }
 
-function tokenOf(url: string): string {
-  const value = new URL(url).searchParams.get("token");
-  assert.ok(value, "Link enthält kein Token");
-  return value;
-}
-
-// 1. Gültiger Link wird von der Instanz akzeptiert.
-const good = createSupportLink(KENNUNG, APP_URL, PASSWORD, "Ticket #482");
-assert.equal(good.ok, true, "Gültige Anfrage muss einen Link liefern");
+// 1. Gültige Anfrage wird von der Instanz akzeptiert.
+const good = createSupportRequest(KENNUNG, APP_URL, PASSWORD, "Ticket #482");
+assert.equal(good.ok, true, "Gültige Anfrage muss einen POST-Übergang liefern");
 if (!good.ok) throw new Error("unreachable");
 
-assert.ok(
-  good.url.startsWith(`${APP_URL}/api/internal/support-login?`),
-  `Unerwartete Link-Basis: ${good.url}`,
-);
+assert.equal(good.action, `${APP_URL}/api/internal/support-login`);
+assert.equal(new URL(good.action).search, "", "Das Token darf nicht im Query-String stehen");
 
-const accepted = verifyLikeInstance(tokenOf(good.url), KENNUNG);
+const accepted = verifyLikeInstance(good.token, KENNUNG);
 assert.equal(accepted.ok, true, "Instanz muss das frische Token akzeptieren");
 if (accepted.ok) {
   assert.equal(accepted.email, "support@example.test");
@@ -83,11 +75,11 @@ if (accepted.ok) {
 
 // 2. Token von Mandant A darf bei Mandant B nicht greifen. Seit alle dieselbe
 // App teilen, ist das die einzige Grenze zwischen zwei Mandanten.
-const wrongTenant = verifyLikeInstance(tokenOf(good.url), "nordgleis");
+const wrongTenant = verifyLikeInstance(good.token, "nordgleis");
 assert.equal(wrongTenant.ok, false, "Fremder Mandant muss abgelehnt werden");
 
 // 3. Manipulierte Signatur fliegt raus.
-const token = tokenOf(good.url);
+const token = good.token;
 const tampered = `${token.slice(0, -1)}${token.endsWith("a") ? "b" : "a"}`;
 assert.equal(
   verifyLikeInstance(tampered, KENNUNG).ok,
@@ -96,17 +88,17 @@ assert.equal(
 );
 
 // 4. Falsches Support-Passwort erzeugt gar kein Token.
-const badPassword = createSupportLink(KENNUNG, APP_URL, "falsch", "Ticket #482");
+const badPassword = createSupportRequest(KENNUNG, APP_URL, "falsch", "Ticket #482");
 assert.equal(badPassword.ok, false, "Falsches Passwort darf keinen Link erzeugen");
 
 // 5. Ohne Begründung kein Zugriff – der Grund landet im Protokoll.
-const noReason = createSupportLink(KENNUNG, APP_URL, PASSWORD, "  ");
+const noReason = createSupportRequest(KENNUNG, APP_URL, PASSWORD, "  ");
 assert.equal(noReason.ok, false, "Fehlender Grund muss abgelehnt werden");
 
 // 6. Ohne konfiguriertes Konto passiert nichts.
 delete process.env.GLEISTRIX_SUPPORT_PASSWORD;
 assert.equal(
-  createSupportLink(KENNUNG, APP_URL, PASSWORD, "Ticket #482").ok,
+  createSupportRequest(KENNUNG, APP_URL, PASSWORD, "Ticket #482").ok,
   false,
   "Ohne Support-Konto darf kein Link entstehen",
 );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { ExternalLink } from "lucide-react";
 
 import { openSupportSessionAction, type FormState } from "@/app/admin/actions";
@@ -32,6 +32,15 @@ export default function SupportAccessForm({
     openSupportSessionAction,
     {},
   );
+  const handoffForm = useRef<HTMLFormElement>(null);
+  const submittedToken = useRef<string | null>(null);
+
+  useEffect(() => {
+    const request = state.supportRequest;
+    if (!request || submittedToken.current === request.token) return;
+    submittedToken.current = request.token;
+    handoffForm.current?.requestSubmit();
+  }, [state.supportRequest]);
 
   if (configIssue) {
     return (
@@ -50,58 +59,77 @@ export default function SupportAccessForm({
   }
 
   return (
-    <form action={formAction} className="space-y-4">
-      <input type="hidden" name="companyId" value={companyId} />
+    <>
+      <form action={formAction} className="space-y-4">
+        <input type="hidden" name="companyId" value={companyId} />
 
-      <p className="text-sm text-muted-foreground">
-        Anmeldung als <strong className="font-medium text-foreground">{supportEmail}</strong>. Jeder
-        Zugriff wird protokolliert.
-      </p>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="reason">Grund des Zugriffs</Label>
-          <Input id="reason" name="reason" required placeholder="Ticket #482 – Abrechnung prüfen" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="supportPassword">Gleistrix-Support-Passwort</Label>
-          <Input
-            id="supportPassword"
-            name="supportPassword"
-            type="password"
-            autoComplete="off"
-            required
-          />
-        </div>
-      </div>
-
-      {state.error ? (
-        <p
-          role="alert"
-          className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-600/20"
-        >
-          {state.error}
+        <p className="text-sm text-muted-foreground">
+          Anmeldung als <strong className="font-medium text-foreground">{supportEmail}</strong>.
+          Jeder Zugriff wird protokolliert.
         </p>
-      ) : null}
 
-      {state.success && state.supportUrl ? (
-        <div className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
-          <p>{state.success}</p>
-          <a
-            href={state.supportUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-1.5 inline-flex items-center gap-1.5 font-medium underline underline-offset-4"
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="reason">Grund des Zugriffs</Label>
+            <Input
+              id="reason"
+              name="reason"
+              required
+              placeholder="Ticket #482 – Abrechnung prüfen"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="supportPassword">Gleistrix-Support-Passwort</Label>
+            <Input
+              id="supportPassword"
+              name="supportPassword"
+              type="password"
+              autoComplete="off"
+              required
+            />
+          </div>
+        </div>
+
+        {state.error ? (
+          <p
+            role="alert"
+            className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700 ring-1 ring-inset ring-rose-600/20"
+          >
+            {state.error}
+          </p>
+        ) : null}
+
+        {state.success && state.supportRequest ? (
+          <p className="rounded-lg bg-emerald-50 px-3 py-2.5 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-600/20">
+            {state.success} Die Instanz wird per sicherer POST-Übergabe geöffnet.
+          </p>
+        ) : null}
+
+        <Button type="submit" variant="outline" disabled={isPending}>
+          {isPending ? "Wird erstellt …" : "Support-Zugang anfordern"}
+        </Button>
+      </form>
+
+      {state.supportRequest ? (
+        <form
+          ref={handoffForm}
+          action={state.supportRequest.action}
+          method="post"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-3 rounded-lg border border-dashed px-3 py-2.5 text-sm text-muted-foreground"
+        >
+          <input type="hidden" name="token" value={state.supportRequest.token} />
+          <span>Falls der neue Tab blockiert wurde: </span>
+          <button
+            type="submit"
+            className="inline-flex items-center gap-1.5 font-medium text-foreground underline underline-offset-4"
           >
             Instanz im Support-Modus öffnen
             <ExternalLink className="size-3.5" aria-hidden />
-          </a>
-        </div>
+          </button>
+        </form>
       ) : null}
-
-      <Button type="submit" variant="outline" disabled={isPending}>
-        {isPending ? "Wird erstellt …" : "Support-Zugang anfordern"}
-      </Button>
-    </form>
+    </>
   );
 }
