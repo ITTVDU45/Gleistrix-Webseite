@@ -57,8 +57,9 @@ export default function ProblemSection() {
             Aufzählung. */}
         <div className="mt-12 grid items-stretch gap-6 md:mt-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-8">
           <MediaFrame
-            src="/placeholders/problem-zettelwirtschaft.svg"
-            alt="Papierpläne, Stundenzettel und Ordner auf einem Baustellentisch"
+            src="/media/start/ausgangslage.webp"
+            video="/media/start/ausgangslage.mp4"
+            alt="Der Gleistrix-Fuchs versinkt abends im Papierchaos auf seinem Schreibtisch"
             ratio="fill"
             caption="Der Alltag ohne durchgängiges System"
             sizes="(min-width: 1024px) 40vw, 100vw"

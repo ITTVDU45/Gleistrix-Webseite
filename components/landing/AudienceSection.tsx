@@ -17,11 +17,11 @@ type Audience = {
 
 const AUDIENCES: Audience[] = [
   { iconKey: "shield", icon: ShieldCheck, title: "SIPO-Unternehmen", description: "Sicherungsposten, Qualifikationen und Einsätze rechtssicher koordinieren.", image: { src: "/media/zielgruppen/sipo.webp", alt: "Sicherungsposten im Einsatz an der Strecke" } },
-  { iconKey: "train", icon: TrainFront, title: "Bahndienstleister", description: "Projekte, Trupps und Maschinen über Baustellen hinweg steuern.", image: { src: "/placeholders/zielgruppe-bahndienstleister.svg", alt: "Bahndienstleister auf der Baustelle" } },
-  { iconKey: "hardhat", icon: HardHat, title: "Projektleiter", description: "Fortschritt, Ressourcen und Dokumente ohne Telefonkette im Blick.", image: { src: "/placeholders/zielgruppe-projektleiter.svg", alt: "Projektleitung im Gelände" } },
-  { iconKey: "users", icon: Users, title: "Backoffice", description: "Stammdaten, Nachweise und Abrechnung ohne Zettelwirtschaft.", image: { src: "/placeholders/zielgruppe-backoffice.svg", alt: "Backoffice am Arbeitsplatz" } },
-  { iconKey: "warehouse", icon: Warehouse, title: "Lagerverwaltung", description: "Material und Sicherungstechnik mit Beständen und Prüffristen.", image: { src: "/placeholders/zielgruppe-lager.svg", alt: "Lagerverwaltung mit Handscanner" } },
-  { iconKey: "briefcase", icon: Briefcase, title: "Geschäftsführung", description: "Auslastung, Kennzahlen und Deckungsbeiträge auf einen Blick.", image: { src: "/placeholders/zielgruppe-geschaeftsfuehrung.svg", alt: "Geschäftsführung im Auswertungsgespräch" } },
+  { iconKey: "train", icon: TrainFront, title: "Bahndienstleister", description: "Projekte, Trupps und Maschinen über Baustellen hinweg steuern.", image: { src: "/media/zielgruppen/bahndienstleister.webp", alt: "Bahndienstleister auf der Baustelle" } },
+  { iconKey: "hardhat", icon: HardHat, title: "Projektleiter", description: "Fortschritt, Ressourcen und Dokumente ohne Telefonkette im Blick.", image: { src: "/media/zielgruppen/projektleiter.webp", alt: "Projektleitung im Gelände" } },
+  { iconKey: "users", icon: Users, title: "Backoffice", description: "Stammdaten, Nachweise und Abrechnung ohne Zettelwirtschaft.", image: { src: "/media/zielgruppen/backoffice.webp", alt: "Backoffice am Arbeitsplatz" } },
+  { iconKey: "warehouse", icon: Warehouse, title: "Lagerverwaltung", description: "Material und Sicherungstechnik mit Beständen und Prüffristen.", image: { src: "/media/zielgruppen/lager.webp", alt: "Lagerverwaltung mit Handscanner" } },
+  { iconKey: "briefcase", icon: Briefcase, title: "Geschäftsführung", description: "Auslastung, Kennzahlen und Deckungsbeiträge auf einen Blick.", image: { src: "/media/zielgruppen/geschaeftsfuehrung.webp", alt: "Geschäftsführung im Auswertungsgespräch" } },
 ];
 
 export default function AudienceSection() {

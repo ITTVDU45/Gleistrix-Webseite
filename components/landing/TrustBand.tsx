@@ -41,8 +41,8 @@ export default function TrustBand() {
             unter den Grenzwert drücken, und ein Bild innerhalb der dl-Gruppe
             lässt axe die Definitionsliste verwerfen. */}
         <MediaFrame
-          src="/placeholders/szene-gleisbaustelle.svg"
-          alt="Gleisbaustelle im laufenden Betrieb"
+          src="/media/start/trustband.webp"
+          alt="Der Gleistrix-Fuchs läuft über eine Gleisbaustelle im laufenden Betrieb"
           ratio="strip"
           sizes="(min-width: 768px) 1100px, 100vw"
           className="mb-10 md:mb-12"

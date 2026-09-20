@@ -1,6 +1,7 @@
-import { Bot, FileSearch, FileText, Mail, Receipt, ShieldAlert } from "lucide-react";
+import { FileSearch, FileText, Mail, Receipt, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import MediaFrame from "@/components/media/MediaFrame";
+import AgentAnalysis from "./AgentAnalysis";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -77,19 +78,9 @@ export default function AgentsSection() {
               <h3 className="mt-6 text-xl font-bold">{FEATURED_AGENT.name}</h3>
               <p className="mt-3 leading-relaxed text-indigo-100">{FEATURED_AGENT.description}</p>
 
-              {/* Beispielausgabe */}
+              {/* Beispielausgabe: baut sich beim Hereinscrollen auf */}
               <div className="mt-auto pt-8">
-                <div className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 backdrop-blur">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                    <Bot className="h-3.5 w-3.5" />
-                    Analyse · Ausschreibung 2026-114
-                  </div>
-                  <div className="mt-3 space-y-1.5 text-[11px] text-indigo-100">
-                    <p>✓ 84 Positionen erkannt</p>
-                    <p>✓ 12 sicherungsrelevante Leistungen markiert</p>
-                    <p>✓ Angebotsdaten zur Kalkulation übergeben</p>
-                  </div>
-                </div>
+                <AgentAnalysis />
               </div>
             </article>
           </Reveal>

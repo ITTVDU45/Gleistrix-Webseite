@@ -6,7 +6,21 @@ import Link from "next/link";
 import { ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react";
 
 import ModuleVisual from "./ModuleVisual";
-import type { LandingModule } from "@/types/landing";
+import type { LandingModule, ModuleVisualVariant } from "@/types/landing";
+
+/**
+ * Freigestellter Fuchs je Modul – er steht am Rand der Produktansicht und
+ * verbindet Marke und Funktion. Module ohne eigene Pose (z. B. "ki") bleiben
+ * ohne Figur, statt eine fremde Pose zu recyceln.
+ */
+const FOX_BY_VARIANT: Partial<Record<ModuleVisualVariant, string>> = {
+  projekte: "/media/module/projekte.webp",
+  plantafel: "/media/module/plantafel.webp",
+  team: "/media/module/team.webp",
+  dokumente: "/media/module/dokumente.webp",
+  lager: "/media/module/lager.webp",
+  abrechnung: "/media/module/abrechnung.webp",
+};
 
 export default function ModulesCarousel({ modules }: { modules: LandingModule[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -90,7 +104,20 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
                   <Image src={module.imageSrc} alt={module.title} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
                 </div>
               ) : (
-                <ModuleVisual variant={module.visual} />
+                <div className="relative">
+                  <ModuleVisual variant={module.visual} />
+                  {FOX_BY_VARIANT[module.visual] && (
+                    <Image
+                      src={FOX_BY_VARIANT[module.visual] as string}
+                      alt=""
+                      aria-hidden
+                      width={700}
+                      height={933}
+                      sizes="(min-width: 640px) 124px, 88px"
+                      className="pointer-events-none absolute -bottom-3 -left-2 w-[88px] drop-shadow-[0_18px_28px_rgba(30,27,75,0.22)] motion-safe:animate-float sm:w-[124px]"
+                    />
+                  )}
+                </div>
               )}
             </div>
           </article>

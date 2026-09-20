@@ -124,12 +124,11 @@ export default function FAQSection() {
                           Karten wechseln animiert die Breite, ein zusätzliches
                           Layout-Element würde bei jedem Wechsel springen. */}
                       <Image
-                        src="/placeholders/szene-bauueberwachung.svg"
+                        src="/media/start/faq.webp"
                         alt=""
                         aria-hidden
                         fill
                         sizes="(min-width: 768px) 55vw, 100vw"
-                        unoptimized
                         className="pointer-events-none object-cover opacity-20 mix-blend-luminosity"
                       />
                       <div className="relative flex items-center justify-between">
