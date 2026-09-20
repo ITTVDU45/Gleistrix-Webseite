@@ -251,10 +251,27 @@ und eine ausformulierte Kameraangabe verhindern die Reihe gleicher, knuffiger Mi
 **Stand Credits:** 2.381 → 2.065, also **316 verbraucht** von 1.000 freigegebenen.
 Gesamtgröße der Medien: 5,3 MB (39 Dateien).
 
+### Phase A-Nachtrag – Hover-Loops „Für wen“ (20.09.2026)
+
+Sechs 5-Sekunden-Loops (`zielgruppen/*.mp4`, je 60–100 KB, 960 px breit), erzeugt mit
+**kling3_0** aus den vorhandenen Standbildern als Start- und Endbild – rund ein Drittel
+der Kosten von seedance_2_0 und für die kleine Kartenfläche ausreichend.
+
+`LoopVideo` hat dafür ein `trigger`-Prop bekommen:
+
+- `"view"` (Vorgabe): Start beim Hereinscrollen – für die großen Banner.
+- `"hover"`: Start erst bei `pointerenter` oder `focusin` auf der Karte, Stopp und Rücklauf
+  auf Bild 1 beim Verlassen. Ohne Zeigegerät (`(hover: hover)` trifft nicht zu, also Touch)
+  fällt es auf `"view"` zurück, sonst liefe der Loop auf dem Handy nie.
+
+Nachgemessen: Beim reinen Durchscrollen der Sektion wird **kein** Video geladen
+(`readyState` 0, keine Netzwerkanfrage). Erst `pointerenter` lädt die Datei – geprüft an
+einer Karte 9.104 px unterhalb des Sichtfensters, dort kann der IntersectionObserver
+nicht die Ursache sein.
+
 ### Offen
 
 - Fuchs, der beim Scrollen die Workflow-Zeitleiste entlangläuft: bewusst zurückgestellt,
   weil `WorkflowTimeline` eine gepinnte Scroll-Mechanik mit eigener Mathematik hat.
-- Kurze Hover-Loops auf den sechs „Für wen“-Karten (ca. 45 Credits).
 - Animierte Balken in `ModuleVisual`.
 - `public/placeholders/` (33 ungenutzte SVGs) kann gelöscht werden.
