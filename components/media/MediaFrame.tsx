@@ -1,4 +1,5 @@
 import Image from "next/image";
+import LoopVideo from "@/components/media/LoopVideo";
 import Reveal from "@/components/landing/Reveal";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +33,8 @@ const RATIO_CLASSES: Record<Ratio, string> = {
 type MediaFrameProps = {
   src: string;
   alt: string;
+  /** Optionaler Loop, der über dem Standbild läuft. Siehe LoopVideo. */
+  video?: string;
   ratio?: Ratio;
   /** Kurzer Text, der unten im Bild auf dunklem Verlauf steht. */
   caption?: string;
@@ -45,6 +48,7 @@ type MediaFrameProps = {
 export default function MediaFrame({
   src,
   alt,
+  video,
   ratio = "landscape",
   caption,
   delay = 0,
@@ -71,6 +75,7 @@ export default function MediaFrame({
           unoptimized={src.endsWith(".svg")}
           className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
         />
+        {video && <LoopVideo src={video} className="group-hover:scale-[1.04]" />}
         {caption && (
           <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-slate-950/75 via-slate-950/25 to-transparent px-4 pb-4 pt-10 text-sm font-medium text-white sm:px-5 sm:pb-5">
             {caption}

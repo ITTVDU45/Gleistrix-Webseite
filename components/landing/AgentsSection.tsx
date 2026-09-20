@@ -112,8 +112,9 @@ export default function AgentsSection() {
           {/* Bildkachel: zeigt den Arbeitsschritt, den die Agenten übernehmen.
               Ohne sie besteht das Bento-Grid nur aus Icon-Karten. */}
           <MediaFrame
-            src="/placeholders/agenten-arbeitsvorbereitung.svg"
-            alt="Leistungsverzeichnis einer Ausschreibung am Bildschirm"
+            src="/media/start/ki-agenten.webp"
+            video="/media/start/ki-agenten.mp4"
+            alt="Der Gleistrix-Fuchs lässt Ausschreibungsunterlagen am Bildschirm auswerten"
             ratio="fill"
             caption="Vorarbeit, die sonst am Schreibtisch liegen bleibt"
             delay={0.26}

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import LoopVideo from "@/components/media/LoopVideo";
 import { cn } from "@/lib/utils";
 
 /**
@@ -11,6 +12,8 @@ import { cn } from "@/lib/utils";
 type CardMediaProps = {
   src: string;
   alt: string;
+  /** Optionaler Loop, der über dem Standbild läuft. Siehe LoopVideo. */
+  video?: string;
   /** Tailwind-Aspect-Klasse, z. B. "aspect-[16/9]". */
   aspect?: string;
   sizes?: string;
@@ -20,6 +23,7 @@ type CardMediaProps = {
 export default function CardMedia({
   src,
   alt,
+  video,
   aspect = "aspect-[16/9]",
   sizes = "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw",
   className,
@@ -35,6 +39,7 @@ export default function CardMedia({
         unoptimized={src.endsWith(".svg")}
         className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
       />
+      {video && <LoopVideo src={video} className="group-hover:scale-[1.05]" />}
     </div>
   );
 }

@@ -16,7 +16,7 @@ type Audience = {
 };
 
 const AUDIENCES: Audience[] = [
-  { iconKey: "shield", icon: ShieldCheck, title: "SIPO-Unternehmen", description: "Sicherungsposten, Qualifikationen und Einsätze rechtssicher koordinieren.", image: { src: "/placeholders/zielgruppe-sipo.svg", alt: "Sicherungsposten im Einsatz an der Strecke" } },
+  { iconKey: "shield", icon: ShieldCheck, title: "SIPO-Unternehmen", description: "Sicherungsposten, Qualifikationen und Einsätze rechtssicher koordinieren.", image: { src: "/media/zielgruppen/sipo.webp", alt: "Sicherungsposten im Einsatz an der Strecke" } },
   { iconKey: "train", icon: TrainFront, title: "Bahndienstleister", description: "Projekte, Trupps und Maschinen über Baustellen hinweg steuern.", image: { src: "/placeholders/zielgruppe-bahndienstleister.svg", alt: "Bahndienstleister auf der Baustelle" } },
   { iconKey: "hardhat", icon: HardHat, title: "Projektleiter", description: "Fortschritt, Ressourcen und Dokumente ohne Telefonkette im Blick.", image: { src: "/placeholders/zielgruppe-projektleiter.svg", alt: "Projektleitung im Gelände" } },
   { iconKey: "users", icon: Users, title: "Backoffice", description: "Stammdaten, Nachweise und Abrechnung ohne Zettelwirtschaft.", image: { src: "/placeholders/zielgruppe-backoffice.svg", alt: "Backoffice am Arbeitsplatz" } },
