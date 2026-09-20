@@ -12,7 +12,7 @@ export const revalidate = 600;
 
 /** Beitragsbild für Artikel, die noch keines hinterlegt haben. */
 const FALLBACK_IMAGE = {
-  src: "/placeholders/uebersicht-blog.svg",
+  src: "/media/seiten/blog.webp",
   alt: "Fachbeitrag aus der Bahnbranche",
 };
 

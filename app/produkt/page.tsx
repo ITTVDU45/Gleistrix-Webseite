@@ -70,8 +70,9 @@ export default function ProduktPage() {
           {/* Der Slider zeigt nur Text; ein Motiv davor verankert die Vorteile
               im Baustellenalltag, statt sie als Behauptung stehen zu lassen. */}
           <MediaFrame
-            src="/placeholders/szene-bauleitung-tablet.svg"
-            alt="Bauleitung mit Tablet auf der Baustelle"
+            src="/media/seiten/produkt.webp"
+            video="/media/seiten/produkt.mp4"
+            alt="Der Gleistrix-Fuchs schickt Daten vom Tablet auf der Baustelle ins Büro"
             ratio="banner"
             caption="Dieselben Daten – auf der Strecke wie im Büro"
             sizes="(min-width: 768px) 1100px, 100vw"

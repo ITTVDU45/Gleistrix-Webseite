@@ -46,8 +46,8 @@ export default async function BlogIndexPage() {
         breadcrumbs={[{ label: "Start", href: "/" }, { label: "News & Ratgeber" }]}
       >
         <MediaFrame
-          src="/placeholders/uebersicht-blog.svg"
-          alt="Fachwissen aus der Bahnbranche"
+          src="/media/seiten/blog.webp"
+          alt="Der Gleistrix-Fuchs liest Fachbeiträge auf der Baustelle"
           ratio="strip"
           priority
           sizes="(min-width: 768px) 1100px, 100vw"

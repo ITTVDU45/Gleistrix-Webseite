@@ -850,7 +850,7 @@ function ImplementationSection({ config }: { config: PricingConfig }) {
           {/* Einzige Sektion der Preisseite ohne Bild: links standen bisher nur
               Überschrift und Preisliste, rechts eine Häkchenliste. */}
           <MediaFrame
-            src="/placeholders/uebersicht-preise.svg"
+            src="/media/seiten/preise.webp"
             alt="Einführung und Betreuung durch das Gleistrix-Team"
             ratio="landscape"
             sizes="(min-width: 1024px) 40vw, 100vw"

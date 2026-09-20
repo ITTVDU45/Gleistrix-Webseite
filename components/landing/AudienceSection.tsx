@@ -11,7 +11,7 @@ type Audience = {
   icon: LucideIcon;
   title: string;
   description: string;
-  /** Motiv am Kopf der Karte. Platzhalter, bis echte Fotos vorliegen. */
+  /** Motiv am Kopf der Karte. */
   image: { src: string; alt: string };
 };
 

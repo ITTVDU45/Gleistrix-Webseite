@@ -33,8 +33,9 @@ export default function Page() {
         ]}
       >
         <MediaFrame
-          src="/placeholders/uebersicht-branchen.svg"
-          alt="Bahnbetrieb aus verschiedenen Gewerken"
+          src="/media/seiten/branchen.webp"
+          video="/media/seiten/branchen.mp4"
+          alt="Der Gleistrix-Fuchs läuft eine Strecke entlang, vom Sicherungsposten über die Baustelle bis zum Büro"
           ratio="banner"
           priority
           caption="Vom Sicherungsunternehmen bis zum auftragsbasierten Dienstleister"

@@ -84,7 +84,7 @@ export default function DemoBuchenPage() {
           <div className="space-y-6">
             <TestimonialsSlider />
             <MediaFrame
-              src="/placeholders/szene-bauleitung-tablet.svg"
+              src="/media/seiten/produkt.webp"
               alt="Gleistrix im Einsatz auf der Baustelle"
               ratio="landscape"
               caption="20 Minuten genügen für einen echten Eindruck"

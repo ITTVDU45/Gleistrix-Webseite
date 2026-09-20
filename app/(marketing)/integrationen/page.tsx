@@ -35,8 +35,9 @@ export default function Page() {
         ]}
       >
         <MediaFrame
-          src="/placeholders/uebersicht-integrationen.svg"
-          alt="Buchhaltung, Kalender und Ausschreibung im Zusammenspiel mit Gleistrix"
+          src="/media/seiten/integrationen.webp"
+          video="/media/seiten/integrationen.mp4"
+          alt="Der Gleistrix-Fuchs verbindet umliegende Systeme über leuchtende Gleislinien"
           ratio="banner"
           priority
           caption="Bestehende Systeme bleiben – die Daten laufen nur nicht mehr getrennt"

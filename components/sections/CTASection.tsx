@@ -12,7 +12,7 @@ type CTASectionProps = {
 };
 
 const DEFAULT_IMAGE = {
-  src: "/placeholders/szene-gleisfeld.svg",
+  src: "/media/szenen/gleisfeld.webp",
   alt: "Gleisfeld aus der Vogelperspektive",
 };
 
