@@ -215,3 +215,46 @@ landet das Gesamtprojekt eher bei **~600 Credits** als bei den geschätzten 700�
 Videos als „background media“. Screenshots bleiben deshalb weiß. Geprüft wird über
 Zustandswerte im DOM (`readyState`, `currentTime`, berechnete Deckkraft) – dort belegt:
 Laden bei Sichtbarkeit, Abspielen, Einblenden über das Standbild.
+
+### Phase A – Startseite (20.09.2026)
+
+| Slot | Datei | Modell | Anmerkung |
+|---|---|---|---|
+| Ausgangslage | `start/ausgangslage.webp` + `.mp4` (267 KB) | nano_banana_2 3:4 + seedance_2_0 8 s | erster Versuch kam als 2D-Illustration, mit „photorealistic 3D CGI render“ im Prompt wiederholt |
+| KI-Agenten | `start/ki-agenten.*` | siehe Phase 0 | Analyse-Ausgabe jetzt als `AgentAnalysis` mit Zähler |
+| Modul-Slider | `module/{projekte,plantafel,team,dokumente,lager,abrechnung}.webp` | nano_banana_2 + `remove_background` | freigestellt, schwebt am Kartenrand |
+| Für wen (6) | `zielgruppen/*.webp` | nano_banana_2 16:9 | – |
+| TrustBand / Workflow | `start/trustband.webp`, `start/workflow.webp` | nano_banana_flash 21:9 | einzige Motive aus dem schwächeren Modell, für Streifen ausreichend |
+| Fallstudien (4) | `cases/*.webp` | nano_banana_2 16:9 | dunkel gehalten, weil die Karten stark abdunkeln |
+| FAQ | `start/faq.webp` | nano_banana_2 16:9 | läuft mit 20 % Deckkraft als Textur |
+
+**Erkenntnis Modelle:** `generate_image_batch` fällt auf `nano_banana_flash` zurück
+(1376 px statt 2752 px, gedrungenere Figur). Für Motive mit dem Fuchs deshalb immer
+einzelne `generate_image`-Aufrufe mit `nano_banana_pro` verwenden – das löst serverseitig
+auf `nano_banana_2` auf.
+
+**Erkenntnis Prompt:** „Slender heroic proportions, 3.5 heads tall, adult build, NOT chibi“
+und eine ausformulierte Kameraangabe verhindern die Reihe gleicher, knuffiger Mittelbilder.
+
+### Phase B – Unterseiten und Detailseiten (20.09.2026)
+
+| Slot | Datei | Anmerkung |
+|---|---|---|
+| /produkt, /demo-buchen | `seiten/produkt.webp` + `.mp4` | Daten fliegen vom Tablet ins Büro |
+| /branchen | `seiten/branchen.webp` + `.mp4` | erster Versuch hatte ein lesbares Schild, wiederholt |
+| /integrationen | `seiten/integrationen.webp` + `.mp4` | Fuchs in der Mitte, sechs Gleislinien zu leeren Kacheln |
+| /blog (+ Fallback) | `seiten/blog.webp` | – |
+| /ueber-uns | `seiten/ueberuns.webp` + `.mp4`, Karten aus dem Pool | letzte Sektion nutzt den Ausgangslage-Loop mit |
+| /preise | `seiten/preise.webp` | – |
+| Szenen-Pool (12) | 6 × neu in `szenen/`, 6 × Wiederverwendung | spart Credits, alle Detailseiten auf einmal umgestellt |
+
+**Stand Credits:** 2.381 → 2.065, also **316 verbraucht** von 1.000 freigegebenen.
+Gesamtgröße der Medien: 5,3 MB (39 Dateien).
+
+### Offen
+
+- Fuchs, der beim Scrollen die Workflow-Zeitleiste entlangläuft: bewusst zurückgestellt,
+  weil `WorkflowTimeline` eine gepinnte Scroll-Mechanik mit eigener Mathematik hat.
+- Kurze Hover-Loops auf den sechs „Für wen“-Karten (ca. 45 Credits).
+- Animierte Balken in `ModuleVisual`.
+- `public/placeholders/` (33 ungenutzte SVGs) kann gelöscht werden.
