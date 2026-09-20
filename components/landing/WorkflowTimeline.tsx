@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import Image from "next/image";
 
 import { activeIndex, cardScale, iconShift, pageScrollFor } from "./workflow-timeline.math";
 
@@ -26,6 +27,7 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
     let extra = 0;
     let stageTop = 0;
     let pinStart = 0;
+    let railWidth = 0;
     let expectedLeft = 0;
     let currentIndex = -1;
 
@@ -54,6 +56,9 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
       extra = runway.clientHeight - stage.clientHeight;
       travel = viewport.scrollWidth - viewport.clientWidth;
       pinStart = runway.getBoundingClientRect().top + window.scrollY - stageTop;
+      // Der Fuchs läuft die Schiene ab, nicht den Scrollweg: Beide enden zwar
+      // beim selben Fortschritt, sind aber unterschiedlich breit.
+      railWidth = runway.querySelector<HTMLElement>("[data-rail]")?.clientWidth ?? 0;
     };
 
     const start = async (): Promise<void> => {
@@ -73,8 +78,10 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
         const nodes = gsap.utils.toArray<HTMLElement>("[data-node]", runway);
         const counter = runway.querySelector<HTMLElement>("[data-count]");
         const fill = runway.querySelector<HTMLElement>("[data-fill]");
+        const fox = runway.querySelector<HTMLElement>("[data-fox]");
 
         const setFill = fill ? gsap.quickSetter(fill, "scaleX") : () => {};
+        const setFoxX = fox ? gsap.quickSetter(fox, "x", "px") : () => {};
         const setScaleX = scalers.map((element) => gsap.quickSetter(element, "scaleX"));
         const setScaleY = scalers.map((element) => gsap.quickSetter(element, "scaleY"));
         const setIcon = icons.map((element) => gsap.quickSetter(element, "x", "px"));
@@ -85,6 +92,7 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
           expectedLeft = progress * travel;
           viewport.scrollLeft = expectedLeft;
           setFill(progress);
+          setFoxX(progress * railWidth);
 
           for (let index = 0; index < columns.length; index += 1) {
             const scale = cardScale(index, head);
@@ -139,7 +147,7 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
       context = undefined;
 
       viewport.scrollLeft = 0;
-      runway.querySelectorAll<HTMLElement>("[data-scale], [data-icon]").forEach((element) => {
+      runway.querySelectorAll<HTMLElement>("[data-scale], [data-icon], [data-fox]").forEach((element) => {
         element.style.transform = "";
       });
       runway.querySelectorAll<HTMLElement>("[data-node]").forEach((node) => {
@@ -226,13 +234,26 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
           className="wf-viewport scrollbar-none max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:overscroll-x-contain max-md:scroll-px-4 max-md:px-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/60"
         >
           <div className="wf-inner max-md:w-max">
-            <span aria-hidden className="wf-rail">
+            <span aria-hidden data-rail className="wf-rail">
               <span className="wf-rail-base absolute inset-0 rounded-full bg-slate-200" />
               <span
                 data-fill
                 className="wf-rail-fill absolute inset-0 origin-left rounded-full bg-gradient-to-r from-indigo-500 to-violet-600"
                 style={{ transform: "scaleX(0)" }}
               />
+              {/* Der Fuchs läuft die Schiene ab. Er hängt am selben
+                  Fortschrittswert wie die Füllung, deshalb bleibt er immer auf
+                  Höhe des aktiven Schritts. */}
+              <span data-fox className="wf-fox">
+                <Image
+                  src="/media/workflow/fuchs-lauf.webp"
+                  alt=""
+                  width={360}
+                  height={492}
+                  sizes="72px"
+                  className="wf-fox-img"
+                />
+              </span>
             </span>
 
             <ol

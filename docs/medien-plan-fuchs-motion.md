@@ -269,9 +269,30 @@ Nachgemessen: Beim reinen Durchscrollen der Sektion wird **kein** Video geladen
 einer Karte 9.104 px unterhalb des Sichtfensters, dort kann der IntersectionObserver
 nicht die Ursache sein.
 
+### Phase A-Nachtrag – Fuchs auf der Workflow-Schiene (20.09.2026)
+
+Ein freigestellter Fuchs in Seitenansicht (`workflow/fuchs-lauf.webp`, 42 KB) läuft die
+Schiene der Zeitleiste ab. Er hängt am selben Fortschrittswert wie die Schienenfüllung:
+`setFoxX(progress * railWidth)` direkt neben `setFill(progress)` in `render()`. Damit steht
+er immer am Kopf der gefüllten Linie, also beim aktiven Schritt.
+
+Die Scroll-Mathematik blieb unangetastet – dazugekommen sind nur eine Messgröße
+(`railWidth` in `measure()`), ein `quickSetter` und das Element selbst.
+
+Platz geschaffen hat die neue Variable `--wf-fox-room: 3.25rem`: Schiene und Karten rücken
+um diesen Betrag nach unten, weil `.wf-viewport` vertikal abschneidet und der Fuchs sonst
+oben angeschnitten würde. Der Bühnenkasten hat dafür Reserve – die Spur wuchs von 306 px
+auf 358 px bei 544 px Bühnenhöhe.
+
+Nachgemessen bei 1440 × 900: Füllung 0,085 → Fuchs bei 153 px; 0,450 → 810 px;
+0,854 → 1537 px; 1,0 → 1800 px, also genau die Schienenbreite. Oberkante des Fuchses
+15 px unterhalb der Spurkante, damit nichts abgeschnitten wird.
+
+Der Fuchs erscheint nur dort, wo es die Schiene gibt: ab 1024 px Breite, ab 700 px Höhe,
+mit Zeigegerät und ohne „Bewegung reduzieren“ – alles im selben Media-Query. Auf dem
+Handy bleibt die Zeitleiste das Wisch-Karussell von vorher.
+
 ### Offen
 
-- Fuchs, der beim Scrollen die Workflow-Zeitleiste entlangläuft: bewusst zurückgestellt,
-  weil `WorkflowTimeline` eine gepinnte Scroll-Mechanik mit eigener Mathematik hat.
 - Animierte Balken in `ModuleVisual`.
 - `public/placeholders/` (33 ungenutzte SVGs) kann gelöscht werden.
