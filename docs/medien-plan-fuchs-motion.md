@@ -288,7 +288,35 @@ Der Fuchs erscheint nur dort, wo es die Schiene gibt: ab 1024 px Breite, ab 700 
 mit Zeigegerät und ohne „Bewegung reduzieren“ – alles im selben Media-Query. Auf dem
 Handy bleibt die Zeitleiste das Wisch-Karussell von vorher.
 
+### Phase A-Nachtrag – Echte Software im Modul-Slider (20.09.2026)
+
+Statt der nachgebauten CSS-Ansichten zeigt jede Modulfolie jetzt die **echte Oberfläche
+mit Fake-Cursor** – als Ausschnitt aus dem fertigen Film `gesamtfilm-v7.mp4`. Kosten: keine,
+das Material lag bereits vor.
+
+| Modul | Filmstelle | Was zu sehen ist |
+|---|---|---|
+| Projektmanagement | 56,5 s | Dashboard, Zeitraum-Auswahl wird geöffnet |
+| Plantafel | 77 s | Einsatztafel, Einsatz wird per Drag & Drop umgehängt |
+| Mitarbeiter & Fahrzeuge | 92,5 s | Fahrzeug zuteilen, Status springt auf „Zugeteilt“ |
+| Lagerverwaltung | 108,5 s | QR-Scan am Handy, Bestand wird gebucht |
+| Dokumentenmanagement | 119,5 s | Projektdokumente, OneDrive- und SharePoint-Kacheln |
+| Abrechnung | 137 s | Projekttage abrechnen, Cursor klickt „Abrechnen“ |
+
+Zuschnitt je Clip auf die Oberfläche (ohne Fuchs-Einblendung und Fortschrittsleiste des
+Films), 16:9, 1280 px breit, H.264 CRF 30, ohne Ton, 150–310 KB je Datei.
+
+**Nur die aktive Folie bekommt ein `<video>`** – sonst lüden alle sechs Sequenzen, sobald
+die Sektion ins Bild kommt. Nachgemessen: genau ein Videoelement, das beim Blättern der
+aktiven Folie folgt (projekte → plantafel → team). Die übrigen Folien zeigen ihr Standbild.
+
+Der freigestellte Fuchs steht weiterhin an der linken unteren Kante, jetzt etwas kleiner
+(104 px statt 124 px) und tiefer, damit er vor dem Bildschirm steht und dort höchstens die
+Navigationsleiste verdeckt. `ModuleVisual` bleibt als Rückfall für Module ohne Sequenz
+(zum Beispiel „KI-Agenten“).
+
 ### Offen
 
-- Animierte Balken in `ModuleVisual`.
+- Animierte Balken in `ModuleVisual`: hinfällig, solange die echten Software-Sequenzen
+  laufen. Nur nötig, falls ein Modul ohne Filmmaterial dazukommt.
 - `public/placeholders/` (33 ungenutzte SVGs) kann gelöscht werden.

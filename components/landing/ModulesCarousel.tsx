@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowRight, Check, ChevronLeft, ChevronRight } from "lucide-react";
 
 import ModuleVisual from "./ModuleVisual";
+import LoopVideo from "@/components/media/LoopVideo";
 import type { LandingModule, ModuleVisualVariant } from "@/types/landing";
 
 /**
@@ -20,6 +21,21 @@ const FOX_BY_VARIANT: Partial<Record<ModuleVisualVariant, string>> = {
   dokumente: "/media/module/dokumente.webp",
   lager: "/media/module/lager.webp",
   abrechnung: "/media/module/abrechnung.webp",
+};
+
+/**
+ * Echte Oberfläche statt nachgebauter Demo: Die Ausschnitte stammen aus dem
+ * Gleistrix-Film, samt Mauszeiger, der die Software bedient. Pfad ohne Endung –
+ * `.webp` ist das Standbild, `.mp4` der Loop. Module ohne Sequenz fallen auf die
+ * CSS-Ansicht `ModuleVisual` zurück.
+ */
+const UI_BY_VARIANT: Partial<Record<ModuleVisualVariant, string>> = {
+  projekte: "/media/module/projekte-ui",
+  plantafel: "/media/module/plantafel-ui",
+  team: "/media/module/team-ui",
+  dokumente: "/media/module/dokumente-ui",
+  lager: "/media/module/lager-ui",
+  abrechnung: "/media/module/abrechnung-ui",
 };
 
 export default function ModulesCarousel({ modules }: { modules: LandingModule[] }) {
@@ -105,7 +121,23 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
                 </div>
               ) : (
                 <div className="relative">
-                  <ModuleVisual variant={module.visual} />
+                  {UI_BY_VARIANT[module.visual] ? (
+                    // Nur die aktive Folie bekommt ein Video. Sonst lüden alle
+                    // sechs Sequenzen, sobald die Sektion ins Bild kommt.
+                    <div className="shadow-soft relative aspect-[16/9] overflow-hidden rounded-2xl border border-slate-900/8 bg-[#0B1220] sm:rounded-3xl">
+                      <Image
+                        src={`${UI_BY_VARIANT[module.visual]}.webp`}
+                        alt=""
+                        aria-hidden
+                        fill
+                        sizes="(min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                      {index === active && <LoopVideo src={`${UI_BY_VARIANT[module.visual]}.mp4`} />}
+                    </div>
+                  ) : (
+                    <ModuleVisual variant={module.visual} />
+                  )}
                   {FOX_BY_VARIANT[module.visual] && (
                     <Image
                       src={FOX_BY_VARIANT[module.visual] as string}
@@ -113,8 +145,10 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
                       aria-hidden
                       width={700}
                       height={933}
-                      sizes="(min-width: 640px) 124px, 88px"
-                      className="pointer-events-none absolute -bottom-3 -left-2 w-[88px] drop-shadow-[0_18px_28px_rgba(30,27,75,0.22)] motion-safe:animate-float sm:w-[124px]"
+                      sizes="(min-width: 640px) 104px, 80px"
+                      // Er steht an der Kante vor dem Bildschirm und verdeckt
+                      // dort höchstens die Navigationsleiste, nicht die Daten.
+                      className="pointer-events-none absolute -bottom-3 -left-2 w-[80px] drop-shadow-[0_18px_28px_rgba(30,27,75,0.22)] motion-safe:animate-float sm:-bottom-6 sm:-left-2.5 sm:w-[104px]"
                     />
                   )}
                 </div>

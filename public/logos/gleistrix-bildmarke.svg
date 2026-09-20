@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 326" width="393" height="326">
+  <title>Gleistrix Bildmarke</title>
+  <g id="bildmarke" fill="#1823FD" transform="translate(-411,-146)">
+    <polygon id="band-oben" points="528,146 750,146 804,222 564,222 522,264 411,264"/>
+    <polygon id="band-links" points="411,298 524,294 672,472 561,472"/>
+    <polygon id="band-rechts" points="580,293 750,293 796,348 796,472 729,472"/>
+  </g>
+</svg>
