@@ -16,16 +16,10 @@ import { cn } from "@/lib/utils";
  */
 type LoopVideoProps = {
   src: string;
-  /**
-   * "view" startet den Loop beim Hereinscrollen, "hover" erst, wenn auf die
-   * Karte gezeigt wird. Ohne Zeigegerät (Touch) fällt "hover" auf "view"
-   * zurück – sonst liefe der Loop dort nie.
-   */
-  trigger?: "view" | "hover";
   className?: string;
 };
 
-export default function LoopVideo({ src, trigger = "view", className }: LoopVideoProps) {
+export default function LoopVideo({ src, className }: LoopVideoProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -38,30 +32,6 @@ export default function LoopVideo({ src, trigger = "view", className }: LoopVide
     // dort läuft der Loop wie gewohnt.
     const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
     if (connection?.saveData) return;
-
-    if (trigger === "hover" && window.matchMedia("(hover: hover)").matches) {
-      // Die ganze Karte ist die Trefferfläche, nicht nur das Bild – und
-      // focusin deckt die Tastaturbedienung ab.
-      const host = video.closest("article") ?? video.parentElement;
-      if (!host) return;
-
-      const start = () => void video.play().catch(() => {});
-      const stop = () => {
-        video.pause();
-        video.currentTime = 0;
-      };
-
-      host.addEventListener("pointerenter", start);
-      host.addEventListener("pointerleave", stop);
-      host.addEventListener("focusin", start);
-      host.addEventListener("focusout", stop);
-      return () => {
-        host.removeEventListener("pointerenter", start);
-        host.removeEventListener("pointerleave", stop);
-        host.removeEventListener("focusin", start);
-        host.removeEventListener("focusout", stop);
-      };
-    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -79,7 +49,7 @@ export default function LoopVideo({ src, trigger = "view", className }: LoopVide
 
     observer.observe(video);
     return () => observer.disconnect();
-  }, [trigger]);
+  }, []);
 
   return (
     <video
