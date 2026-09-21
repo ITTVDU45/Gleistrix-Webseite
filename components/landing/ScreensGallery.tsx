@@ -12,7 +12,7 @@ export default function ScreensGallery() {
         <Reveal key={screen.src} delay={index * 0.05} className="h-full">
           <Link
             href={screen.href}
-            className="group relative block aspect-[4/3] overflow-hidden rounded-3xl border border-slate-900/8 bg-white shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
+            className="group relative block aspect-[16/9] overflow-hidden rounded-3xl border border-slate-900/8 bg-[#0B1220] shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft"
           >
             <Image
               src={screen.src}

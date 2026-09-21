@@ -133,8 +133,8 @@ export default function Page() {
             <div className="grid items-center gap-8 md:grid-cols-2 md:gap-14">
               <div className="relative aspect-[4/3] overflow-hidden rounded-3xl shadow-soft ring-1 ring-slate-900/8">
                 <Image
-                  src="/sicherungsunternehmen.webp"
-                  alt="Gleistrix in der Praxis"
+                  src="/media/branchen/sicherungsunternehmen.webp"
+                  alt="Der Gleistrix-Fuchs beim Schichtbriefing mit Sicherungsposten"
                   fill
                   sizes="(min-width: 768px) 50vw, 100vw"
                   className="object-cover"
