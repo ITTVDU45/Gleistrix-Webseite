@@ -15,7 +15,7 @@ export default function ModuleVisual({ variant }: { variant: ModuleVisualVariant
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.08),transparent)]"
+        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.08),transparent)]"
       />
       {VISUALS[variant]}
     </div>
@@ -34,7 +34,7 @@ const projekteVisual = (
   <div className="space-y-2.5">
     <p className="text-xs font-semibold text-slate-700">Aktive Projekte</p>
     {[
-      { name: "Gleisbau Abschnitt 12", status: "In Umsetzung", tone: "bg-indigo-50 text-indigo-600", progress: "w-2/3", bar: "bg-indigo-500" },
+      { name: "Gleisbau Abschnitt 12", status: "In Umsetzung", tone: "bg-brand-50 text-brand-600", progress: "w-2/3", bar: "bg-brand-500" },
       { name: "BÜ-Sicherung Linie S4", status: "Geplant", tone: "bg-sky-50 text-sky-700", progress: "w-1/4", bar: "bg-sky-500" },
       { name: "Weichenerneuerung W8", status: "Abnahme", tone: "bg-emerald-50 text-emerald-700", progress: "w-11/12", bar: "bg-emerald-500" },
     ].map((project) => (
@@ -59,13 +59,13 @@ const plantafelVisual = (
   <div>
     <div className="flex items-center justify-between">
       <p className="text-xs font-semibold text-slate-700">Plantafel · KW 28</p>
-      <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600">
+      <span className="rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-600">
         Keine Konflikte
       </span>
     </div>
     <div className="mt-3 space-y-2">
       {[
-        { name: "Trupp Nord", start: 1, span: 4, color: "bg-indigo-500" },
+        { name: "Trupp Nord", start: 1, span: 4, color: "bg-brand-500" },
         { name: "Trupp Süd", start: 3, span: 5, color: "bg-violet-500" },
         { name: "SiPo Team A", start: 2, span: 3, color: "bg-sky-500" },
         { name: "Bagger 023", start: 4, span: 4, color: "bg-emerald-500" },
@@ -112,7 +112,7 @@ const dokumenteVisual = (
     <p className="text-xs font-semibold text-slate-700">Projektakte · Abschnitt 12</p>
     {[
       { name: "Sicherungsplan_v3.pdf", meta: "Freigegeben · heute", tone: "text-emerald-700 bg-emerald-50" },
-      { name: "Tagesbericht_KW28.pdf", meta: "KI-generiert · gestern", tone: "text-indigo-600 bg-indigo-50" },
+      { name: "Tagesbericht_KW28.pdf", meta: "KI-generiert · gestern", tone: "text-brand-600 bg-brand-50" },
       { name: "Abnahmeprotokoll_W8.pdf", meta: "Signatur ausstehend", tone: "text-amber-700 bg-amber-50" },
     ].map((doc) => (
       <RowShell key={doc.name}>
@@ -176,7 +176,7 @@ const abrechnungVisual = (
           <span className="shrink-0 text-[11px] font-semibold text-slate-800">{line.value}</span>
         </div>
       ))}
-      <div className="flex items-center justify-between rounded-xl bg-indigo-600 px-3.5 py-3 text-white">
+      <div className="flex items-center justify-between rounded-xl bg-brand-600 px-3.5 py-3 text-white">
         <span className="text-[11px] font-semibold">Rechnungsentwurf gesamt</span>
         <span className="text-sm font-bold">57.550,00 €</span>
       </div>
@@ -187,11 +187,11 @@ const abrechnungVisual = (
 const kiVisual = (
   <div className="space-y-2.5">
     <div className="flex items-center gap-2">
-      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-indigo-500 to-violet-500 text-white">
+      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-brand-500 to-brand-700 text-white">
         <Bot className="h-4 w-4" />
       </span>
       <p className="text-xs font-semibold text-slate-700">LV-Agent</p>
-      <span className="ml-auto rounded-full bg-indigo-50 px-2 py-0.5 text-[10px] font-semibold text-indigo-600">
+      <span className="ml-auto rounded-full bg-brand-50 px-2 py-0.5 text-[10px] font-semibold text-brand-600">
         Analyse abgeschlossen
       </span>
     </div>
@@ -199,7 +199,7 @@ const kiVisual = (
       Leistungsverzeichnis <span className="font-semibold text-slate-800">„Ausschreibung 2026-114“</span>{" "}
       ausgewertet: 84 Positionen erkannt, 12 sicherungsrelevante Leistungen markiert.
     </div>
-    <div className="rounded-xl border border-dashed border-indigo-300 bg-indigo-50/50 px-3.5 py-3 text-[11px] font-medium text-indigo-700">
+    <div className="rounded-xl border border-dashed border-brand-300 bg-brand-50/50 px-3.5 py-3 text-[11px] font-medium text-brand-700">
       Angebotsdaten vorbereitet → zur Kalkulation übergeben
     </div>
   </div>

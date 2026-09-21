@@ -62,7 +62,7 @@ export default function TrustBand() {
                     verwerfen. Deshalb trägt das dt das Icon selbst, und das dd
                     rückt um dessen Breite plus Abstand ein. */}
                 <dt className="flex items-center gap-4 text-sm font-semibold text-slate-900">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft-sm">
                     <Icon className="h-5 w-5" />
                   </span>
                   {item.title}

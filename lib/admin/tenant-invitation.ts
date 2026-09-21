@@ -66,7 +66,7 @@ export function tenantInvitationMail(company: Company, link: string): MailOption
         bodyHtml: `
           Der Link kann nur einmal verwendet werden. Bitte geben Sie ihn nicht weiter.<br />
           Falls die Schaltfläche nicht funktioniert, öffnen Sie den
-          <a href="${safeLink}" target="_blank" style="color:#4338ca; font-weight:700; text-decoration:underline;">Einladungslink im Browser</a>.
+          <a href="${safeLink}" target="_blank" style="color:#0923ca; font-weight:700; text-decoration:underline;">Einladungslink im Browser</a>.
         `,
       },
       closingHtml: `

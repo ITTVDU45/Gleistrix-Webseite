@@ -66,7 +66,7 @@ export function ConsentGate({
   return (
     <div className="flex h-full w-full items-center justify-center rounded-3xl border border-slate-900/8 bg-[#f8fafc] px-6 py-12">
       <div className="max-w-md text-center">
-        <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
+        <span className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft-sm">
           <Lock className="size-5" aria-hidden />
         </span>
         <h3 className="mt-5 text-lg font-semibold text-slate-900">
@@ -82,7 +82,7 @@ export function ConsentGate({
           <button
             type="button"
             onClick={() => setIsAllowedOnce(true)}
-            className="h-11 rounded-full bg-indigo-600 px-6 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2"
+            className="h-11 rounded-full bg-brand-600 px-6 text-sm font-medium text-white transition-colors hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
           >
             Einmalig laden
           </button>
@@ -98,7 +98,7 @@ export function ConsentGate({
           Kategorie {categoryLabel} ·{" "}
           <Link
             href="/datenschutz"
-            className="underline underline-offset-2 transition-colors hover:text-indigo-600"
+            className="underline underline-offset-2 transition-colors hover:text-brand-600"
           >
             Datenschutz
           </Link>

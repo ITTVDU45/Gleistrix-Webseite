@@ -98,12 +98,12 @@ export default function SecurityIntegrations() {
     >
       {/* Dezenter Verlauf, damit die Sektion nicht als weiße Fläche kippt */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 left-1/2 h-[420px] w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.08),transparent)]" />
+        <div className="absolute -top-32 left-1/2 h-[420px] w-[760px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.08),transparent)]" />
       </div>
 
       <div className="page-container relative">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-indigo-600">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-brand-600">
             Sicherheit & Datenschutz
           </span>
           <h2

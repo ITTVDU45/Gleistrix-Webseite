@@ -1,10 +1,3 @@
-export const COLORS = {
-  primary: "#4f46e5",
-  secondary: "#8b5cf6",
-  background: "#f8fafc",
-  text: "#0f172a",
-} as const;
-
 /**
  * Kanonische Adresse der Marketingseite – www ist die gewinnende Variante.
  * Sitemap, robots.txt und die canonical-Links hängen daran; ohne einheitliche

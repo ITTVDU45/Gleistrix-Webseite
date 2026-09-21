@@ -38,7 +38,7 @@ export default function AgentAnalysis() {
         <Bot className="h-3.5 w-3.5" />
         Analyse · Ausschreibung 2026-114
       </div>
-      <ul className="mt-3 space-y-1.5 text-[11px] text-indigo-100">
+      <ul className="mt-3 space-y-1.5 text-[11px] text-brand-100">
         {FINDINGS.map((finding, index) => (
           <FindingLine key={finding.label} finding={finding} index={index} isActive={isInView} />
         ))}

@@ -30,7 +30,7 @@ function ScheduleVisual({ isDark }: { isDark: boolean }) {
           {bars.map((bar) => (
             <div
               key={bar.start}
-              className={cn("absolute h-2.5 rounded-full", rowIndex % 2 === 0 ? "bg-indigo-400" : "bg-violet-400/80")}
+              className={cn("absolute h-2.5 rounded-full", rowIndex % 2 === 0 ? "bg-brand-400" : "bg-brand-600/80")}
               style={{ left: `${bar.start}%`, width: `${bar.span}%` }}
             />
           ))}
@@ -52,7 +52,7 @@ function CaseStudyCard({ study, isDark }: { study: CaseStudy; isDark: boolean })
       )}
     >
       <div className="flex min-w-0 flex-col">
-        <span className={cn("inline-flex w-fit max-w-full rounded-full px-3 py-1 text-[11px] font-semibold sm:px-3.5 sm:text-xs", isDark ? "bg-white/10 text-indigo-300" : "border border-indigo-200/70 bg-indigo-50/80 text-indigo-700")}>
+        <span className={cn("inline-flex w-fit max-w-full rounded-full px-3 py-1 text-[11px] font-semibold sm:px-3.5 sm:text-xs", isDark ? "bg-white/10 text-brand-300" : "border border-brand-200/70 bg-brand-50/80 text-brand-700")}>
           {study.tag}
         </span>
         <h3 className="mt-4 text-[1.65rem] font-bold leading-[1.12] tracking-tight sm:mt-5 sm:text-2xl md:text-3xl">{study.title}</h3>
@@ -61,7 +61,7 @@ function CaseStudyCard({ study, isDark }: { study: CaseStudy; isDark: boolean })
           {secondary.map((metric) => (
             <div key={metric.label} className="min-w-0">
               <dt className="sr-only">{metric.label}</dt>
-              <dd className={cn("text-lg font-bold sm:text-xl", isDark ? "text-indigo-300" : "text-indigo-600")}>{metric.value}</dd>
+              <dd className={cn("text-lg font-bold sm:text-xl", isDark ? "text-brand-300" : "text-brand-600")}>{metric.value}</dd>
               <dd className={cn("mt-0.5 text-[11px] leading-snug sm:text-xs", isDark ? "text-slate-400" : "text-slate-500")}>{metric.label}</dd>
             </div>
           ))}
@@ -81,7 +81,7 @@ function CaseStudyCard({ study, isDark }: { study: CaseStudy; isDark: boolean })
           className="object-cover opacity-45 transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
         />
         <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/40" />
-        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-indigo-500/25 blur-3xl" />
+        <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-500/25 blur-3xl" />
         <p className="relative text-[10px] font-semibold uppercase tracking-[0.14em] text-white/50 sm:text-xs sm:tracking-[0.16em]">{study.branche}</p>
         <div className="relative mt-5 sm:mt-6">
           <p className="text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl">{primary.value}</p>
@@ -101,7 +101,7 @@ export default function CaseStudiesSection() {
       <div className="page-container">
         <SectionHeading
           eyebrow="Vertrauen aus der Bahnbranche"
-          title={<span id="cases-heading">Echte Zahlen aus <span className="rounded-xl bg-indigo-100/80 px-2 text-indigo-700 [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">echten Bahnprojekten</span></span>}
+          title={<span id="cases-heading">Echte Zahlen aus <span className="rounded-xl bg-brand-100/80 px-2 text-brand-700 [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">echten Bahnprojekten</span></span>}
           description="Von der Schichtplanung über die Dokumentation bis zur Rechnung – so verändert Gleistrix den Alltag in Sicherung, Gleisbau, Schweißtechnik und Ingenieurbüros."
         />
 

@@ -79,12 +79,12 @@ export default async function BlogIndexPage() {
                       className="object-cover transition duration-700 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="size-full bg-gradient-to-br from-indigo-50 to-slate-100" />
+                    <div className="size-full bg-gradient-to-br from-brand-50 to-slate-100" />
                   )}
                 </div>
 
                 <div className="flex flex-col justify-center p-7 md:p-10">
-                  <span className="inline-flex w-fit rounded-full bg-indigo-50 px-4 py-1.5 text-xs font-semibold text-indigo-700">
+                  <span className="inline-flex w-fit rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold text-brand-700">
                     {lead.category}
                   </span>
                   <h2 className="mt-5 text-2xl font-bold leading-tight tracking-tight text-slate-900 md:text-3xl">
@@ -118,12 +118,12 @@ export default async function BlogIndexPage() {
                             className="object-cover transition duration-700 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="size-full bg-gradient-to-br from-indigo-50 to-slate-100" />
+                          <div className="size-full bg-gradient-to-br from-brand-50 to-slate-100" />
                         )}
                       </div>
 
                       <div className="flex flex-1 flex-col p-6">
-                        <span className="inline-flex w-fit rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                        <span className="inline-flex w-fit rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
                           {article.category}
                         </span>
                         <h3 className="mt-4 text-lg font-bold leading-snug tracking-tight text-slate-900">
@@ -184,8 +184,8 @@ export default async function BlogIndexPage() {
                 Die Beiträge sind bewusst keine Produktankündigungen. Wo eine Funktion von Gleistrix ein beschriebenes
                 Problem löst, steht es dabei – aber der Ausgangspunkt ist der Ablauf, nicht das Modul. Wer die
                 Funktionen systematisch sucht, findet sie unter{" "}
-                <Link className="font-semibold text-indigo-700" href="/produkt">Module und Plattform</Link>, nach Gewerk
-                sortiert unter <Link className="font-semibold text-indigo-700" href="/branchen">Branchen</Link>.
+                <Link className="font-semibold text-brand-700" href="/produkt">Module und Plattform</Link>, nach Gewerk
+                sortiert unter <Link className="font-semibold text-brand-700" href="/branchen">Branchen</Link>.
               </p>
               <p>
                 Neue Beiträge erscheinen unregelmäßig, dann aber mit Substanz: lieber ein Text, der einen Ablauf
@@ -197,7 +197,7 @@ export default async function BlogIndexPage() {
                 zeigt, wo die Besonderheiten liegen – etwa welche Qualifikationen geführt werden müssen, in welcher
                 Form der Auftraggeber Nachweise erwartet und wie die Abrechnungszyklen aussehen. Terminvorschläge und
                 der Zugang für 14 Tage stehen unter{" "}
-                <Link className="font-semibold text-indigo-700" href="/demo-buchen">Demo buchen</Link>.
+                <Link className="font-semibold text-brand-700" href="/demo-buchen">Demo buchen</Link>.
               </p>
             </div>
           </div>

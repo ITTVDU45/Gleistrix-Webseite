@@ -33,12 +33,12 @@ export function CookieBanner() {
           >
             <div
               aria-hidden
-              className="h-1 bg-gradient-to-r from-indigo-500 to-violet-500"
+              className="h-1 bg-gradient-to-r from-brand-500 to-brand-700"
             />
 
             <div className="flex flex-col gap-6 p-6 md:flex-row md:items-center md:gap-10 md:p-8">
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-indigo-600">
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-brand-600">
                   Datenschutz
                 </p>
                 <h2
@@ -57,14 +57,14 @@ export function CookieBanner() {
                   Mehr dazu in der{" "}
                   <Link
                     href="/datenschutz"
-                    className="text-slate-700 underline underline-offset-2 transition-colors hover:text-indigo-600"
+                    className="text-slate-700 underline underline-offset-2 transition-colors hover:text-brand-600"
                   >
                     Datenschutzerklärung
                   </Link>{" "}
                   und im{" "}
                   <Link
                     href="/impressum"
-                    className="text-slate-700 underline underline-offset-2 transition-colors hover:text-indigo-600"
+                    className="text-slate-700 underline underline-offset-2 transition-colors hover:text-brand-600"
                   >
                     Impressum
                   </Link>
@@ -85,7 +85,7 @@ export function CookieBanner() {
                 <button
                   type="button"
                   onClick={acceptAll}
-                  className="h-11 rounded-full bg-indigo-600 px-6 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2 sm:flex-1 md:min-w-[168px]"
+                  className="h-11 rounded-full bg-brand-600 px-6 text-sm font-medium text-white transition-colors hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2 sm:flex-1 md:min-w-[168px]"
                 >
                   Alle akzeptieren
                 </button>

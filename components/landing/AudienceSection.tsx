@@ -46,7 +46,7 @@ export default function AudienceSection() {
                 <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
                   <CardMedia src={audience.image.src} alt={audience.image.alt} video={audience.video} />
                   <div className="relative flex flex-1 flex-col p-6">
-                    <span className="absolute -top-6 left-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft ring-1 ring-slate-900/5">
+                    <span className="absolute -top-6 left-6 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft ring-1 ring-slate-900/5">
                       <Icon className="h-5 w-5" />
                     </span>
                     <h3 className="mt-5 text-base font-semibold text-slate-900">{audience.title}</h3>

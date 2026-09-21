@@ -134,9 +134,9 @@ export default function ProduktPage() {
               </p>
               <p>
                 Welche Module ein Unternehmen braucht, hängt vom Gewerk ab. Die Detailseiten beschreiben jedes
-                einzeln, die <Link className="font-semibold text-indigo-700" href="/branchen">Branchenseiten</Link>{" "}
+                einzeln, die <Link className="font-semibold text-brand-700" href="/branchen">Branchenseiten</Link>{" "}
                 zeigen typische Zusammenstellungen, und unter{" "}
-                <Link className="font-semibold text-indigo-700" href="/integrationen">Integrationen</Link> steht, wie
+                <Link className="font-semibold text-brand-700" href="/integrationen">Integrationen</Link> steht, wie
                 Gleistrix an vorhandene Buchhaltungs-, Kalender- und Ausschreibungssysteme anschließt.
               </p>
               <p>

@@ -64,7 +64,7 @@ export default function Page() {
           <Reveal>
             <div className="glass rounded-3xl p-7 shadow-soft-sm md:p-10">
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft-sm">
                   <Cpu className="h-5 w-5" />
                 </span>
                 <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">Unsere Tech-Vision</h2>
@@ -96,7 +96,7 @@ export default function Page() {
             <article className="group h-full overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
               <CardMedia src="/media/zielgruppen/sipo.webp" alt="Sicherungsposten an der Strecke" aspect="aspect-[21/9]" sizes="(min-width: 768px) 50vw, 100vw" />
               <div className="p-7">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft-sm">
                 <Target className="h-5 w-5" />
               </span>
               <h3 className="mt-5 text-xl font-semibold text-slate-900">Mission</h3>
@@ -112,7 +112,7 @@ export default function Page() {
             <article className="group h-full overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
               <CardMedia src="/media/szenen/gleisfeld.webp" alt="Gleisfeld aus der Vogelperspektive" aspect="aspect-[21/9]" sizes="(min-width: 768px) 50vw, 100vw" />
               <div className="p-7">
-              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft-sm">
                 <Sparkles className="h-5 w-5" />
               </span>
               <h3 className="mt-5 text-xl font-semibold text-slate-900">Vision</h3>
@@ -142,7 +142,7 @@ export default function Page() {
               </div>
               <div>
                 <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-indigo-600 shadow-soft-sm">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft-sm">
                     <History className="h-5 w-5" />
                   </span>
                   <h2 className="text-2xl font-bold text-slate-900 md:text-3xl">Wie es zu Gleistrix kam</h2>

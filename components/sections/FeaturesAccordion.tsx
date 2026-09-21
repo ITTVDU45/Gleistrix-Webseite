@@ -106,7 +106,7 @@ export default function FeaturesAccordion() {
                   <span
                     aria-hidden
                     className={`grid h-11 w-11 shrink-0 place-items-center rounded-full transition-all duration-300 ${
-                      isOpen ? "rotate-45 bg-indigo-600 text-white" : "bg-indigo-50 text-indigo-600"
+                      isOpen ? "rotate-45 bg-brand-600 text-white" : "bg-brand-50 text-brand-600"
                     }`}
                   >
                     <Plus className="h-5 w-5" />
@@ -138,7 +138,7 @@ export default function FeaturesAccordion() {
                           <Link
                             href={item.href}
                             aria-label={`${item.title} – Mehr erfahren`}
-                            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 transition-colors hover:text-indigo-500"
+                            className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-500"
                           >
                             Mehr erfahren
                             <ArrowRight className="h-4 w-4" />

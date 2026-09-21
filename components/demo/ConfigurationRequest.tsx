@@ -148,7 +148,7 @@ export default function ConfigurationRequest() {
 
   return (
     <section aria-labelledby="konfiguration-titel" className="page-container relative z-10 mt-10">
-      <div className="grid gap-6 rounded-3xl border border-indigo-200/70 bg-indigo-50/60 p-6 md:grid-cols-2 md:p-8">
+      <div className="grid gap-6 rounded-3xl border border-brand-200/70 bg-brand-50/60 p-6 md:grid-cols-2 md:p-8">
         <div>
           <h2 id="konfiguration-titel" className="text-xl font-bold tracking-tight text-slate-900">
             Deine Konfiguration
@@ -161,7 +161,7 @@ export default function ConfigurationRequest() {
           <ul className="mt-5 space-y-2">
             {lines.map((line) => (
               <li key={line} className="flex items-start gap-2 text-sm text-slate-700">
-                <Check className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" strokeWidth={2.4} />
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" strokeWidth={2.4} />
                 {line}
               </li>
             ))}
@@ -184,14 +184,14 @@ export default function ConfigurationRequest() {
                 <input
                   name="name"
                   required
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
               </label>
               <label className="block text-sm">
                 <span className="font-medium text-slate-700">Unternehmen</span>
                 <input
                   name="company"
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
               </label>
               <label className="block text-sm">
@@ -200,14 +200,14 @@ export default function ConfigurationRequest() {
                   name="email"
                   type="email"
                   required
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
               </label>
               <label className="block text-sm">
                 <span className="font-medium text-slate-700">Telefon</span>
                 <input
                   name="phone"
-                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="mt-1 h-10 w-full rounded-xl border border-slate-200 px-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                 />
               </label>
             </div>
@@ -217,7 +217,7 @@ export default function ConfigurationRequest() {
               <textarea
                 name="message"
                 rows={3}
-                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               />
             </label>
 
@@ -230,7 +230,7 @@ export default function ConfigurationRequest() {
             <button
               type="submit"
               disabled={status === "sending"}
-              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:opacity-60"
+              className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-brand-600 px-6 text-sm font-semibold text-white transition hover:bg-brand-500 disabled:opacity-60"
             >
               {status === "sending" ? "Wird gesendet …" : "Konfiguration senden"}
             </button>

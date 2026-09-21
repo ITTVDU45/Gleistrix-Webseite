@@ -231,14 +231,14 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
         <div
           ref={viewportRef}
           data-wf-viewport
-          className="wf-viewport scrollbar-none max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:overscroll-x-contain max-md:scroll-px-4 max-md:px-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500/60"
+          className="wf-viewport scrollbar-none max-md:snap-x max-md:snap-mandatory max-md:overflow-x-auto max-md:overscroll-x-contain max-md:scroll-px-4 max-md:px-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500/60"
         >
           <div className="wf-inner max-md:w-max">
             <span aria-hidden data-rail className="wf-rail">
               <span className="wf-rail-base absolute inset-0 rounded-full bg-slate-200" />
               <span
                 data-fill
-                className="wf-rail-fill absolute inset-0 origin-left rounded-full bg-gradient-to-r from-indigo-500 to-violet-600"
+                className="wf-rail-fill absolute inset-0 origin-left rounded-full bg-gradient-to-r from-brand-500 to-brand-800"
                 style={{ transform: "scaleX(0)" }}
               />
               {/* Der Fuchs läuft die Schiene ab. Er hängt am selben
@@ -273,7 +273,7 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
             {Array.from({ length: stepCount }).map((_, index) => (
               <span
                 key={index}
-                className={index === 0 ? "h-1.5 w-5 rounded-full bg-indigo-600" : "h-1.5 w-1.5 rounded-full bg-slate-300"}
+                className={index === 0 ? "h-1.5 w-5 rounded-full bg-brand-600" : "h-1.5 w-1.5 rounded-full bg-slate-300"}
               />
             ))}
           </div>
@@ -283,7 +283,7 @@ export default function WorkflowTimeline({ children, stepCount }: Props) {
           aria-hidden
           className="wf-counter mt-6 pl-[var(--wf-pad)] text-xs font-bold uppercase tracking-wider text-slate-400"
         >
-          <span data-count className="text-indigo-600">
+          <span data-count className="text-brand-600">
             1
           </span>{" "}
           / {stepCount}

@@ -63,7 +63,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
       <article>
         <header className="relative overflow-hidden bg-white pb-10 pt-32 md:pt-40">
           <div aria-hidden className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-40 left-1/2 h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.13),transparent)]" />
+            <div className="absolute -top-40 left-1/2 h-[480px] w-[820px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.13),transparent)]" />
           </div>
 
           <div className="page-container relative">
@@ -76,7 +76,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
             </Link>
 
             <div className="mx-auto mt-6 max-w-3xl">
-              <span className="inline-flex rounded-full bg-indigo-50 px-4 py-1.5 text-xs font-semibold text-indigo-700">
+              <span className="inline-flex rounded-full bg-brand-50 px-4 py-1.5 text-xs font-semibold text-brand-700">
                 {article.category}
               </span>
               <h1 className="mt-5 text-3xl font-bold leading-tight tracking-tight text-slate-900 md:text-5xl">
@@ -149,7 +149,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
                     href={`/blog/${entry.slug}`}
                     className="group flex h-full flex-col rounded-2xl border border-slate-900/8 bg-white p-6 shadow-soft-sm transition duration-300 hover:-translate-y-1 hover:shadow-soft"
                   >
-                    <span className="inline-flex w-fit rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
+                    <span className="inline-flex w-fit rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
                       {entry.category}
                     </span>
                     <h3 className="mt-4 text-lg font-bold leading-snug tracking-tight text-slate-900">

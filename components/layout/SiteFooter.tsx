@@ -27,8 +27,8 @@ export default function SiteFooter() {
           <div className="rounded-2xl border border-slate-200/70 bg-white/85 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:rounded-[2rem] sm:p-8 md:p-14">
             <div className="grid min-w-0 gap-9 sm:gap-12 lg:grid-cols-12">
               <div className="min-w-0 lg:col-span-4">
-                <Link href="/" className="inline-flex max-w-full items-center rounded-xl outline-none ring-indigo-500/30 transition focus-visible:ring-4" aria-label="Gleistrix Startseite">
-                  <BrandLogo markClassName="h-9 w-9 sm:h-10 sm:w-10 md:h-11 md:w-11" wordmarkClassName="text-[1.3rem] sm:text-[1.45rem] md:text-[1.65rem]" />
+                <Link href="/" className="inline-flex max-w-full items-center rounded-xl outline-none ring-brand-500/30 transition focus-visible:ring-4" aria-label="Gleistrix Startseite">
+                  <BrandLogo className="h-7 sm:h-8 md:h-9" />
                 </Link>
                 <p className="mt-4 max-w-[42ch] text-sm leading-6 text-slate-500 sm:mt-5 sm:leading-relaxed">
                   Gleistrix ist die moderne ERP- und SaaS-Plattform für Bahndienstleister. Von Projektmanagement über Plantafel und Dokumentation bis zur Abrechnung.
@@ -52,7 +52,7 @@ export default function SiteFooter() {
                       <ul className="mt-3 space-y-2.5 sm:mt-4">
                         {column.links.map((link) => (
                           <li key={link.label} className="min-w-0">
-                            <Link href={link.href} className="block min-w-0 hyphens-auto text-sm leading-snug text-slate-500 transition-colors duration-200 [overflow-wrap:anywhere] hover:text-indigo-600">{link.label}</Link>
+                            <Link href={link.href} className="block min-w-0 hyphens-auto text-sm leading-snug text-slate-500 transition-colors duration-200 [overflow-wrap:anywhere] hover:text-brand-600">{link.label}</Link>
                           </li>
                         ))}
                       </ul>

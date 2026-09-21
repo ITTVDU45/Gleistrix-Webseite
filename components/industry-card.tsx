@@ -36,7 +36,7 @@ export default function IndustryCard({
         {/* Text */}
         <div className={`min-w-0 ${reverse ? "md:order-1" : "md:order-2"}`}>
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
               <Icon aria-hidden className="h-5 w-5" />
             </span>
             <h3 className="text-xl font-bold text-slate-900">
@@ -44,7 +44,7 @@ export default function IndustryCard({
                   Ziel für Maus und Vorlesesoftware. */}
               <Link
                 href={href}
-                className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20"
+                className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20"
               >
                 {item.title}
               </Link>
@@ -56,7 +56,7 @@ export default function IndustryCard({
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {item.bullets.map((bullet) => (
               <li key={bullet} className="flex items-start gap-2.5 text-sm text-slate-600">
-                <span className="mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                <span className="mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
                   <Check className="h-3 w-3" aria-hidden />
                 </span>
                 <span>{bullet}</span>
@@ -64,7 +64,7 @@ export default function IndustryCard({
             ))}
           </ul>
 
-          <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+          <span className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
             Branche im Detail
             <ArrowRight
               aria-hidden
