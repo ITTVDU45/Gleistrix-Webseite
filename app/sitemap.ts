@@ -9,7 +9,9 @@ import { listPublicArticles } from "@/lib/admin/blog/store";
 export const revalidate = 600;
 
 /**
- * Letzte inhaltliche Überarbeitung der Katalog- und Übersichtsseiten.
+ * Letzte inhaltliche Überarbeitung der Katalog- und Übersichtsseiten
+ * (2026-09-22: SEO-Überarbeitung – Titel, H1, Fachtexte und Abgleich aller
+ * Funktionsaussagen mit dem Produkt, siehe SEO-OPTIMIERUNG.md).
  *
  * Google nutzt `lastmod`, um Crawl-Budget zu verteilen – ohne die Angabe bleibt
  * eine Änderung länger unbemerkt. Ein Datum für alle diese Seiten ist hier
@@ -22,7 +24,7 @@ export const revalidate = 600;
  * ändert, hebt diesen Wert – ein zu altes lastmod ist harmlos, ein zu neues
  * kostet Glaubwürdigkeit, weil Google unzuverlässige Angaben künftig ignoriert.
  */
-const CONTENT_REVISION = new Date("2026-08-17");
+const CONTENT_REVISION = new Date("2026-09-22");
 
 const STATIC_PATHS = [
   "/",
@@ -48,15 +50,15 @@ const STATIC_PATHS = [
  * Statische Seiten, deren Inhalt zur CONTENT_REVISION überarbeitet wurde. Die
  * übrigen bleiben ohne lastmod.
  */
-const REVISED_PATHS = new Set<string>(["/", "/produkt", "/preise", "/branchen", "/integrationen"]);
+const REVISED_PATHS = new Set<string>(["/", "/produkt", "/preise", "/branchen", "/integrationen", "/blog", "/ueber-uns"]);
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await listPublicArticles();
 
   return [
-    // Ohne lastmod: Impressum, Datenschutz, /blog, /ueber-uns und /demo-buchen
-    // wurden inhaltlich nicht angefasst. Ein Datum zu behaupten, das nicht
-    // stimmt, ist schlechter als keins.
+    // Ohne lastmod: Impressum, Datenschutz und /demo-buchen wurden inhaltlich
+    // nicht angefasst. Ein Datum zu behaupten, das nicht stimmt, ist
+    // schlechter als keins.
     ...STATIC_PATHS.map((path) => ({
       url: `${SITE_URL}${path}`,
       ...(REVISED_PATHS.has(path) ? { lastModified: CONTENT_REVISION } : {}),
@@ -78,7 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...articles.map((article) => ({
       url: `${SITE_URL}/blog/${article.slug}`,
-      lastModified: new Date(article.date),
+      lastModified: new Date(article.modified),
     })),
   ];
 }

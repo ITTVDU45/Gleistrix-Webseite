@@ -49,7 +49,9 @@ export function pageMetadata({
   // widersprüchliches Signal – das eine verweist auf die zu indexierende
   // Fassung, das andere verbietet die Indexierung überhaupt.
   const canonicalUrl = canonical ? new URL(canonical, SITE_URL).toString() : url;
-  const socialTitle = `${title} | ${SITE.name}`;
+  // Die Startseite trägt die Marke schon im Titel – ein zweites "| Gleistrix"
+  // stünde sonst doppelt in der geteilten Karte.
+  const socialTitle = title.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
   const images = [new URL(image ?? DEFAULT_OG_IMAGE, SITE_URL).toString()];
 
   return {

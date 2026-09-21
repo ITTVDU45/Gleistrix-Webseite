@@ -9,7 +9,9 @@ import { pageMetadata } from "@/lib/seo-metadata";
 export const dynamic = "force-static";
 
 export const metadata = pageMetadata({
-  title: "Software für Bahnbau, Sicherungsunternehmen & Bahndienstleister",
+  // Kurz genug für das Suchergebnis (Google kürzt um 60 Zeichen), mit dem
+  // Sammelbegriff, unter dem die Übersicht gesucht wird.
+  title: "Branchensoftware für Gleisbau & Bahnsicherung",
   description:
     "Gleistrix unterstützt Gleisbauunternehmen, Sicherungsunternehmen, Gleisbausicherung und weitere Bahndienstleister bei Planung, Nachweisen und Abrechnung.",
   path: "/branchen",

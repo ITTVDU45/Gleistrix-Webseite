@@ -4,7 +4,7 @@ import Reveal from "@/components/landing/Reveal";
 
 export const metadata: Metadata = {
   title: "Impressum",
-  description: "Impressum und Anbieterkennzeichnung von Gleistrix.",
+  description: "Impressum und Anbieterkennzeichnung von Gleistrix, der ERP-Software für Bahndienstleister: Anschrift, Kontakt und Verantwortliche.",
 };
 
 export default function Page() {

@@ -59,35 +59,43 @@ export default function Hero() {
             <div>
               <span className="glass inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold leading-5 text-slate-600 shadow-soft-sm sm:px-4 sm:text-xs">
                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
-                ERP-Plattform für den Bahnbetrieb
+                Für Sicherungs-, Gleisbau- und Bahnunternehmen
               </span>
             </div>
 
-            <h1 id="hero-heading" className="mt-5 min-w-0 text-[2.05rem] font-bold leading-[1.08] tracking-tight text-slate-900 min-[375px]:text-[2.3rem] sm:mt-6 sm:text-5xl xl:text-6xl">
-              <span className="block">Du sparst dir</span>
-              <span aria-hidden className="relative mx-auto mt-3 block w-full max-w-full leading-none lg:mx-0">
-                <span className="invisible inline-flex max-w-full rounded-2xl px-3 py-2 text-[0.82em] sm:px-5 sm:text-[1em]">{LONGEST_WORD}</span>
-                {HERO_SLIDES.map((s, i) => (
-                  <motion.span
-                    key={s.id}
-                    initial={false}
-                    animate={i === active ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
-                    transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: EASE_OUT }}
-                    className="absolute inset-x-0 top-0 mx-auto w-fit max-w-full rounded-2xl bg-brand-100/80 px-3 py-2 text-[0.82em] leading-[1.05] text-brand-700 sm:px-5 sm:text-[1em] lg:mx-0"
-                  >
-                    <span className="block max-w-full break-words">{s.word}</span>
-                  </motion.span>
-                ))}
-              </span>
-              {/* Beginnt mit dem Thema, nicht mit der Problemaufzählung: Dieser
-                  Satz ist der crawlbare Teil der H1, weil das rotierende Wort
-                  aria-hidden ist. Vorher stand das wichtigste Wort der Seite an
-                  letzter Stelle ihrer wichtigsten Überschrift. */}
-              <span className="sr-only">ERP Software für Bahnbau: Gleistrix ist die Plattform für alle Gewerke im Bahnbetrieb und ersetzt Zettelchaos, Doppelarbeit, Papierkram und Planungschaos.</span>
+            {/* Die H1 steht fest und vollständig sichtbar im Server-HTML.
+                Vorher lagen die rotierenden Wörter in der H1 – aria-hidden
+                blendet sie für Screenreader aus, nicht für Google. Im
+                ausgelieferten HTML hieß die Überschrift deshalb "Du sparst dir
+                Planungschaos Zettelchaos Doppelarbeit …". Die Rotation lebt
+                jetzt in der Zeile darunter und bleibt, was sie ist: Gestaltung. */}
+            <h1 id="hero-heading" className="mt-5 min-w-0 text-balance text-[2rem] font-bold leading-[1.08] tracking-tight text-slate-900 min-[375px]:text-[2.2rem] sm:mt-6 sm:text-5xl xl:text-[3.5rem]">
+              ERP-Software für Bahnbau und Bahndienstleister
             </h1>
 
+            <p className="mt-4 min-w-0 text-xl font-semibold leading-tight tracking-tight text-slate-700 sm:mt-5 sm:text-2xl xl:text-3xl">
+              <span className="sr-only">Du sparst dir Zettelchaos, Doppelarbeit, Papierkram und Planungschaos.</span>
+              <span aria-hidden className="inline-flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-2 lg:justify-start">
+                <span>Du sparst dir</span>
+                <span className="relative inline-block max-w-full leading-none">
+                  <span className="invisible inline-flex max-w-full rounded-xl px-3 py-1.5">{LONGEST_WORD}</span>
+                  {HERO_SLIDES.map((s, i) => (
+                    <motion.span
+                      key={s.id}
+                      initial={false}
+                      animate={i === active ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
+                      transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: EASE_OUT }}
+                      className="absolute left-0 top-0 w-fit max-w-full rounded-xl bg-brand-100/80 px-3 py-1.5 leading-none text-brand-700"
+                    >
+                      <span className="block max-w-full break-words">{s.word}</span>
+                    </motion.span>
+                  ))}
+                </span>
+              </span>
+            </p>
+
             <p className="mx-auto mt-5 max-w-xl text-[15px] leading-7 text-slate-500 sm:mt-6 sm:text-lg sm:leading-relaxed lg:mx-0">
-              Gleistrix macht aus jedem Auftrag einen fertig vorbereiteten Einsatz – mit Personal, Technik, Dokumentation und Abrechnung in einer Plattform.
+              Gleistrix verbindet Projektmanagement, Einsatzplanung, Mitarbeiter, Fahrzeuge, Dokumentation und Abrechnung in einer zentralen Software für Bahndienstleister.
             </p>
 
             <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:mt-9 sm:flex-row sm:items-center lg:justify-start">

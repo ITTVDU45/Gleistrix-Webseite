@@ -158,6 +158,11 @@ export type PublicBlogArticle = Pick<
 > & {
   /** Bereits aufgelöst: veröffentlicht am oder geplant für. */
   date: string;
+  /**
+   * Letzte inhaltliche Änderung – nie vor `date`. Speist `dateModified` im
+   * Article-Markup und `lastmod` in der Sitemap.
+   */
+  modified: string;
   /** Geschätzte Lesezeit in Minuten, aus der Textlänge. */
   readMinutes: number;
 };
