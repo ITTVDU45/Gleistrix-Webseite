@@ -21,10 +21,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: entry.metaTitle ?? `${entry.title} Integration für Bahndienstleister`,
     description: entry.metaDescription ?? entry.description,
     path: `/integrationen/${entry.slug}`,
-    // Gesetzt bei den Integrationen ohne eigenständige Suchnachfrage: Die
-    // Seite bleibt erreichbar, benennt aber die Übersicht als indexierbare
-    // Fassung.
-    canonical: entry.canonicalTo,
+    // Anbindungen ohne Produktbeleg: erreichbar, aber nicht im Index.
+    index: !entry.unlisted,
     // Nur das Foto, nicht `entry.logo`: Integrationslogos sind schmale
     // Freisteller mit Transparenz und ergeben als Vorschaubild eine Karte, die
     // auf dunklen Oberflächen unsichtbar ist.

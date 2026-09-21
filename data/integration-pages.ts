@@ -326,6 +326,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "lexoffice",
+    unlisted: true,
     crossLinks: [
       { text: "Wo die Rechnung entsteht, beschreibt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
       { text: "Für die durchgehende Kette vom Angebot bis zur Rechnung siehe", href: "/branchen/auftragsbasierte-dienstleister", label: "Software für auftragsbasierte Dienstleister" },
@@ -422,6 +423,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   },
   {
     slug: "sevdesk",
+    unlisted: true,
     crossLinks: [
       { text: "Wo die Rechnungsdaten herkommen, zeigt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
       { text: "Die Alternative in derselben Rolle ist", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
@@ -524,7 +526,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Stunden- und Abrechnungsdaten für die Agenda-Lohn- und Finanzbuchhaltung bereitstellen – geprüft und im passenden Schnitt.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("agenda"),
     highlights: [
       {
@@ -555,7 +557,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Zahlungen über Stripe abwickeln und automatisch der richtigen Rechnung zuordnen.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("stripe"),
     highlights: [
       {
@@ -586,7 +588,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "PayPal als zusätzlichen Zahlungsweg anbieten – mit derselben Zuordnung zu Rechnung und Projekt.",
     icon: Banknote,
     group: "Buchhaltung & Finanzen",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("paypal"),
     highlights: [
       {
@@ -714,7 +716,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Einsatzinformationen und Rückmeldungen über Telegram austauschen – dort, wo die Teams ohnehin erreichbar sind.",
     icon: MessageCircle,
     group: "Kommunikation & Kalender",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("telegram"),
     highlights: [
       {
@@ -745,7 +747,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Termine über Cal.com buchbar machen – Verfügbarkeiten kommen aus der Planung, nicht aus dem Bauchgefühl.",
     icon: CalendarCheck,
     group: "Kommunikation & Kalender",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("cal-com"),
     highlights: [
       {
@@ -776,7 +778,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Beratungs- und Bewerbungstermine über Calendly anbieten und automatisch in die Planung übernehmen.",
     icon: CalendarCheck,
     group: "Kommunikation & Kalender",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("calendly"),
     highlights: [
       {
@@ -807,7 +809,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Offene Stellen über Indeed ausschreiben und Bewerbungen dort weiterverfolgen, wo auch geplant wird.",
     icon: UserSearch,
     group: "Personal & Recruiting",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("indeed"),
     highlights: [
       {
@@ -838,7 +840,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       "Fachkräfte über StepStone erreichen und den Bewerbungsprozess an die Einsatzplanung anschließen.",
     icon: UserSearch,
     group: "Personal & Recruiting",
-    canonicalTo: "/integrationen",
+    unlisted: true,
     logo: logoOf("stepstone"),
     highlights: [
       {
@@ -867,7 +869,7 @@ export const INTEGRATION_CATALOG: Catalog = {
   basePath: "/integrationen",
   singular: "Integration",
   plural: "Integrationen",
-  menuNote: `${INTEGRATION_PAGES.length} Anbindungen · sauber verzahnt`,
+  menuNote: `${INTEGRATION_PAGES.filter((entry) => !entry.unlisted).length} Anbindungen · sauber verzahnt`,
   scopeHeading: "Was die Anbindung an {title} übernimmt",
   ctaHeading: "{title} anbinden?",
   challengesHeading: "Was sich mit {title} ändert",
@@ -875,5 +877,7 @@ export const INTEGRATION_CATALOG: Catalog = {
   faqHeading: "Häufige Fragen zu {title}",
   overviewHref: "/integrationen",
   overviewLabel: "Alle Integrationen ansehen",
-  entries: INTEGRATION_PAGES,
+  // Nur Anbindungen mit Produktbeleg (GAEB, Deutsche Bahn, DATEV,
+  // Microsoft 365). Die übrigen Seiten bleiben erreichbar, siehe `unlisted`.
+  entries: INTEGRATION_PAGES.filter((entry) => !entry.unlisted),
 };

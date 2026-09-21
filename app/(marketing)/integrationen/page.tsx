@@ -11,9 +11,9 @@ import { pageMetadata } from "@/lib/seo-metadata";
 export const dynamic = "force-static";
 
 export const metadata = pageMetadata({
-  title: "Integrationen: GAEB, DATEV, Microsoft 365 & mehr",
+  title: "Integrationen: GAEB, DATEV, Microsoft 365 & Deutsche Bahn",
   description:
-    "Verbinde Gleistrix mit GAEB, DATEV, Microsoft 365, lexoffice, sevdesk, Kalender-, Zahlungs- und Recruiting-Systemen für durchgängige Bahnprozesse.",
+    "Gleistrix liest GAEB-Leistungsverzeichnisse ein, übergibt Buchungsdaten an DATEV, arbeitet mit Microsoft 365 und übernimmt Leistungsanfragen der Deutschen Bahn.",
   path: "/integrationen",
 });
 
@@ -65,9 +65,9 @@ export default function Page() {
             <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">
               <p>
                 Die Anbindungen auf dieser Seite sind unterschiedlicher Natur, und das ist wichtig für die Erwartung.
-                Bei GAEB geht es um ein Dateiformat: Leistungsverzeichnisse werden eingelesen, kalkuliert und im
-                geforderten Austauschformat zurückgegeben. Bei DATEV, lexoffice und sevdesk geht es um die Übergabe
-                geprüfter Daten an die Buchhaltung, ohne sie ein zweites Mal zu erfassen. Bei Microsoft 365 geht es
+                Bei GAEB geht es um ein Dateiformat: Leistungsverzeichnisse werden eingelesen, gegen das Schema
+                geprüft und ihre Positionen dem Projekt zugeordnet. Bei DATEV geht es um die Übergabe von
+                Buchungsdaten und Belegen an die Steuerberatung, ohne sie ein zweites Mal zu erfassen. Bei Microsoft 365 geht es
                 darum, dass das Team seine gewohnten Werkzeuge behält.
               </p>
               <p>
