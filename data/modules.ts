@@ -43,7 +43,9 @@ export const MODULES: CatalogEntry[] = [
     metaTitle: "Disposition Software für Bahnbau & Gleisbau",
     icon: KanbanSquare,
     group: "Planung & Steuerung",
-    image: "/einsatzvorbereitung-logistik.webp",
+    image: "/media/module/projektplanung-ui.webp",
+    video: "/media/module/projektplanung-ui.mp4",
+    mascot: "/media/module/projekte.webp",
     highlights: [
       {
         title: "Eine Projektakte",
@@ -139,7 +141,9 @@ export const MODULES: CatalogEntry[] = [
       "Alle Schichten und Einsätze in einer Plantafel: gefiltert nach Trupp und Projekt, mit Nacht- und Wochenendschichten – live für Disposition und Team.",
     icon: CalendarRange,
     group: "Planung & Steuerung",
-    image: "/standortbezogene-disposition.webp",
+    image: "/media/module/plantafel-ui.webp",
+    video: "/media/module/plantafel-ui.mp4",
+    mascot: "/media/module/plantafel.webp",
     highlights: [
       {
         title: "Woche, Monat, Trupp",
@@ -235,7 +239,9 @@ export const MODULES: CatalogEntry[] = [
       "Auslastung, Kosten und Deckungsbeiträge je Bahnprojekt in Echtzeit – gebildet aus Schichten, Stunden und Rechnungen, als Bericht exportierbar.",
     icon: BarChart3,
     group: "Planung & Steuerung",
-    image: "/reports.webp",
+    image: "/media/module/reports-ui.webp",
+    video: "/media/module/reports-ui.mp4",
+    mascot: "/media/module/projekte.webp",
     highlights: [
       {
         title: "Auslastung sehen",
@@ -331,7 +337,9 @@ export const MODULES: CatalogEntry[] = [
       "Personal, Qualifikationen und Abwesenheiten verwalten: Sicherungsposten, Sicherungsaufsicht und Tauglichkeiten mit Fristenwarnung, Urlaub in der Plantafel.",
     icon: Users,
     group: "Team & Ressourcen",
-    image: "/sicherungspersonal-gleis.webp",
+    image: "/media/module/mitarbeiter-ui.webp",
+    video: "/media/module/mitarbeiter-ui.mp4",
+    mascot: "/media/module/team.webp",
     highlights: [
       {
         title: "Qualifikationen im Blick",
@@ -427,7 +435,9 @@ export const MODULES: CatalogEntry[] = [
       "Fahrzeuge, Geräte und Sicherungstechnik zentral führen: HU, UVV und Prüffristen mit Warnung, Wartungshistorie dokumentiert, direkt disponierbar.",
     icon: Wrench,
     group: "Team & Ressourcen",
-    image: "/fahrzeugplanung.webp",
+    image: "/media/module/team-ui.webp",
+    video: "/media/module/team-ui.mp4",
+    mascot: "/media/module/team.webp",
     highlights: [
       {
         title: "Fristen laufen nicht ab",
@@ -523,7 +533,9 @@ export const MODULES: CatalogEntry[] = [
       "Material, Geräte und Sicherungstechnik mit Beständen, Mindestmengen und Reservierungen verwalten – Entnahmen laufen projektbezogen in die Abrechnung.",
     icon: Package,
     group: "Team & Ressourcen",
-    image: "/einsatzvorbereitung-logistik.webp",
+    image: "/media/module/lager-ui.webp",
+    video: "/media/module/lager-ui.mp4",
+    mascot: "/media/module/lager.webp",
     highlights: [
       {
         title: "Bestand in Echtzeit",
@@ -619,7 +631,9 @@ export const MODULES: CatalogEntry[] = [
       "Zeiten mobil auf der Baustelle erfassen: prüffähige Stundenzettel mit Nacht- und Wochenendzuschlägen, ohne Abtippen direkt in Abrechnung und Lohn.",
     icon: Clock,
     group: "Nachweise & Abrechnung",
-    image: "/zeiterfassung.webp",
+    image: "/media/module/zeiterfassung-ui.webp",
+    video: "/media/module/zeiterfassung-ui.mp4",
+    mascot: "/media/module/abrechnung.webp",
     highlights: [
       {
         title: "Erfassung vor Ort",
@@ -715,7 +729,9 @@ export const MODULES: CatalogEntry[] = [
       "Pläne, Nachweise und Protokolle revisionssicher in der Projektakte: Versionen und Freigaben dokumentiert, bei Audits in Sekunden auskunftsfähig.",
     icon: FolderOpen,
     group: "Nachweise & Abrechnung",
-    image: "/loesungen.webp",
+    image: "/media/module/dokumente-ui.webp",
+    video: "/media/module/dokumente-ui.mp4",
+    mascot: "/media/module/dokumente.webp",
     highlights: [
       {
         title: "Alles am Projekt",
@@ -812,7 +828,9 @@ export const MODULES: CatalogEntry[] = [
       "Aus geprüften Stunden und Leistungen zur Rechnung: X-Rechnung für öffentliche Auftraggeber, Abrechnung nach LV und GAEB, saubere Übergabe an DATEV.",
     icon: FileText,
     group: "Nachweise & Abrechnung",
-    image: "/rechnungen.webp",
+    image: "/media/module/abrechnung-ui.webp",
+    video: "/media/module/abrechnung-ui.mp4",
+    mascot: "/media/module/abrechnung.webp",
     highlights: [
       {
         title: "Ohne Zweiterfassung",

@@ -1070,8 +1070,8 @@ function CustomDevelopmentSection() {
         <figure className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 shadow-soft-sm">
           <div className="relative aspect-[4/5] sm:aspect-[5/4] lg:aspect-[4/5]">
             <Image
-              src="/loesungen.webp"
-              alt="Digitaler Gleistrix-Arbeitsplatz mit Blick auf eine Gleisbaustelle"
+              src="/media/seiten/preise-arbeitsplatz.webp"
+              alt="Der Gleistrix-Fuchs am digitalen Arbeitsplatz mit Blick auf eine Gleisbaustelle"
               fill
               sizes="(max-width: 1024px) 100vw, 44vw"
               className="object-cover"

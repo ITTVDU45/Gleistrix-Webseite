@@ -315,6 +315,33 @@ Der freigestellte Fuchs steht weiterhin an der linken unteren Kante, jetzt etwas
 Navigationsleiste verdeckt. `ModuleVisual` bleibt als Rückfall für Module ohne Sequenz
 (zum Beispiel „KI-Agenten“).
 
+### Phase B-Nachtrag – Modul- und Branchenseiten (21.09.2026)
+
+Die Hero-Bilder der Detailseiten kamen nicht aus den Platzhaltern, sondern aus den
+Katalogdaten (`data/modules.ts`, `data/industries.ts`) – dort standen noch die alten
+Stockfotos. Umgestellt:
+
+| Bereich | Neu |
+|---|---|
+| 9 Modulseiten | echte Oberfläche als Loop plus Fuchs davor; neue Felder `video` und `mascot` in `CatalogEntry`, `image` ist das Standbild |
+| 5 Branchenseiten | neue Fuchs-Motive in `media/branchen/` (nano_banana_2, 4:3) |
+| /produkt Kopf | Dashboard-Loop statt Foto |
+| /produkt Galerie und Akkordeon | Standbilder der echten Oberfläche, Galerie-Kacheln auf 16:9 |
+| /preise | neues Hochformat `seiten/preise-arbeitsplatz.webp` |
+| /ueber-uns | Schichtbriefing aus den Branchenmotiven |
+
+Vier weitere Filmsequenzen geschnitten: Projekt anlegen (66 s), Mitarbeiter-App
+„Mein Einsatz“ (98,5 s), Zeiteintrag (127 s), Reporting (152 s). Gepolsterte Ausschnitte
+haben jetzt eine weichgezeichnete Hintergrundfläche aus demselben Bild statt einer flachen
+Farbe – das entfernt die sichtbare Kante. Lager und Dokumente sind damit neu gerendert
+(wirkt auch im Slider der Startseite).
+
+Nachgemessen: 17 Seiten, alle 200, kein altes Stockbild mehr im HTML, jede Modulseite mit
+eigenem Loop. Credits: 6 Motive × ~2 = rund 12.
+
+Noch mit altem Bildmaterial: Blog-Titelbilder (`data/blog.ts`, Admin-Store) und das
+Standard-Vorschaubild für soziale Netzwerke in `lib/seo-metadata.ts` – nicht angefasst.
+
 ### Offen
 
 - Animierte Balken in `ModuleVisual`: hinfällig, solange die echten Software-Sequenzen

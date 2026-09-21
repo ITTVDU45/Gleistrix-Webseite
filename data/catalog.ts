@@ -90,6 +90,13 @@ export type CatalogEntry = {
   group: string;
   /** Motiv im Seitenkopf. Ohne Bild rendert die Detailseite die Logokarte. */
   image?: string;
+  /**
+   * Loop der echten Oberfläche mit Mauszeiger. Gesetzt ⇒ `image` ist das
+   * Standbild dazu, und der Seitenkopf zeigt einen Bildschirm statt eines Fotos.
+   */
+  video?: string;
+  /** Freigestellter Fuchs, der vor dem Bildschirm steht. Nur zusammen mit `video`. */
+  mascot?: string;
   /** Logo statt Foto – so treten Integrationen auf. */
   logo?: { src: string; width: number; height: number };
   highlights: CatalogHighlight[];

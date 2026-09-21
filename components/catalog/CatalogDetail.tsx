@@ -6,6 +6,7 @@ import type { Catalog, CatalogEntry } from "@/data/catalog";
 import { fillHeading, relatedEntries } from "@/data/catalog";
 import Reveal from "@/components/landing/Reveal";
 import CardMedia from "@/components/media/CardMedia";
+import LoopVideo from "@/components/media/LoopVideo";
 import MediaFrame from "@/components/media/MediaFrame";
 import CTASection from "@/components/sections/CTASection";
 import { Button } from "@/components/ui/button";
@@ -275,6 +276,30 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
 }
 
 function CatalogMedia({ entry }: { entry: CatalogEntry }) {
+  // Module zeigen die echte Oberfläche als Loop, samt Fuchs davor – dieselbe
+  // Darstellung wie im Modul-Slider der Startseite.
+  if (entry.video && entry.image) {
+    return (
+      <div className="relative w-full min-w-0">
+        <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-slate-900/8 bg-[#0B1220] shadow-soft sm:rounded-3xl">
+          <Image src={entry.image} alt={`${entry.title} in Gleistrix`} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" priority />
+          <LoopVideo src={entry.video} />
+        </div>
+        {entry.mascot && (
+          <Image
+            src={entry.mascot}
+            alt=""
+            aria-hidden
+            width={700}
+            height={933}
+            sizes="(min-width: 640px) 120px, 88px"
+            className="pointer-events-none absolute -bottom-6 -left-3 w-[88px] drop-shadow-[0_18px_28px_rgba(30,27,75,0.22)] motion-safe:animate-float sm:-bottom-8 sm:-left-5 sm:w-[120px]"
+          />
+        )}
+      </div>
+    );
+  }
+
   if (entry.image) {
     return (
       <div className="relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-2xl border border-slate-900/8 bg-[#f8fafc] shadow-soft sm:rounded-3xl">

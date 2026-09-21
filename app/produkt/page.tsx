@@ -7,6 +7,7 @@ import PageHero from "@/components/landing/PageHero";
 import ScreensGallery from "@/components/landing/ScreensGallery";
 import SectionHeading from "@/components/landing/SectionHeading";
 import Reveal from "@/components/landing/Reveal";
+import LoopVideo from "@/components/media/LoopVideo";
 import MediaFrame from "@/components/media/MediaFrame";
 import CTASection from "@/components/sections/CTASection";
 import { pageMetadata } from "@/lib/seo-metadata";
@@ -36,15 +37,18 @@ export default function ProduktPage() {
         ]}
       >
         <Reveal>
-          <div className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-slate-900/8 bg-[#f8fafc] shadow-soft">
+          {/* Das echte Dashboard samt Mauszeiger statt eines Fotos – die Seite
+              heißt „Plattform“, also zeigt der Kopf die Plattform. */}
+          <div className="relative aspect-[16/9] overflow-hidden rounded-3xl border border-slate-900/8 bg-[#0B1220] shadow-soft">
             <Image
-              src="/standortbezogene-disposition.webp"
-              alt="Gleistrix Standortbezogene Disposition"
+              src="/media/module/projekte-ui.webp"
+              alt="Gleistrix-Dashboard mit Projekten, Stunden und Fahrzeugen"
               fill
               sizes="(min-width: 768px) 960px, 100vw"
-              className="object-contain p-6"
+              className="object-cover"
               priority
             />
+            <LoopVideo src="/media/module/projekte-ui.mp4" />
           </div>
         </Reveal>
       </PageHero>
