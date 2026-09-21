@@ -256,7 +256,7 @@ export default function Page() {
                 das Zuweisen ein und nicht in einen nächtlichen Prüflauf.
               </p>
               <p>
-                Deshalb sind auch die KI-Agenten durchgängig abschaltbar. Im Bahnumfeld muss nachvollziehbar bleiben, wer
+                Deshalb sind auch die KI-Funktionen durchgängig optional, und jedes Ergebnis wird vor der Übernahme geprüft. Im Bahnumfeld muss nachvollziehbar bleiben, wer
                 eine Freigabe erteilt hat – eine Automatisierung, die diese Zuordnung verwischt, wäre in einer Prüfung
                 mehr Last als Hilfe.
               </p>

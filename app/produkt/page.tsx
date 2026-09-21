@@ -144,8 +144,8 @@ export default function ProduktPage() {
                 Gleistrix an vorhandene Buchhaltungs-, Kalender- und Ausschreibungssysteme anschließt.
               </p>
               <p>
-                Die KI-Agenten sind dabei durchgängig optional. Sie lassen sich pro Unternehmen zuschalten oder
-                abschalten, und die Plattform funktioniert vollständig ohne sie – das ist eine bewusste Entscheidung,
+                Die KI-Funktionen – etwa die Auswertung von Leistungsverzeichnissen oder das Erfassen von Belegen –
+                sind dabei durchgängig optional, und die Plattform funktioniert vollständig ohne sie – das ist eine bewusste Entscheidung,
                 weil im Bahnumfeld nachvollziehbar bleiben muss, wer eine Freigabe erteilt hat.
               </p>
             </div>
