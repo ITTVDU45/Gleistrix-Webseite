@@ -19,7 +19,7 @@ export default function PricingBox(props: PricingBoxProps) {
   const { title, priceLabel, admins, users, features, highlighted, ctaLabel, ctaHref, analyticsId } = props;
 
   const containerClasses = highlighted
-    ? "border-indigo-200 bg-white shadow-soft lg:scale-[1.04]"
+    ? "border-brand-200 bg-white shadow-soft lg:scale-[1.04]"
     : "border-slate-900/8 bg-white shadow-soft-sm";
 
   return (
@@ -42,7 +42,7 @@ export default function PricingBox(props: PricingBoxProps) {
       <ul className="mt-6 space-y-2.5">
         {features.map((feature) => (
           <li key={feature} className="flex items-start gap-2.5 text-sm text-slate-600">
-            <span className="mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+            <span className="mt-0.5 flex h-4.5 w-4.5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
               <Check className="h-3 w-3" />
             </span>
             {feature}
@@ -55,7 +55,7 @@ export default function PricingBox(props: PricingBoxProps) {
           asChild
           className={
             highlighted
-              ? "w-full rounded-xl bg-indigo-600 text-white shadow-soft-sm transition-all hover:bg-indigo-500 hover:shadow-soft"
+              ? "w-full rounded-xl bg-brand-600 text-white shadow-soft-sm transition-all hover:bg-brand-500 hover:shadow-soft"
               : "w-full rounded-xl border border-slate-200 bg-white text-slate-700 shadow-none transition-all hover:bg-slate-50 hover:text-slate-900"
           }
           variant={highlighted ? "default" : "outline"}

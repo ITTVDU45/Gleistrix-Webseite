@@ -49,8 +49,8 @@ export default function Hero() {
   return (
     <section aria-labelledby="hero-heading" className="relative overflow-hidden bg-white pb-14 pt-28 sm:pb-16 sm:pt-32 md:pb-20 md:pt-40">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-[440px] w-[700px] max-w-[160vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.14),transparent)] sm:h-[560px] sm:w-[900px]" />
-        <div className="absolute -left-48 top-32 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.10),transparent)] sm:-left-40 sm:h-[420px] sm:w-[420px]" />
+        <div className="absolute -top-40 left-1/2 h-[440px] w-[700px] max-w-[160vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.14),transparent)] sm:h-[560px] sm:w-[900px]" />
+        <div className="absolute -left-48 top-32 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(9,35,202,0.10),transparent)] sm:-left-40 sm:h-[420px] sm:w-[420px]" />
       </div>
 
       <div className="page-container relative">
@@ -58,7 +58,7 @@ export default function Hero() {
           <div className="min-w-0 text-center lg:text-left">
             <div>
               <span className="glass inline-flex max-w-full items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-semibold leading-5 text-slate-600 shadow-soft-sm sm:px-4 sm:text-xs">
-                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" />
                 ERP-Plattform für den Bahnbetrieb
               </span>
             </div>
@@ -73,7 +73,7 @@ export default function Hero() {
                     initial={false}
                     animate={i === active ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
                     transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: EASE_OUT }}
-                    className="absolute inset-x-0 top-0 mx-auto w-fit max-w-full rounded-2xl bg-indigo-100/80 px-3 py-2 text-[0.82em] leading-[1.05] text-indigo-700 sm:px-5 sm:text-[1em] lg:mx-0"
+                    className="absolute inset-x-0 top-0 mx-auto w-fit max-w-full rounded-2xl bg-brand-100/80 px-3 py-2 text-[0.82em] leading-[1.05] text-brand-700 sm:px-5 sm:text-[1em] lg:mx-0"
                   >
                     <span className="block max-w-full break-words">{s.word}</span>
                   </motion.span>
@@ -91,7 +91,7 @@ export default function Hero() {
             </p>
 
             <div className="mt-7 flex flex-col items-stretch justify-center gap-3 sm:mt-9 sm:flex-row sm:items-center lg:justify-start">
-              <Button asChild size="lg" className="h-12 w-full rounded-xl bg-indigo-600 px-6 text-sm text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-indigo-500 sm:w-auto sm:px-7 sm:text-base">
+              <Button asChild size="lg" className="h-12 w-full rounded-xl bg-brand-600 px-6 text-sm text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-500 sm:w-auto sm:px-7 sm:text-base">
                 <Link href="/demo-buchen">Demo anfragen</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="h-12 w-full rounded-xl border-slate-200 bg-white/70 px-6 text-sm text-slate-700 backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-slate-900 sm:w-auto sm:px-7 sm:text-base">
@@ -102,7 +102,7 @@ export default function Hero() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-2 sm:mt-9 lg:justify-start">
               <span className="w-full text-center text-xs font-medium text-slate-500 sm:mr-1 sm:w-auto sm:text-left">Gemacht für</span>
               {HERO_SLIDES.map((s, i) => (
-                <button key={s.id} type="button" onClick={() => setActive(i)} aria-pressed={i === active} className={"min-h-9 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all " + (i === active ? "border-indigo-200 bg-indigo-50 text-indigo-700 shadow-soft-sm" : "border-slate-200 bg-white/70 text-slate-500 hover:border-slate-300 hover:text-slate-700")}>{s.audienceShort}</button>
+                <button key={s.id} type="button" onClick={() => setActive(i)} aria-pressed={i === active} className={"min-h-9 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all " + (i === active ? "border-brand-200 bg-brand-50 text-brand-700 shadow-soft-sm" : "border-slate-200 bg-white/70 text-slate-500 hover:border-slate-300 hover:text-slate-700")}>{s.audienceShort}</button>
               ))}
             </div>
           </div>

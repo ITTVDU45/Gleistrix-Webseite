@@ -32,16 +32,16 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
     <>
       <section className="relative overflow-hidden bg-white pb-12 pt-28 sm:pb-16 sm:pt-32 md:pb-24 md:pt-40">
         <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-40 left-1/2 h-[420px] w-[680px] max-w-[150vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.13),transparent)] sm:h-[480px] sm:w-[820px]" />
-          <div className="absolute -right-40 top-20 h-[280px] w-[280px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.10),transparent)] sm:-right-32 sm:top-24 sm:h-[360px] sm:w-[360px]" />
+          <div className="absolute -top-40 left-1/2 h-[420px] w-[680px] max-w-[150vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.13),transparent)] sm:h-[480px] sm:w-[820px]" />
+          <div className="absolute -right-40 top-20 h-[280px] w-[280px] rounded-full bg-[radial-gradient(closest-side,rgba(9,35,202,0.10),transparent)] sm:-right-32 sm:top-24 sm:h-[360px] sm:w-[360px]" />
         </div>
 
         <div className="page-container relative">
           <nav aria-label="Breadcrumb" className="overflow-hidden text-xs text-slate-400 sm:text-sm">
             <ol className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-              <li><Link href="/" className="transition-colors hover:text-indigo-600">Startseite</Link></li>
+              <li><Link href="/" className="transition-colors hover:text-brand-600">Startseite</Link></li>
               <li aria-hidden>/</li>
-              <li className="min-w-0"><Link href={catalog.overviewHref} className="transition-colors hover:text-indigo-600">{catalog.plural}</Link></li>
+              <li className="min-w-0"><Link href={catalog.overviewHref} className="transition-colors hover:text-brand-600">{catalog.plural}</Link></li>
               <li aria-hidden>/</li>
               <li aria-current="page" className="min-w-0 text-slate-600">{entry.title}</li>
             </ol>
@@ -49,7 +49,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
 
           <div className="mt-7 grid min-w-0 items-center gap-8 sm:mt-8 sm:gap-10 md:grid-cols-2 md:gap-14">
             <Reveal className="min-w-0">
-              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-indigo-200/70 bg-indigo-50/80 px-3 py-1 text-[11px] font-semibold tracking-wide text-indigo-700 sm:px-3.5 sm:text-xs">
+              <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-brand-200/70 bg-brand-50/80 px-3 py-1 text-[11px] font-semibold tracking-wide text-brand-700 sm:px-3.5 sm:text-xs">
                 <Icon aria-hidden className="h-3.5 w-3.5 shrink-0" />
                 <span className="min-w-0">{catalog.singular}</span>
               </span>
@@ -57,7 +57,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
               <p className="mt-4 max-w-xl text-[15px] leading-7 text-slate-500 sm:text-lg sm:leading-relaxed">{entry.description}</p>
 
               <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
-                <Button asChild size="lg" className="h-12 w-full rounded-xl bg-indigo-600 px-6 text-sm text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-indigo-500 sm:w-auto sm:px-7 sm:text-base">
+                <Button asChild size="lg" className="h-12 w-full rounded-xl bg-brand-600 px-6 text-sm text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-500 sm:w-auto sm:px-7 sm:text-base">
                   <Link href="/demo-buchen">Demo anfragen</Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="h-12 w-full rounded-xl border-slate-200 bg-white/70 px-6 text-sm text-slate-700 backdrop-blur transition-all hover:-translate-y-0.5 hover:bg-white hover:text-slate-900 sm:w-auto sm:px-7 sm:text-base">
@@ -80,7 +80,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                 <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-900/8 bg-white shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft sm:rounded-3xl">
                   <CardMedia src={scenes[index % scenes.length].src} alt={scenes[index % scenes.length].alt} aspect="aspect-[3/2]" sizes="(min-width: 768px) 33vw, 100vw" />
                   <div className="relative flex flex-1 flex-col p-5 sm:p-7">
-                    <span className="absolute -top-5 left-5 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-soft ring-1 ring-slate-900/5 sm:left-7 sm:h-11 sm:w-11 sm:rounded-2xl"><Icon aria-hidden className="h-5 w-5" /></span>
+                    <span className="absolute -top-5 left-5 flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-600 shadow-soft ring-1 ring-slate-900/5 sm:left-7 sm:h-11 sm:w-11 sm:rounded-2xl"><Icon aria-hidden className="h-5 w-5" /></span>
                     <h3 className="mt-4 text-base font-bold text-slate-900 sm:mt-5 sm:text-lg">{highlight.title}</h3>
                     <p className="mt-2.5 text-sm leading-6 text-slate-500 sm:leading-relaxed">{highlight.text}</p>
                   </div>
@@ -95,7 +95,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
         <div className="page-container">
           <div className="grid min-w-0 gap-8 sm:gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:gap-14">
             <Reveal className="min-w-0">
-              <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Im Detail</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-brand-600">Im Detail</span>
               <h2 id="catalog-scope" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{fillHeading(catalog.scopeHeading, entry.title)}</h2>
               <p className="mt-4 max-w-md text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">{entry.tagline} – abgestimmt auf den Alltag von Bahndienstleistern und im Zusammenspiel mit allen anderen Bereichen der Plattform.</p>
               {/* Bild statt weiterer Fließtext: Die rechte Spalte ist bereits
@@ -107,7 +107,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
               <ul className="grid gap-3 sm:grid-cols-2">
                 {entry.bullets.map((bullet) => (
                   <li key={bullet} className="flex min-w-0 items-start gap-3 rounded-2xl border border-slate-900/8 bg-[#f8fafc] px-4 py-3.5 text-sm leading-6 text-slate-600 sm:leading-relaxed">
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600"><Check aria-hidden className="h-3 w-3" /></span>
+                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600"><Check aria-hidden className="h-3 w-3" /></span>
                     <span className="min-w-0">{bullet}</span>
                   </li>
                 ))}
@@ -122,7 +122,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
           <div className="page-container">
             <Reveal className="min-w-0">
               <div className="max-w-2xl">
-                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">Herausforderung &amp; Lösung</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-brand-600">Herausforderung &amp; Lösung</span>
                 <h2 id="catalog-challenges" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Was sich mit {entry.title} ändert</h2>
                 <p className="mt-4 text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">Situationen, die im Bahnalltag regelmäßig Zeit und Nerven kosten – und daneben, wie derselbe Vorgang in Gleistrix abläuft.</p>
               </div>
@@ -143,7 +143,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                       <p className="mt-3.5 text-[15px] leading-7 text-slate-500 sm:mt-4 sm:text-base sm:leading-relaxed">{item.problem}</p>
                     </div>
                     <div className="min-w-0 border-t border-slate-900/8 bg-white p-5 sm:p-6 md:border-l md:border-t-0 md:p-8">
-                      <span className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-semibold text-indigo-700 sm:text-xs">
+                      <span className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-3 py-1 text-[11px] font-semibold text-brand-700 sm:text-xs">
                         <Check aria-hidden className="h-3.5 w-3.5 shrink-0" />
                         Mit Gleistrix
                       </span>
@@ -160,15 +160,15 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
       {entry.steps && entry.steps.length > 0 && (
         <section aria-labelledby="catalog-steps" className="relative overflow-hidden bg-slate-950 py-12 sm:py-16 md:py-24">
           <div aria-hidden className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-32 left-1/4 h-[320px] w-[420px] max-w-[150vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.30),transparent)] sm:h-[440px] sm:w-[640px]" />
-            <div className="absolute -bottom-40 right-0 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.22),transparent)] sm:h-[400px] sm:w-[400px]" />
+            <div className="absolute -top-32 left-1/4 h-[320px] w-[420px] max-w-[150vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.30),transparent)] sm:h-[440px] sm:w-[640px]" />
+            <div className="absolute -bottom-40 right-0 h-[300px] w-[300px] rounded-full bg-[radial-gradient(closest-side,rgba(9,35,202,0.22),transparent)] sm:h-[400px] sm:w-[400px]" />
           </div>
 
           <div className="page-container relative">
             <div className="grid min-w-0 items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] md:gap-12">
               <Reveal className="min-w-0">
                 <div className="max-w-2xl">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Ablauf</span>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-brand-300">Ablauf</span>
                   <h2 id="catalog-steps" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">So arbeitest du mit {entry.title}</h2>
                   <p className="mt-4 text-[15px] leading-7 text-slate-300 sm:text-base sm:leading-relaxed">Jeder Schritt baut auf dem vorherigen auf. Daten, die einmal im System stehen, werden weitergereicht statt erneut erfasst.</p>
                 </div>
@@ -182,7 +182,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
               <ol className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 md:mt-14 lg:grid-cols-4">
                 {entry.steps.map((step, index) => (
                   <li key={step.title} className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.04] p-5 backdrop-blur-sm sm:rounded-3xl sm:p-6">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/15 text-sm font-bold tabular-nums text-indigo-200 ring-1 ring-inset ring-indigo-400/30 sm:rounded-2xl">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/15 text-sm font-bold tabular-nums text-brand-200 ring-1 ring-inset ring-brand-400/30 sm:rounded-2xl">{String(index + 1).padStart(2, "0")}</span>
                     <h3 className="mt-4 text-base font-bold text-white sm:mt-5">{step.title}</h3>
                     <p className="mt-2.5 text-sm leading-6 text-slate-300 sm:leading-relaxed">{step.text}</p>
                   </li>
@@ -202,7 +202,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
           <div className="page-container">
             <div className="grid min-w-0 gap-8 sm:gap-10 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-14">
               <Reveal className="min-w-0">
-                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">FAQ</span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-brand-600">FAQ</span>
                 <h2 id="catalog-faq" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Häufige Fragen zu {entry.title}</h2>
                 <p className="mt-4 max-w-sm text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">Das fragen Bahndienstleister vor der Einführung am häufigsten. Was offen bleibt, klären wir in einer kurzen Demo.</p>
               </Reveal>
@@ -211,7 +211,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                 <div className="divide-y divide-slate-900/8 overflow-hidden rounded-2xl border border-slate-900/8 bg-[#f8fafc] sm:rounded-3xl">
                   {entry.faqs.map((faq) => (
                     <details key={faq.question} name="catalog-faq" className="group px-4 py-3.5 sm:px-5 sm:py-4 md:px-7 md:py-5">
-                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold text-slate-900 transition-colors hover:text-indigo-700 sm:gap-4 sm:text-base [&::-webkit-details-marker]:hidden">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[15px] font-semibold text-slate-900 transition-colors hover:text-brand-700 sm:gap-4 sm:text-base [&::-webkit-details-marker]:hidden">
                         <span className="min-w-0">{faq.question}</span>
                         <ChevronDown aria-hidden className="h-5 w-5 shrink-0 text-slate-400 transition-transform duration-300 group-open:rotate-180" />
                       </summary>
@@ -234,11 +234,11 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                 const RelatedIcon = item.icon;
                 return (
                   <Reveal key={item.slug} delay={index * 0.06}>
-                    <Link href={`${catalog.basePath}/${item.slug}`} className="group flex h-full min-w-0 flex-col rounded-2xl border border-slate-900/8 bg-white p-5 shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20 sm:rounded-3xl sm:p-6">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600"><RelatedIcon aria-hidden className="h-[18px] w-[18px]" /></span>
+                    <Link href={`${catalog.basePath}/${item.slug}`} className="group flex h-full min-w-0 flex-col rounded-2xl border border-slate-900/8 bg-white p-5 shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20 sm:rounded-3xl sm:p-6">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-50 text-brand-600"><RelatedIcon aria-hidden className="h-[18px] w-[18px]" /></span>
                       <h3 className="mt-4 text-base font-bold text-slate-900">{item.title}</h3>
                       <p className="mt-1.5 text-sm leading-6 text-slate-500 sm:leading-relaxed">{item.tagline}</p>
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">Ansehen<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" /></span>
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">Ansehen<ArrowRight aria-hidden className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" /></span>
                     </Link>
                   </Reveal>
                 );
@@ -258,7 +258,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                   {link.text}{" "}
                   <Link
                     href={link.href}
-                    className="font-semibold text-indigo-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20"
+                    className="font-semibold text-brand-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20"
                   >
                     {link.label}
                   </Link>
@@ -286,7 +286,7 @@ function CatalogMedia({ entry }: { entry: CatalogEntry }) {
   if (entry.logo) {
     return (
       <div className="relative flex aspect-[4/3] w-full min-w-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-900/8 bg-white shadow-soft sm:rounded-3xl">
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(closest-side,rgba(99,102,241,0.10),transparent)]" />
+        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(closest-side,rgba(51,98,255,0.10),transparent)]" />
         <Image src={entry.logo.src} alt={entry.title} width={entry.logo.width} height={entry.logo.height} sizes="320px" className="relative max-h-20 w-auto max-w-[70%] object-contain sm:max-h-24 sm:max-w-[60%]" priority />
       </div>
     );

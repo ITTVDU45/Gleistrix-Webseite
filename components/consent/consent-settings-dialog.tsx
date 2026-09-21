@@ -100,12 +100,12 @@ export function ConsentSettingsDialog() {
       >
         <div
           aria-hidden
-          className="h-1 shrink-0 bg-gradient-to-r from-indigo-500 to-violet-500"
+          className="h-1 shrink-0 bg-gradient-to-r from-brand-500 to-brand-700"
         />
 
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-slate-900/8 px-6 py-5 sm:px-8">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.14em] text-indigo-600">
+            <p className="text-xs font-medium uppercase tracking-[0.14em] text-brand-600">
               Datenschutz-Einstellungen
             </p>
             <h2
@@ -171,7 +171,7 @@ export function ConsentSettingsDialog() {
                   </p>
 
                   <details className="group mt-3">
-                    <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate-400 transition-colors hover:text-indigo-600">
+                    <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-xs font-medium uppercase tracking-[0.1em] text-slate-400 transition-colors hover:text-brand-600">
                       <ChevronDown
                         className="size-3.5 transition-transform duration-300 group-open:rotate-180"
                         aria-hidden
@@ -220,7 +220,7 @@ export function ConsentSettingsDialog() {
             ausgeschlossen werden. Details in unserer{" "}
             <Link
               href="/datenschutz"
-              className="text-slate-500 underline underline-offset-2 transition-colors hover:text-indigo-600"
+              className="text-slate-500 underline underline-offset-2 transition-colors hover:text-brand-600"
             >
               Datenschutzerklärung
             </Link>
@@ -247,7 +247,7 @@ export function ConsentSettingsDialog() {
             <button
               type="button"
               onClick={acceptAll}
-              className="h-11 flex-1 rounded-full bg-indigo-600 px-6 text-sm font-medium text-white transition-colors hover:bg-indigo-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2"
+              className="h-11 flex-1 rounded-full bg-brand-600 px-6 text-sm font-medium text-white transition-colors hover:bg-brand-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2"
             >
               Alle akzeptieren
             </button>
@@ -256,7 +256,7 @@ export function ConsentSettingsDialog() {
           <p className="mt-4 text-center text-xs text-slate-400">
             <Link
               href="/datenschutz"
-              className="transition-colors hover:text-indigo-600"
+              className="transition-colors hover:text-brand-600"
             >
               Datenschutz
             </Link>
@@ -265,7 +265,7 @@ export function ConsentSettingsDialog() {
             </span>
             <Link
               href="/impressum"
-              className="transition-colors hover:text-indigo-600"
+              className="transition-colors hover:text-brand-600"
             >
               Impressum
             </Link>

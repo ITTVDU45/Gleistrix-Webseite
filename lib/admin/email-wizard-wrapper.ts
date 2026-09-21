@@ -89,7 +89,7 @@ export function emailWizardWrapper({
     ? `
                       <table class="email-button-table" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:30px 0 32px; border-collapse:separate;">
                         <tr>
-                          <td class="email-button-cell" align="center" bgcolor="#4f46e5" style="background-color:#4f46e5; border-radius:12px; box-shadow:0 7px 16px rgba(79, 70, 229, 0.20);">
+                          <td class="email-button-cell" align="center" bgcolor="#1823fd" style="background-color:#1823fd; border-radius:12px; box-shadow:0 7px 16px rgba(24, 35, 253, 0.20);">
                             <a class="email-button" href="${escapeHtml(action.href)}" target="_blank" style="display:inline-block; padding:15px 24px; font-size:16px; line-height:20px; font-weight:700; color:#ffffff; text-decoration:none; border-radius:12px; white-space:nowrap;">
                               ${escapeHtml(action.label)}
                             </a>
@@ -100,10 +100,10 @@ export function emailWizardWrapper({
 
   const noticeHtml = notice
     ? `
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f5f7ff" style="width:100%; border-collapse:separate; background-color:#f5f7ff; border:1px solid #dfe3ff; border-radius:12px;">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f0f5ff" style="width:100%; border-collapse:separate; background-color:#f0f5ff; border:1px solid #dfeaff; border-radius:12px;">
                         <tr>
                           <td style="padding:20px 22px;">
-                            <p style="margin:0 0 5px; font-size:14px; line-height:20px; font-weight:700; color:#3730a3;">
+                            <p style="margin:0 0 5px; font-size:14px; line-height:20px; font-weight:700; color:#012695;">
                               ${escapeHtml(notice.title)}
                             </p>
                             <div style="font-size:13px; line-height:20px; color:#56627a;">
@@ -155,7 +155,7 @@ export function emailWizardWrapper({
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;">
                   <tr>
                     <td align="left" valign="middle">
-                      <img src="${BRAND_LOGO_URL}" width="172" alt="Gleistrix" border="0" style="display:block; width:172px; max-width:100%; height:auto; border:0; outline:none; text-decoration:none; font-size:24px; line-height:30px; font-weight:700; color:#2563eb;" />
+                      <img src="${BRAND_LOGO_URL}" width="172" alt="Gleistrix" border="0" style="display:block; width:172px; max-width:100%; height:auto; border:0; outline:none; text-decoration:none; font-size:24px; line-height:30px; font-weight:700; color:#1823fd;" />
                     </td>
                     <td class="email-brand-meta" align="right" valign="middle" style="font-size:11px; line-height:16px; font-weight:700; letter-spacing:1.3px; text-transform:uppercase; color:#64748b;">
                       Sicherer Erstzugang
@@ -169,11 +169,11 @@ export function emailWizardWrapper({
               <td bgcolor="#ffffff" style="overflow:hidden; background-color:#ffffff; border:1px solid #dce3ed; border-radius:16px; box-shadow:0 14px 36px rgba(38, 51, 77, 0.10);">
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%; border-collapse:collapse;">
                   <tr>
-                    <td bgcolor="#4f46e5" height="6" style="height:6px; background-color:#4f46e5; font-size:0; line-height:0;">&nbsp;</td>
+                    <td bgcolor="#1823fd" height="6" style="height:6px; background-color:#1823fd; font-size:0; line-height:0;">&nbsp;</td>
                   </tr>
                   <tr>
                     <td class="email-content" style="padding:48px 50px 44px;">
-                      <p style="margin:0 0 14px; font-size:12px; line-height:18px; font-weight:700; letter-spacing:1.35px; text-transform:uppercase; color:#4f46e5;">
+                      <p style="margin:0 0 14px; font-size:12px; line-height:18px; font-weight:700; letter-spacing:1.35px; text-transform:uppercase; color:#1823fd;">
                         ${escapeHtml(eyebrow)}
                       </p>
                       <h1 class="email-title" style="margin:0 0 24px; font-size:32px; line-height:39px; font-weight:700; letter-spacing:-0.6px; color:#172033;">

@@ -88,7 +88,7 @@ export function CarouselControls({
       <button
         type="button"
         onClick={() => onScroll("prev")}
-        className="group flex items-center gap-3 text-indigo-600 transition hover:text-indigo-800"
+        className="group flex items-center gap-3 text-brand-600 transition hover:text-brand-800"
         aria-label={prevLabel}
       >
         <span className="h-px w-24 bg-current transition group-hover:w-28" />
@@ -97,7 +97,7 @@ export function CarouselControls({
       <button
         type="button"
         onClick={() => onScroll("next")}
-        className="group flex items-center gap-3 text-indigo-600 transition hover:text-indigo-800"
+        className="group flex items-center gap-3 text-brand-600 transition hover:text-brand-800"
         aria-label={nextLabel}
       >
         <ChevronRight className="size-6" />

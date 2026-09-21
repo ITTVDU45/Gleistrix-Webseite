@@ -76,7 +76,7 @@ export function DifyChat() {
 
   return (
     <style>{`
-      #dify-chatbot-bubble-button { background-color: #4F46E5 !important; }
+      #dify-chatbot-bubble-button { background-color: #1823FD !important; }
       #dify-chatbot-bubble-window { width: 24rem !important; height: 40rem !important; }
     `}</style>
   );

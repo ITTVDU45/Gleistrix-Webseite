@@ -37,7 +37,7 @@ export default function FoxShowcase({ active }: FoxShowcaseProps) {
 
   return (
     <div ref={stageRef} onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} className="relative mx-auto h-[360px] w-full max-w-[560px] select-none min-[375px]:h-[400px] sm:h-[520px] lg:h-[600px]" style={{ perspective: 1200 }}>
-      <motion.div aria-hidden style={shouldReduceMotion ? undefined : { x: glowX, y: glowY }} className="absolute left-1/2 top-[42%] h-[300px] w-[300px] max-w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.22),rgba(139,92,246,0.10),transparent)] blur-2xl sm:h-[420px] sm:w-[420px]" />
+      <motion.div aria-hidden style={shouldReduceMotion ? undefined : { x: glowX, y: glowY }} className="absolute left-1/2 top-[42%] h-[300px] w-[300px] max-w-[90vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.22),rgba(9,35,202,0.10),transparent)] blur-2xl sm:h-[420px] sm:w-[420px]" />
       <div aria-hidden className="absolute bottom-[4%] left-1/2 h-10 w-[68%] -translate-x-1/2 rounded-[100%] bg-slate-900/12 blur-2xl sm:h-14" />
 
       <motion.div className="absolute inset-0" style={shouldReduceMotion ? undefined : { x: foxX, y: foxY, rotateY: foxRotate, transformStyle: "preserve-3d" }}>
@@ -70,12 +70,12 @@ export default function FoxShowcase({ active }: FoxShowcaseProps) {
         </div>
 
         <motion.div key={`audience-${slide.id}`} initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={fade ?? { duration: 0.45, ease: EASE_OUT, delay: 0.15 }} className="glass animate-float-delayed absolute right-0 top-12 flex max-w-[70%] items-center gap-1.5 rounded-full py-1.5 pl-1.5 pr-2.5 shadow-soft sm:top-20 sm:gap-2.5 sm:py-2 sm:pl-2 sm:pr-4">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white sm:h-7 sm:w-7"><slide.audienceIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /></span>
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white sm:h-7 sm:w-7"><slide.audienceIcon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /></span>
           <span className="truncate text-[10px] font-semibold text-slate-800 sm:text-xs">{slide.audience}</span>
         </motion.div>
 
         <motion.div key={`message-${slide.id}`} initial={shouldReduceMotion ? false : { opacity: 0, y: 14, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={fade ?? { duration: 0.5, ease: EASE_OUT, delay: 0.25 }} className="glass absolute bottom-20 left-0 w-[min(82%,280px)] rounded-2xl rounded-bl-md p-3 shadow-soft sm:bottom-28 sm:left-2 sm:w-[min(78%,300px)] sm:p-3.5">
-          <div className="flex items-center gap-2"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-500 to-violet-500 text-white"><Sparkles className="h-3 w-3" /></span><span className="text-[11px] font-bold text-slate-900 sm:text-xs">Gleistrix</span><span className="text-[9px] font-medium text-slate-400 sm:text-[10px]">jetzt</span><span className="ml-auto h-1.5 w-1.5 rounded-full bg-indigo-500" /></div>
+          <div className="flex items-center gap-2"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-brand-500 to-brand-700 text-white"><Sparkles className="h-3 w-3" /></span><span className="text-[11px] font-bold text-slate-900 sm:text-xs">Gleistrix</span><span className="text-[9px] font-medium text-slate-400 sm:text-[10px]">jetzt</span><span className="ml-auto h-1.5 w-1.5 rounded-full bg-brand-500" /></div>
           <p className="mt-2 line-clamp-3 text-[10px] leading-4 text-slate-600 sm:text-[12px] sm:leading-relaxed">{slide.message}</p>
         </motion.div>
       </motion.div>
@@ -87,7 +87,7 @@ export default function FoxShowcase({ active }: FoxShowcaseProps) {
               const isActive = mod.id === slide.moduleId;
               const Icon = mod.icon;
               return (
-                <motion.span key={mod.id} layout transition={fade ?? { duration: 0.45, ease: EASE_OUT }} className={"flex h-8 min-w-0 items-center gap-1.5 rounded-full px-2 sm:h-9 sm:gap-2 sm:px-3 " + (isActive ? "bg-indigo-600 text-white shadow-sm" : "text-slate-500")}>
+                <motion.span key={mod.id} layout transition={fade ?? { duration: 0.45, ease: EASE_OUT }} className={"flex h-8 min-w-0 items-center gap-1.5 rounded-full px-2 sm:h-9 sm:gap-2 sm:px-3 " + (isActive ? "bg-brand-600 text-white shadow-sm" : "text-slate-500")}>
                   <Icon className="h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4" />
                   {isActive && <motion.span initial={shouldReduceMotion ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={fade ?? { duration: 0.3, delay: 0.15 }} className="max-w-[110px] truncate text-[10px] font-semibold sm:max-w-none sm:whitespace-nowrap sm:text-xs">{mod.label}</motion.span>}
                 </motion.span>

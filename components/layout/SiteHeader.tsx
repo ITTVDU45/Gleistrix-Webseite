@@ -99,21 +99,18 @@ export default function SiteHeader() {
         >
           <div aria-hidden className={styles.headerGlass} />
           <div aria-hidden className={styles.headerHighlights}>
-            <div className="absolute -left-12 -top-16 h-36 w-36 rounded-full bg-cyan-300/20 blur-3xl" />
-            <div className="absolute -right-10 -top-20 h-40 w-40 rounded-full bg-violet-400/20 blur-3xl" />
+            <div className="absolute -left-12 -top-16 h-36 w-36 rounded-full bg-brand-300/20 blur-3xl" />
+            <div className="absolute -right-10 -top-20 h-40 w-40 rounded-full bg-brand-400/20 blur-3xl" />
             <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white to-transparent" />
           </div>
 
           <div className="relative z-10 flex h-16 items-center justify-between px-3.5 sm:px-4 md:h-[4.5rem]">
             <Link
               href="/"
-              className="group rounded-xl outline-none ring-indigo-500/30 transition focus-visible:ring-4"
+              className="group rounded-xl outline-none ring-brand-500/30 transition focus-visible:ring-4"
               aria-label="Gleistrix Startseite"
             >
-              <BrandLogo
-                markClassName="h-9 w-9 md:h-10 md:w-10"
-                wordmarkClassName="text-[1.35rem] md:text-[1.55rem]"
-              />
+              <BrandLogo className="h-7 md:h-8" />
             </Link>
 
             <nav
@@ -192,7 +189,7 @@ export default function SiteHeader() {
               </Button>
               <Button
                 asChild
-                className="group h-11 whitespace-nowrap rounded-full border border-white/35 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 px-4 text-[0.85rem] text-white shadow-[0_12px_28px_-14px_rgba(79,70,229,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500 hover:shadow-[0_18px_34px_-14px_rgba(79,70,229,0.9)]"
+                className="group h-11 whitespace-nowrap rounded-full border border-white/35 bg-gradient-to-r from-brand-500 via-brand-600 to-brand-800 px-4 text-[0.85rem] text-white shadow-[0_12px_28px_-14px_rgba(24,35,253,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:from-brand-500 hover:via-brand-500 hover:to-brand-700 hover:shadow-[0_18px_34px_-14px_rgba(24,35,253,0.9)]"
               >
                 <Link href="/demo-buchen">
                   Demo anfragen
@@ -206,7 +203,7 @@ export default function SiteHeader() {
               aria-label={menuOpen ? "Menü schließen" : "Menü öffnen"}
               aria-expanded={menuOpen}
               onClick={() => setMenuOpen((isOpen) => !isOpen)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/55 text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20 xl:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/70 bg-white/55 text-slate-800 shadow-[inset_0_1px_0_rgba(255,255,255,0.95)] backdrop-blur-xl transition hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20 xl:hidden"
             >
               <AnimatePresence initial={false}>
                 <motion.span
@@ -257,7 +254,7 @@ export default function SiteHeader() {
               >
                 <div
                   aria-hidden
-                  className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-violet-400/20 blur-3xl"
+                  className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-brand-400/20 blur-3xl"
                 />
                 <div className="relative z-10 flex flex-col gap-1">
                   {NAV_ITEMS.map((item, index) => {
@@ -312,7 +309,7 @@ export default function SiteHeader() {
                                   <Link
                                     href={catalog.overviewHref}
                                     onClick={() => setMenuOpen(false)}
-                                    className="block rounded-lg px-3 py-2 text-sm font-semibold text-indigo-600 transition-colors hover:bg-white/60"
+                                    className="block rounded-lg px-3 py-2 text-sm font-semibold text-brand-600 transition-colors hover:bg-white/60"
                                   >
                                     {catalog.overviewLabel}
                                   </Link>
@@ -331,7 +328,7 @@ export default function SiteHeader() {
                             }`}
                           >
                             {item.label}
-                            <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 opacity-60" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 opacity-60" />
                           </Link>
                         )}
                       </motion.div>
@@ -354,7 +351,7 @@ export default function SiteHeader() {
                   </Button>
                   <Button
                     asChild
-                    className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 text-white shadow-[0_14px_30px_-16px_rgba(79,70,229,0.9)] hover:from-blue-500 hover:via-indigo-500 hover:to-violet-500"
+                    className="mt-2 h-12 w-full rounded-xl bg-gradient-to-r from-brand-500 via-brand-600 to-brand-800 text-white shadow-[0_14px_30px_-16px_rgba(24,35,253,0.9)] hover:from-brand-500 hover:via-brand-500 hover:to-brand-700"
                   >
                     <Link href="/demo-buchen" onClick={() => setMenuOpen(false)}>
                       Demo anfragen

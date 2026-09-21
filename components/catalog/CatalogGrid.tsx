@@ -45,7 +45,7 @@ function CatalogCard({ basePath, entry }: { basePath: string; entry: CatalogEntr
   return (
     <Link
       href={`${basePath}/${entry.slug}`}
-      className="group flex h-full flex-col rounded-3xl border border-slate-900/8 bg-white p-6 shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-indigo-500/20"
+      className="group flex h-full flex-col rounded-3xl border border-slate-900/8 bg-white p-6 shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20"
     >
       {entry.logo ? (
         <span className="flex h-11 items-center">
@@ -59,7 +59,7 @@ function CatalogCard({ basePath, entry }: { basePath: string; entry: CatalogEntr
           />
         </span>
       ) : (
-        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
           <Icon aria-hidden className="h-5 w-5" />
         </span>
       )}
@@ -67,7 +67,7 @@ function CatalogCard({ basePath, entry }: { basePath: string; entry: CatalogEntr
       <h4 className="mt-5 text-base font-bold text-slate-900">{entry.title}</h4>
       <p className="mt-1.5 flex-1 text-sm leading-relaxed text-slate-500">{entry.tagline}</p>
 
-      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600">
+      <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600">
         Mehr erfahren
         <ArrowRight
           aria-hidden

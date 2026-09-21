@@ -43,6 +43,23 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* Markenfarben aus dem Logo: 600 = Bildmarke, 800 = Blaufläche, 950 = Wortmarke.
+   `static`, weil --primary & Co. unten darauf verweisen – ohne das würde Tailwind
+   ungenutzte Stufen weglassen. */
+@theme static {
+  --color-brand-50: #f0f5ff;
+  --color-brand-100: #dfeaff;
+  --color-brand-200: #c2d6ff;
+  --color-brand-300: #9ab9ff;
+  --color-brand-400: #6792ff;
+  --color-brand-500: #3362ff;
+  --color-brand-600: #1823fd;
+  --color-brand-700: #0923ca;
+  --color-brand-800: #012695;
+  --color-brand-900: #001b66;
+  --color-brand-950: #000f3b;
+}
+
 :root {
   --radius: 0.75rem;
   --background: #f8fafc; /* Off-White Hauptfläche */
@@ -51,24 +68,22 @@
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: #4f46e5; /* Indigo 600 */
+  --primary: var(--color-brand-600);
   --primary-foreground: #ffffff;
-  --secondary: #eef2ff; /* Indigo 50 */
-  --secondary-foreground: #3730a3;
+  --secondary: var(--color-brand-50);
+  --secondary-foreground: var(--color-brand-800);
   --muted: #f3f6fb;
   --muted-foreground: #64748b;
-  --accent: #eef2ff;
-  --accent-foreground: #3730a3;
+  --accent: var(--color-brand-50);
+  --accent-foreground: var(--color-brand-800);
   --destructive: #ef4444;
   --border: rgba(15, 23, 42, 0.08);
   --input: rgba(15, 23, 42, 0.12);
-  --ring: #6366f1;
+  --ring: var(--color-brand-500);
   /* Gleistrix Design-Tokens */
   --surface-2: #f3f6fb;
   --glass: rgba(255, 255, 255, 0.72);
   --glass-border: rgba(15, 23, 42, 0.08);
-  --accent-violet: #8b5cf6;
-  --accent-indigo: #6366f1;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -159,7 +174,7 @@
 
   /* Sanfter Verlaufstext für Headline-Akzente */
   .text-gradient-accent {
-    background: linear-gradient(100deg, #4f46e5 0%, #6366f1 45%, #8b5cf6 100%);
+    background: linear-gradient(100deg, var(--color-brand-700) 0%, var(--color-brand-600) 45%, var(--color-brand-500) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -249,6 +264,7 @@
   --wf-gap: 1.25rem; /* = gap-5, Projektkanon */
   --wf-card: clamp(268px, 26vw, 340px);
   --wf-lane: 4.5rem; /* Knotenspur über den Karten */
+  --wf-fox-room: 3.25rem; /* Kopffreiheit für den Fuchs über der Schiene */
   --wf-pad: max(1.5rem, calc((100vw - 1200px) / 2 + 1.5rem)); /* Textkante page-container */
   /* Rechts bewusst NICHT dieselbe Einrückung: sie wäre reiner Leerlauf, den
      man nach der letzten Karte noch durchscrollen müsste. */
@@ -273,6 +289,7 @@
    steht – sie bleiben hier aus. */
 .wf-rail,
 .wf-node,
+.wf-fox,
 .wf-counter {
   display: none;
 }
@@ -329,7 +346,7 @@
     padding-right: var(--wf-pad-end);
     /* Luft für hover:-translate-y-1 samt Schatten, oben zusätzlich die Knotenspur */
     padding-block: 1.5rem;
-    padding-top: calc(var(--wf-lane) + 1.5rem);
+    padding-top: calc(var(--wf-lane) + 1.5rem + var(--wf-fox-room));
     align-items: stretch;
     width: max-content;
   }
@@ -343,7 +360,7 @@
     position: absolute;
     left: calc(var(--wf-pad) + var(--wf-card) / 2);
     right: calc(var(--wf-pad-end) + var(--wf-card) / 2);
-    top: calc(1.5rem + var(--wf-lane) / 2);
+    top: calc(1.5rem + var(--wf-fox-room) + var(--wf-lane) / 2);
     height: 2px;
   }
 
@@ -369,6 +386,43 @@
   .wf-runway[data-anim][data-in] .wf-rail-base {
     transform: scaleX(1);
     transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Der Fuchs steht auf der Schiene und wird per GSAP nach rechts geschoben.
+     Die Breite kommt aus dem Bild, die halbe Breite als negativer Rand setzt
+     ihn mittig über den Fortschrittspunkt. */
+  .wf-fox {
+    display: block;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 4.5rem;
+    margin-left: -2.25rem;
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  /* Eigene Ebene fürs Wippen: Das Verschieben sitzt auf dem Elternelement,
+     zwei Transformationen auf einem Element würden sich überschreiben. */
+  .wf-fox-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 10px 12px rgb(30 27 75 / 0.18));
+  }
+
+  .wf-runway[data-anim][data-in] .wf-fox-img {
+    animation: wf-fox-bob 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes wf-fox-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
   }
 }
 
@@ -428,13 +482,13 @@
 }
 
 .prose-blog blockquote {
-  border-left: 3px solid var(--color-indigo-500, #6366f1);
+  border-left: 3px solid var(--color-brand-500);
   padding-left: 1.25rem;
   font-style: italic;
 }
 
 .prose-blog a {
-  color: var(--color-indigo-700, #4338ca);
+  color: var(--color-brand-700);
   text-decoration: underline;
   text-underline-offset: 3px;
 }

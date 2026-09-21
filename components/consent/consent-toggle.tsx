@@ -26,7 +26,7 @@ export function ConsentToggle({
 }: ConsentToggleProps) {
   if (locked) {
     return (
-      <span className="shrink-0 rounded-full bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+      <span className="shrink-0 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
         Immer aktiv
       </span>
     );
@@ -42,9 +42,9 @@ export function ConsentToggle({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative h-6 w-11 shrink-0 rounded-full border transition-colors duration-300",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 focus-visible:ring-offset-2",
         checked
-          ? "border-indigo-600 bg-indigo-600"
+          ? "border-brand-600 bg-brand-600"
           : "border-slate-900/12 bg-slate-200 hover:bg-slate-300",
       )}
     >

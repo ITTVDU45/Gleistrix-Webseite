@@ -99,7 +99,7 @@ export default function ContactForm({ kind = "kontakt" }: Props) {
 
       <div className="pt-2">
         <Button type="submit" disabled={submitting} aria-label="Nachricht senden"
-          className="bg-gradient-to-r from-sky-400 via-blue-600 to-violet-600 text-white hover:brightness-110">
+          className="bg-gradient-to-r from-brand-500 via-brand-600 to-brand-800 text-white hover:brightness-110">
           {submitting ? "Senden …" : "Nachricht senden"}
         </Button>
       </div>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>Gleistrix</title>
+  <rect width="512" height="512" rx="112" fill="#012695"/>
+  <g fill="#FFFFFF" transform="translate(82.1,111.75) scale(0.885) translate(-411,-146)">
+    <polygon points="528,146 750,146 804,222 564,222 522,264 411,264"/>
+    <polygon points="411,298 524,294 672,472 561,472"/>
+    <polygon points="580,293 750,293 796,348 796,472 729,472"/>
+  </g>
+</svg>

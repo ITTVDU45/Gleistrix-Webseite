@@ -107,14 +107,14 @@ function ModuleCard({
       onClick={onToggle}
       className={`group flex min-h-64 w-full flex-col rounded-2xl border p-5 text-left transition duration-200 active:scale-[0.99] sm:p-6 ${
         selected
-          ? "border-indigo-500 bg-indigo-50 shadow-[0_16px_40px_-24px_rgba(79,70,229,0.55)]"
-          : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-soft-sm"
+          ? "border-brand-500 bg-brand-50 shadow-[0_16px_40px_-24px_rgba(24,35,253,0.55)]"
+          : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-soft-sm"
       }`}
     >
       <span className="flex w-full items-start justify-between gap-4">
         <span
           className={`flex h-11 w-11 items-center justify-center rounded-xl ${
-            selected ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-700"
+            selected ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-700"
           }`}
         >
           <Icon className="h-5 w-5" strokeWidth={1.8} />
@@ -122,7 +122,7 @@ function ModuleCard({
         <span
           aria-hidden="true"
           className={`flex h-6 w-6 items-center justify-center rounded-lg border ${
-            selected ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-300 bg-white text-transparent"
+            selected ? "border-brand-600 bg-brand-600 text-white" : "border-slate-300 bg-white text-transparent"
           }`}
         >
           <Check className="h-4 w-4" strokeWidth={2.5} />
@@ -146,7 +146,7 @@ function ModuleCard({
       <span className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-xs text-slate-500">
         {module.features.map((feature) => (
           <span key={feature} className="inline-flex items-center gap-1.5">
-            <Check className="h-3.5 w-3.5 text-indigo-600" strokeWidth={2.4} />
+            <Check className="h-3.5 w-3.5 text-brand-600" strokeWidth={2.4} />
             {feature}
           </span>
         ))}
@@ -163,7 +163,7 @@ function ModuleCard({
           ))}
         </span>
       )}
-      <span className="mt-auto pt-5 text-sm font-semibold text-indigo-700">+ {formatPriceEUR(module.price)} / Monat</span>
+      <span className="mt-auto pt-5 text-sm font-semibold text-brand-700">+ {formatPriceEUR(module.price)} / Monat</span>
     </button>
   );
 }
@@ -186,8 +186,8 @@ function PackageCard({
       onClick={onSelect}
       className={`flex flex-col gap-4 rounded-2xl border p-5 text-left transition active:scale-[0.99] ${
         selected
-          ? "border-indigo-500 bg-indigo-50 shadow-[0_14px_36px_-24px_rgba(79,70,229,0.55)]"
-          : "border-slate-200 bg-white hover:border-indigo-200 hover:shadow-soft-sm"
+          ? "border-brand-500 bg-brand-50 shadow-[0_14px_36px_-24px_rgba(24,35,253,0.55)]"
+          : "border-slate-200 bg-white hover:border-brand-200 hover:shadow-soft-sm"
       }`}
     >
       <span className="flex items-start justify-between gap-5">
@@ -195,7 +195,7 @@ function PackageCard({
           <strong className="block text-base font-semibold text-slate-950">{pkg.name}</strong>
           <span className="mt-1 block text-xs leading-relaxed text-slate-600">{pkg.description}</span>
         </span>
-        <span className={`shrink-0 text-sm font-semibold ${selected ? "text-indigo-700" : "text-slate-600"}`}>
+        <span className={`shrink-0 text-sm font-semibold ${selected ? "text-brand-700" : "text-slate-600"}`}>
           {formatPriceEUR(pkg.price)}
         </span>
       </span>
@@ -206,7 +206,7 @@ function PackageCard({
         <span className="mt-auto grid gap-1.5">
           {pkg.features.map((feature) => (
             <span key={feature} className="flex items-start gap-2 text-xs text-slate-700">
-              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-600" strokeWidth={2.4} />
+              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-600" strokeWidth={2.4} />
               {feature}
             </span>
           ))}
@@ -239,7 +239,7 @@ function UsagePanel({
   const withinSlider = amount <= usage.sliderMax;
 
   return (
-    <div className="mt-4 rounded-2xl border border-indigo-200 bg-indigo-50 p-5 sm:p-6">
+    <div className="mt-4 rounded-2xl border border-brand-200 bg-brand-50 p-5 sm:p-6">
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <label htmlFor={inputId} className="block text-sm font-semibold text-slate-950">
@@ -257,10 +257,10 @@ function UsagePanel({
             step={usage.step}
             value={amount}
             onChange={(event) => onChange(toCount(event.target.value, 0))}
-            className="h-11 w-28 rounded-xl border border-indigo-200 bg-white px-3 text-right text-sm font-semibold text-slate-950 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+            className="h-11 w-28 rounded-xl border border-brand-200 bg-white px-3 text-right text-sm font-semibold text-slate-950 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           />
           {amount > 0 && (
-            <span className="text-sm font-semibold text-indigo-700">+ {formatPriceEUR(amount * usage.unitPrice, true)}</span>
+            <span className="text-sm font-semibold text-brand-700">+ {formatPriceEUR(amount * usage.unitPrice, true)}</span>
           )}
         </div>
       </div>
@@ -273,7 +273,7 @@ function UsagePanel({
         value={withinSlider ? amount : usage.sliderMax}
         disabled={!withinSlider}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mt-5 w-full accent-indigo-600 disabled:opacity-40"
+        className="mt-5 w-full accent-brand-600 disabled:opacity-40"
       />
       <div className="mt-2 flex justify-between text-[11px] text-slate-500">
         <span>0</span>
@@ -299,13 +299,13 @@ function PricingHero({ config }: { config: PricingConfig }) {
   return (
     <section className="relative overflow-hidden bg-[#f8fafc] pb-16 pt-28 md:pb-20 md:pt-36">
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -right-40 -top-56 h-[620px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.16),transparent)]" />
-        <div className="absolute -left-48 bottom-0 h-[420px] w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(79,70,229,0.08),transparent)]" />
+        <div className="absolute -right-40 -top-56 h-[620px] w-[620px] rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.16),transparent)]" />
+        <div className="absolute -left-48 bottom-0 h-[420px] w-[560px] rounded-full bg-[radial-gradient(closest-side,rgba(24,35,253,0.08),transparent)]" />
       </div>
 
       <div className="page-container relative grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
         <div className="max-w-2xl">
-          <span className="inline-flex rounded-full border border-indigo-200 bg-indigo-50 px-3.5 py-1.5 text-xs font-semibold tracking-wide text-indigo-700">
+          <span className="inline-flex rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-xs font-semibold tracking-wide text-brand-700">
             {config.texts.heroEyebrow}
           </span>
           <h1 className="mt-5 text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl lg:leading-[1.02]">
@@ -317,7 +317,7 @@ function PricingHero({ config }: { config: PricingConfig }) {
           <div className="mt-8">
             <Link
               href="#konfigurator"
-              className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white shadow-soft-sm transition hover:-translate-y-0.5 hover:bg-indigo-500 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              className="inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-brand-600 px-6 text-sm font-semibold text-white shadow-soft-sm transition hover:-translate-y-0.5 hover:bg-brand-500 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
               Preis konfigurieren
               <ArrowRight className="h-4 w-4" strokeWidth={2} />
@@ -347,7 +347,7 @@ function PricingHero({ config }: { config: PricingConfig }) {
         </div>
 
         <figure className="relative mx-auto w-full max-w-xl overflow-hidden rounded-2xl border border-white bg-white shadow-[0_32px_100px_-40px_rgba(15,23,42,0.3)]">
-          <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-indigo-50 to-slate-100">
+          <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-brand-50 to-slate-100">
             <Image
               src="/preise-vorschau.webp"
               alt="Gleistrix Maskottchen mit digitaler Streckenplanung"
@@ -358,7 +358,7 @@ function PricingHero({ config }: { config: PricingConfig }) {
             />
           </div>
           <figcaption className="grid grid-cols-[auto_1fr] items-center gap-4 border-t border-slate-200 px-5 py-4 sm:px-6">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white">
               <PackageCheck className="h-5 w-5" strokeWidth={1.8} />
             </span>
             <span>
@@ -472,10 +472,10 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
               </fieldset>
             ) : (
               pkg && (
-                <section aria-labelledby="base-package-title" className="rounded-2xl border border-indigo-200 bg-indigo-50 p-6 sm:p-8">
+                <section aria-labelledby="base-package-title" className="rounded-2xl border border-brand-200 bg-brand-50 p-6 sm:p-8">
                   <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-start">
                     <div>
-                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-700">
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700">
                         <PackageCheck className="h-4 w-4" strokeWidth={2} />
                         Fester Startpunkt
                       </span>
@@ -494,13 +494,13 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                           ...pkg.features,
                         ].map((feature) => (
                           <span key={feature} className="flex items-start gap-2 text-sm text-slate-700">
-                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" strokeWidth={2.4} />
+                            <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" strokeWidth={2.4} />
                             {feature}
                           </span>
                         ))}
                       </div>
                     </div>
-                    <div className="rounded-2xl border border-indigo-200 bg-white p-5">
+                    <div className="rounded-2xl border border-brand-200 bg-white p-5">
                       <span className="block text-xs font-medium text-slate-500">Monatlicher Grundpreis</span>
                       <strong className="mt-2 block text-4xl font-bold tracking-tight text-slate-950">{formatPriceEUR(pkg.price)}</strong>
                       <span className="mt-1 block text-xs text-slate-500">
@@ -520,7 +520,7 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
               </p>
               <div className="mt-5 grid gap-5 rounded-2xl border border-slate-200 bg-slate-50 p-5 sm:grid-cols-[1fr_auto] sm:items-center sm:p-6">
                 <div className="flex items-center gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600 shadow-soft-sm">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-600 shadow-soft-sm">
                     <Users className="h-5 w-5" strokeWidth={1.8} />
                   </span>
                   <span>
@@ -553,7 +553,7 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                     type="button"
                     onClick={() => setUsers((current) => current + 1)}
                     aria-label="Einen Benutzer hinzufügen"
-                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 text-white transition hover:bg-indigo-500"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white transition hover:bg-brand-500"
                   >
                     <Plus className="h-4 w-4" strokeWidth={2} />
                   </button>
@@ -576,14 +576,14 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                       key={option.id}
                       className={`flex items-center justify-between gap-5 rounded-2xl border p-5 text-left transition active:scale-[0.99] ${
                         selected
-                          ? "border-indigo-500 bg-indigo-50 shadow-[0_14px_36px_-24px_rgba(79,70,229,0.55)]"
-                          : "border-slate-200 bg-white hover:border-indigo-200 hover:shadow-soft-sm"
+                          ? "border-brand-500 bg-brand-50 shadow-[0_14px_36px_-24px_rgba(24,35,253,0.55)]"
+                          : "border-slate-200 bg-white hover:border-brand-200 hover:shadow-soft-sm"
                       }`}
                     >
                       <span>
                         <strong className="block text-base font-semibold text-slate-950">{option.label}</strong>
                       </span>
-                      <span className={`shrink-0 text-sm font-semibold ${selected ? "text-indigo-700" : "text-slate-600"}`}>
+                      <span className={`shrink-0 text-sm font-semibold ${selected ? "text-brand-700" : "text-slate-600"}`}>
                         {option.monthlySurcharge === 0 ? "Inklusive" : `+ ${formatPriceEUR(option.monthlySurcharge)}`}
                       </span>
                     </button>
@@ -652,11 +652,11 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                     <div key={module.id}>
                       <div
                         className={`grid gap-6 rounded-2xl border p-6 transition sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center ${
-                          selected ? "border-indigo-500 bg-indigo-50" : "border-slate-200 bg-slate-950 text-white"
+                          selected ? "border-brand-500 bg-brand-50" : "border-slate-200 bg-slate-950 text-white"
                         }`}
                       >
                         <div>
-                          <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${selected ? "bg-indigo-600 text-white" : "bg-white/10 text-indigo-300"}`}>
+                          <span className={`flex h-11 w-11 items-center justify-center rounded-xl ${selected ? "bg-brand-600 text-white" : "bg-white/10 text-brand-300"}`}>
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
                           </span>
                           {module.imageSrc ? (
@@ -679,7 +679,7 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                           <div className="mt-5 grid gap-3 sm:grid-cols-2">
                             {module.features.map((feature) => (
                               <span key={feature} className={`flex items-start gap-2 text-xs leading-relaxed ${selected ? "text-slate-700" : "text-slate-300"}`}>
-                                <Check className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${selected ? "text-indigo-600" : "text-indigo-300"}`} strokeWidth={2.4} />
+                                <Check className={`mt-0.5 h-3.5 w-3.5 shrink-0 ${selected ? "text-brand-600" : "text-brand-300"}`} strokeWidth={2.4} />
                                 {feature}
                               </span>
                             ))}
@@ -703,8 +703,8 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
                           onClick={() => toggleModule(module)}
                           className={`inline-flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-5 text-sm font-semibold transition active:scale-[0.98] ${
                             selected
-                              ? "border border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-100"
-                              : "bg-white text-slate-950 hover:bg-indigo-50"
+                              ? "border border-brand-200 bg-white text-brand-700 hover:bg-brand-100"
+                              : "bg-white text-slate-950 hover:bg-brand-50"
                           }`}
                         >
                           {selected ? <Check className="h-4 w-4" strokeWidth={2.4} /> : <Plus className="h-4 w-4" strokeWidth={2.2} />}
@@ -730,7 +730,7 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
             <div className="rounded-2xl bg-slate-950 p-6 text-white shadow-[0_28px_80px_-36px_rgba(15,23,42,0.75)]">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <span className="text-xs font-semibold text-indigo-300">{config.texts.summaryTitle}</span>
+                  <span className="text-xs font-semibold text-brand-300">{config.texts.summaryTitle}</span>
                   <h3 className="mt-2 text-xl font-bold tracking-tight">Gleistrix nach Maß</h3>
                 </div>
                 <button
@@ -812,7 +812,7 @@ function PricingConfigurator({ config }: { config: PricingConfig }) {
               <Link
                 href={requestHref}
                 data-analytics="pricing_configurator_cta"
-                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-indigo-500 px-5 text-sm font-semibold text-white transition hover:bg-indigo-400 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                className="mt-5 inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-brand-500 px-5 text-sm font-semibold text-white transition hover:bg-brand-400 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-300 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
                 {config.texts.ctaLabel}
                 <ArrowRight className="h-4 w-4" strokeWidth={2} />
@@ -850,7 +850,7 @@ function ImplementationSection({ config }: { config: PricingConfig }) {
           {/* Einzige Sektion der Preisseite ohne Bild: links standen bisher nur
               Überschrift und Preisliste, rechts eine Häkchenliste. */}
           <MediaFrame
-            src="/placeholders/uebersicht-preise.svg"
+            src="/media/seiten/preise.webp"
             alt="Einführung und Betreuung durch das Gleistrix-Team"
             ratio="landscape"
             sizes="(min-width: 1024px) 40vw, 100vw"
@@ -863,7 +863,7 @@ function ImplementationSection({ config }: { config: PricingConfig }) {
           <div className="mt-7 grid gap-x-8 gap-y-5 sm:grid-cols-2">
             {IMPLEMENTATION_SERVICES.map((service) => (
               <div key={service} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                   <Check className="h-3.5 w-3.5" strokeWidth={2.4} />
                 </span>
                 <span className="text-sm leading-relaxed text-slate-700">{service}</span>
@@ -896,7 +896,7 @@ function IntegrationLogo({ integration }: { integration: PricingIntegration }) {
     );
   }
 
-  return <span className="text-xs font-black tracking-tight text-indigo-700">{integration.initials}</span>;
+  return <span className="text-xs font-black tracking-tight text-brand-700">{integration.initials}</span>;
 }
 
 function IntegrationsSection({ config }: { config: PricingConfig }) {
@@ -930,7 +930,7 @@ function IntegrationsSection({ config }: { config: PricingConfig }) {
             <label htmlFor="integration-search" className="block text-sm font-semibold text-slate-950">
               Integration suchen
             </label>
-            <div className="mt-3 flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20">
+            <div className="mt-3 flex h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20">
               <Search className="h-4 w-4 shrink-0 text-slate-400" strokeWidth={2} />
               <input
                 id="integration-search"
@@ -949,7 +949,7 @@ function IntegrationsSection({ config }: { config: PricingConfig }) {
                   aria-pressed={category === item}
                   onClick={() => setCategory(item)}
                   className={`w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium transition ${
-                    category === item ? "bg-indigo-600 text-white" : "text-slate-600 hover:bg-white hover:text-slate-950"
+                    category === item ? "bg-brand-600 text-white" : "text-slate-600 hover:bg-white hover:text-slate-950"
                   }`}
                 >
                   {item}
@@ -971,11 +971,11 @@ function IntegrationsSection({ config }: { config: PricingConfig }) {
             {filteredIntegrations.length ? (
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {filteredIntegrations.map((integration) => (
-                  <article key={integration.id} className="flex min-h-60 flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-soft-sm">
+                  <article key={integration.id} className="flex min-h-60 flex-col rounded-2xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-soft-sm">
                     <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-slate-50 ring-1 ring-slate-200/70">
                       <IntegrationLogo integration={integration} />
                     </span>
-                    <span className="mt-5 text-xs font-medium text-indigo-700">{integration.category}</span>
+                    <span className="mt-5 text-xs font-medium text-brand-700">{integration.category}</span>
                     <h4 className="mt-1.5 text-lg font-semibold tracking-tight text-slate-950">{integration.title}</h4>
                     <p className="mt-2 text-sm leading-relaxed text-slate-600">{integration.description}</p>
                     <span className="mt-auto pt-5 text-xs font-semibold text-slate-500">Umfang auf Anfrage</span>
@@ -984,7 +984,7 @@ function IntegrationsSection({ config }: { config: PricingConfig }) {
               </div>
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-                <FileSearch className="mx-auto h-7 w-7 text-indigo-600" strokeWidth={1.8} />
+                <FileSearch className="mx-auto h-7 w-7 text-brand-600" strokeWidth={1.8} />
                 <h4 className="mt-4 text-base font-semibold text-slate-950">Keine Integration gefunden</h4>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-slate-600">
                   Wir können weitere Systeme über API, Import oder einen individuellen Workflow anbinden.
@@ -1002,9 +1002,9 @@ function BrochureSection() {
   return (
     <section aria-labelledby="brochure-title" className="bg-slate-50 py-20 md:py-28">
       <div className="page-container">
-        <div className="grid overflow-hidden rounded-2xl border border-indigo-200 bg-indigo-50 shadow-soft-sm lg:grid-cols-[1fr_0.78fr]">
+        <div className="grid overflow-hidden rounded-2xl border border-brand-200 bg-brand-50 shadow-soft-sm lg:grid-cols-[1fr_0.78fr]">
           <div className="flex flex-col justify-center p-7 sm:p-10 lg:p-14">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-white">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
               <Mail className="h-5 w-5" strokeWidth={1.8} />
             </span>
             <h2 id="brochure-title" className="mt-6 max-w-2xl text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
@@ -1015,7 +1015,7 @@ function BrochureSection() {
             </p>
             <a
               href="mailto:info@gleistrix.com?subject=Gleistrix%20Preisbrosch%C3%BCre%20anfordern"
-              className="mt-8 inline-flex h-12 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-indigo-600 px-6 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-indigo-500 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+              className="mt-8 inline-flex h-12 w-fit items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-brand-600 px-6 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-brand-500 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2"
             >
               Broschüre anfordern
               <ArrowRight className="h-4 w-4" strokeWidth={2} />
@@ -1032,7 +1032,7 @@ function BrochureSection() {
             />
             <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/10 to-transparent" />
             <figcaption className="absolute inset-x-0 bottom-0 p-7 text-white sm:p-9">
-              <span className="text-sm font-semibold text-indigo-200">Gleistrix</span>
+              <span className="text-sm font-semibold text-brand-200">Gleistrix</span>
               <strong className="mt-2 block max-w-sm text-3xl font-bold leading-tight tracking-tight">Preis- und Leistungsübersicht</strong>
             </figcaption>
           </figure>
@@ -1055,8 +1055,8 @@ function CustomDevelopmentSection() {
           </p>
           <div className="mt-8 grid gap-5 sm:grid-cols-2">
             {DEVELOPMENT_AREAS.map((area) => (
-              <div key={area.title} className="border-l-2 border-indigo-200 pl-4">
-                <area.icon className="h-5 w-5 text-indigo-600" strokeWidth={1.8} />
+              <div key={area.title} className="border-l-2 border-brand-200 pl-4">
+                <area.icon className="h-5 w-5 text-brand-600" strokeWidth={1.8} />
                 <h3 className="mt-3 text-base font-semibold text-slate-950">{area.title}</h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-slate-600">{area.text}</p>
               </div>

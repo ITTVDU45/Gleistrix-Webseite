@@ -37,7 +37,7 @@ export default function Page() {
               </h2>
               <p className="mt-3 leading-relaxed text-slate-500">
                 E-Mail-Adresse:{" "}
-                <a href="mailto:info@gleistrix.de" className="text-indigo-600 hover:underline">
+                <a href="mailto:info@gleistrix.de" className="text-brand-600 hover:underline">
                   info@gleistrix.de
                 </a>
               </p>
@@ -84,7 +84,7 @@ export default function Page() {
                   title="Rechtstext von Dr. Schwenke - für weitere Informationen bitte anklicken."
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="hover:text-indigo-600"
+                  className="hover:text-brand-600"
                 >
                   Erstellt mit kostenlosem Datenschutz-Generator.de von Dr. Thomas Schwenke
                 </a>

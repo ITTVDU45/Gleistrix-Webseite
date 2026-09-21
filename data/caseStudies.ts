@@ -40,7 +40,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "120", label: "SiPo im Einsatz" },
       { value: "0", label: "abgelaufene Nachweise" },
     ],
-    image: { src: "/placeholders/case-schichtplanung.svg", alt: "Schichtplanung im Sicherungsunternehmen" },
+    image: { src: "/media/cases/schichtplanung.webp", alt: "Schichtplanung im Sicherungsunternehmen" },
   },
   {
     id: "gleisbau-abrechnung",
@@ -54,7 +54,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "−78 %", label: "Nacherfassung" },
       { value: "6", label: "Trupps im System" },
     ],
-    image: { src: "/placeholders/case-abrechnung.svg", alt: "Abrechnung im Gleisbau" },
+    image: { src: "/media/cases/abrechnung.webp", alt: "Abrechnung im Gleisbau" },
   },
   {
     id: "schweissbetrieb-protokolle",
@@ -68,7 +68,7 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "−90 %", label: "Rückfragen" },
       { value: "2.400", label: "Prüfungen pro Jahr" },
     ],
-    image: { src: "/placeholders/case-dokumentation.svg", alt: "Dokumentation auf der Baustelle" },
+    image: { src: "/media/cases/dokumentation.webp", alt: "Dokumentation auf der Baustelle" },
   },
   {
     id: "ingenieurbuero-nachweise",
@@ -82,6 +82,6 @@ export const CASE_STUDIES: CaseStudy[] = [
       { value: "100 %", label: "revisionssichere Ablage" },
       { value: "5 Std", label: "weniger Büro pro Woche" },
     ],
-    image: { src: "/placeholders/case-auslastung.svg", alt: "Auslastung und Kennzahlen im Ingenieurbüro" },
+    image: { src: "/media/cases/auslastung.webp", alt: "Auslastung und Kennzahlen im Ingenieurbüro" },
   },
 ];

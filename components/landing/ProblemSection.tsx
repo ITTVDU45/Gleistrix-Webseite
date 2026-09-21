@@ -57,8 +57,9 @@ export default function ProblemSection() {
             Aufzählung. */}
         <div className="mt-12 grid items-stretch gap-6 md:mt-16 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-8">
           <MediaFrame
-            src="/placeholders/problem-zettelwirtschaft.svg"
-            alt="Papierpläne, Stundenzettel und Ordner auf einem Baustellentisch"
+            src="/media/start/ausgangslage.webp"
+            video="/media/start/ausgangslage.mp4"
+            alt="Der Gleistrix-Fuchs versinkt abends im Papierchaos auf seinem Schreibtisch"
             ratio="fill"
             caption="Der Alltag ohne durchgängiges System"
             sizes="(min-width: 1024px) 40vw, 100vw"
@@ -71,7 +72,7 @@ export default function ProblemSection() {
               return (
                 <Reveal key={point.title} delay={index * 0.07} className="h-full">
                   <article className="group h-full rounded-3xl border border-slate-900/8 bg-[#f8fafc] p-6 transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-soft">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-soft-sm transition-colors duration-300 group-hover:bg-indigo-50 group-hover:text-indigo-600">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-soft-sm transition-colors duration-300 group-hover:bg-brand-50 group-hover:text-brand-600">
                       <Icon className="h-5 w-5" />
                     </span>
                     <h3 className="mt-5 text-base font-semibold text-slate-900">{point.title}</h3>
@@ -88,7 +89,7 @@ export default function ProblemSection() {
           <div className="glass mx-auto max-w-3xl rounded-3xl px-6 py-8 text-center shadow-soft-sm md:px-12">
             <p className="text-lg font-medium leading-relaxed text-slate-700 md:text-xl">
               Gleistrix führt Projekte, Einsätze, Dokumente, Lager und Abrechnung in{" "}
-              <span className="font-semibold text-indigo-600">einer Plattform</span> zusammen –
+              <span className="font-semibold text-brand-600">einer Plattform</span> zusammen –
               damit dein Team plant statt sucht.
             </p>
           </div>

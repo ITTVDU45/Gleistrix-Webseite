@@ -12,7 +12,7 @@ type CTASectionProps = {
 };
 
 const DEFAULT_IMAGE = {
-  src: "/placeholders/szene-gleisfeld.svg",
+  src: "/media/szenen/gleisfeld.webp",
   alt: "Gleisfeld aus der Vogelperspektive",
 };
 
@@ -40,8 +40,8 @@ export default function CTASection({
             className="pointer-events-none object-cover opacity-[0.14]"
           />
           <div aria-hidden className="pointer-events-none absolute inset-0">
-            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.16),transparent)]" />
-            <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.16),transparent)]" />
+            <div className="absolute -left-24 -top-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.16),transparent)]" />
+            <div className="absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-[radial-gradient(closest-side,rgba(9,35,202,0.16),transparent)]" />
           </div>
 
           <div className="relative">
@@ -58,7 +58,7 @@ export default function CTASection({
               <Button
                 asChild
                 size="lg"
-                className="h-12 rounded-xl bg-indigo-600 px-8 text-base text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-indigo-500"
+                className="h-12 rounded-xl bg-brand-600 px-8 text-base text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-brand-500"
               >
                 <Link href={ctaHref}>{ctaLabel}</Link>
               </Button>

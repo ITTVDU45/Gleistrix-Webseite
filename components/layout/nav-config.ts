@@ -25,7 +25,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
     label: "Integrationen",
     catalog: INTEGRATION_CATALOG,
   },
-  { href: "/#ki-agenten", label: "KI-Agenten" },
   { href: "/preise", label: "Preise" },
   { href: "/blog", label: "News & Ratgeber" },
   { href: "/ueber-uns", label: "Kontakt" },

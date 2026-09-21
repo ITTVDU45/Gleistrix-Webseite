@@ -23,7 +23,7 @@ export default function BenefitsSlider({
       className="h-full rounded-3xl border border-slate-900/8 bg-white p-5 shadow-soft-sm transition-shadow hover:shadow-soft sm:p-6"
     >
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-600">
           <CheckCircle2 className="h-5 w-5" />
         </span>
         <div>
@@ -97,7 +97,7 @@ export default function BenefitsSlider({
             <button
               key={i}
               onClick={() => setIndex(i)}
-              className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-indigo-600" : "w-3 bg-slate-300"}`}
+              className={`h-1.5 rounded-full transition-all ${i === index ? "w-6 bg-brand-600" : "w-3 bg-slate-300"}`}
               aria-label={`Seite ${i + 1}`}
             />
           ))}

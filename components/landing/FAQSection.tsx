@@ -57,7 +57,7 @@ export default function FAQSection() {
         {/* Kopf: Titel links, Text + Navigation rechts */}
         <div className="grid gap-8 md:grid-cols-2 md:items-end">
           <Reveal>
-            <span className="inline-flex items-center rounded-full border border-indigo-200/70 bg-indigo-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-indigo-700">
+            <span className="inline-flex items-center rounded-full border border-brand-200/70 bg-brand-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-brand-700">
               FAQ
             </span>
             <h2
@@ -119,17 +119,16 @@ export default function FAQSection() {
                   className="min-w-0"
                 >
                   {isExpanded ? (
-                    <div className="relative flex h-full min-h-[300px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 to-indigo-700 p-7 shadow-soft ring-1 ring-white/10 md:min-h-[380px] md:p-9">
+                    <div className="relative flex h-full min-h-[300px] flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-700 p-7 shadow-soft ring-1 ring-white/10 md:min-h-[380px] md:p-9">
                       {/* Motiv liegt hinter der Antwort, nicht daneben: Die
                           Karten wechseln animiert die Breite, ein zusätzliches
                           Layout-Element würde bei jedem Wechsel springen. */}
                       <Image
-                        src="/placeholders/szene-bauueberwachung.svg"
+                        src="/media/start/faq.webp"
                         alt=""
                         aria-hidden
                         fill
                         sizes="(min-width: 768px) 55vw, 100vw"
-                        unoptimized
                         className="pointer-events-none object-cover opacity-20 mix-blend-luminosity"
                       />
                       <div className="relative flex items-center justify-between">
@@ -153,7 +152,7 @@ export default function FAQSection() {
                             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.35, ease: EASE_OUT, delay: 0.12 }}
-                            className="mt-4 text-sm leading-relaxed text-indigo-100/90 md:text-base"
+                            className="mt-4 text-sm leading-relaxed text-brand-100/90 md:text-base"
                           >
                             {faq.answer}
                           </motion.p>

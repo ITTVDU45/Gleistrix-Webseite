@@ -35,8 +35,9 @@ export default function Page() {
         ]}
       >
         <MediaFrame
-          src="/placeholders/uebersicht-integrationen.svg"
-          alt="Buchhaltung, Kalender und Ausschreibung im Zusammenspiel mit Gleistrix"
+          src="/media/seiten/integrationen.webp"
+          video="/media/seiten/integrationen.mp4"
+          alt="Der Gleistrix-Fuchs verbindet umliegende Systeme über leuchtende Gleislinien"
           ratio="banner"
           priority
           caption="Bestehende Systeme bleiben – die Daten laufen nur nicht mehr getrennt"
@@ -96,9 +97,9 @@ export default function Page() {
               </p>
               <p>
                 Wo eine Anbindung zu einem konkreten Ablauf gehört, verweisen die Detailseiten darauf – etwa von der{" "}
-                <Link className="font-semibold text-indigo-700" href="/produkt/rechnungsstellung">Rechnungsstellung</Link>{" "}
+                <Link className="font-semibold text-brand-700" href="/produkt/rechnungsstellung">Rechnungsstellung</Link>{" "}
                 auf die Buchhaltungsanbindungen oder von{" "}
-                <Link className="font-semibold text-indigo-700" href="/branchen/subunternehmen-db">Subunternehmen der DB</Link>{" "}
+                <Link className="font-semibold text-brand-700" href="/branchen/subunternehmen-db">Subunternehmen der DB</Link>{" "}
                 auf die Anforderungen der Auftraggeberseite. Fehlt ein System, lassen sich über Exporte und
                 Schnittstellen weitere Anbindungen ergänzen.
               </p>

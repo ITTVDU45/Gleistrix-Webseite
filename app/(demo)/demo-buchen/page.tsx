@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import Cal, { getCalApi } from "@calcom/embed-react";
@@ -8,6 +7,7 @@ import { ArrowLeft, Star } from "lucide-react";
 
 import { ConsentGate } from "@/components/consent/consent-gate";
 import ConfigurationRequest from "@/components/demo/ConfigurationRequest";
+import BrandLogo from "@/components/brand/BrandLogo";
 import MediaFrame from "@/components/media/MediaFrame";
 
 export default function DemoBuchenPage() {
@@ -15,21 +15,14 @@ export default function DemoBuchenPage() {
     <main className="relative min-h-screen overflow-hidden bg-white text-slate-900">
       {/* Weiche Hintergrund-Verläufe */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(99,102,241,0.12),transparent)]" />
-        <div className="absolute -right-32 top-40 h-[380px] w-[380px] rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.10),transparent)]" />
+        <div className="absolute -top-40 left-1/2 h-[520px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(51,98,255,0.12),transparent)]" />
+        <div className="absolute -right-32 top-40 h-[380px] w-[380px] rounded-full bg-[radial-gradient(closest-side,rgba(9,35,202,0.10),transparent)]" />
       </div>
 
       {/* Topbar mit Logo + Zurück-Link */}
       <div className="page-container relative z-10 flex items-center justify-between pb-8 pt-6">
         <Link href="/" className="inline-flex items-center" aria-label="Gleistrix Startseite">
-          <Image
-            src="/Gleistrix Logo (500 x 300 px).png"
-            alt="Gleistrix Logo"
-            width={500}
-            height={300}
-            className="h-11 w-auto"
-            priority
-          />
+          <BrandLogo className="h-7 md:h-8" />
         </Link>
         <Link
           href="/"
@@ -43,7 +36,7 @@ export default function DemoBuchenPage() {
       {/* Überschrift */}
       <div className="page-container relative z-10">
         <div className="max-w-3xl">
-          <span className="inline-flex items-center rounded-full border border-indigo-200/70 bg-indigo-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-indigo-700">
+          <span className="inline-flex items-center rounded-full border border-brand-200/70 bg-brand-50/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-brand-700">
             Kostenlos & unverbindlich
           </span>
           <h1 className="mt-5 text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-[3.25rem] md:leading-[1.08]">
@@ -84,7 +77,7 @@ export default function DemoBuchenPage() {
           <div className="space-y-6">
             <TestimonialsSlider />
             <MediaFrame
-              src="/placeholders/szene-bauleitung-tablet.svg"
+              src="/media/seiten/produkt.webp"
               alt="Gleistrix im Einsatz auf der Baustelle"
               ratio="landscape"
               caption="20 Minuten genügen für einen echten Eindruck"
@@ -127,10 +120,10 @@ export default function DemoBuchenPage() {
             </p>
             <p>
               Wenn du vorher lesen willst, worum es geht: Die{" "}
-              <Link className="font-semibold text-indigo-700" href="/produkt">Module und die Plattform</Link> sind
+              <Link className="font-semibold text-brand-700" href="/produkt">Module und die Plattform</Link> sind
               einzeln beschrieben, nach Gewerk sortiert unter{" "}
-              <Link className="font-semibold text-indigo-700" href="/branchen">Branchen</Link>, und die{" "}
-              <Link className="font-semibold text-indigo-700" href="/preise">Preise</Link> stehen mit Monats- und
+              <Link className="font-semibold text-brand-700" href="/branchen">Branchen</Link>, und die{" "}
+              <Link className="font-semibold text-brand-700" href="/preise">Preise</Link> stehen mit Monats- und
               Implementierungskosten offen auf der Seite.
             </p>
             <h3 className="pt-2 text-lg font-bold text-slate-900">Häufige Fragen vor dem Termin</h3>
@@ -163,8 +156,8 @@ function CalEmbed() {
       cal("ui", {
         theme: "light",
         cssVarsPerTheme: {
-          light: { "cal-brand": "#4f46e5" },
-          dark: { "cal-brand": "#6366f1" },
+          light: { "cal-brand": "#1823fd" },
+          dark: { "cal-brand": "#3362ff" },
         },
         hideEventTypeDetails: false,
         layout: "week_view",
@@ -256,7 +249,7 @@ function TestimonialsSlider() {
               <button
                 key={testimonial.author}
                 onClick={() => setIndex(dotIndex)}
-                className={`h-1.5 rounded-full transition-all ${dotIndex === index ? "w-6 bg-indigo-600" : "w-3 bg-slate-300"}`}
+                className={`h-1.5 rounded-full transition-all ${dotIndex === index ? "w-6 bg-brand-600" : "w-3 bg-slate-300"}`}
                 aria-label={`Testimonial ${dotIndex + 1}`}
               />
             ))}

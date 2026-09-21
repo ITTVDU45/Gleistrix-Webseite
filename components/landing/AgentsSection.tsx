@@ -1,6 +1,7 @@
-import { Bot, FileSearch, FileText, Mail, Receipt, ShieldAlert } from "lucide-react";
+import { FileSearch, FileText, Mail, Receipt, ShieldAlert } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import MediaFrame from "@/components/media/MediaFrame";
+import AgentAnalysis from "./AgentAnalysis";
 import Reveal from "./Reveal";
 import SectionHeading from "./SectionHeading";
 
@@ -49,7 +50,7 @@ export default function AgentsSection() {
     >
       {/* Dezenter Farbverlauf hinter dem Bento-Grid */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(139,92,246,0.08),transparent)]" />
+        <div className="absolute left-1/2 top-1/2 h-[600px] w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(9,35,202,0.08),transparent)]" />
       </div>
 
       <div className="page-container relative">
@@ -66,7 +67,7 @@ export default function AgentsSection() {
         <div className="mt-12 grid gap-5 md:mt-16 md:grid-cols-2 lg:grid-cols-3">
           {/* Hervorgehobene Agenten-Karte */}
           <Reveal className="md:row-span-2">
-            <article className="shadow-soft relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-indigo-600 to-violet-600 p-7 text-white">
+            <article className="shadow-soft relative flex h-full flex-col overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 via-brand-600 to-brand-800 p-7 text-white">
               <div
                 aria-hidden
                 className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-white/10 blur-2xl"
@@ -75,21 +76,11 @@ export default function AgentsSection() {
                 <FEATURED_AGENT.icon className="h-6 w-6" />
               </span>
               <h3 className="mt-6 text-xl font-bold">{FEATURED_AGENT.name}</h3>
-              <p className="mt-3 leading-relaxed text-indigo-100">{FEATURED_AGENT.description}</p>
+              <p className="mt-3 leading-relaxed text-brand-100">{FEATURED_AGENT.description}</p>
 
-              {/* Beispielausgabe */}
+              {/* Beispielausgabe: baut sich beim Hereinscrollen auf */}
               <div className="mt-auto pt-8">
-                <div className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 backdrop-blur">
-                  <div className="flex items-center gap-2 text-xs font-semibold text-white">
-                    <Bot className="h-3.5 w-3.5" />
-                    Analyse · Ausschreibung 2026-114
-                  </div>
-                  <div className="mt-3 space-y-1.5 text-[11px] text-indigo-100">
-                    <p>✓ 84 Positionen erkannt</p>
-                    <p>✓ 12 sicherungsrelevante Leistungen markiert</p>
-                    <p>✓ Angebotsdaten zur Kalkulation übergeben</p>
-                  </div>
-                </div>
+                <AgentAnalysis />
               </div>
             </article>
           </Reveal>
@@ -99,7 +90,7 @@ export default function AgentsSection() {
             return (
               <Reveal key={agent.name} delay={0.06 * (index + 1)} className="h-full">
                 <article className="group h-full rounded-3xl border border-slate-900/8 bg-white p-6 shadow-soft-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-soft">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-colors duration-300 group-hover:bg-indigo-600 group-hover:text-white">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition-colors duration-300 group-hover:bg-brand-600 group-hover:text-white">
                     <Icon className="h-5 w-5" />
                   </span>
                   <h3 className="mt-5 text-base font-semibold text-slate-900">{agent.name}</h3>
@@ -112,8 +103,9 @@ export default function AgentsSection() {
           {/* Bildkachel: zeigt den Arbeitsschritt, den die Agenten übernehmen.
               Ohne sie besteht das Bento-Grid nur aus Icon-Karten. */}
           <MediaFrame
-            src="/placeholders/agenten-arbeitsvorbereitung.svg"
-            alt="Leistungsverzeichnis einer Ausschreibung am Bildschirm"
+            src="/media/start/ki-agenten.webp"
+            video="/media/start/ki-agenten.mp4"
+            alt="Der Gleistrix-Fuchs lässt Ausschreibungsunterlagen am Bildschirm auswerten"
             ratio="fill"
             caption="Vorarbeit, die sonst am Schreibtisch liegen bleibt"
             delay={0.26}
@@ -123,8 +115,8 @@ export default function AgentsSection() {
 
           {/* Hinweis-Karte: Agenten sind optional */}
           <Reveal delay={0.3} className="h-full">
-            <div className="flex h-full items-center rounded-3xl border border-dashed border-indigo-300 bg-indigo-50/40 p-6">
-              <p className="text-sm leading-relaxed text-indigo-800">
+            <div className="flex h-full items-center rounded-3xl border border-dashed border-brand-300 bg-brand-50/40 p-6">
+              <p className="text-sm leading-relaxed text-brand-800">
                 <span className="font-semibold">Optional zuschaltbar:</span> Alle KI-Agenten lassen
                 sich pro Unternehmen aktivieren – Gleistrix funktioniert auch komplett ohne.
               </p>
