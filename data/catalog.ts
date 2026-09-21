@@ -99,13 +99,15 @@ export type CatalogEntry = {
    */
   metaTitle?: string;
   /**
-   * Kanonische Adresse, falls nicht die Seite selbst. Gesetzt bei
-   * Detailseiten, die zu dünn sind, um eigenständig zu ranken: Die Seite
-   * bleibt erreichbar und verlinkt, benennt aber die Übersichtsseite als die
-   * Fassung, die Google indexieren soll. Solche URLs gehören dann auch nicht
-   * mehr in die Sitemap – siehe app/sitemap.ts.
+   * Seite ohne Produktbeleg: bleibt unter ihrer URL erreichbar (Links von
+   * außen laufen nicht ins Leere), erscheint aber nicht in Megamenü,
+   * Übersicht, Verweisleisten und Sitemap und ist auf noindex gesetzt.
+   *
+   * Ersetzt den früheren Canonical auf die Übersicht: Der war nur ein Hinweis,
+   * den Google bei abweichendem Inhalt oft übergeht. Eine Seite, die eine
+   * nicht vorhandene Anbindung beschreibt, soll gar nicht im Index stehen.
    */
-  canonicalTo?: string;
+  unlisted?: boolean;
   /**
    * Verweise in die anderen Kataloge. Die `related`-Karten am Seitenende
    * zeigen nur Geschwister desselben Katalogs – eine Modulseite verlinkt damit

@@ -70,6 +70,8 @@ assert.ok(pages.length > 20, `Zu wenige vorgerenderte Seiten gefunden (${pages.l
 const DYNAMIC_ROUTES = ["/preise"];
 const knownRoutes = new Set([...pages.map((page) => page.route), ...DYNAMIC_ROUTES]);
 const errors = new Set();
+/** Routen mit noindex – dürfen nicht in der Sitemap stehen. */
+const noindexRoutes = new Set();
 /**
  * Aussagen, die aus gepflegten Inhalten stammen können (Blog, Startseiten-
  * Karussell aus dem Adminbereich). Sie werden gemeldet, lassen den Check aber
@@ -97,6 +99,7 @@ for (const { route, html } of pages) {
 
   const robots = /<meta name="robots" content="([^"]*)"/.exec(head)?.[1] ?? "";
   const indexable = !robots.includes("noindex");
+  if (!indexable) noindexRoutes.add(route);
 
   const canonical = /<link rel="canonical" href="([^"]*)"/.exec(head)?.[1];
   if (!canonical) fail("kein Canonical");
@@ -151,6 +154,7 @@ for (const loc of locs) {
   if (!loc.startsWith(SITE)) errors.add(`sitemap: fremde Domain ${loc}`);
   const route = loc.slice(SITE.length) || "/";
   if (!knownRoutes.has(route)) errors.add(`sitemap: Seite existiert nicht ${loc}`);
+  if (noindexRoutes.has(route)) errors.add(`sitemap: Seite steht auf noindex ${loc}`);
   if (route.startsWith("/admin") || route.startsWith("/api")) errors.add(`sitemap: privater Bereich ${loc}`);
 }
 

@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 
 import { SITE_URL } from "@/lib/constants";
 import { INDUSTRIES } from "@/data/industries";
-import { INTEGRATION_PAGES } from "@/data/integration-pages";
+import { INTEGRATION_CATALOG } from "@/data/integration-pages";
 import { MODULES } from "@/data/modules";
 import { listPublicArticles } from "@/lib/admin/blog/store";
 
@@ -71,10 +71,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/branchen/${entry.slug}`,
       lastModified: CONTENT_REVISION,
     })),
-    // Integrationen, die auf die Übersicht kanonisieren, bleiben draußen: eine
-    // URL, die selbst auf eine andere als die zu indexierende Fassung
-    // verweist, gehört nicht in die Sitemap.
-    ...INTEGRATION_PAGES.filter((entry) => !entry.canonicalTo).map((entry) => ({
+    // Nur gelistete Integrationen: Seiten ohne Produktbeleg stehen auf
+    // noindex, und eine nicht zu indexierende URL gehört nicht in die Sitemap.
+    ...INTEGRATION_CATALOG.entries.map((entry) => ({
       url: `${SITE_URL}/integrationen/${entry.slug}`,
       lastModified: CONTENT_REVISION,
     })),

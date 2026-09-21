@@ -153,7 +153,7 @@ Beide Seiten verweisen aufeinander, und die FAQ der Gleisbausicherungsseite erkl
 | H1 | Genau eine H1 je Seite; Startseite ohne rotierende Wörter | geprüft (`check:seo`, Browser) |
 | Canonicals | Alle auf `https://www.gleistrix.de`, ohne Schrägstrich am Ende | geprüft (`check:seo`) |
 | www / HTTPS | `https://gleistrix.de → www` per 308 (next.config); `http://gleistrix.de` → `https://gleistrix.de` → `www` = **zwei Sprünge** | live geprüft (curl); Behebung siehe 7 |
-| Sitemap | 36 Einträge, alle kanonisch und erreichbar, keine Admin-/API-URLs; lastmod aktualisiert | geprüft (`check:seo`) |
+| Sitemap | 34 Einträge (nach Nachtrag), alle kanonisch, indexierbar und erreichbar, keine Admin-/API-URLs; lastmod aktualisiert | geprüft (`check:seo`) |
 | robots.txt | Öffentlich crawlbar, `/admin` und `/api` gesperrt, Sitemap verlinkt | geprüft (live + Build) |
 | Strukturierte Daten | Organization, WebSite, BreadcrumbList, FAQPage, Article (jetzt mit `dateModified`), SoftwareApplication (`/preise`); alle Blöcke parsebar | Parsing geprüft; Rich-Results-Test **extern ausstehend** |
 | Interne Links | Keine Links ins Leere; Startseite → Branche → Modul → Fachartikel verknüpft | geprüft (`check:seo`) |
@@ -185,7 +185,9 @@ Beide Seiten verweisen aufeinander, und die FAQ der Gleisbausicherungsseite erkl
 ### Entscheidungen (höchste Priorität – rechtliches und vertriebliches Risiko)
 
 1. **Blogartikel in der Datenbank aktualisieren.** Die Blogartikel liegen in MongoDB, nicht in `data/blog.ts` – die Ablage ist bereits befüllt. Live stehen deshalb weiterhin „SIPO-Einsätze rechtssicher dokumentieren“ (kurze Fassung) und „Von der erfassten Stunde zur X-Rechnung“. Die neuen Fassungen liegen in `data/blog.ts` und müssen unter `/admin/blog` übernommen werden. In die Produktionsdatenbank wurde bewusst nicht geschrieben.
-2. **Integrationsseiten ohne Produktbeleg:** lexoffice, sevdesk, Stripe, PayPal, Agenda, Telegram, Cal.com, Calendly, Indeed, StepStone. Das Produkt kennt nur DATEV, Microsoft 365 und GAEB. Empfehlung: aus Menü und Sitemap nehmen und `noindex` setzen oder auf `/integrationen` weiterleiten – je nachdem, ob sie auf der Roadmap stehen.
+2. **Integrationsseiten ohne Produktbeleg – erledigt (Nachtrag 22.09.2026):** lexoffice, sevdesk, Stripe, PayPal, Agenda, Telegram, Cal.com, Calendly, Indeed und StepStone stehen jetzt mit `unlisted: true` in `data/integration-pages.ts`. Sie bleiben unter ihrer URL erreichbar, erscheinen aber nicht mehr in Megamenü, Übersicht, Verweisleisten und Sitemap und sind auf `noindex` gesetzt. Gelistet sind nur GAEB, Deutsche Bahn, DATEV und Microsoft 365. Noch offen:
+   - **Logo-Leiste der Startseite** (`components/landing/SecurityIntegrations.tsx`) zeigt weiterhin alle 14 Logos. Mit nur 4 Logos braucht die Endlosschleife eine neue Gestaltung – Entscheidung offen.
+   - **Preisseite** (`data/pricing.ts`) bietet sevdesk, Stripe, Cal.com, Calendly, Indeed, StepStone und Telegram als Zusatzmodule an. Das ist eine Preis- und Angebotsentscheidung.
 3. **KI-Agenten-Abschnitt der Startseite:** Das Agenten-Modul im Produkt ist laut Quellcode „aktuell mock-basiert (keine Backend-Endpunkte vorhanden)“. Echt sind die LV-Auswertung (GAEB), die Übernahme von DB-Leistungsanfragen und der KI-Finanzbericht. Empfehlung: Abschnitt auf diese drei Funktionen reduzieren oder als „in Entwicklung“ kennzeichnen.
 4. **Kundenstimmen:** Referenz-Kacheln (13 Personen) auf der Startseite und Testimonials mit 5 Sternen auf `/demo-buchen` – ob es echte Kunden mit Einwilligung sind, ist im Repository nicht belegbar. Nicht belegte Bewertungen sind nach UWG unzulässig. Bitte prüfen und belegen oder entfernen.
 5. **Fallstudien:** Sind jetzt als Beispielwerte gekennzeichnet. Sobald echte Einführungen vorliegen: Fallstudie mit Ausgangslage, Unternehmensgröße, Funktionsumfang, Messzeitraum und Ergebnis.
