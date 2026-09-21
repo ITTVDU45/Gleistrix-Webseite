@@ -24,7 +24,7 @@ export const HOME_FAQS: readonly FAQ[] = [
   {
     question: "Welche Module sind enthalten?",
     answer:
-      "Projektmanagement, Plantafel & Einsatzplanung, Mitarbeiter- und Fahrzeugverwaltung, Dokumentenmanagement, Lagerverwaltung sowie Abrechnung mit vorbereitender Buchhaltung. KI-Agenten lassen sich optional zuschalten.",
+      "Projektmanagement, Plantafel & Einsatzplanung, Mitarbeiter- und Fahrzeugverwaltung, Nachunternehmer-Portal, Zeiterfassung, Dokumentenmanagement, Lagerverwaltung sowie Abrechnung mit DATEV-Übergabe. KI-Funktionen lassen sich optional zuschalten.",
   },
   {
     question: "Können bestehende Prozesse abgebildet werden?",
@@ -34,16 +34,16 @@ export const HOME_FAQS: readonly FAQ[] = [
   {
     question: "Gibt es Rollen und Berechtigungen?",
     answer:
-      "Ja. Jede Rolle – Disposition, Projektleitung, Monteur, Backoffice, Geschäftsführung – sieht genau die Daten und Funktionen, die sie braucht. Berechtigungen sind pro Modul und Projekt steuerbar.",
+      "Ja. Jede Rolle – Disposition, Projektleitung, Monteur, Backoffice, Geschäftsführung – sieht genau die Daten und Funktionen, die sie braucht. Berechtigungen sind pro Modul steuerbar.",
   },
   {
     question: "Können Dokumente und Abrechnungen verwaltet werden?",
     answer:
-      "Ja. Dokumente liegen revisionssicher in der Projektakte, mit Versionen und Freigaben. Erfasste Leistungen und Stunden fließen direkt in Rechnungsentwürfe – inklusive sauberer Übergabe an die Buchhaltung.",
+      "Ja. Dokumente liegen nach Typ geordnet am Projekt – etwa Lieferscheine, Stundennachweise und Rechnungen. Freigegebene Stunden fließen direkt in die Projektabrechnung, mit PDF-Ausgabe und Übergabe an DATEV.",
   },
   {
-    question: "Sind KI-Agenten optional?",
+    question: "Sind die KI-Funktionen optional?",
     answer:
-      "Ja, vollständig. Alle KI-Agenten – vom LV-Agenten bis zum Abrechnungsagenten – lassen sich pro Unternehmen aktivieren oder deaktivieren. Gleistrix funktioniert auch komplett ohne KI-Funktionen.",
+      "Ja, vollständig. KI unterstützt zum Beispiel bei der Auswertung von GAEB-Leistungsverzeichnissen und bei der Übernahme von Leistungsanfragen aus dem DB-Lieferantenportal. Gleistrix funktioniert auch komplett ohne KI-Funktionen.",
   },
 ];

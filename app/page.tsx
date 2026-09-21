@@ -18,9 +18,9 @@ import { faqPageJsonLd, pageMetadata } from "@/lib/seo-metadata";
 // Seit /erp-bahnbau hierher weiterleitet, trägt die Startseite das Hauptthema
 // allein und nennt es deshalb beim gesuchten Begriff: "ERP Software".
 export const metadata = pageMetadata({
-  title: "Gleistrix – ERP Software für Bahnbau und Bahndienstleister",
+  title: "ERP-Software für Bahnbau & Bahndienstleister | Gleistrix",
   description:
-    "Gleistrix verbindet Projektplanung, Disposition, Personal, Fahrzeuge, Zeiterfassung, Dokumente und Abrechnung in einer ERP-Plattform für Bahndienstleister.",
+    "Gleistrix verbindet Projektmanagement, Einsatzplanung, Mitarbeiter, Fahrzeuge, Dokumentation und Abrechnung in einer ERP-Plattform für Bahndienstleister.",
   path: "/",
 });
 

@@ -118,7 +118,7 @@ export default function Page() {
               <h3 className="mt-5 text-xl font-semibold text-slate-900">Vision</h3>
               <p className="mt-3 leading-relaxed text-slate-500">
                 Ein ERP, das nicht im Weg steht, sondern Leistung freisetzt – von der Schichtplanung bis zur
-                X-Rechnung. Transparenz, Nachvollziehbarkeit und Skalierbarkeit stehen im Mittelpunkt.
+                Projektabrechnung. Transparenz, Nachvollziehbarkeit und Skalierbarkeit stehen im Mittelpunkt.
               </p>
               </div>
             </article>

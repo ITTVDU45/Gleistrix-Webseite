@@ -58,7 +58,10 @@ export default function FoxShowcase({ active }: FoxShowcaseProps) {
                 Einblend-Animation des Heros das Bild sekundenlang mit
                 opacity:0 verdeckte. Ohne diese Animation wird er sofort
                 verwendet. */}
-            <Image src={s.image} alt={i === active ? s.alt : ""} fill priority={i === 0} sizes="(min-width: 1024px) 560px, 92vw" className="object-contain object-bottom" />
+            {/* Platzhalter-Slides teilen sich das Bild des ersten Motivs. Ohne
+                priority auch auf ihnen meldet Next dieselbe Datei als LCP-Bild
+                ohne Preload – der Browser lädt sie trotzdem nur einmal. */}
+            <Image src={s.image} alt={i === active ? s.alt : ""} fill priority={s.image === HERO_SLIDES[0].image} sizes="(min-width: 1024px) 560px, 92vw" className="object-contain object-bottom" />
           </motion.div>
         ))}
       </motion.div>

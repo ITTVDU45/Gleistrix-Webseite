@@ -100,16 +100,19 @@ export default function CaseStudiesSection() {
     <section aria-labelledby="cases-heading" className="overflow-hidden bg-[#f8fafc] py-16 md:py-28">
       <div className="page-container">
         <SectionHeading
-          eyebrow="Vertrauen aus der Bahnbranche"
-          title={<span id="cases-heading">Echte Zahlen aus <span className="rounded-xl bg-brand-100/80 px-2 text-brand-700 [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">echten Bahnprojekten</span></span>}
-          description="Von der Schichtplanung über die Dokumentation bis zur Rechnung – so verändert Gleistrix den Alltag in Sicherung, Gleisbau, Schweißtechnik und Ingenieurbüros."
+          eyebrow="Anwendungsbeispiele"
+          title={<span id="cases-heading">So sieht der Alltag mit <span className="rounded-xl bg-brand-100/80 px-2 text-brand-700 [box-decoration-break:clone] [-webkit-box-decoration-break:clone]">Gleistrix</span> aus</span>}
+          // Die Kennzahlen sind Beispielwerte (siehe data/caseStudies.ts). Die
+          // frühere Überschrift "Echte Zahlen aus echten Bahnprojekten"
+          // behauptete das Gegenteil – das wäre irreführende Werbung.
+          description="Typische Szenarien aus Sicherung, Gleisbau, Schweißtechnik und Ingenieurbüros. Die Kennzahlen sind Beispielwerte zur Veranschaulichung, keine Messungen einzelner Kunden."
         />
 
         <Reveal className="relative mt-9 sm:mt-12 md:mt-16">
           <div
             ref={trackRef}
             className="scrollbar-none flex w-full snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain pb-3 sm:gap-5 sm:pb-5"
-            aria-label="Praxisbeispiele aus der Bahnbranche"
+            aria-label="Anwendungsbeispiele aus der Bahnbranche"
           >
             {CASE_STUDIES.map((study, index) => (
               <div key={study.id} className="w-full shrink-0 snap-center" style={{ flex: "0 0 100%" }}>

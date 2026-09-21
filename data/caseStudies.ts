@@ -24,8 +24,14 @@ export type CaseStudy = {
 };
 
 /**
- * Anonymisierte Praxisbeispiele – bewusst ohne Firmennamen.
- * Zahlen sind Platzhalter und vor dem Livegang durch belegte Werte zu ersetzen.
+ * Beispielszenarien – bewusst ohne Firmennamen.
+ *
+ * Die Zahlen sind Beispielwerte, keine Messungen einzelner Kunden. Die Sektion
+ * sagt das deshalb selbst (siehe CaseStudiesSection). Sobald belegte Werte aus
+ * echten Einführungen vorliegen, werden sie hier eingetragen und die
+ * Kennzeichnung angepasst – nicht vorher.
+ *
+ * Die Texte beschreiben nur Funktionen, die es im Produkt gibt.
  */
 export const CASE_STUDIES: CaseStudy[] = [
   {
@@ -34,11 +40,11 @@ export const CASE_STUDIES: CaseStudy[] = [
     branche: "Sicherungsunternehmen",
     title: "Monatsplanung von zwei Tagen auf drei Stunden",
     summary:
-      "Ein Sicherungsunternehmen mit 120 Sicherungsposten plant den kompletten Monat in Gleistrix – qualifikationsbasiert, mit automatischer Prüfung ablaufender Nachweise.",
+      "Ein Sicherungsunternehmen mit 120 Sicherungsposten plant den kompletten Monat in Gleistrix – nach Funktion, mit Konfliktprüfung bei Doppelbelegung, Urlaub und Krankmeldung.",
     metrics: [
       { value: "−85 %", label: "Planungsaufwand" },
       { value: "120", label: "SiPo im Einsatz" },
-      { value: "0", label: "abgelaufene Nachweise" },
+      { value: "0", label: "Doppelbelegungen" },
     ],
     image: { src: "/media/cases/schichtplanung.webp", alt: "Schichtplanung im Sicherungsunternehmen" },
   },
@@ -48,7 +54,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     branche: "Gleisbauunternehmen",
     title: "Von der Schicht zur Rechnung in vier Tagen",
     summary:
-      "Sechs Trupps erfassen ihre Zeiten mobil. Stundenzettel laufen geprüft in die Abrechnung – inklusive X-Rechnung an den Auftraggeber.",
+      "Sechs Trupps erfassen ihre Zeiten am Projekt. Freigegebene Stunden laufen ohne Nacherfassung in die Abrechnung und als Stundennachweis ans Lohnbüro.",
     metrics: [
       { value: "4 Tage", label: "bis zur Rechnung" },
       { value: "−78 %", label: "Nacherfassung" },
@@ -62,7 +68,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     branche: "Schweißfachbetrieb",
     title: "Schweißprüfungen direkt am Gleis protokolliert",
     summary:
-      "Temperatur, Durchgang und Prüfprotokoll werden mobil erfasst. Der Bericht liegt beim Auftraggeber, bevor der Trupp die Baustelle verlässt.",
+      "Prüfprotokolle, Fotos und Lieferscheine werden am Projekt abgelegt. Wer nachfragt, findet den Bericht über das Projekt statt im Postfach.",
     metrics: [
       { value: "0", label: "Papierprotokolle" },
       { value: "−90 %", label: "Rückfragen" },
@@ -76,10 +82,10 @@ export const CASE_STUDIES: CaseStudy[] = [
     branche: "Ingenieurbüro",
     title: "Jeder Nachweis in unter 30 Sekunden auffindbar",
     summary:
-      "Bauabschnitte, Prüfprotokolle und Baustellenfotos liegen je Projekt zusammen. Audits laufen ohne Suchen in Postfächern und Netzlaufwerken.",
+      "Prüfprotokolle, Lieferscheine und Baustellenfotos liegen je Projekt zusammen. Audits laufen ohne Suchen in Postfächern und Netzlaufwerken.",
     metrics: [
       { value: "< 30 Sek", label: "bis zum Nachweis" },
-      { value: "100 %", label: "revisionssichere Ablage" },
+      { value: "100 %", label: "Unterlagen am Projekt" },
       { value: "5 Std", label: "weniger Büro pro Woche" },
     ],
     image: { src: "/media/cases/auslastung.webp", alt: "Auslastung und Kennzahlen im Ingenieurbüro" },

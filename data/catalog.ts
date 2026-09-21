@@ -44,10 +44,42 @@ export type CatalogFaq = {
   answer: string;
 };
 
+/**
+ * Fachtext-Abschnitt der Detailseite: eine Zwischenüberschrift mit Absätzen.
+ * Trägt die inhaltliche Tiefe, die Raster und Aufzählungen allein nicht haben –
+ * Suchende mit konkreter Frage brauchen ganze Sätze, keine Stichworte.
+ */
+export type CatalogDetailSection = {
+  heading: string;
+  paragraphs: string[];
+};
+
+/** Überschriften der optionalen Abschnitte, falls die Katalogvorlage nicht passt. */
+export type CatalogHeadings = {
+  challenges?: string;
+  steps?: string;
+  faq?: string;
+};
+
 export type CatalogEntry = {
   /** Letztes Segment der URL. Innerhalb eines Katalogs eindeutig. */
   slug: string;
   title: string;
+  /**
+   * Hauptüberschrift der Detailseite. Ohne Angabe steht `title` in der H1 –
+   * der ist für Menü und Karten gedacht und oft zu knapp, um die Suchanfrage
+   * zu tragen ("Sicherungsunternehmen" statt "Software für
+   * Sicherungsunternehmen: …").
+   */
+  h1?: string;
+  /**
+   * Eigene Überschriften für Herausforderungen, Ablauf und FAQ. Die
+   * Katalogvorlage setzt nur `{title}` ein; bei Branchen ergibt das Sätze wie
+   * "So arbeitest du mit Sicherungsunternehmen", die niemand so schreiben würde.
+   */
+  headings?: CatalogHeadings;
+  /** Fachtext unterhalb des Leistungsumfangs. Ohne Angabe entfällt er. */
+  details?: CatalogDetailSection[];
   /** Eine Zeile – im Megamenü unter dem Titel und auf den Übersichtskarten. */
   tagline: string;
   /** Absatz im Seitenkopf der Detailseite. */
@@ -135,6 +167,13 @@ export type Catalog = {
   scopeHeading: string;
   /** Überschrift des Abschlussbanners, ebenfalls mit `{title}`. */
   ctaHeading: string;
+  /**
+   * Vorlagen für die optionalen Abschnitte, jeweils mit `{title}`. Ein Eintrag
+   * kann sie über `headings` überschreiben.
+   */
+  challengesHeading: string;
+  stepsHeading: string;
+  faqHeading: string;
   /** Ziel des Links am Fuß des Megamenüs. */
   overviewHref: string;
   overviewLabel: string;

@@ -16,11 +16,11 @@ import { faqPageJsonLd } from "@/lib/seo-metadata";
 type CatalogDetailProps = { catalog: Catalog; entry: CatalogEntry };
 
 /**
- * Drei Abschnitte hängen an optionalen Feldern des Eintrags und erscheinen nur,
- * wenn er sie mitbringt: Herausforderung & Lösung, Ablauf und FAQ. Ihre
- * Überschriften stehen hier fest statt im Katalog – gepflegt sind die Felder
- * bisher nur für Module. Sobald ein zweiter Katalog sie nutzt und andere
- * Formulierungen braucht, gehören sie neben `scopeHeading` in den Katalogkopf.
+ * Vier Abschnitte hängen an optionalen Feldern des Eintrags und erscheinen nur,
+ * wenn er sie mitbringt: Herausforderung & Lösung, Fachtext, Ablauf und FAQ.
+ * Die Überschriften kommen aus dem Katalogkopf (`challengesHeading` usw.) und
+ * lassen sich je Eintrag über `headings` überschreiben – Branchen brauchen
+ * andere Sätze als Module.
  */
 export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
   const Icon = entry.icon;
@@ -28,6 +28,11 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
   // Vier Motive je Seite, aus dem Slug abgeleitet – so bekommt jede Unterseite
   // eine eigene Bildfolge, ohne dass der Katalog Bildfelder pflegen muss.
   const scenes = [0, 1, 2, 3].map((offset) => sceneFor(entry.slug, offset));
+  const headings = {
+    challenges: entry.headings?.challenges ?? fillHeading(catalog.challengesHeading, entry.title),
+    steps: entry.headings?.steps ?? fillHeading(catalog.stepsHeading, entry.title),
+    faq: entry.headings?.faq ?? fillHeading(catalog.faqHeading, entry.title),
+  };
 
   return (
     <>
@@ -54,7 +59,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                 <Icon aria-hidden className="h-3.5 w-3.5 shrink-0" />
                 <span className="min-w-0">{catalog.singular}</span>
               </span>
-              <h1 className="mt-4 text-[2rem] font-bold leading-[1.1] tracking-tight text-slate-900 min-[375px]:text-[2.2rem] sm:mt-5 sm:text-4xl md:text-[2.75rem] md:leading-[1.12]">{entry.title}</h1>
+              <h1 className="mt-4 text-balance text-[2rem] font-bold leading-[1.1] tracking-tight text-slate-900 min-[375px]:text-[2.2rem] sm:mt-5 sm:text-4xl md:text-[2.75rem] md:leading-[1.12]">{entry.h1 ?? entry.title}</h1>
               <p className="mt-4 max-w-xl text-[15px] leading-7 text-slate-500 sm:text-lg sm:leading-relaxed">{entry.description}</p>
 
               <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
@@ -124,7 +129,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
             <Reveal className="min-w-0">
               <div className="max-w-2xl">
                 <span className="text-xs font-semibold uppercase tracking-wider text-brand-600">Herausforderung &amp; Lösung</span>
-                <h2 id="catalog-challenges" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Was sich mit {entry.title} ändert</h2>
+                <h2 id="catalog-challenges" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{headings.challenges}</h2>
                 <p className="mt-4 text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">Situationen, die im Bahnalltag regelmäßig Zeit und Nerven kosten – und daneben, wie derselbe Vorgang in Gleistrix abläuft.</p>
               </div>
             </Reveal>
@@ -158,6 +163,26 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
         </section>
       )}
 
+      {entry.details && entry.details.length > 0 && (
+        <section aria-label="Fachliche Details" className="bg-white py-12 sm:py-16 md:py-24">
+          <div className="page-container">
+            {/* Fließtext statt Karten: Wer mit einer konkreten Frage kommt,
+                sucht die Antwort in ganzen Sätzen. Zwei Spalten halten die
+                Zeilenlänge lesbar, ohne dass die Seite endlos wird. */}
+            <div className="grid min-w-0 gap-10 md:grid-cols-2 md:gap-x-14 md:gap-y-14">
+              {entry.details.map((detail, index) => (
+                <Reveal key={detail.heading} delay={(index % 2) * 0.06} className="min-w-0">
+                  <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">{detail.heading}</h2>
+                  {detail.paragraphs.map((paragraph) => (
+                    <p key={paragraph.slice(0, 48)} className="mt-3.5 text-[15px] leading-7 text-slate-600 sm:text-base sm:leading-relaxed">{paragraph}</p>
+                  ))}
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {entry.steps && entry.steps.length > 0 && (
         <section aria-labelledby="catalog-steps" className="relative overflow-hidden bg-slate-950 py-12 sm:py-16 md:py-24">
           <div aria-hidden className="pointer-events-none absolute inset-0">
@@ -170,7 +195,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
               <Reveal className="min-w-0">
                 <div className="max-w-2xl">
                   <span className="text-xs font-semibold uppercase tracking-wider text-brand-300">Ablauf</span>
-                  <h2 id="catalog-steps" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">So arbeitest du mit {entry.title}</h2>
+                  <h2 id="catalog-steps" className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">{headings.steps}</h2>
                   <p className="mt-4 text-[15px] leading-7 text-slate-300 sm:text-base sm:leading-relaxed">Jeder Schritt baut auf dem vorherigen auf. Daten, die einmal im System stehen, werden weitergereicht statt erneut erfasst.</p>
                 </div>
               </Reveal>
@@ -204,7 +229,7 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
             <div className="grid min-w-0 gap-8 sm:gap-10 md:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] md:gap-14">
               <Reveal className="min-w-0">
                 <span className="text-xs font-semibold uppercase tracking-wider text-brand-600">FAQ</span>
-                <h2 id="catalog-faq" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Häufige Fragen zu {entry.title}</h2>
+                <h2 id="catalog-faq" className="mt-3 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{headings.faq}</h2>
                 <p className="mt-4 max-w-sm text-[15px] leading-7 text-slate-500 sm:text-base sm:leading-relaxed">Das fragen Bahndienstleister vor der Einführung am häufigsten. Was offen bleibt, klären wir in einer kurzen Demo.</p>
               </Reveal>
 

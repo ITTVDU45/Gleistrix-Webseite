@@ -333,6 +333,16 @@ export function articleDate(article: BlogArticle): string {
   return article.publishedAt ?? article.publishAt ?? article.createdAt;
 }
 
+/**
+ * Letzte Änderung, wie sie öffentlich steht. Eine Bearbeitung vor der
+ * Veröffentlichung ist keine Änderung des veröffentlichten Artikels – deshalb
+ * nie früher als das Veröffentlichungsdatum.
+ */
+export function modifiedDate(article: BlogArticle): string {
+  const published = articleDate(article);
+  return article.updatedAt && article.updatedAt > published ? article.updatedAt : published;
+}
+
 /** Lesezeit aus der reinen Textlänge – mindestens eine Minute. */
 export function readMinutes(html: string): number {
   const words = html
@@ -354,6 +364,7 @@ export function toPublicArticle(article: BlogArticle): PublicBlogArticle {
     imageAlt: article.imageAlt,
     seo: article.seo,
     date: articleDate(article),
+    modified: modifiedDate(article),
     readMinutes: readMinutes(article.content),
   };
 }

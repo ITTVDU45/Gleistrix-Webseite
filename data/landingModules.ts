@@ -21,9 +21,9 @@ export const DEFAULT_LANDING_MODULES: LandingModule[] = [
     description:
       "Alle Bahnprojekte an einem Ort – vom Auftragseingang bis zur Abnahme. Status, Verantwortliche und Fortschritt sind jederzeit nachvollziehbar.",
     bullets: [
-      "Projektakten mit Status und Meilensteinen",
-      "Aufgaben und Verantwortlichkeiten im Blick",
-      "Fortschritt in Echtzeit statt Wochenbericht",
+      "Projektakten mit Status, Laufzeit und Ansprechpartner",
+      "Leistungen mit Positionen, Menge und Preis",
+      "Projektanlage aus DB-Leistungsanfragen per KI",
     ],
     visual: "projekte",
     href: "/produkt/projektplanung-disposition",
@@ -47,10 +47,10 @@ export const DEFAULT_LANDING_MODULES: LandingModule[] = [
     id: "mitarbeiter-fahrzeuge",
     title: "Mitarbeiter & Fahrzeuge",
     description:
-      "Qualifikationen, Verfügbarkeiten und Fristen zentral verwaltet – vom Sicherungsposten bis zum Zweiwegefahrzeug.",
+      "Funktionen, Abwesenheiten und Fahrzeuge zentral verwaltet – vom Sicherungsposten bis zum Zweiwegefahrzeug.",
     bullets: [
-      "Qualifikationen und Tauglichkeiten mit Fristenwarnung",
-      "Fahrzeuge, Wartung und HU-Termine im Blick",
+      "Funktionen wie SIPO, Sakra und BüP je Mitarbeiter",
+      "Fahrzeuge mit Zustand, Zuordnung und Tageskosten",
       "Rollen und Berechtigungen pro Team",
     ],
     visual: "team",
@@ -61,10 +61,10 @@ export const DEFAULT_LANDING_MODULES: LandingModule[] = [
     id: "dokumentenmanagement",
     title: "Dokumentenmanagement",
     description:
-      "Pläne, Nachweise und Protokolle liegen revisionssicher in der Projektakte – statt verstreut in Postfächern und Ordnern.",
+      "Lieferscheine, Nachweise und Protokolle liegen am Projekt – statt verstreut in Postfächern und Ordnern.",
     bullets: [
-      "Revisionssichere Ablage pro Projekt",
-      "Freigaben und Versionen nachvollziehbar",
+      "Ablage am Projekt, nach Dokumenttyp",
+      "Anbindung an OneDrive und SharePoint",
       "Bei Prüfungen in Sekunden auskunftsfähig",
     ],
     visual: "dokumente",
@@ -75,11 +75,11 @@ export const DEFAULT_LANDING_MODULES: LandingModule[] = [
     id: "lagerverwaltung",
     title: "Lagerverwaltung",
     description:
-      "Material, Geräte und Sicherungstechnik mit Beständen und Reservierungen – damit auf der Baustelle nichts fehlt.",
+      "Material, Geräte und Sicherungstechnik mit Beständen, Ausgaben und Prüfterminen – damit auf der Baustelle nichts fehlt.",
     bullets: [
       "Bestände und Mindestmengen in Echtzeit",
-      "Material direkt dem Projekt zuordnen",
-      "Geräte- und Prüfhistorie dokumentiert",
+      "Ausgabe mit geplanter Rückgabe, mobil per QR-Code",
+      "Wartungen und TÜV-Termine mit Fälligkeit",
     ],
     visual: "lager",
     isActive: true,
@@ -90,9 +90,9 @@ export const DEFAULT_LANDING_MODULES: LandingModule[] = [
     description:
       "Erfasste Leistungen, Stunden und Belege fließen direkt in die Abrechnung – geprüft, vollständig und übergabefertig für die Buchhaltung.",
     bullets: [
-      "Leistungsnachweise automatisch zusammengeführt",
-      "Rechnungsentwürfe pro Projekt und Zeitraum",
-      "Saubere Übergabe an Steuerberater und DATEV-Prozesse",
+      "Freigegebene Stunden als Abrechnungspositionen",
+      "Abrechnung je Projekt mit PDF-Ausgabe",
+      "Buchungsdaten und Belege an DATEV übergeben",
     ],
     visual: "abrechnung",
     href: "/produkt/rechnungsstellung",

@@ -9,7 +9,7 @@ export const FEATURES: Feature[] = [
   { id: 'projekte', title:'Projektplanung & Dispo', desc:'Ressourcen präzise zuweisen & steuern.', icon: KanbanSquare },
   { id: 'kalender', title:'Kalender & Schichten', desc:'Alle Termine live in der App.', icon: Calendar },
   { id: 'rechnungen', title:'Rechnungsstellung', desc:'Schnell, korrekt, optional automatisiert.', icon: FileText },
-  { id: 'dokumente', title:'Dokumentenmanagement', desc:'Zentral, teilbar, revisionssicher.', icon: Folder },
+  { id: 'dokumente', title:'Dokumentenmanagement', desc:'Am Projekt, nach Typ geordnet.', icon: Folder },
   { id: 'zeit', title:'Zeiterfassung & Zettel', desc:'Digital, mobil, prüffähig.', icon: Clock },
   { id: 'reports', title:'Reports & Forecasts', desc:'Echtzeitdaten für klare Entscheidungen.', icon: BarChart3 },
 ];

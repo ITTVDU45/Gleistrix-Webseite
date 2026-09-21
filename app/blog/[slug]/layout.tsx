@@ -23,7 +23,7 @@ export default async function BlogArticleLayout({
     headline: article.title,
     description,
     datePublished: article.date,
-    dateModified: article.date,
+    dateModified: article.modified,
     mainEntityOfPage: url,
     image: article.imageSrc ? [new URL(article.imageSrc, SITE_URL).toString()] : undefined,
     author: {
