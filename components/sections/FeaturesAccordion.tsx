@@ -46,14 +46,14 @@ const ITEMS: AccordionItem[] = [
   {
     id: "rechnungen",
     title: "Rechnungsstellung",
-    subtitle: "Schnell, korrekt, optional automatisiert – bis zur X-Rechnung.",
+    subtitle: "Aus freigegebenen Stunden zur Abrechnung – mit PDF-Ausgabe und DATEV-Übergabe.",
     imageSrc: "/media/module/abrechnung-ui.webp",
     href: "/produkt/rechnungsstellung",
   },
   {
     id: "dokumente",
     title: "Dokumentenmanagement",
-    subtitle: "Zentral, teilbar und revisionssicher archiviert.",
+    subtitle: "Am Projekt abgelegt, nach Typ geordnet und schnell wiedergefunden.",
     imageSrc: "/media/module/dokumente-ui.webp",
     href: "/produkt/dokumentenmanagement",
   },

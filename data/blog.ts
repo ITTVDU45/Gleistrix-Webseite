@@ -36,9 +36,9 @@ export const DEFAULT_BLOG_CATEGORIES: BlogCategory[] = (
     ["Sicherung", "Sicherungsposten, Sperrpausen, Bahnübergänge, Nachweise und Qualifikationen."],
     ["Fuhrpark", "Fahrzeuge, Zweiwegetechnik, Messtechnik, Verfügbarkeit, Wartung und Prüffristen."],
     ["Zeiterfassung", "Stundenzettel, Zuschläge, Freigabe, Kostenstellen und mobile Erfassung."],
-    ["Abrechnung", "Leistungsnachweis, Nachträge, X-Rechnung und öffentliche Auftraggeber."],
+    ["Abrechnung", "Leistungsnachweis, Nachträge, E-Rechnung und öffentliche Auftraggeber."],
     ["Auswertung", "Auslastung, Deckungsbeitrag, Soll-Ist-Vergleich und Controlling."],
-    ["Dokumentation", "Bautagebuch, Fotos, Mängel, Übergaben und revisionssichere Ablage."],
+    ["Dokumentation", "Bautagebuch, Fotos, Mängel, Übergaben und Ablage von Nachweisen."],
     ["Digitalisierung", "Medienbrüche, Einführung, Schnittstellen und Arbeit ohne Netz im Gleisbereich."],
   ] as const
 ).map(([name, description]) => ({
@@ -64,17 +64,35 @@ Infrastrukturbetriebe. Alles läuft auf einem Datenstand, damit zwischen Planung
 Einsatz und Abrechnung keine Medienbrüche entstehen.
 
 Module:
-- Projektplanung und Disposition: Einsätze, Trupps und Termine auf einer Plantafel,
-  mit Prüfung von Qualifikation und Verfügbarkeit schon beim Zuordnen.
-- Kalender und Einsatzübersicht: Personal, Fahrzeuge und Projekte auf derselben Zeitachse.
-- Mitarbeiterverwaltung: Qualifikationen, Nachweise und Fristen mit Ablaufwarnung.
-- Dokumentenmanagement: Bautagebuch, Fotos und Nachweise am Projekt statt im Ordner.
-- Fahrzeuge und Technik: Belegung, Wartungsfenster und Prüftermine als planbare Zeiten.
-- Zeiterfassung und Stundenzettel: mobil am Einsatzort, auch ohne Netz, mit Freigabelauf.
-- Rechnungsstellung: Rechnungsentwurf aus freigegebenen Leistungen, inklusive X-Rechnung.
-- Reports und Auswertungen: Auslastung und Deckungsbeitrag je Projekt, laufend statt zum Monatsende.
+- Projektplanung und Disposition: Projekte mit Auftraggeber, Baustelle, Auftrags- und
+  SAP-Nummer, Leistungen mit Positionen; Projektanlage aus DB-Leistungsanfragen per KI;
+  ATWS-Einsatz mit Anzahl und Meterlänge.
+- Plantafel: Tages-, Wochen-, Monats- und Jahresansicht; Personal und Fahrzeuge per
+  Drag-and-drop; Konfliktprüfung bei Doppelbelegung, Urlaub, Krankheit und Feiertag
+  (je Bundesland); Besprechungen.
+- Mitarbeiterverwaltung: Funktionen je Mitarbeiter (SIPO, Sakra, BüP, HiBa, SAS, HFE,
+  Bahnerder, Monteur/Bediener), ElBa-Kennung, Abwesenheiten (Urlaub, AU, Freistellung,
+  Fortbildung). KEINE Ablaufdaten oder Fristenwarnung für Qualifikationen eigener Mitarbeiter.
+- Nachunternehmer: eigenes Portal mit Einsätzen, Nachweisen (Status fehlt/läuft ab/
+  abgelaufen, Erneuerungsintervall), Bestellscheinen mit digitaler Unterschrift,
+  Rechnungen und Mahnungen; Tagessätze je Funktion.
+- Zeiterfassung: Zeiten je Einsatz mit Funktion, Arbeits- und Fahrtzeit; Nacht- und
+  Sonntagszuschläge; monatlicher Stundennachweis per E-Mail an Mitarbeiter und Lohnbüro.
+- Fahrzeuge: Kilometer-, Tankstand, Schäden, Status, Tageskosten, Zuordnung zu Mitarbeiter
+  oder Projekt.
+- Lager: Bestände, Mindestmengen, Wareneingang, Lieferscheine, Ausgabe mit Rückgabe,
+  Inventur, Wartungen (TÜV, Prüfung, Kalibrierung) mit Fälligkeit, mobile Lager-App mit QR-Code.
+- Dokumente: Ablage am Projekt nach Dokumenttyp, Anbindung an OneDrive und SharePoint.
+- Abrechnung: aus freigegebenen Stunden, Positionen nach Tag und Funktion, PDF-Ausgabe,
+  Eingangsrechnungen, DATEV-Buchungsdatenexport und Belegübertragung.
+- Finanzen: Soll- und Ist-Umsatz, Personal-, Nachunternehmer- und weitere Kosten,
+  Ergebnis und Marge je Projekt.
+- GAEB: Import von GAEB-DA-XML (X81–X89) mit Schemaprüfung; KI wertet das LV aus und
+  beantwortet Fragen dazu. KEINE GAEB-Ausgabe.
 
-KI-Agenten: LV-Agent, Dokumentationsagent, Mängel-Agent, Ausschreibungsagent, Abrechnungsagent.
+Nicht vorhanden und deshalb nie zu behaupten: X-Rechnung/E-Rechnungsausgabe,
+Bautagesbericht, Aufmaß, revisionssichere Archivierung, Offline-Zeiterfassung per App,
+lexoffice-, sevdesk-, Stripe- oder PayPal-Anbindung.
 
 Was Gleistrix NICHT ist: kein Planungsbüro, keine Vermessungssoftware, kein Ersatz für
 betriebliche Regelwerke. Fähigkeiten, die oben nicht stehen, werden nicht behauptet.`;
@@ -83,15 +101,19 @@ betriebliche Regelwerke. Fähigkeiten, die oben nicht stehen, werden nicht behau
 export const WORDS_PER_MINUTE = 200;
 
 function seed(
-  article: Omit<BlogArticle, "createdAt" | "updatedAt" | "status" | "sourceIds" | "generatedByAi">,
+  article: Omit<BlogArticle, "createdAt" | "updatedAt" | "status" | "sourceIds" | "generatedByAi"> & {
+    /** Nur für inhaltlich überarbeitete Artikel – sonst gilt das Veröffentlichungsdatum. */
+    updatedAt?: string;
+  },
 ): BlogArticle {
+  const published = article.publishedAt ?? "2026-06-01T08:00:00.000Z";
   return {
     ...article,
     status: "veroeffentlicht",
     sourceIds: [],
     generatedByAi: false,
-    createdAt: article.publishedAt ?? "2026-06-01T08:00:00.000Z",
-    updatedAt: article.publishedAt ?? "2026-06-01T08:00:00.000Z",
+    createdAt: published,
+    updatedAt: article.updatedAt ?? published,
   };
 }
 
@@ -126,30 +148,80 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
   }),
   seed({
     id: "sipo-einsaetze-dokumentieren",
+    // Die Adresse bleibt, obwohl "rechtssicher" nicht mehr im Titel steht: Sie
+    // ist verlinkt und indexiert. Der Titel verspricht keine Rechtssicherheit
+    // mehr, weil ein Artikel sie nicht garantieren kann.
     slug: "sipo-einsaetze-rechtssicher-dokumentieren",
-    title: "SIPO-Einsätze rechtssicher dokumentieren",
-    teaser: "So entstehen Nachweise für Sicherungsmaßnahmen direkt aus den Projektdaten.",
+    title: "SiPo-Einsätze nachvollziehbar dokumentieren: ein Leitfaden für Sicherungsunternehmen",
+    teaser:
+      "Was zur Dokumentation eines SiPo-Einsatzes gehört – von der Anordnung der BzS über Besetzung und Arbeitszeiten bis zum prüfbaren Leistungsnachweis.",
     category: "Sicherung",
-    tags: ["Sicherung", "SIPO", "Dokumentation", "Bahnübergang"],
+    tags: ["Sicherung", "SIPO", "Dokumentation", "Leistungsnachweis", "ElBa"],
     imageSrc: "/sicherungsmassnahmen-bahnuebergaenge.webp",
     imageAlt: "Sicherungsmaßnahmen an Bahnübergängen",
     publishedAt: "2026-06-26T06:00:00.000Z",
+    updatedAt: "2026-09-22T08:00:00.000Z",
     seo: {
-      title: "SIPO-Einsätze rechtssicher dokumentieren",
+      title: "SiPo-Einsätze dokumentieren: Leitfaden für die Praxis",
       description:
-        "Nachweise für Sicherungsmaßnahmen entstehen direkt aus den Projektdaten – ohne Nacherfassung und mit vollständiger Historie.",
-      keyword: "SIPO Dokumentation",
+        "Was zur Dokumentation eines SiPo-Einsatzes gehört: Sicherungsplan, Besetzung, Funktionen, ElBa, Arbeitszeiten, Änderungen und prüfbare Leistungsnachweise.",
+      keyword: "SiPo Einsatz dokumentieren",
     },
-    content: `<p>Sicherungsmaßnahmen sind nachweispflichtig. Wer sie nachträglich aus Notizen rekonstruiert, riskiert Lücken genau dort, wo die Prüfung ansetzt.</p>
-<h2>Der Nachweis entsteht beim Einsatz</h2>
-<p>Wenn Sicherungsposten, Zeitraum und Maßnahme bereits im Einsatz hinterlegt sind, ist der Nachweis ein Nebenprodukt der Planung. Es gibt keinen zweiten Erfassungsschritt, der vergessen werden kann.</p>
+    content: `<p>Ein Einsatz als Sicherungsposten ist schnell erzählt: Posten steht, warnt, Arbeit läuft. Nachweisen lässt er sich schwerer. Spätestens wenn der Auftraggeber Wochen später nach einer einzelnen Schicht fragt oder eine Abrechnung prüft, zeigt sich, ob die Dokumentation beim Einsatz entstanden ist – oder erst danach aus Erinnerungen zusammengesetzt wird.</p>
+<p>Dieser Leitfaden beschreibt, welche Angaben zu einem SiPo-Einsatz gehören, wann sie entstehen und wie sie prüfbar bleiben. Er ersetzt weder das Regelwerk noch die Vorgaben des Auftraggebers; maßgeblich sind die DGUV Vorschrift 78, die Richtlinie 132.0118 der DB InfraGO und die Anordnungen im konkreten Sicherungsplan.</p>
+
+<h2>Was gehört zur Dokumentation eines SiPo-Einsatzes?</h2>
+<p>Die Dokumentation beantwortet vier Fragen: Welche Sicherungsmaßnahme galt? Wer war eingesetzt, in welcher Funktion? Wann wurde gearbeitet? Und was davon wurde gegenüber dem Auftraggeber abgerechnet? Dazu gehören typischerweise:</p>
 <ul>
-<li>Wer war wann als SIPO eingeteilt.</li>
-<li>Welche Maßnahme galt für welchen Streckenabschnitt.</li>
-<li>Welche Qualifikation lag zum Einsatzzeitpunkt vor.</li>
+<li>der Auftrag mit Auftraggeber, Baustelle, Streckenabschnitt sowie Auftrags- und SAP-Nummer,</li>
+<li>der Bezug zum Sicherungsplan, der die Maßnahme festlegt,</li>
+<li>die Besetzung: wer als Sicherungsposten, Sicherungsaufsicht oder Bahnübergangsposten eingesetzt war,</li>
+<li>Beginn, Ende, Pausen und Fahrtzeiten je Person,</li>
+<li>eingesetzte Technik, etwa automatische Warnsysteme mit Anzahl und Meterlänge,</li>
+<li>Änderungen gegenüber der Planung – und wer sie wann vorgenommen hat.</li>
 </ul>
-<h2>Prüffähig bleiben</h2>
-<p>Entscheidend ist die Unveränderlichkeit: Ein Nachweis, der sich nachträglich still ändern lässt, trägt im Zweifel nicht. Eine nachvollziehbare Historie zeigt, wann welcher Stand galt und wer ihn gesetzt hat.</p>`,
+
+<h2>Welche Informationen werden vor dem Einsatz benötigt?</h2>
+<p>Welche Sicherungsmaßnahme angewendet wird, entscheidet nicht das Sicherungsunternehmen. Nach der Darstellung der DB InfraGO legt die für den Bahnbetrieb zuständige Stelle (BzS) die Maßnahmen fest; präqualifizierte Sicherungsunternehmen planen und führen sie aus. Die Arbeiten dürfen erst beginnen, wenn die festgelegten Maßnahmen umgesetzt sind. Grundlage ist der Sicherungsplan, der vorab eingereicht und freigegeben wird.</p>
+<p>Für die Dokumentation heißt das: Der Einsatz sollte von Anfang an mit dem Auftrag und dem Sicherungsplan verbunden sein. Wer die Angaben aus der Leistungsanfrage einmal sauber erfasst, muss sie später nicht aus Mails rekonstruieren.</p>
+
+<h2>Wie werden Mitarbeiter und Qualifikationen zugeordnet?</h2>
+<p>Ein Sicherungsposten ist keine Sicherungsaufsicht, ein Bahnübergangsposten kein Bediener. Die Besetzung muss deshalb nicht nur Namen enthalten, sondern die Funktion, in der jemand eingesetzt war. Seit dem 1. Januar 2025 ist nach Angaben der DB InfraGO zudem der elektronische Befähigungsausweis ElBa für Sicherungspersonal verbindlich; ebenfalls seit Anfang 2025 liegt das Mindestalter für Sicherungspersonal nach der DGUV Vorschrift 78 bei 18 statt bisher 21 Jahren.</p>
+<p>Praktisch bewährt sich, Funktionen und ElBa-Kennung am Mitarbeiter zu führen und beim Einteilen sichtbar zu haben – statt sie für jede Schicht neu nachzuschlagen. Ebenso wichtig: Abwesenheiten wie Urlaub oder Krankmeldungen gehören in dieselbe Planung, damit niemand eingeteilt wird, der nicht verfügbar ist.</p>
+
+<h2>Wie lassen sich Arbeitszeiten dokumentieren?</h2>
+<p>Arbeitszeiten sind der Teil der Dokumentation, der am häufigsten nachträglich entsteht – auf Zetteln im Fahrzeug, in Messenger-Nachrichten, am Monatsende abgetippt. Belastbarer ist es, die Zeiten je Einsatz und Person am Auftrag zu erfassen: Beginn, Ende, Pausen, Fahrtzeit und die Funktion. Nacht- und Sonntagsanteile ergeben sich dann aus den Zeiten selbst und müssen nicht separat nachgerechnet werden.</p>
+
+<h2>Wie werden Änderungen nachvollziehbar festgehalten?</h2>
+<p>Pläne ändern sich: Sperrpausen verschieben sich, ein Posten fällt aus, eine Schicht wird verlängert. Entscheidend ist nicht, dass sich nichts ändert, sondern dass erkennbar bleibt, was sich wann geändert hat und wer die Änderung vorgenommen hat. Eine Datei, die überschrieben wird, leistet das nicht. Ein System, das Änderungen protokolliert, schon.</p>
+<p>Genauso wichtig ist eine klare Freigabe: Stunden werden geprüft und freigegeben, bevor sie abgerechnet werden. So ist der abgerechnete Stand eindeutig – und von dem Stand unterscheidbar, der noch in Arbeit ist.</p>
+
+<h2>Wie entstehen prüfbare Leistungsnachweise?</h2>
+<p>Ein Leistungsnachweis ist prüfbar, wenn jede Zeile auf einen Einsatz, eine Person, eine Funktion und einen Auftrag zurückgeführt werden kann. Das gelingt fast nie, wenn der Nachweis erst am Monatsende zusammengestellt wird. Es gelingt fast immer, wenn er aus den Daten entsteht, die beim Einsatz ohnehin erfasst werden: aus der Besetzung, den erfassten Zeiten und der Freigabe.</p>
+<ul>
+<li>Jeder Eintrag hängt am Auftrag – nicht in einer getrennten Tabelle.</li>
+<li>Die Funktion steht am Eintrag, nicht nur in der Personalakte.</li>
+<li>Abgerechnet wird nur, was freigegeben ist.</li>
+</ul>
+
+<h2>Wie unterstützt Gleistrix den Prozess?</h2>
+<p>Gleistrix führt Auftrag, Besetzung, Zeiten und Abrechnung auf einem Datenstand zusammen:</p>
+<ul>
+<li>Leistungsanfragen aus dem DB-Lieferantenportal füllen die Projektanlage vor – mit Auftrags- und SAP-Nummer, Baustelle und Zeitraum. Am Projekt lässt sich festhalten, ob ATWS im Einsatz ist, wie viele Anlagen und welche Meterlänge.</li>
+<li>In der <a href="/produkt/mitarbeiterverwaltung">Mitarbeiterverwaltung</a> stehen Funktionen wie SIPO, Sakra, BüP oder HiBa, die ElBa-Kennung und Abwesenheiten.</li>
+<li>Die <a href="/produkt/kalender-einsatzuebersicht">Plantafel</a> meldet beim Einteilen Doppelbelegungen, Urlaub, Krankmeldungen und Feiertage.</li>
+<li>Die <a href="/produkt/zeiterfassung-stundenzettel">Zeiterfassung</a> hält Arbeitszeit, Fahrtzeit und Funktion je Einsatz fest und berechnet Nacht- und Sonntagszuschläge. Der Stundennachweis geht monatlich per E-Mail an Mitarbeiter und Lohnbüro.</li>
+<li>Änderungen an Projekten, Mitarbeitern und Zeiten werden in einem Aktivitätsprotokoll mit Nutzer und Zeitpunkt festgehalten; abgerechnet wird nach Freigabe.</li>
+</ul>
+<p>Wie das im Alltag eines Sicherungsunternehmens zusammenspielt, beschreibt die Seite <a href="/branchen/sicherungsunternehmen">Software für Sicherungsunternehmen</a>.</p>
+
+<h2>Quellen</h2>
+<ul>
+<li><a href="https://www.dbinfrago.com/web/schienennetz/dienstleistende/arbeitsschutz/arbeiten_im_gleisbereich-11161686">DB InfraGO: Arbeiten im Gleisbereich</a> (Regelwerk, Rolle der BzS, Sicherungsplan, ElBa)</li>
+<li><a href="https://bauportal.bgbau.de/bauportal-22025/tiefbau/ueberarbeitete-dguv-vorschriften-77-78">BG BAU: Überarbeitete DGUV Vorschriften 77/78</a> (Mindestalter Sicherungspersonal ab 1. Januar 2025)</li>
+<li><a href="https://publikationen.dguv.de/widgets/pdf/download/article/1529">DGUV Vorschrift 78 „Arbeiten im Bereich von Gleisen“</a></li>
+</ul>
+<p><em>Hinweis: Dieser Beitrag gibt einen praktischen Überblick und ist keine Rechtsberatung. Verbindlich sind das aktuelle Regelwerk und die Vorgaben des Auftraggebers.</em></p>`,
   }),
   seed({
     id: "fahrzeuge-ohne-doppelbelegung",
@@ -181,24 +253,26 @@ export const DEFAULT_BLOG_ARTICLES: BlogArticle[] = [
   seed({
     id: "stunde-zur-x-rechnung",
     slug: "von-der-erfassten-stunde-zur-x-rechnung",
-    title: "Von der erfassten Stunde zur X-Rechnung",
-    teaser: "Wie geprüfte Leistungen ohne Abtippen in den Rechnungsentwurf fließen.",
+    title: "Von der erfassten Stunde zur Rechnung",
+    teaser: "Wie geprüfte Stunden ohne Abtippen in die Projektabrechnung fließen.",
     category: "Abrechnung",
-    tags: ["Abrechnung", "X-Rechnung", "Leistungsnachweis"],
+    tags: ["Abrechnung", "Projektabrechnung", "Leistungsnachweis"],
     imageSrc: "/rechnungen.webp",
     imageAlt: "Rechnungsstellung und Abrechnung in Gleistrix",
     publishedAt: "2026-06-11T06:00:00.000Z",
+    updatedAt: "2026-09-22T08:00:00.000Z",
     seo: {
-      title: "Von der erfassten Stunde zur X-Rechnung",
+      title: "Projektabrechnung: von der Stunde zur Rechnung",
       description:
-        "Geprüfte Leistungen fließen ohne Abtippen in den Rechnungsentwurf – inklusive X-Rechnung für öffentliche Auftraggeber.",
-      keyword: "X-Rechnung Bahnbau",
+        "Wie geprüfte Stunden ohne Abtippen in die Projektabrechnung fließen – mit Freigabe, Abrechnung je Tag und Funktion und Übergabe an die Buchhaltung.",
+      keyword: "Projektabrechnung Bahnbau",
     },
     content: `<p>Zwischen der erfassten Stunde und der gestellten Rechnung liegen in vielen Betrieben drei Medienbrüche: Stundenzettel, Tabelle, Rechnungsprogramm. Jeder davon kostet Zeit und erzeugt Abweichungen.</p>
 <h2>Ein Datensatz, mehrere Sichten</h2>
 <p>Die erfasste Leistung ist bereits alles, was die Rechnung braucht: Projekt, Position, Menge, Satz. Der Rechnungsentwurf ist eine Sicht darauf – keine Neueingabe.</p>
-<h2>X-Rechnung ohne Zusatzarbeit</h2>
-<p>Öffentliche Auftraggeber verlangen strukturierte Rechnungen. Sind Leitweg-ID und Positionsdaten am Projekt hinterlegt, entsteht das Format beim Erzeugen der Rechnung mit.</p>
+<h2>Freigabe vor Abrechnung</h2>
+<p>Abgerechnet wird, was geprüft ist. In Gleistrix werden Stunden freigegeben, bevor sie als Abrechnungsposition nach Tag und Funktion in die <a href="/produkt/rechnungsstellung">Projektabrechnung</a> gehen. Die Abrechnung lässt sich als PDF ausgeben, Buchungsdaten und Belege gehen über die DATEV-Anbindung an die Steuerberatung.</p>
+<p>Wer an öffentliche Auftraggeber fakturiert, sollte zusätzlich die Vorgaben zur elektronischen Rechnung prüfen – welches Format gefordert ist, legt der Auftraggeber fest.</p>
 <ul>
 <li>Freigabe der Leistung geht der Rechnung voraus, nicht umgekehrt.</li>
 <li>Nachträge bleiben mit ihrem Ursprung verbunden.</li>

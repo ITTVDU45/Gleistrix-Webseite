@@ -92,8 +92,7 @@ export default function Page() {
               <p>
                 Praktisch heißt das: Der Projektbezug eines Belegs entsteht bei der Erfassung und übersteht den Wechsel
                 zwischen den Systemen. Stunden gehen inklusive Zuschlägen in die Lohnabrechnung, weil sie in der
-                Zeiterfassung bereits geprüft wurden. Für öffentliche Auftraggeber lässt sich daraus die X-Rechnung
-                ausgeben.
+                Zeiterfassung bereits geprüft wurden.
               </p>
               <p>
                 Wo eine Anbindung zu einem konkreten Ablauf gehört, verweisen die Detailseiten darauf – etwa von der{" "}

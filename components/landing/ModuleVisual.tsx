@@ -124,7 +124,7 @@ const dokumenteVisual = (
           <p className="text-[10px] text-slate-500">{doc.meta}</p>
         </div>
         <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${doc.tone}`}>
-          revisionssicher
+          am Projekt
         </span>
       </RowShell>
     ))}

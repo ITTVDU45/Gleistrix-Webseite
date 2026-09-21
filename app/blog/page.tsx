@@ -168,7 +168,7 @@ export default async function BlogIndexPage() {
                 Doppelbelegungen. <strong>Sicherung</strong> mit Qualifikationen, Gültigkeiten und prüffähiger
                 Dokumentation. <strong>Zeiterfassung</strong> vom Einsatzort bis zur Freigabe. <strong>Fuhrpark</strong>{" "}
                 mit Zweiwege-Technik und Prüffristen. Und <strong>Abrechnung</strong> von der geprüften Stunde bis zur
-                X-Rechnung.
+                Übergabe an die Buchhaltung.
               </p>
             </div>
             <div className="max-w-prose space-y-4 text-[15px] leading-7 text-slate-600 sm:text-base">

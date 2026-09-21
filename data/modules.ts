@@ -27,20 +27,21 @@ export const MODULES: CatalogEntry[] = [
   {
     slug: "projektplanung-disposition",
     crossLinks: [
-      { text: "Wie Sperrpausen mit Personal und Technik zusammen geplant werden, zeigt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
-      { text: "Qualifikationsbasierte Besetzung im Detail beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Wie Trupps und Zweiwegetechnik gemeinsam geplant werden, zeigt", href: "/branchen/gleisbauunternehmen", label: "Gleisbau-Software für Baustellen und Ressourcen" },
+      { text: "Die Einsatzplanung für Sicherungsposten beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Warum eine Plantafel die Excel-Liste ersetzt, erklärt der Fachartikel", href: "/blog/plantafel-statt-excel", label: "Plantafel statt Excel" },
     ],
     title: "Projektplanung & Disposition",
-    tagline: "Projekte, Ressourcen und Meilensteine",
+    h1: "Projektplanung und Disposition für Bahnbau und Gleisbau",
+    tagline: "Projekte, Personal und Technik disponieren",
     description:
-      "Projekte anlegen und Ressourcen wie Technik, Fahrzeuge und Personal präzise zuweisen – ohne Doppelbelegungen und ohne Rückfragen per Telefon.",
+      "Projekte anlegen und Personal, Fahrzeuge und Technik zuweisen – mit Prüfung auf Doppelbelegung, Urlaub und Krankmeldung, projektübergreifend auf einem Datenstand.",
     metaDescription:
-      "Bahnprojekte planen und Personal, Fahrzeuge und Technik disponieren – ohne Doppelbelegung, mit Sperrpausen, Meilensteinen und Live-Status im Blick.",
-    // Übernimmt den Titel der weitergeleiteten Landingpage /disposition-bahnbau.
-    // Ohne diese Angabe hieße die Seite "Projektplanung & Disposition für
-    // Bahndienstleister" und trüge das gesuchte "Disposition Software für
-    // Bahnbau" nicht mehr.
-    metaTitle: "Disposition Software für Bahnbau & Gleisbau",
+      "Einsatzplanung für den Bahnbau: Personal, Fahrzeuge und Technik projektübergreifend disponieren – mit Konfliktprüfung bei Doppelbelegung, Urlaub und Krankheit.",
+    // Übernimmt das Keyword der weitergeleiteten Landingpage
+    // /disposition-bahnbau ("Disposition … Bahnbau") und ergänzt die
+    // Einsatzplanung, nach der Disponenten ebenso suchen.
+    metaTitle: "Einsatzplanung & Disposition für den Bahnbau",
     icon: KanbanSquare,
     group: "Planung & Steuerung",
     image: "/media/module/projektplanung-ui.webp",
@@ -49,96 +50,117 @@ export const MODULES: CatalogEntry[] = [
     highlights: [
       {
         title: "Eine Projektakte",
-        text: "Auftrag, Beteiligte, Termine und Dokumente liegen an einem Ort statt in fünf Postfächern.",
+        text: "Auftraggeber, Baustelle, Auftrags- und SAP-Nummer, Leistungen und Dokumente liegen an einem Ort statt in fünf Postfächern.",
       },
       {
         title: "Disposition per Drag-and-drop",
-        text: "Personal, Fahrzeuge und Technik werden dem Einsatz direkt zugewiesen – mit Prüfung auf Konflikte.",
+        text: "Personal und Fahrzeuge werden dem Einsatz direkt zugewiesen – Konflikte meldet das System sofort.",
       },
       {
-        title: "Fortschritt in Echtzeit",
-        text: "Status und Meilensteine sind jederzeit sichtbar, statt erst im Wochenbericht aufzutauchen.",
+        title: "Ein Bestand für alle Projekte",
+        text: "Alle Baustellen greifen auf dasselbe Personal und dieselben Fahrzeuge zu. Doppelbelegungen fallen projektübergreifend auf.",
       },
     ],
     bullets: [
-      "Projekte mit Status, Meilensteinen und Verantwortlichen",
-      "Ressourcen per Drag-and-drop disponieren",
-      "Doppelbelegungen werden automatisch erkannt",
-      "Sperrpausen und Bauabschnitte sauber abgebildet",
+      "Projekte mit Status, Laufzeit und Ansprechpartner",
+      "Leistungen mit Positionen, Menge und Preis am Projekt",
+      "Personal und Fahrzeuge per Drag-and-drop disponieren",
+      "Konfliktprüfung: Doppelbelegung, Urlaub, Krankheit, Feiertag",
+      "Projektanlage aus DB-Leistungsanfragen per KI",
+      "ATWS-Einsatz mit Anzahl und Meterlänge erfassen",
     ],
     challenges: [
       {
         problem:
           "Der Einsatzplan liegt in einer Tabelle, die per Mail wandert. Welche Fassung die aktuelle ist, weiß am Ende niemand sicher.",
         solution:
-          "Alle Beteiligten planen in derselben Projektakte. Jede Änderung ist sofort für Disposition, Bauleitung und Trupp sichtbar.",
+          "Alle Beteiligten planen im selben System. Jede Änderung ist sofort für Disposition und Bauleitung sichtbar.",
       },
       {
         problem:
           "Ein Sicherungsposten steht an zwei Baustellen gleichzeitig im Plan – auffallen tut das am Einsatztag um fünf Uhr morgens.",
         solution:
-          "Doppelbelegungen erkennt Gleistrix beim Zuweisen und meldet den Konflikt, bevor der Plan überhaupt verschickt wird.",
+          "Doppelbelegungen erkennt Gleistrix beim Zuweisen und meldet den Konflikt, bevor der Plan überhaupt gilt.",
       },
       {
         problem:
-          "Sperrpausen, Bauabschnitte und Nachtarbeit stehen in drei verschiedenen Dokumenten und werden von Hand abgeglichen.",
+          "Auftragsdaten aus dem DB-Lieferantenportal werden Feld für Feld abgetippt, bevor die Planung überhaupt beginnen kann.",
         solution:
-          "Sperrpausen und Bauabschnitte gehören zum Projekt. Die Disposition plant direkt im hinterlegten Zeitfenster.",
+          "Die Leistungsanfrage wird als Link oder PDF übergeben und füllt die Projektanlage vor. Geprüft und gespeichert wird von Hand.",
+      },
+    ],
+    details: [
+      {
+        heading: "Einsatzplanung im Bahnbau: warum Excel an Grenzen stößt",
+        paragraphs: [
+          "Im Bahnbau entscheidet die Besetzung über die Baustelle: Ohne Sicherungsposten, Bediener oder das passende Fahrzeug fällt eine Schicht aus, die Sperrpause ist dann oft verloren. Gleichzeitig ändern sich Einsätze kurzfristig, und mehrere Baustellen greifen auf dieselben Leute zu.",
+          "Eine Tabelle zeigt, was geplant ist – aber nicht, ob es passt. Doppelbelegungen, Urlaub und Krankmeldungen muss jemand im Kopf abgleichen. Gleistrix prüft genau das beim Zuweisen.",
+        ],
+      },
+      {
+        heading: "Projekt, Leistungen und Technik an einem Ort",
+        paragraphs: [
+          "Am Projekt stehen Auftraggeber, Baustelle, Auftrags- und SAP-Nummer, Ansprechpartner und Laufzeit. Leistungen lassen sich mit Positionen, Menge, Einheit und Preis pflegen oder aus einer GAEB-Datei übernehmen; daraus ergibt sich der Soll-Umsatz des Projekts.",
+          "Bei Sicherungsaufträgen wird zusätzlich festgehalten, ob ATWS im Einsatz ist, wie viele Anlagen und welche Meterlänge. Eingesetzte Technik wird am Projekt geführt.",
+        ],
       },
     ],
     steps: [
       {
         title: "Projekt anlegen",
-        text: "Auftrag, Auftraggeber, Bauabschnitte und Sperrpausen werden einmal erfasst und gelten für alle Beteiligten.",
+        text: "Auftraggeber, Baustelle, Auftrags- und SAP-Nummer und Laufzeit einmal erfassen – auf Wunsch vorbefüllt aus der DB-Leistungsanfrage.",
       },
       {
-        title: "Bedarf festlegen",
-        text: "Pro Schicht steht fest, welche Qualifikationen, Fahrzeuge und Sicherungstechnik gebraucht werden.",
+        title: "Leistungen hinterlegen",
+        text: "Positionen mit Menge und Preis pflegen oder aus einer GAEB-Datei übernehmen.",
       },
       {
         title: "Ressourcen zuweisen",
-        text: "Personal, Fahrzeuge und Technik per Drag-and-drop einplanen – Konflikte meldet das System sofort.",
+        text: "Personal und Fahrzeuge per Drag-and-drop einplanen – Konflikte meldet das System sofort.",
       },
       {
         title: "Fortschritt verfolgen",
-        text: "Status, Meilensteine und Abweichungen sind jederzeit im Projekt sichtbar, ohne Rückfrage per Telefon.",
+        text: "Status, erfasste Stunden und Kosten des Projekts sind jederzeit sichtbar, ohne Rückfrage per Telefon.",
       },
     ],
     faqs: [
       {
         question: "Lassen sich mehrere Baustellen parallel planen?",
         answer:
-          "Ja. Projekte laufen unabhängig nebeneinander, greifen aber auf denselben Bestand an Personal, Fahrzeugen und Technik zu. Deshalb erkennt Gleistrix Doppelbelegungen auch über Projektgrenzen hinweg.",
+          "Ja. Projekte laufen unabhängig nebeneinander, greifen aber auf denselben Bestand an Personal und Fahrzeugen zu. Deshalb erkennt Gleistrix Doppelbelegungen auch über Projektgrenzen hinweg.",
       },
       {
-        question: "Wie werden Sperrpausen in der Disposition abgebildet?",
+        question: "Welche Konflikte prüft die Disposition?",
         answer:
-          "Sperrpausen sind Zeitfenster am Bauabschnitt. Schichten lassen sich daran ausrichten, sodass Anfahrt, Sicherung und Arbeitszeit in das freigegebene Fenster passen.",
+          "Beim Zuweisen prüft Gleistrix, ob ein Mitarbeiter zur selben Zeit bereits eingeteilt ist, Urlaub hat, krankgemeldet ist oder ein Feiertag vorliegt. Auch doppelt eingeplante Fahrzeuge werden gemeldet.",
+      },
+      {
+        question: "Berücksichtigt die Disposition Funktionen wie SIPO oder Sakra?",
+        answer:
+          "Die Funktionen stehen am Mitarbeiter und werden beim Zeiteintrag festgehalten. So ist sichtbar, wer welche Rollen übernehmen kann und in welcher Rolle er eingesetzt war.",
       },
       {
         question: "Was passiert bei kurzfristigen Änderungen?",
         answer:
-          "Die Änderung wird einmal in der Disposition vorgenommen und ist unmittelbar in der Plantafel und auf den Mobilgeräten des Teams sichtbar. Eine zusätzliche Rundmail entfällt.",
-      },
-      {
-        question: "Berücksichtigt die Disposition Qualifikationen?",
-        answer:
-          "Ja. Die Qualifikationen und Fristen aus der Mitarbeiterverwaltung fließen in die Planung ein. Personal, dessen Nachweis am Einsatztag abgelaufen wäre, wird beim Einplanen kenntlich gemacht.",
+          "Die Änderung wird einmal in der Disposition vorgenommen und ist unmittelbar für alle berechtigten Nutzer sichtbar. Eine zweite Fassung des Plans, die verteilt werden müsste, gibt es nicht.",
       },
     ],
   },
   {
     slug: "kalender-einsatzuebersicht",
     crossLinks: [
-      { text: "Einsätze im gewohnten Kalender des Teams ermöglicht", href: "/integrationen/microsoft", label: "die Microsoft-365-Anbindung" },
+      { text: "Besprechungen und Termine in Outlook ermöglicht", href: "/integrationen/microsoft", label: "die Microsoft-365-Anbindung" },
       { text: "Wechselnde Nacht- und Wochenendschichten behandelt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Warum eine Plantafel die Excel-Liste ersetzt, erklärt der Fachartikel", href: "/blog/plantafel-statt-excel", label: "Plantafel statt Excel" },
     ],
     title: "Plantafel & Einsatzübersicht",
-    tagline: "Schichten, Termine und Trupps in einer Ansicht",
+    h1: "Digitale Plantafel für Einsätze, Schichten und Trupps",
+    tagline: "Einsätze, Abwesenheiten und Termine in einer Ansicht",
     description:
-      "Alle Termine und Schichten übersichtlich in einer Plantafel – jederzeit aktuell und für jede Rolle passend gefiltert.",
+      "Alle Einsätze, Abwesenheiten, Feiertage und Besprechungen auf einer Plantafel – als Tages-, Wochen-, Monats- oder Jahresansicht und mit Konfliktprüfung beim Zuweisen.",
+    metaTitle: "Digitale Plantafel für Bahnbau & Gleisbau",
     metaDescription:
-      "Alle Schichten und Einsätze in einer Plantafel: gefiltert nach Trupp und Projekt, mit Nacht- und Wochenendschichten – live für Disposition und Team.",
+      "Digitale Plantafel für den Bahnbau: Einsätze, Urlaub, Krankmeldungen und Feiertage in einer Ansicht – mit Konfliktprüfung beim Einplanen von Personal und Fahrzeugen.",
     icon: CalendarRange,
     group: "Planung & Steuerung",
     image: "/media/module/plantafel-ui.webp",
@@ -146,97 +168,102 @@ export const MODULES: CatalogEntry[] = [
     mascot: "/media/module/plantafel.webp",
     highlights: [
       {
-        title: "Woche, Monat, Trupp",
-        text: "Zwischen Zeiträumen und Ansichten wechseln, ohne die Planung neu aufbauen zu müssen.",
+        title: "Tag, Woche, Monat, Jahr",
+        text: "Zwischen Zeiträumen und Ansichten wechseln – nach Projekt oder nach Team –, ohne die Planung neu aufzubauen.",
       },
       {
-        title: "Nacht und Wochenende",
-        text: "Schichten über Mitternacht und an Feiertagen werden korrekt gerechnet statt manuell korrigiert.",
+        title: "Abwesenheiten eingerechnet",
+        text: "Urlaub, Krankmeldungen und Feiertage je Bundesland stehen in derselben Tafel wie die Einsätze.",
       },
       {
-        title: "Live für alle",
-        text: "Änderungen der Disposition erreichen das Team sofort – auch mobil auf der Baustelle.",
+        title: "Konflikte sichtbar",
+        text: "Doppelbelegungen und Überschneidungen mit Abwesenheiten sammelt ein eigener Konfliktbereich.",
       },
     ],
     bullets: [
-      "Alle Einsätze und Schichten in einer Ansicht",
-      "Nacht- und Wochenendschichten sauber abgebildet",
-      "Live-Aktualisierung für Disposition und Team",
-      "Lücken und Überschneidungen sofort sichtbar",
+      "Tages-, Wochen-, Monats- und Jahresansicht",
+      "Wochenansicht nach Projekt oder nach Team",
+      "Urlaub, Krankheit und Feiertage je Bundesland",
+      "Konfliktbereich für Doppelbelegungen",
+      "Besprechungen mit internen und externen Teilnehmern",
+      "Dokumente per Drag-and-drop am Einsatz ablegen",
     ],
     challenges: [
       {
         problem:
           "Jede Rolle bekommt ihren eigenen Ausdruck – und sobald sich etwas ändert, sind sämtliche Ausdrucke falsch.",
         solution:
-          "Eine Plantafel, gefiltert nach Rolle, Trupp oder Zeitraum. Wer sie öffnet, sieht den aktuellen Stand.",
+          "Eine Plantafel für alle, gefiltert nach Projekt oder Zeitraum. Wer sie öffnet, sieht den aktuellen Stand.",
       },
       {
         problem:
-          "Schichten über Mitternacht werden von Hand auf zwei Tage aufgeteilt, damit die Abrechnung damit umgehen kann.",
+          "Urlaub steht im Kalender, Krankmeldungen im Postfach, Feiertage im Kopf. Die Planung erfährt davon, wenn die Schicht schon besetzt ist.",
         solution:
-          "Nachtschichten laufen als ein Einsatz durch und werden mit den richtigen Zuschlägen weitergerechnet.",
+          "Abwesenheiten und Feiertage liegen in derselben Tafel. Wer nicht verfügbar ist, löst beim Einplanen einen Konflikt aus.",
       },
       {
         problem:
-          "Auf der Baustelle weiß niemand, wer im Lauf des Tages noch dazukommt oder wann die Ablösung eintrifft.",
+          "Abstimmungstermine zur Baustelle laufen über getrennte Kalender, die mit der Einsatzplanung nichts zu tun haben.",
         solution:
-          "Das Team ruft seine Einsätze mobil ab – mit Treffpunkt, Zeitfenster und Ansprechpartner.",
+          "Besprechungen werden in der Plantafel angelegt – mit Mitarbeitern und externen Teilnehmern – und stehen neben den Einsätzen.",
       },
     ],
     steps: [
       {
-        title: "Zeitraum wählen",
-        text: "Tag, Woche oder Monat – Trupps, Projekte und Zuordnungen bleiben beim Wechsel erhalten.",
+        title: "Ansicht wählen",
+        text: "Tag, Woche, Monat oder Jahr – und in der Woche nach Projekt oder nach Team.",
       },
       {
-        title: "Ansicht filtern",
-        text: "Nach Trupp, Projekt, Standort oder Qualifikation filtern, ohne die Planung neu aufzubauen.",
+        title: "Filtern",
+        text: "Nach Projekt eingrenzen und das Bundesland für die Feiertage wählen.",
       },
       {
-        title: "Lücken schließen",
-        text: "Unbesetzte Schichten und Überschneidungen sind markiert und lassen sich direkt aus der Ansicht heraus belegen.",
+        title: "Einplanen",
+        text: "Mitarbeiter und Fahrzeuge dem Einsatz zuweisen; Konflikte erscheinen sofort im Konfliktbereich.",
       },
       {
-        title: "Team informieren",
-        text: "Mit der Freigabe steht der Plan im Web und auf dem Handy bereit – für alle zur selben Zeit.",
+        title: "Abstimmen",
+        text: "Besprechungen anlegen und Unterlagen per Drag-and-drop am Einsatz ablegen.",
       },
     ],
     faqs: [
       {
-        question: "Sieht jede Mitarbeiterin und jeder Mitarbeiter die komplette Planung?",
+        question: "Welche Ansichten bietet die Plantafel?",
         answer:
-          "Nicht zwangsläufig. Rollen und Berechtigungen steuern, wer die Gesamtplanung sieht und wer ausschließlich die eigenen Einsätze.",
+          "Tages-, Wochen-, Monats- und Jahresansicht. Die Wochenansicht lässt sich nach Projekten oder nach Team ordnen.",
       },
       {
-        question: "Werden Nacht-, Wochenend- und Feiertagsschichten unterschieden?",
+        question: "Werden Feiertage berücksichtigt?",
         answer:
-          "Ja. Schichten über Mitternacht, an Wochenenden und an Feiertagen werden als solche erkannt und mit den passenden Zuschlägen in Abrechnung und Lohn weitergegeben.",
-      },
-      {
-        question: "Lässt sich die Plantafel auf dem Handy nutzen?",
-        answer:
-          "Ja. Die Einsatzübersicht ist für mobile Geräte ausgelegt, damit Trupps ihre Schichten auch unterwegs und auf der Baustelle abrufen können.",
+          "Ja. Feiertage werden je Bundesland angezeigt und bei der Konfliktprüfung berücksichtigt – wichtig für Baustellen, die über Landesgrenzen hinweg besetzt werden.",
       },
       {
         question: "Was passiert bei Urlaub oder einer Krankmeldung?",
         answer:
-          "Abwesenheiten aus der Mitarbeiterverwaltung erscheinen unmittelbar in der Plantafel. Die betroffene Schicht wird als offen markiert und kann neu besetzt werden.",
+          "Abwesenheiten aus der Mitarbeiterverwaltung erscheinen in der Plantafel. Wird ein abwesender Mitarbeiter eingeplant, meldet die Plantafel den Konflikt.",
+      },
+      {
+        question: "Sieht jeder die komplette Planung?",
+        answer:
+          "Nicht zwangsläufig. Rollen und Berechtigungen steuern, welche Bereiche ein Nutzer sehen und bearbeiten darf.",
       },
     ],
   },
   {
     slug: "reports-auswertungen",
     crossLinks: [
-      { text: "Deckungsbeiträge während der Bauzeit behandelt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
-      { text: "Woher die abgerechneten Zahlen stammen, zeigt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
+      { text: "Kosten und Marge je Baustelle behandelt", href: "/branchen/gleisbauunternehmen", label: "Gleisbau-Software für Baustellen und Abrechnung" },
+      { text: "Woher die abgerechneten Zahlen stammen, zeigt", href: "/produkt/rechnungsstellung", label: "die Projektabrechnung" },
+      { text: "Wie Projektmargen sichtbar werden, erklärt der Fachartikel", href: "/blog/deckungsbeitrag-pro-projekt-sichtbar-machen", label: "Deckungsbeitrag pro Projekt sichtbar machen" },
     ],
     title: "Reports & Auswertungen",
-    tagline: "Kennzahlen zu Auslastung und Kosten",
+    h1: "Reports und Projektcontrolling für Bahnprojekte",
+    tagline: "Kennzahlen zu Auslastung, Kosten und Marge",
     description:
-      "Echtzeitdaten für fundierte Entscheidungen und transparente Abläufe – von der Auslastung bis zum Deckungsbeitrag pro Projekt.",
+      "Kennzahlen aus dem laufenden Betrieb: Statistiken zu Projekten und Einsätzen, dazu Projektkosten, Ergebnis und Marge je Projekt in der Finanzübersicht.",
+    metaTitle: "Projektcontrolling & Reports für Bahnprojekte",
     metaDescription:
-      "Auslastung, Kosten und Deckungsbeiträge je Bahnprojekt in Echtzeit – gebildet aus Schichten, Stunden und Rechnungen, als Bericht exportierbar.",
+      "Projektcontrolling für Bahndienstleister: Soll- und Ist-Umsatz, Personal- und Nachunternehmerkosten, Ergebnis und Marge je Projekt – aus dem laufenden Betrieb.",
     icon: BarChart3,
     group: "Planung & Steuerung",
     image: "/media/module/reports-ui.webp",
@@ -244,97 +271,96 @@ export const MODULES: CatalogEntry[] = [
     mascot: "/media/module/projekte.webp",
     highlights: [
       {
-        title: "Auslastung sehen",
-        text: "Wie voll ist der nächste Monat wirklich? Die Antwort steht im Dashboard, nicht in einer Tabelle.",
+        title: "Zahlen aus dem Betrieb",
+        text: "Stunden, Leistungen und Rechnungen liefern die Kennzahlen – ohne separate Erfassung für die Auswertung.",
       },
       {
-        title: "Deckungsbeiträge",
-        text: "Erlöse und Kosten je Projekt gegenübergestellt – auch während das Projekt noch läuft.",
+        title: "Marge je Projekt",
+        text: "Umsatz und Kosten stehen je Projekt gegenüber – auch während das Projekt noch läuft.",
       },
       {
-        title: "Exportierbar",
-        text: "Auswertungen lassen sich für Geschäftsführung, Bank oder Auftraggeber herausziehen.",
+        title: "Nur für Berechtigte",
+        text: "Kaufmännische Kennzahlen sind der Geschäftsführung vorbehalten.",
       },
     ],
     bullets: [
-      "Kennzahlen zu Projekten, Auslastung und Kosten",
-      "Deckungsbeiträge pro Projekt und Zeitraum",
-      "Transparente Abläufe für die Geschäftsführung",
-      "Auswertungen als Datei für Berichte und Termine",
+      "Statistiken zu Projekten, Einsätzen und Auslastung",
+      "Soll-Umsatz aus Leistungen, Ist-Umsatz aus Einnahmen",
+      "Personal-, Nachunternehmer- und weitere Kosten je Projekt",
+      "Ergebnis und Marge je Projekt",
+      "Cashflow, Konten und Budgets in der Finanzübersicht",
     ],
     challenges: [
       {
         problem:
           "Kennzahlen entstehen am Monatsende in einer Tabelle – und sind zu dem Zeitpunkt, an dem jemand sie liest, längst überholt.",
         solution:
-          "Auslastung, Kosten und Deckungsbeiträge werden laufend aus den Daten der Plattform gebildet und sind jederzeit abrufbar.",
+          "Die Zahlen werden aus den Daten der Plattform gebildet und sind jederzeit abrufbar.",
       },
       {
         problem:
           "Ob ein Projekt am Ende Geld gebracht hat, zeigt sich erst nach der Schlussrechnung – zum Gegensteuern zu spät.",
         solution:
-          "Erlöse und Kosten stehen sich schon während der Laufzeit gegenüber. Abweichungen fallen auf, solange man noch reagieren kann.",
+          "Umsatz und Kosten stehen sich schon während der Laufzeit gegenüber. Abweichungen fallen auf, solange man noch reagieren kann.",
       },
       {
         problem:
-          "Für Bank, Beirat oder Auftraggeber wird jedes Mal von Hand ein Bericht zusammengestellt.",
+          "Nachunternehmerkosten tauchen im Projektergebnis nicht auf, weil ihre Rechnungen in einem anderen Ordner liegen.",
         solution:
-          "Auswertungen lassen sich als Datei ziehen und ohne Nacharbeit weitergeben.",
+          "Personal-, Nachunternehmer- und weitere Kosten laufen getrennt ausgewiesen in das Ergebnis des Projekts ein.",
       },
     ],
     steps: [
       {
         title: "Daten entstehen im Betrieb",
-        text: "Projekte, Schichten, Stunden, Material und Rechnungen liefern die Zahlen – ohne separate Erfassung.",
+        text: "Projekte, Stunden, Leistungen und Rechnungen liefern die Zahlen – ohne separate Erfassung.",
       },
       {
         title: "Umfang eingrenzen",
-        text: "Auswertung nach Projekt, Team, Kunde oder Zeitraum eingrenzen.",
+        text: "Auswertung nach Projekt und Zeitraum eingrenzen.",
       },
       {
         title: "Kennzahlen lesen",
-        text: "Auslastung, Stunden, Kosten und Deckungsbeitrag stehen im Dashboard nebeneinander statt in fünf Dateien.",
+        text: "Soll- und Ist-Umsatz, Kosten, Ergebnis und Marge stehen nebeneinander statt in fünf Dateien.",
       },
       {
-        title: "Bericht weitergeben",
-        text: "Das Ergebnis geht als Datei an Geschäftsführung, Steuerberater oder Auftraggeber.",
+        title: "Gegensteuern",
+        text: "Abweichungen fallen während der Laufzeit auf, nicht erst nach der Schlussrechnung.",
       },
     ],
     faqs: [
       {
         question: "Woher kommen die Zahlen in den Auswertungen?",
         answer:
-          "Aus dem laufenden Betrieb: geplante und geleistete Schichten, freigegebene Stunden, Materialentnahmen und gestellte Rechnungen. Eine zweite Erfassung nur für Auswertungen entfällt.",
+          "Aus dem laufenden Betrieb: Leistungen am Projekt, erfasste Stunden, gebuchte Einnahmen und Ausgaben sowie Rechnungen von Nachunternehmern. Eine zweite Erfassung nur für Auswertungen entfällt.",
       },
       {
-        question: "Lassen sich Deckungsbeiträge je Projekt auswerten?",
+        question: "Lässt sich die Marge je Projekt auswerten?",
         answer:
-          "Ja. Erlöse und zugeordnete Kosten werden je Projekt und Zeitraum gegenübergestellt – auch, während das Projekt noch läuft.",
-      },
-      {
-        question: "Kann ich Auswertungen exportieren?",
-        answer:
-          "Ja. Berichte lassen sich als Datei herausziehen und in bestehenden Unterlagen für Geschäftsführung, Bank oder Auftraggeber weiterverwenden.",
+          "Ja. Die Finanzübersicht stellt je Projekt Soll-Umsatz aus Leistungen und Ist-Umsatz aus gebuchten Einnahmen den Personal-, Nachunternehmer- und weiteren Kosten gegenüber und weist Ergebnis und Marge aus.",
       },
       {
         question: "Wer darf kaufmännische Kennzahlen sehen?",
         answer:
-          "Das steuern Rollen und Berechtigungen. Auswertungen zu Kosten und Deckungsbeiträgen lassen sich auf Geschäftsführung und Backoffice begrenzen.",
+          "Die Finanzübersicht ist der Geschäftsführung vorbehalten. Rollen und Berechtigungen steuern, wer welche Auswertungen sieht.",
       },
     ],
   },
   {
     slug: "mitarbeiterverwaltung",
     crossLinks: [
-      { text: "Wie Qualifikationen die Einsatzplanung steuern, zeigt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
-      { text: "Nachweispflichten gegenüber Auftraggebern behandelt", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+      { text: "Wie Funktionen und Abwesenheiten die Einsatzplanung steuern, zeigt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Nachweise von Nachunternehmern mit Fristen behandelt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
+      { text: "Wie Stunden und Zuschläge erfasst werden, steht unter", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundennachweise" },
     ],
     title: "Mitarbeiterverwaltung",
-    tagline: "Qualifikationen, Fristen und Abwesenheiten",
+    h1: "Mitarbeiterverwaltung für Bahndienstleister",
+    tagline: "Funktionen, Abwesenheiten und Nachweise",
     description:
-      "Personal anlegen, bearbeiten und verwalten – inklusive Qualifikationen, Urlaubsplanung und Abwesenheiten, mit Warnung vor ablaufenden Nachweisen.",
+      "Personal mit seinen Funktionen im Bahnbetrieb verwalten – SIPO, Sakra, BüP und mehr –, Abwesenheiten erfassen und Nachunternehmer mit ihren Nachweisen und Fristen im Blick behalten.",
+    metaTitle: "Mitarbeiterverwaltung für Bahndienstleister",
     metaDescription:
-      "Personal, Qualifikationen und Abwesenheiten verwalten: Sicherungsposten, Sicherungsaufsicht und Tauglichkeiten mit Fristenwarnung, Urlaub in der Plantafel.",
+      "Personal mit Funktionen wie SIPO, Sakra und BüP verwalten, Abwesenheiten in die Einsatzplanung geben und Nachweise von Nachunternehmern mit Fristen überwachen.",
     icon: Users,
     group: "Team & Ressourcen",
     image: "/media/module/mitarbeiter-ui.webp",
@@ -342,97 +368,119 @@ export const MODULES: CatalogEntry[] = [
     mascot: "/media/module/team.webp",
     highlights: [
       {
-        title: "Qualifikationen im Blick",
-        text: "SiPo, SaKra oder HIB samt Tauglichkeiten – mit Frist und Warnung vor dem Ablauf.",
+        title: "Funktionen im Blick",
+        text: "SIPO, Sakra, BüP, HiBa, SAS, HFE, Bahnerder – jeder Mitarbeiter trägt die Funktionen, die er übernehmen kann.",
       },
       {
         title: "Abwesenheiten integriert",
-        text: "Urlaub und Krankheit stehen direkt in der Plantafel, nicht in einer zweiten Liste.",
+        text: "Urlaub, Arbeitsunfähigkeit, Freistellung und Fortbildung stehen direkt in der Plantafel.",
       },
       {
-        title: "Rollen und Rechte",
-        text: "Jede Rolle sieht genau das, was sie braucht – von der Disposition bis zum Trupp.",
+        title: "Nachweise mit Frist",
+        text: "Nachunternehmer laden Nachweise hoch; Gleistrix zeigt, was fehlt, bald abläuft oder abgelaufen ist.",
       },
     ],
     bullets: [
-      "Qualifikationen und Tauglichkeiten mit Fristenwarnung",
-      "Urlaubs- und Abwesenheitsplanung integriert",
-      "Rollen und Berechtigungen pro Team",
-      "Personalakte mit Nachweisen und Dokumenten",
+      "Funktionen je Mitarbeiter, mehrere pro Person",
+      "ElBa-Kennung für Sicherungspersonal",
+      "Abwesenheiten: Urlaub, AU, Freistellung, Fortbildung",
+      "Status aktiv, nicht aktiv oder im Urlaub",
+      "Stundennachweis-Empfänger je Mitarbeiter",
+      "Nachunternehmer mit Portal, Nachweisen und Erneuerungsintervallen",
+      "Rollen und Berechtigungen für Nutzer",
     ],
     challenges: [
       {
         problem:
-          "Qualifikationsnachweise liegen als Kopie im Ordner. Wann sie ablaufen, hat nur eine Person im Kopf.",
+          "Wer welche Funktion übernehmen kann, steht in einer Liste, die eine Person pflegt – und nur sie kennt den aktuellen Stand.",
         solution:
-          "Jede Qualifikation trägt ihr Ablaufdatum im System. Fristen melden sich, bevor sie zum Problem werden.",
-      },
-      {
-        problem:
-          "Ein abgelaufener Nachweis fällt erst auf, wenn der Auftraggeber danach fragt – im ungünstigsten Fall auf der Baustelle.",
-        solution:
-          "Personal mit abgelaufenem Nachweis wird schon in der Planung kenntlich gemacht, nicht erst in der Prüfung.",
+          "Die Funktionen stehen am Mitarbeiter im System. Jeder mit Berechtigung sieht, wer als SIPO, Sakra oder BüP eingesetzt werden kann.",
       },
       {
         problem:
           "Urlaubsanträge laufen per Mail, die Einsatzplanung weiß nichts davon und plant weiter.",
         solution:
-          "Urlaub und Abwesenheiten stehen direkt in der Plantafel. Doppelplanung fällt damit weg.",
+          "Abwesenheiten stehen direkt in der Plantafel. Wer abwesend ist, löst beim Einplanen einen Konflikt aus.",
+      },
+      {
+        problem:
+          "Nachweise von Nachunternehmern kommen per Mail und liegen in Ordnern. Wann sie ablaufen, prüft niemand systematisch.",
+        solution:
+          "Für jede Firma ist hinterlegt, welche Nachweise sie vorlegen muss und in welchem Rhythmus. Fehlende und ablaufende Nachweise zeigt Gleistrix mit Status an.",
+      },
+    ],
+    details: [
+      {
+        heading: "Qualifikationen und Funktionen im Bahnbetrieb",
+        paragraphs: [
+          "Im Bahnbetrieb entscheidet die Funktion über den Einsatz: Ein Sicherungsposten ist keine Sicherungsaufsicht, ein Bahnübergangsposten kein Bediener. Gleistrix führt deshalb zu jedem Mitarbeiter die Funktionen, die er übernehmen kann – SIPO, Sakra, BüP, HiBa, SAS, HFE, Bahnerder oder Monteur/Bediener. Ein Mitarbeiter kann mehrere tragen.",
+          "Beim Zeiteintrag wird festgehalten, in welcher Funktion jemand eingesetzt war. So ist später nachvollziehbar, wer in welcher Rolle auf der Baustelle stand – und die Abrechnung kann nach Funktion unterscheiden.",
+        ],
+      },
+      {
+        heading: "Fristenmanagement für Nachweise von Nachunternehmern",
+        paragraphs: [
+          "Wer mit Nachunternehmern arbeitet, muss deren Unterlagen im Blick behalten. In Gleistrix legst du Nachweistypen mit Erneuerungsintervall an und weist sie einer oder mehreren Firmen zu.",
+          "Nachunternehmer laden die Nachweise im Portal hoch. Die Übersicht zeigt je Firma, ob ein Nachweis fehlt, bald abläuft oder bereits abgelaufen ist – und im Portal erscheint ein Hinweis auf offene Nachweise.",
+        ],
       },
     ],
     steps: [
       {
-        title: "Personalakte anlegen",
-        text: "Stammdaten, Vertragsdaten und Dokumente liegen an einem Ort statt in mehreren Ordnern.",
+        title: "Mitarbeiter anlegen",
+        text: "Kontaktdaten, Personalnummer, ElBa-Kennung und Status erfassen – einmal, an einem Ort.",
       },
       {
-        title: "Qualifikationen hinterlegen",
-        text: "Sicherungsposten, Sicherungsaufsicht, HIB und ärztliche Tauglichkeiten mit Gültigkeit und Nachweis erfassen.",
+        title: "Funktionen zuordnen",
+        text: "SIPO, Sakra, BüP und weitere Funktionen auswählen; mehrere pro Person sind möglich.",
       },
       {
-        title: "Fristen überwachen",
-        text: "Ablaufende Nachweise meldet das System rechtzeitig an die Verantwortlichen.",
+        title: "Abwesenheiten pflegen",
+        text: "Urlaub, Arbeitsunfähigkeit, Freistellung oder Fortbildung mit Zeitraum eintragen – die Plantafel übernimmt sie.",
       },
       {
-        title: "Einsatzfähigkeit nutzen",
-        text: "Die Disposition greift auf gültige Qualifikationen zu und plant passend zum Bedarf der Schicht.",
+        title: "Stunden nachweisen",
+        text: "Der monatliche Stundennachweis geht an den Mitarbeiter und an hinterlegte Empfänger wie das Lohnbüro.",
       },
     ],
     faqs: [
       {
-        question: "Welche Qualifikationen lassen sich abbilden?",
+        question: "Welche Funktionen lassen sich abbilden?",
         answer:
-          "Die im Bahnumfeld üblichen Nachweise wie Sicherungsposten, Sicherungsaufsicht und HIB sowie ärztliche Tauglichkeiten – jeweils mit Gültigkeitszeitraum und hinterlegtem Nachweis. Weitere Qualifikationen lassen sich ergänzen.",
-      },
-      {
-        question: "Wann warnt Gleistrix vor ablaufenden Nachweisen?",
-        answer:
-          "Rechtzeitig vor dem Ablaufdatum, sodass Nachschulung oder Untersuchung noch planbar sind. Zusätzlich ist der Status jederzeit in der Personalakte sichtbar.",
+          "Die im Bahnumfeld üblichen Funktionen SIPO, Sakra, BüP, HiBa, SAS, HFE, Bahnerder und Monteur/Bediener. Ein Mitarbeiter kann mehrere Funktionen tragen.",
       },
       {
         question: "Sind Urlaub und Krankheit enthalten?",
         answer:
-          "Ja. Abwesenheiten werden in der Mitarbeiterverwaltung gepflegt und erscheinen automatisch in Plantafel und Disposition, damit niemand doppelt verplant wird.",
+          "Ja. Urlaub, Arbeitsunfähigkeit, unbezahlte Freistellung und Fortbildung werden mit Zeitraum erfasst und erscheinen in der Plantafel, damit niemand doppelt verplant wird.",
+      },
+      {
+        question: "Wie werden Fristen für Nachweise überwacht?",
+        answer:
+          "Für Nachunternehmer: Nachweistypen tragen ein Erneuerungsintervall, und Gleistrix zeigt je Firma an, ob ein Nachweis fehlt, bald abläuft oder abgelaufen ist. Für eigene Mitarbeiter werden die Funktionen im Profil geführt.",
       },
       {
         question: "Wer bekommt Personaldaten zu sehen?",
         answer:
-          "Nur Rollen mit entsprechender Berechtigung. Die Disposition sieht Verfügbarkeit und Qualifikation, nicht zwangsläufig die vollständige Personalakte.",
+          "Nur Nutzer mit entsprechender Berechtigung. Rollen und Rechte steuern, wer die Mitarbeiterverwaltung sehen und bearbeiten darf.",
       },
     ],
   },
   {
     slug: "fahrzeug-technik",
     crossLinks: [
-      { text: "Zweiwegefahrzeuge und Geräte im Baustellenkontext behandelt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
-      { text: "Bestände und Prüffristen von Sicherungstechnik zeigt", href: "/produkt/lagerverwaltung", label: "die Lagerverwaltung" },
+      { text: "Trupps und Fahrzeuge im Baustellenkontext behandelt", href: "/branchen/gleisbauunternehmen", label: "Gleisbau-Software für Baustellen und Ressourcen" },
+      { text: "Geräte, Sicherungstechnik und Prüftermine verwaltet", href: "/produkt/lagerverwaltung", label: "die Lagerverwaltung" },
+      { text: "Wie Doppelbelegungen vermieden werden, erklärt der Fachartikel", href: "/blog/fahrzeuge-und-technik-ohne-doppelbelegung-planen", label: "Fahrzeuge und Technik ohne Doppelbelegung planen" },
     ],
     title: "Fahrzeuge & Technik",
-    tagline: "Prüffristen, Wartung und Zuordnung",
+    h1: "Fahrzeuge und Technik für Bahnbaustellen disponieren",
+    tagline: "Fuhrpark, Zuordnung und Tageskosten",
     description:
-      "Fahrzeuge und Geräte zentral erfassen, warten und Einsätzen zuordnen – inklusive Prüffristen und vollständiger Wartungshistorie.",
+      "Fahrzeuge zentral führen, Projekten und Mitarbeitern zuordnen und auf der Einsatztafel wie Personal disponieren – mit Konfliktprüfung bei Doppelbelegung.",
+    metaTitle: "Fahrzeugdisposition & Fuhrpark für den Bahnbau",
     metaDescription:
-      "Fahrzeuge, Geräte und Sicherungstechnik zentral führen: HU, UVV und Prüffristen mit Warnung, Wartungshistorie dokumentiert, direkt disponierbar.",
+      "Fahrzeugdisposition für den Bahnbau: Fuhrpark mit Kilometerstand, Schäden, Status und Tageskosten führen, Fahrzeuge Projekten zuordnen, Doppelbelegung vermeiden.",
     icon: Wrench,
     group: "Team & Ressourcen",
     image: "/media/module/team-ui.webp",
@@ -440,97 +488,96 @@ export const MODULES: CatalogEntry[] = [
     mascot: "/media/module/team.webp",
     highlights: [
       {
-        title: "Fristen laufen nicht ab",
-        text: "HU, UVV und Prüftermine melden sich rechtzeitig, statt am Einsatztag aufzufallen.",
-      },
-      {
-        title: "Historie dokumentiert",
-        text: "Wartungen und Reparaturen bleiben nachvollziehbar – auch Jahre später.",
-      },
-      {
         title: "Direkt disponierbar",
-        text: "Zweiwegefahrzeuge und Sicherungstechnik werden dem Einsatz zugeordnet wie Personal.",
+        text: "Fahrzeuge werden dem Einsatz zugeordnet wie Personal – ist eines schon verplant, meldet Gleistrix den Konflikt.",
+      },
+      {
+        title: "Zustand dokumentiert",
+        text: "Kilometerstand, Tankstand, Schäden und Status stehen am Fahrzeug statt auf einem Zettel im Handschuhfach.",
+      },
+      {
+        title: "Kosten je Tag",
+        text: "Ein Tagessatz pro Fahrzeug fließt in die Kosten der Projekte ein, denen es zugeordnet ist.",
       },
     ],
     bullets: [
-      "Fahrzeuge, HU- und Prüftermine mit Fristenwarnung",
-      "Geräte- und Wartungshistorie dokumentiert",
-      "Direkte Zuordnung zu Projekten und Einsätzen",
-      "Verfügbarkeiten und Standorte im Überblick",
+      "Fahrzeuge mit Typ, Kennzeichen, Kilometer- und Tankstand",
+      "Schäden und Status mit Notiz",
+      "Tageskosten je Fahrzeug",
+      "Direkte Übergabe an Mitarbeiter oder Projekt",
+      "Konfliktprüfung bei doppelter Zuordnung",
+      "Wartungs- und TÜV-Termine für Geräte im Lager",
     ],
     challenges: [
       {
         problem:
-          "HU, UVV und Prüftermine stehen in einer Liste, die einmal im Quartal jemand durchsieht – wenn Zeit dafür bleibt.",
+          "Ein Zweiwegefahrzeug steht für zwei Baustellen gleichzeitig im Plan. Bemerkt wird das, wenn es an der falschen Stelle steht.",
         solution:
-          "Jedes Fahrzeug und jedes Gerät führt seine Fristen selbst mit. Warnungen kommen, ohne dass jemand danach suchen muss.",
+          "Fahrzeuge laufen in derselben Planung wie die Trupps. Doppelte Zuordnungen meldet Gleistrix beim Zuweisen.",
       },
       {
         problem:
-          "Am Einsatztag stellt sich heraus, dass das Zweiwegefahrzeug zur Wartung in der Werkstatt steht.",
+          "Wer das Fahrzeug gerade hat und in welchem Zustand es ist, weiß man erst, wenn man danach telefoniert.",
         solution:
-          "Verfügbarkeiten und Wartungsfenster stehen in derselben Ansicht wie die Einsatzplanung.",
+          "Übergaben an Mitarbeiter oder Projekt sind mit Datum dokumentiert, Kilometerstand und Schäden stehen am Fahrzeug.",
       },
       {
         problem:
-          "Reparaturhistorien stecken in Werkstattrechnungen im Aktenordner und sind Jahre später nicht mehr auffindbar.",
+          "Was ein Fahrzeug die Baustelle kostet, wird nachträglich geschätzt.",
         solution:
-          "Wartungen, Reparaturen und Prüfungen bleiben am Objekt dokumentiert und lassen sich jederzeit nachvollziehen.",
+          "Ein Tagessatz je Fahrzeug fließt in die Projektkosten ein und macht den Anteil am Ergebnis sichtbar.",
       },
     ],
     steps: [
       {
-        title: "Fuhrpark und Technik erfassen",
-        text: "Fahrzeuge, Anhänger, Sicherungstechnik und Geräte mit Stammdaten und Standort anlegen.",
+        title: "Fuhrpark erfassen",
+        text: "Fahrzeuge mit Typ, Kennzeichen, Kilometerstand und Tageskosten anlegen.",
       },
       {
-        title: "Fristen hinterlegen",
-        text: "Hauptuntersuchung, UVV-Prüfung, Sachkundigenprüfungen und Wartungsintervalle mit Datum eintragen.",
+        title: "Zustand pflegen",
+        text: "Tankstand, Schäden und Status mit Notiz aktuell halten.",
       },
       {
         title: "Einsätzen zuordnen",
-        text: "Fahrzeuge und Technik werden dem Einsatz zugewiesen wie Personal – samt Prüfung auf Verfügbarkeit.",
+        text: "Fahrzeuge dem Einsatz oder direkt einem Mitarbeiter übergeben – samt Prüfung auf Doppelbelegung.",
       },
       {
-        title: "Historie fortschreiben",
-        text: "Jede Wartung und jede Reparatur wird am Objekt dokumentiert und bleibt nachvollziehbar.",
+        title: "Kosten verfolgen",
+        text: "Die Tageskosten laufen in die Kosten der Projekte ein.",
       },
     ],
     faqs: [
       {
-        question: "Welche Fristen lassen sich überwachen?",
+        question: "Sieht die Disposition, ob ein Fahrzeug frei ist?",
         answer:
-          "Alle wiederkehrenden Termine am Objekt – etwa Hauptuntersuchung, UVV-Prüfung, Sachkundigenprüfungen sowie selbst definierte Wartungsintervalle.",
+          "Ja. Wird ein Fahrzeug eingeplant, das zur selben Zeit bereits zugeordnet ist, meldet Gleistrix den Konflikt.",
+      },
+      {
+        question: "Welche Angaben werden am Fahrzeug geführt?",
+        answer:
+          "Typ, Kennzeichen, Kilometerstand, Tankstand, Schäden, Status mit Notiz und die Tageskosten. Übergaben an Mitarbeiter oder Projekte werden mit Datum festgehalten.",
       },
       {
         question: "Können auch Geräte und Sicherungstechnik verwaltet werden?",
         answer:
-          "Ja. Neben Fahrzeugen werden Anhänger, Geräte und Sicherungstechnik mit Prüf- und Wartungshistorie geführt.",
-      },
-      {
-        question: "Sieht die Disposition, ob ein Fahrzeug frei ist?",
-        answer:
-          "Ja. Verfügbarkeit, Wartungsfenster und bestehende Zuordnungen sind während der Planung sichtbar, sodass Doppelbelegungen sofort auffallen.",
-      },
-      {
-        question: "Bleibt die Historie erhalten, wenn ein Fahrzeug ausgemustert wird?",
-        answer:
-          "Ja. Die dokumentierte Wartungs- und Prüfhistorie bleibt am Objekt erhalten und ist auch nach dem Ausscheiden aus dem Fuhrpark abrufbar.",
+          "Ja, in der Lagerverwaltung. Dort lassen sich für Geräte Wartungen wie TÜV, Prüfung, Kalibrierung oder Inspektion mit Fälligkeitsdatum planen und dokumentieren.",
       },
     ],
   },
   {
     slug: "lagerverwaltung",
     crossLinks: [
-      { text: "Material und Technik gemeinsam mit Trupps planen beschreibt", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
-      { text: "Fahrzeuge und Geräte mit Prüffristen verwaltet", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik" },
+      { text: "Material und Technik gemeinsam mit Trupps planen beschreibt", href: "/branchen/gleisbauunternehmen", label: "Gleisbau-Software für Baustellen und Ressourcen" },
+      { text: "Fahrzeuge mit Zuordnung und Tageskosten verwaltet", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik" },
     ],
     title: "Lagerverwaltung",
-    tagline: "Bestände, Reservierungen und Prüfhistorie",
+    h1: "Lagerverwaltung für Material, Geräte und Sicherungstechnik",
+    tagline: "Bestände, Ausgaben und Prüftermine",
     description:
-      "Material, Geräte und Sicherungstechnik mit Beständen und Reservierungen verwalten – damit auf der Baustelle nichts fehlt.",
+      "Material, Geräte und Sicherungstechnik mit Beständen, Mindestmengen, Lieferscheinen und Wartungsterminen verwalten – auch mobil per QR-Code.",
+    metaTitle: "Lagerverwaltung für Material & Sicherungstechnik",
     metaDescription:
-      "Material, Geräte und Sicherungstechnik mit Beständen, Mindestmengen und Reservierungen verwalten – Entnahmen laufen projektbezogen in die Abrechnung.",
+      "Material, Geräte und Sicherungstechnik verwalten: Bestände und Mindestmengen, Ausgaben mit Rückgabe, Lieferscheine, Inventur und TÜV-Termine – auch mobil per QR-Code.",
     icon: Package,
     group: "Team & Ressourcen",
     image: "/media/module/lager-ui.webp",
@@ -538,97 +585,98 @@ export const MODULES: CatalogEntry[] = [
     mascot: "/media/module/lager.webp",
     highlights: [
       {
-        title: "Bestand in Echtzeit",
-        text: "Was im Lager liegt und was auf der Baustelle ist, steht in derselben Ansicht.",
+        title: "Bestand statt Schätzung",
+        text: "Wareneingang, Ausgabe und Rückgabe werden gebucht – die Bestände stimmen, ohne dass jemand zählen muss.",
       },
       {
-        title: "Mindestmengen",
-        text: "Unterschreitungen melden sich, bevor der Nachschub zum Engpass wird.",
+        title: "Mobil im Lager",
+        text: "Die Lager-App bucht per QR-Code dort, wo das Material bewegt wird.",
       },
       {
-        title: "Dem Projekt zugeordnet",
-        text: "Entnahmen laufen auf das Projekt und tauchen später in der Abrechnung wieder auf.",
+        title: "Prüftermine geplant",
+        text: "TÜV, Prüfung, Kalibrierung und Inspektion stehen mit Fälligkeitsdatum am Gerät.",
       },
     ],
     bullets: [
-      "Bestände und Mindestmengen in Echtzeit",
-      "Material direkt dem Projekt zuordnen",
-      "Geräte- und Prüfhistorie dokumentiert",
-      "Reservierungen für geplante Einsätze",
+      "Artikel mit Bestand, Einheit und Mindestmenge",
+      "Wareneingang und Lieferscheine mit Anhängen",
+      "Ausgabe an Mitarbeiter mit geplanter Rückgabe",
+      "Erinnerung an offene Rückgaben",
+      "Inventur",
+      "Wartungen mit Fälligkeit und Ergebnis",
+      "Mobile Lager-App mit QR-Code",
     ],
     challenges: [
       {
         problem:
           "Was tatsächlich im Lager liegt, weiß nur, wer zuletzt drin war. Der Rest schätzt.",
         solution:
-          "Bestände werden gebucht statt geschätzt. Eine Ansicht zeigt Lagerbestand und ausgegebenes Material nebeneinander.",
+          "Bestände werden gebucht statt geschätzt – beim Wareneingang, bei der Ausgabe und bei der Rückgabe.",
       },
       {
         problem:
-          "Material fehlt genau dann, wenn der Trupp bereits auf der Baustelle steht – und die Schicht wartet.",
+          "Ausgegebene Technik kommt nicht zurück, und niemand weiß mehr, wer sie zuletzt hatte.",
         solution:
-          "Mindestmengen melden sich früh genug, dass Nachschub noch in Ruhe geplant werden kann.",
+          "Jede Ausgabe ist einer Person mit geplanter Rückgabe zugeordnet. An offene Rückgaben erinnert Gleistrix.",
       },
       {
         problem:
-          "Entnahmen tauchen in der Abrechnung nicht auf und bleiben im Projektergebnis unsichtbar.",
+          "Der TÜV-Termin eines Geräts fällt erst auf, wenn es auf der Baustelle gebraucht wird.",
         solution:
-          "Jede Entnahme läuft auf ein Projekt und steht später in Abrechnung und Auswertung zur Verfügung.",
+          "Wartungen und Prüfungen sind mit Fälligkeitsdatum geplant und nach der Durchführung mit Ergebnis dokumentiert.",
       },
     ],
     steps: [
       {
         title: "Artikel anlegen",
-        text: "Material, Kleinteile, Geräte und Sicherungstechnik mit Lagerort und Mindestmenge erfassen.",
+        text: "Material, Geräte und Sicherungstechnik mit Einheit und Mindestmenge erfassen.",
       },
       {
-        title: "Bestände buchen",
-        text: "Zugänge, Entnahmen und Rückgaben werden im System gebucht statt auf Zetteln notiert.",
+        title: "Wareneingang buchen",
+        text: "Lieferungen mit Lieferschein erfassen, Anhänge direkt am Beleg ablegen.",
       },
       {
-        title: "Für den Einsatz reservieren",
-        text: "Material lässt sich für geplante Einsätze vormerken, damit es am Einsatztag auch wirklich verfügbar ist.",
+        title: "Ausgeben und zurücknehmen",
+        text: "Ausgaben an Mitarbeiter mit geplanter Rückgabe buchen – am Rechner oder mobil per QR-Code.",
       },
       {
-        title: "Verbrauch auswerten",
-        text: "Projektbezogene Entnahmen stehen für Abrechnung und Auswertung bereit.",
+        title: "Prüfen und zählen",
+        text: "Wartungen und Prüfungen nach Fälligkeit abarbeiten, Bestände per Inventur abgleichen.",
       },
     ],
     faqs: [
       {
-        question: "Lassen sich mehrere Lagerorte abbilden?",
+        question: "Gibt es eine mobile Lösung für das Lager?",
         answer:
-          "Ja. Artikel werden Lagerorten zugeordnet, sodass Bestände je Standort und je Projekt nachvollziehbar bleiben.",
+          "Ja. Die Lager-App läuft mobil und bucht Ausgaben, Rücknahmen und Eingänge per QR-Code direkt am Regal.",
       },
       {
-        question: "Wie funktionieren Reservierungen?",
+        question: "Wie behalte ich ausgegebene Technik im Blick?",
         answer:
-          "Material wird einem geplanten Einsatz zugeordnet und im Bestand als vorgemerkt geführt. Damit kann dieselbe Menge nicht versehentlich ein zweites Mal verplant werden.",
+          "Jede Ausgabe ist einer Person mit Menge, Ausgabedatum und geplanter Rückgabe zugeordnet. Offene Rückgaben meldet Gleistrix per Erinnerung.",
       },
       {
         question: "Werden Prüffristen von Geräten mitgeführt?",
         answer:
-          "Ja. Geräte- und Prüfhistorie werden am Artikel dokumentiert – ergänzend zur Verwaltung von Fahrzeugen und Technik.",
-      },
-      {
-        question: "Fließt der Materialverbrauch in die Abrechnung ein?",
-        answer:
-          "Ja. Projektbezogene Entnahmen stehen der Abrechnung direkt zur Verfügung und müssen nicht nachträglich zusammengesucht werden.",
+          "Ja. Wartungen wie TÜV, Service, Prüfung, Kalibrierung und Inspektion werden mit Fälligkeitsdatum geplant und nach der Durchführung mit Ergebnis dokumentiert.",
       },
     ],
   },
   {
     slug: "zeiterfassung-stundenzettel",
     crossLinks: [
-      { text: "Prüffähige Nachweise je Schicht beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
-      { text: "Die Übergabe von Stunden und Zuschlägen an die Lohnabrechnung übernimmt", href: "/integrationen/datev", label: "die DATEV-Anbindung" },
+      { text: "Stundennachweise für SiPo-Einsätze beschreibt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Die Übergabe von Buchungsdaten an die Steuerberatung übernimmt", href: "/integrationen/datev", label: "die DATEV-Anbindung" },
+      { text: "Wie prüffähige Stundenzettel entstehen, erklärt der Fachartikel", href: "/blog/stundenzettel-mobil-und-prueffaehig-erfassen", label: "Stundenzettel prüffähig erfassen" },
     ],
     title: "Zeiterfassung & Stundenzettel",
-    tagline: "Mobil erfasst, prüffähig abgelegt",
+    h1: "Zeiterfassung und Stundennachweise für Bahndienstleister",
+    tagline: "Zeiten mit Funktion, Fahrtzeit und Zuschlägen",
     description:
-      "Zeiten digital, mobil und prüffähig erfassen – direkt mit Projekten verknüpft und ohne Abtippen in der Verwaltung.",
+      "Arbeitszeit, Fahrtzeit und Funktion je Einsatz erfassen, Nacht- und Sonntagszuschläge berechnen und den monatlichen Stundennachweis automatisch per E-Mail versenden.",
+    metaTitle: "Zeiterfassung & Stundennachweise für den Bahnbau",
     metaDescription:
-      "Zeiten mobil auf der Baustelle erfassen: prüffähige Stundenzettel mit Nacht- und Wochenendzuschlägen, ohne Abtippen direkt in Abrechnung und Lohn.",
+      "Zeiterfassung für Bahnbau und Sicherung: Stunden mit Funktion und Fahrtzeit am Projekt, Nacht- und Sonntagszuschläge, monatlicher Stundennachweis per E-Mail.",
     icon: Clock,
     group: "Nachweise & Abrechnung",
     image: "/media/module/zeiterfassung-ui.webp",
@@ -636,97 +684,101 @@ export const MODULES: CatalogEntry[] = [
     mascot: "/media/module/abrechnung.webp",
     highlights: [
       {
-        title: "Erfassung vor Ort",
-        text: "Das Team trägt Zeiten am Einsatzort ein – der Zettel im Auto entfällt.",
+        title: "Zeiten am Projekt",
+        text: "Jeder Eintrag hängt an Projekt, Tag und Person – mit Funktion und Fahrtzeit.",
       },
       {
-        title: "Freigabe statt Nacharbeit",
-        text: "Die Verwaltung prüft und gibt frei, statt Zettel abzutippen und zu korrigieren.",
+        title: "Zuschläge gerechnet",
+        text: "Nacht- und Sonntagszuschläge werden aus den Zeiten abgeleitet, nicht von Hand nachgerechnet.",
       },
       {
-        title: "Direkt weiterverwendet",
-        text: "Freigegebene Stunden fließen ohne Zwischenschritt in Abrechnung und Lohn.",
+        title: "Nachweis per E-Mail",
+        text: "Der Stundennachweis geht monatlich an Mitarbeiter, Lohnbüro und weitere hinterlegte Empfänger.",
       },
     ],
     bullets: [
-      "Mobile Zeiterfassung direkt auf der Baustelle",
-      "Prüffähige Stundenzettel ohne Nacharbeit",
-      "Nahtlose Verknüpfung mit Projekten und Abrechnung",
-      "Zuschläge für Nacht, Wochenende und Feiertag",
+      "Zeiteinträge mit Funktion, Arbeits- und Fahrtzeit",
+      "Nacht- und Sonntagszuschläge automatisch berechnet",
+      "Monatlicher Stundennachweis per E-Mail",
+      "Freigabe von Nachunternehmer-Stunden",
+      "Übergabe freigegebener Stunden an die Abrechnung",
     ],
     challenges: [
       {
         problem:
           "Stundenzettel kommen auf Papier in die Verwaltung – teils Tage später, teils kaum lesbar.",
         solution:
-          "Zeiten werden am Einsatzort erfasst und liegen unmittelbar zur Prüfung in der Verwaltung vor.",
+          "Zeiten werden direkt am Projekt erfasst und liegen sofort zur Prüfung vor.",
       },
       {
         problem:
-          "Das Backoffice tippt Zettel ab und rechnet Nacht- und Wochenendzuschläge von Hand nach.",
+          "Das Backoffice tippt Zettel ab und rechnet Nacht- und Sonntagszuschläge von Hand nach.",
         solution:
-          "Zuschläge werden aus der Schicht abgeleitet, statt sie im Nachhinein zu rekonstruieren.",
+          "Zuschläge werden aus den erfassten Zeiten abgeleitet, statt sie im Nachhinein zu rekonstruieren.",
       },
       {
         problem:
-          "Fragt der Auftraggeber nach einer einzelnen Schicht, beginnt die Suche nach dem passenden Nachweis.",
+          "Am Monatsende werden Stundennachweise einzeln zusammengestellt und an Mitarbeiter und Lohnbüro verschickt.",
         solution:
-          "Jeder Eintrag hängt an Projekt, Schicht und Person und bleibt prüffähig dokumentiert.",
+          "Der Stundennachweis entsteht aus den Einträgen und geht monatlich per E-Mail an alle hinterlegten Empfänger.",
       },
     ],
     steps: [
       {
-        title: "Schicht erfassen",
-        text: "Das Team trägt Beginn, Pause und Ende mobil am Einsatzort ein – ohne Zettel im Fahrzeug.",
+        title: "Zeit erfassen",
+        text: "Arbeitszeit, Fahrtzeit und Funktion je Einsatz am Projekt eintragen.",
       },
       {
-        title: "Leistung zuordnen",
-        text: "Zeiten hängen am Projekt, an der Schicht und, wo nötig, an der Position des Leistungsverzeichnisses.",
+        title: "Zuschläge ableiten",
+        text: "Nacht- und Sonntagsanteile berechnet Gleistrix aus den Zeiten.",
       },
       {
         title: "Prüfen und freigeben",
-        text: "Bauleitung oder Backoffice prüfen den Stundenzettel und geben ihn frei – Korrekturen bleiben nachvollziehbar.",
+        text: "Stunden – auch die von Nachunternehmern – prüfen und für die Abrechnung freigeben.",
       },
       {
-        title: "Weiterverwenden",
-        text: "Freigegebene Stunden gehen ohne Zweiterfassung in Abrechnung und Lohn.",
+        title: "Nachweis versenden",
+        text: "Der monatliche Stundennachweis geht per E-Mail an Mitarbeiter und Lohnbüro.",
       },
     ],
     faqs: [
       {
-        question: "Können erfasste Zeiten nachträglich korrigiert werden?",
-        answer:
-          "Ja. Korrekturen sind vor der Freigabe möglich und bleiben nachvollziehbar, damit der Stundenzettel prüffähig bleibt.",
-      },
-      {
         question: "Werden Zuschläge automatisch berücksichtigt?",
         answer:
-          "Ja. Nacht-, Wochenend- und Feiertagsschichten werden erkannt; die zugehörigen Zuschläge fließen in Abrechnung und Lohn ein, ohne dass jemand nachrechnet.",
+          "Ja. Nacht- und Sonntagszuschläge werden aus den erfassten Zeiten berechnet, ohne dass jemand nachrechnet.",
+      },
+      {
+        question: "Wer erhält den Stundennachweis?",
+        answer:
+          "Der Mitarbeiter selbst und weitere Empfänger, die je Mitarbeiter hinterlegt werden – zum Beispiel Lohnbüro oder Vorgesetzte. Der Versand erfolgt monatlich per E-Mail.",
       },
       {
         question: "Wie kommen die Stunden in die Abrechnung?",
         answer:
-          "Freigegebene Stunden stehen der Abrechnung direkt zur Verfügung. Ein erneutes Eintippen oder der Umweg über Zwischentabellen entfällt.",
+          "Freigegebene Stunden stehen der Abrechnung des Projekts direkt zur Verfügung. Ein erneutes Eintippen oder der Umweg über Zwischentabellen entfällt.",
       },
       {
-        question: "Sind die digitalen Stundenzettel prüffähig?",
+        question: "Lassen sich Stunden von Nachunternehmern einbeziehen?",
         answer:
-          "Ja. Jeder Eintrag ist Projekt, Schicht und Person zugeordnet und mit der Freigabe dokumentiert – auch für spätere Nachweise gegenüber Auftraggebern.",
+          "Ja. Stunden von Nachunternehmern werden am Projekt geprüft und freigegeben, bevor sie in die Abrechnung gehen.",
       },
     ],
   },
   {
     slug: "dokumentenmanagement",
     crossLinks: [
-      { text: "Nachweise für die Bauüberwachung beschreibt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
-      { text: "Was Auftraggeber im Bahnumfeld an Unterlagen erwarten, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
+      { text: "Unterlagen für die Bauüberwachung beschreibt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
+      { text: "Ablage in OneDrive und SharePoint ermöglicht", href: "/integrationen/microsoft", label: "die Microsoft-365-Anbindung" },
+      { text: "Wie SiPo-Einsätze nachvollziehbar dokumentiert werden, erklärt der Fachartikel", href: "/blog/sipo-einsaetze-rechtssicher-dokumentieren", label: "SiPo-Einsätze sauber dokumentieren" },
     ],
     title: "Dokumentenmanagement",
-    tagline: "Revisionssicher in der Projektakte",
+    h1: "Dokumentenmanagement für Bahnprojekte und Baustellen",
+    tagline: "Unterlagen am Projekt statt im Postfach",
     description:
-      "Wichtige Unterlagen zentral speichern, teilen und revisionssicher archivieren – bei Prüfungen bist du in Sekunden auskunftsfähig.",
+      "Lieferscheine, Stundennachweise, Bestellscheine und Rechnungen am Projekt ablegen, nach Typ ordnen und über das Projekt wiederfinden – bei Bedarf in OneDrive oder SharePoint.",
+    metaTitle: "Dokumentenmanagement für Bahnprojekte",
     metaDescription:
-      "Pläne, Nachweise und Protokolle revisionssicher in der Projektakte: Versionen und Freigaben dokumentiert, bei Audits in Sekunden auskunftsfähig.",
+      "Digitale Baustellendokumentation für Bahnprojekte: Lieferscheine, Stundennachweise, Bestellscheine und Rechnungen nach Typ am Projekt ablegen und wiederfinden.",
     icon: FolderOpen,
     group: "Nachweise & Abrechnung",
     image: "/media/module/dokumente-ui.webp",
@@ -735,97 +787,96 @@ export const MODULES: CatalogEntry[] = [
     highlights: [
       {
         title: "Alles am Projekt",
-        text: "Pläne, Nachweise und Protokolle hängen an der Akte statt verstreut in Ordnern.",
+        text: "Unterlagen hängen am Projekt statt verstreut in Postfächern und Netzlaufwerken.",
       },
       {
-        title: "Versionen nachvollziehbar",
-        text: "Wer wann was freigegeben hat, bleibt dokumentiert – ohne Dateinamen mit _final_v3.",
+        title: "Nach Typ geordnet",
+        text: "Lieferschein, Stundennachweis, Bestellschein, Rechnung – jedes Dokument trägt seinen Typ.",
       },
       {
-        title: "Auskunftsfähig",
-        text: "Bei Audits und Prüfungen ist der passende Nachweis in Sekunden gefunden.",
+        title: "Schnell abgelegt",
+        text: "Dateien lassen sich per Drag-and-drop direkt aus der Plantafel am Einsatz ablegen.",
       },
     ],
     bullets: [
-      "Revisionssichere Ablage pro Projekt",
-      "Freigaben und Versionen jederzeit nachvollziehbar",
-      "Nachweise und Protokolle zentral statt im Postfach",
-      "Zugriff nach Rolle und Projekt gesteuert",
+      "Dokumente am Projekt statt im Postfach",
+      "Dokumenttypen frei definierbar",
+      "Eingangs- und Ausgangsrechnungen als eigener Typ",
+      "Ablage per Drag-and-drop aus der Plantafel",
+      "Nachweise von Nachunternehmern im Portal",
+      "Anbindung an OneDrive und SharePoint",
     ],
     challenges: [
       {
         problem:
-          "Pläne und Nachweise verteilen sich auf Postfächer, Netzlaufwerke und Chatverläufe.",
+          "Lieferscheine, Stundennachweise und Rechnungen verteilen sich auf Postfächer, Netzlaufwerke und Chatverläufe.",
         solution:
-          "Alle Unterlagen hängen an der Projektakte und werden über das Projekt gefunden, nicht über den Dateinamen.",
+          "Alle Unterlagen hängen am Projekt und werden über das Projekt gefunden, nicht über den Dateinamen.",
       },
       {
         problem:
-          "Welche Fassung freigegeben ist, verrät bestenfalls der Dateiname – Angebot_final_v3_neu.",
+          "Ob ein Dokument eine Rechnung, ein Lieferschein oder ein Nachweis ist, verrät bestenfalls der Dateiname.",
         solution:
-          "Versionen und Freigaben sind dokumentiert. Der gültige Stand ist eindeutig und belegbar.",
+          "Jedes Dokument trägt einen Typ. Die Typen lassen sich an die eigenen Abläufe anpassen.",
       },
       {
         problem:
-          "Bei Audits und Prüfungen beginnt die Suche nach dem passenden Nachweis von vorn.",
+          "Nachunternehmer schicken ihre Unterlagen per Mail, und jemand muss sie einsortieren.",
         solution:
-          "Nachweise sind über Projekt, Schicht und Zeitraum in Sekunden gefunden.",
+          "Nachunternehmer laden Nachweise und Rechnungen im Portal hoch – direkt an der richtigen Stelle.",
       },
     ],
     steps: [
       {
         title: "Ablegen",
-        text: "Pläne, Nachweise, Protokolle und Fotos werden direkt am Projekt gespeichert.",
+        text: "Lieferscheine, Nachweise, Rechnungen und Fotos direkt am Projekt speichern.",
       },
       {
-        title: "Zuordnen",
-        text: "Dokumente hängen an Projekt, Schicht oder Person – eine zweite Ordnerstruktur entfällt.",
+        title: "Einordnen",
+        text: "Jedem Dokument einen Typ geben – Lieferschein, Stundennachweis, Bestellschein oder Rechnung.",
       },
       {
-        title: "Freigeben",
-        text: "Freigaben und Versionen werden festgehalten, sodass der gültige Stand jederzeit erkennbar bleibt.",
+        title: "Teilen",
+        text: "Nachunternehmer laden ihre Unterlagen im Portal hoch; Projektordner lassen sich über SharePoint anbinden.",
       },
       {
         title: "Auskunft geben",
-        text: "Bei Prüfungen wird der Nachweis über das Projekt gefunden statt über die Dateisuche.",
+        text: "Bei Rückfragen wird das Dokument über das Projekt gefunden statt über die Dateisuche.",
       },
     ],
     faqs: [
       {
-        question: "Was bedeutet revisionssichere Ablage in Gleistrix?",
+        question: "Welche Dokumente lassen sich ablegen?",
         answer:
-          "Dokumente werden versioniert, Freigaben und Änderungen bleiben nachvollziehbar. Damit ist zu jedem Zeitpunkt belegbar, welche Fassung gültig war und wer sie freigegeben hat.",
+          "Grundsätzlich alle Unterlagen eines Projekts. Voreingestellt sind Typen wie Rechnung, Nachunternehmerrechnung, Materialrechnung, Ausgangsrechnung, Lieferschein, Stundennachweis und Bestellschein; weitere lassen sich anlegen.",
       },
       {
         question: "Wer hat Zugriff auf welche Dokumente?",
         answer:
-          "Der Zugriff wird über Rollen und Projektzugehörigkeit gesteuert. Ein Trupp sieht die Unterlagen seiner Einsätze, das Backoffice die kaufmännischen Dokumente.",
+          "Der Zugriff wird über Rollen und Berechtigungen gesteuert. Nachunternehmer sehen im Portal nur die Unterlagen, die sie selbst betreffen.",
       },
       {
-        question: "Lassen sich Unterlagen mit Auftraggebern teilen?",
+        question: "Lässt sich Microsoft 365 anbinden?",
         answer:
-          "Ja. Dokumente können gezielt bereitgestellt werden, statt sie als Anhang durch Postfächer zu schicken.",
-      },
-      {
-        question: "Bleiben Dokumente nach Projektende erhalten?",
-        answer:
-          "Ja. Die Projektakte bleibt mit allen Nachweisen bestehen und ist auch nach Abschluss des Projekts abrufbar.",
+          "Ja. Über die Microsoft-365-Anbindung lassen sich OneDrive als Dokumentenablage und SharePoint-Projektordner nutzen.",
       },
     ],
   },
   {
     slug: "rechnungsstellung",
     crossLinks: [
-      { text: "Die Weitergabe an die Buchhaltung übernehmen", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
-      { text: "Abrechnung nach Leistungsverzeichnis erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
-      { text: "X-Rechnung für öffentliche Auftraggeber behandelt", href: "/branchen/subunternehmen-db", label: "Software für Subunternehmen der DB" },
+      { text: "Die Übergabe von Buchungsdaten und Belegen übernimmt", href: "/integrationen/datev", label: "die DATEV-Anbindung" },
+      { text: "Leistungsverzeichnisse einlesen erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "Wie aus der erfassten Stunde eine Rechnung wird, erklärt der Fachartikel", href: "/blog/von-der-erfassten-stunde-zur-x-rechnung", label: "Von der erfassten Stunde zur Rechnung" },
     ],
     title: "Abrechnung & Rechnungsstellung",
-    tagline: "Von der Leistung zur X-Rechnung",
+    h1: "Projektabrechnung für Bahndienstleister",
+    tagline: "Von der geprüften Stunde zur Abrechnung",
     description:
-      "Rechnungen schnell, korrekt und auf Wunsch automatisiert erstellen – aus geprüften Leistungen und Stunden, übergabefertig für die Buchhaltung.",
+      "Aus freigegebenen Stunden und Leistungen die Abrechnung des Projekts erstellen, Rechnungen von Nachunternehmern prüfen und Buchungsdaten an die Steuerberatung übergeben.",
+    metaTitle: "Projektabrechnung & Rechnungsstellung im Bahnbau",
     metaDescription:
-      "Aus geprüften Stunden und Leistungen zur Rechnung: X-Rechnung für öffentliche Auftraggeber, Abrechnung nach LV und GAEB, saubere Übergabe an DATEV.",
+      "Projektabrechnung für den Bahnbau: freigegebene Stunden abrechnen, als PDF ausgeben, Nachunternehmer-Rechnungen prüfen und Buchungsdaten an DATEV übergeben.",
     icon: FileText,
     group: "Nachweise & Abrechnung",
     image: "/media/module/abrechnung-ui.webp",
@@ -834,81 +885,83 @@ export const MODULES: CatalogEntry[] = [
     highlights: [
       {
         title: "Ohne Zweiterfassung",
-        text: "Freigegebene Stunden und Leistungen werden zum Rechnungsentwurf – kein erneutes Eintippen.",
+        text: "Freigegebene Stunden und Leistungen gehen in die Abrechnung – kein erneutes Eintippen.",
       },
       {
-        title: "Normkonform",
-        text: "X-Rechnung und strukturierte Belege erfüllen die Anforderungen öffentlicher Auftraggeber.",
+        title: "Freigabe vor Abrechnung",
+        text: "Offene Freigaben sind sichtbar, bevor abgerechnet wird. Abgerechnet wird nur, was geprüft ist.",
       },
       {
         title: "Saubere Übergabe",
-        text: "Steuerberater und DATEV-Prozesse erhalten geprüfte Daten statt PDF-Sammlungen.",
+        text: "Buchungsdaten und Belege gehen über die DATEV-Anbindung an die Steuerberatung.",
       },
     ],
     bullets: [
-      "Leistungsnachweise automatisch zusammengeführt",
-      "Rechnungsentwürfe pro Projekt und Zeitraum",
-      "X-Rechnung und saubere Übergabe an die Buchhaltung",
-      "Abrechnung nach LV und GAEB-Positionen",
+      "Abrechnung je Projekt aus freigegebenen Stunden",
+      "Abrechnungspositionen nach Tag und Funktion",
+      "Ausgabe als PDF",
+      "Rechnungen von Nachunternehmern prüfen und freigeben",
+      "Eingangsrechnungen erfassen",
+      "Buchungsdatenexport und Belegübertragung an DATEV",
     ],
     challenges: [
       {
         problem:
           "Die Rechnung entsteht aus Zetteln, Mails und einer Tabelle – und braucht dafür Wochen.",
         solution:
-          "Aus geprüften Leistungen und freigegebenen Stunden entsteht der Rechnungsentwurf, sobald die Freigabe steht.",
+          "Aus freigegebenen Stunden entstehen die Abrechnungspositionen des Projekts, sobald die Freigabe steht.",
       },
       {
         problem:
-          "Öffentliche Auftraggeber verlangen die X-Rechnung, das bisherige Rechnungsprogramm kann sie nicht liefern.",
+          "Nachunternehmer schicken Rechnungen per Mail, und niemand weiß sicher, welche schon geprüft ist.",
         solution:
-          "Gleistrix erzeugt strukturierte Rechnungen im X-Rechnungs-Format direkt aus dem Projekt.",
+          "Nachunternehmer reichen Rechnungen im Portal ein. Dort werden sie geprüft und freigegeben; die vereinbarten Tagessätze je Funktion sind am Nachunternehmer hinterlegt.",
       },
       {
         problem:
-          "Der Steuerberater bekommt eine Sammlung von PDF-Dateien und stellt dazu Rückfragen.",
+          "Die Steuerberatung bekommt eine Sammlung von PDF-Dateien und stellt dazu Rückfragen.",
         solution:
-          "Die Buchhaltung erhält geprüfte, strukturierte Daten statt gescannter Belege.",
+          "Buchungsdaten und Belege werden über die DATEV-Anbindung übergeben statt als Belegsammlung.",
       },
     ],
     steps: [
       {
         title: "Leistungen sammeln",
-        text: "Freigegebene Stunden, Material und Positionen laufen während des Projekts zusammen.",
+        text: "Freigegebene Stunden laufen während des Projekts als Abrechnungspositionen nach Tag und Funktion zusammen.",
       },
       {
-        title: "Entwurf erzeugen",
-        text: "Für Projekt und Zeitraum entsteht ein Rechnungsentwurf – auf Wunsch nach LV- und GAEB-Positionen gegliedert.",
+        title: "Freigaben prüfen",
+        text: "Offene Freigaben sind sichtbar, bevor abgerechnet wird.",
       },
       {
-        title: "Prüfen und freigeben",
-        text: "Der Entwurf wird kaufmännisch geprüft und freigegeben, bevor er das Haus verlässt.",
+        title: "Abrechnen",
+        text: "Die Abrechnung des Projekts erstellen und als PDF ausgeben.",
       },
       {
-        title: "Versenden und übergeben",
-        text: "Die Rechnung geht als X-Rechnung an den Auftraggeber, die geprüften Daten an die Buchhaltung.",
+        title: "Übergeben",
+        text: "Buchungsdaten und Belege über die DATEV-Anbindung an die Steuerberatung übergeben.",
       },
     ],
     faqs: [
       {
-        question: "Was ist eine X-Rechnung und wer braucht sie?",
+        question: "Muss ich Stunden für die Abrechnung erneut erfassen?",
         answer:
-          "Die X-Rechnung ist das strukturierte elektronische Rechnungsformat für öffentliche Auftraggeber in Deutschland. Wer an Bund, Länder oder kommunale Auftraggeber fakturiert, muss sie in der Regel liefern. Gleistrix erzeugt sie aus den freigegebenen Leistungen des Projekts.",
+          "Nein. Freigegebene Stunden werden als Abrechnungspositionen übernommen. Eine Zweiterfassung für die Abrechnung entfällt.",
       },
       {
-        question: "Kann nach LV- und GAEB-Positionen abgerechnet werden?",
+        question: "In welchem Format wird abgerechnet?",
         answer:
-          "Ja. Leistungen lassen sich Positionen des Leistungsverzeichnisses zuordnen und entsprechend abrechnen – passend zu Angeboten im GAEB-Format.",
+          "Die Abrechnung lässt sich als PDF ausgeben. Buchungsdaten und Belege können über die DATEV-Anbindung übergeben werden.",
       },
       {
-        question: "Muss ich Stunden für die Rechnung erneut erfassen?",
+        question: "Wie werden Rechnungen von Nachunternehmern geprüft?",
         answer:
-          "Nein. Freigegebene Stundenzettel und Leistungsnachweise werden übernommen. Eine Zweiterfassung für die Abrechnung entfällt.",
+          "Nachunternehmer reichen ihre Rechnungen im Portal ein, wo sie geprüft und freigegeben werden. Die vereinbarten Tagessätze je Funktion sind am Nachunternehmer hinterlegt; Mahnungen laufen ebenfalls über das Portal.",
       },
       {
-        question: "Wie kommen die Daten zum Steuerberater?",
+        question: "Kann nach Leistungspositionen abgerechnet werden?",
         answer:
-          "Die Abrechnung stellt geprüfte Daten für die vorbereitende Buchhaltung bereit, sodass die Übergabe an Steuerberater und DATEV-Prozesse ohne Belegsammlung funktioniert.",
+          "Leistungen mit Positionen, Menge und Preis stehen am Projekt – eingepflegt oder aus einer GAEB-Datei importiert – und bilden den Soll-Umsatz. Die Abrechnung der Stunden erfolgt nach Tag und Funktion.",
       },
     ],
   },
@@ -921,6 +974,9 @@ export const MODULE_CATALOG: Catalog = {
   menuNote: `${MODULES.length} Module · eine Plattform`,
   scopeHeading: "Das steckt in {title}",
   ctaHeading: "{title} live sehen?",
+  challengesHeading: "Was sich mit {title} ändert",
+  stepsHeading: "So arbeitest du mit {title}",
+  faqHeading: "Häufige Fragen zu {title}",
   overviewHref: "/produkt",
   overviewLabel: "Alle Module ansehen",
   entries: MODULES,

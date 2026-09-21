@@ -32,96 +32,105 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
   {
     slug: "gaeb",
     crossLinks: [
-      { text: "Wer nach Leistungsverzeichnis abrechnet, findet die Details unter", href: "/produkt/rechnungsstellung", label: "Rechnungsstellung nach LV" },
-      { text: "Im Gleisbau hängt das Verzeichnis an der Baustellenplanung – siehe", href: "/branchen/gleisbauunternehmen", label: "Software für Gleisbauunternehmen" },
+      { text: "Wie Leistungen und Positionen am Projekt weiterverwendet werden, zeigt", href: "/produkt/projektplanung-disposition", label: "Projektplanung und Disposition" },
+      { text: "Im Gleisbau steht das Verzeichnis am Anfang der Baustellenplanung – siehe", href: "/branchen/gleisbauunternehmen", label: "Gleisbau-Software" },
+      { text: "Für Sicherungsprojekte mit Leistungsverzeichnis passt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
     ],
     title: "GAEB",
-    tagline: "Leistungsverzeichnisse ein- und ausgeben",
+    h1: "GAEB-Import für Bahnbau und Gleisbau",
+    tagline: "Leistungsverzeichnisse einlesen und prüfen",
     description:
-      "Leistungsverzeichnisse im GAEB-Format einlesen, kalkulieren und wieder ausgeben – ohne Positionen von Hand zu übertragen.",
+      "GAEB-DA-XML-Dateien einlesen, gegen das Schema prüfen und die Positionen des Leistungsverzeichnisses einem Projekt zuordnen – ohne Positionen von Hand zu übertragen.",
     icon: FileSpreadsheet,
     group: "Bahn & Ausschreibung",
+    metaTitle: "GAEB-Import & LV-Prüfung für den Bahnbau",
+    // Gleistrix liest GAEB ein, prüft und wertet aus. Eine GAEB-Ausgabe
+    // (Angebotsrückgabe im Austauschformat) gibt es nicht – deshalb steht
+    // sie hier auch nicht.
     metaDescription:
-      "GAEB-Schnittstelle für Bahnprojekte: Leistungsverzeichnisse einlesen, Positionen kalkulieren und das Angebot im geforderten Austauschformat zurückgeben.",
+      "GAEB-Software für den Bahnbau: GAEB-DA-XML einlesen und gegen das Schema prüfen, LV-Positionen erkennen, Projekten zuordnen und per KI auswerten.",
     logo: logoOf("gaeb"),
     highlights: [
       {
         title: "Import statt Abtippen",
-        text: "Ein eingelesenes LV steht mit allen Positionen und Mengen im Projekt bereit.",
+        text: "Ein eingelesenes LV steht mit seinen Positionen im System bereit, statt in eine Tabelle übertragen zu werden.",
       },
       {
-        title: "Kalkulation am Original",
-        text: "Preise werden an der Originalposition gepflegt, die Struktur bleibt unverändert.",
+        title: "Geprüft beim Einlesen",
+        text: "Jede Datei wird gegen das XSD-Schema und auf ihre Struktur geprüft – Fehler fallen beim Import auf, nicht in der Kalkulation.",
       },
       {
-        title: "Rückgabe im Format",
-        text: "Das ausgefüllte Angebot geht im geforderten GAEB-Austauschformat zurück.",
+        title: "Fragen an das LV",
+        text: "Ein KI-Agent wertet die Positionen aus und beantwortet Fragen zum Leistungsverzeichnis.",
       },
     ],
     bullets: [
-      "GAEB-Dateien importieren und Positionen übernehmen",
-      "Angebote direkt auf Basis des LV kalkulieren",
-      "Abrechnung nach LV-Positionen",
-      "Export im vom Auftraggeber geforderten Format",
+      "Import von GAEB-DA-XML (X81 bis X89)",
+      "XSD- und Strukturprüfung beim Einlesen",
+      "LV-Positionen automatisch erkennen",
+      "Versionen und Phasen konfigurierbar",
+      "Import-Historie mit Dublettenerkennung",
+      "Zuordnung zum Projekt und Ablage als Projektdokument",
+      "KI-Auswertung: benötigtes Personal, Fahrzeuge und Material",
     ],
     challenges: [
       {
         problem:
-          "Das Leistungsverzeichnis kommt als GAEB-Datei, kalkuliert wird in einer Tabelle. Die Positionen wandern per Hand von einem Format ins andere.",
+          "Das Leistungsverzeichnis kommt als GAEB-Datei, gearbeitet wird in einer Tabelle. Die Positionen wandern per Hand von einem Format ins andere.",
         solution:
-          "Die Datei wird eingelesen und steht mit allen Positionen und Mengen im Projekt. Der Übertragungsschritt entfällt samt seiner Tippfehler.",
+          "Die Datei wird eingelesen, ihre Positionen erkannt und dem Projekt zugeordnet. Der Übertragungsschritt entfällt samt seiner Tippfehler.",
       },
       {
         problem:
-          "Beim Umbau in ein eigenes Angebotsdokument gehen Nummerierung und Gliederung verloren. Der Auftraggeber weist die Rückgabe zurück.",
+          "Eine fehlerhafte oder unvollständige Datei fällt erst auf, wenn mit ihr schon gerechnet wurde.",
         solution:
-          "Preise werden an der Originalposition gepflegt. Die Struktur des Leistungsverzeichnisses bleibt unverändert, auch bei der Rückgabe.",
+          "Beim Import prüft Gleistrix die Datei gegen das XSD-Schema und auf ihre Struktur. Probleme werden gemeldet, bevor die Datei weiterverwendet wird.",
       },
       {
         problem:
-          "Zur Abrechnung wird verglichen, welche LV-Position wie weit erbracht ist – in einer zweiten Tabelle neben dem Projekt.",
+          "Um abzuschätzen, was ein Auftrag an Personal, Fahrzeugen und Material braucht, wird das LV Position für Position gelesen.",
         solution:
-          "Abgerechnet wird direkt gegen die LV-Positionen, die schon im Projekt liegen. Ein separater Abgleich entfällt.",
+          "Ein KI-Agent wertet die Positionen aus, schlägt benötigte Ressourcen vor und beantwortet Fragen zum Leistungsverzeichnis. Die Entscheidung bleibt beim Menschen.",
       },
     ],
     steps: [
       {
-        title: "Leistungsverzeichnis einlesen",
-        text: "Die GAEB-Datei des Auftraggebers wird importiert, Positionen und Mengen übernimmt Gleistrix unverändert.",
+        title: "Datei hochladen",
+        text: "Die GAEB-DA-XML-Datei des Auftraggebers wird hochgeladen; doppelte Importe erkennt Gleistrix.",
       },
       {
-        title: "Kalkulieren",
-        text: "Preise entstehen an der jeweiligen Position, ohne die Gliederung des Verzeichnisses anzutasten.",
+        title: "Prüfen",
+        text: "Schema- und Strukturprüfung laufen automatisch, Hinweise stehen am Import.",
       },
       {
-        title: "Angebot zurückgeben",
-        text: "Die Ausgabe erfolgt in dem GAEB-Austauschformat, das der Auftraggeber angefordert hat.",
+        title: "Projekt zuordnen",
+        text: "Den Import einem Projekt zuordnen und als Projektdokument ablegen.",
       },
       {
-        title: "Nach Positionen abrechnen",
-        text: "Erbrachte Leistungen werden gegen die Positionen des Verzeichnisses abgerechnet.",
+        title: "Auswerten",
+        text: "Positionen durchsehen und den KI-Agenten nach benötigten Ressourcen oder Details fragen.",
       },
     ],
     faqs: [
       {
-        question: "Muss das Angebot in einem zweiten Werkzeug erstellt werden?",
+        question: "Welche GAEB-Dateien kann Gleistrix einlesen?",
         answer:
-          "Nein. Kalkulation und Ausgabe passieren an demselben Leistungsverzeichnis, das eingelesen wurde. Ein separates Angebotsdokument entsteht gar nicht erst.",
+          "GAEB-DA-XML-Dateien der Phasen X81 bis X89 – also unter anderem Leistungsverzeichnis, Ausschreibung, Angebot und Rechnung. Welche Versionen und Phasen angenommen werden, ist konfigurierbar.",
       },
       {
-        question: "Bleibt die Struktur des Leistungsverzeichnisses erhalten?",
+        question: "Wird die Datei beim Import geprüft?",
         answer:
-          "Ja, das ist der Zweck des Formats. Positionen behalten Nummerierung und Gliederung, weil die Preise an der Originalposition gepflegt werden statt in einer nachgebauten Fassung.",
+          "Ja. Jede Datei wird gegen das XSD-Schema und auf ihre Struktur geprüft. Doppelte Importe erkennt Gleistrix anhand einer Prüfsumme, und jeder Import bleibt in der Historie nachvollziehbar.",
       },
       {
-        question: "Lässt sich auf Basis des Leistungsverzeichnisses abrechnen?",
+        question: "Kann Gleistrix GAEB-Dateien auch ausgeben?",
         answer:
-          "Ja. Weil die Positionen im Projekt liegen, entsteht die Abrechnung aus denselben Daten wie das Angebot – ohne zweite Aufstellung daneben.",
+          "Nein. Gleistrix liest GAEB-Dateien ein, prüft und wertet sie aus. Eine Rückgabe im GAEB-Austauschformat ist derzeit nicht Teil des Funktionsumfangs.",
       },
       {
-        question: "In welchem Format geht das Angebot zurück?",
+        question: "Was macht der KI-Agent mit dem Leistungsverzeichnis?",
         answer:
-          "In dem GAEB-Austauschformat, das der Auftraggeber vorgibt. Welche Fassung das ist, entscheidet die Ausschreibung, nicht die Software.",
+          "Er wertet die Positionen aus, schlägt vor, welches Personal, welche Fahrzeuge und welches Material voraussichtlich gebraucht werden, und beantwortet Fragen zum Inhalt des LV. Die Funktion setzt einen konfigurierten KI-Zugang voraus.",
       },
     ],
   },
@@ -132,92 +141,89 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       { text: "Wie Nachweise abgelegt und wiedergefunden werden, zeigt", href: "/produkt/dokumentenmanagement", label: "das Dokumentenmanagement" },
     ],
     title: "Deutsche Bahn",
+    h1: "Aufträge der Deutschen Bahn mit Gleistrix abwickeln",
     tagline: "Anforderungen der Auftraggeberseite",
     description:
-      "Nachweise, Rückmeldungen und Rechnungen so aufbereiten, wie sie im Bahnumfeld erwartet werden – strukturiert und prüffähig.",
+      "Leistungsanfragen aus dem DB-Lieferantenportal übernehmen und Stunden, Nachweise und Abrechnung so aufbereiten, wie sie im Bahnumfeld erwartet werden.",
     icon: Train,
     group: "Bahn & Ausschreibung",
     metaDescription:
-      "Anforderungen der Deutschen Bahn erfüllen: Qualifikationsnachweise je Einsatz, strukturierte Leistungsrückmeldungen, X-Rechnung und revisionssichere Ablage.",
+      "Aufträge der Deutschen Bahn abwickeln: Leistungsanfragen aus dem Lieferantenportal übernehmen, Stunden je Funktion nachweisen und je Projekt abrechnen.",
     logo: logoOf("deutsche-bahn"),
     highlights: [
       {
-        title: "Nachweise vollständig",
-        text: "Qualifikationen und Dokumente sind zum Prüfzeitpunkt vorhanden und gültig.",
+        title: "Leistungsanfrage übernommen",
+        text: "Eine Anfrage aus dem DB-Lieferantenportal füllt die Projektanlage vor – als Link oder PDF.",
       },
       {
-        title: "Strukturierte Rückmeldung",
-        text: "Leistungen und Stunden werden im vereinbarten Format zurückgemeldet.",
+        title: "Auftrags- und SAP-Nummer",
+        text: "Die Kennungen des Auftraggebers stehen am Projekt und damit an jedem Einsatz und jeder Abrechnung.",
       },
       {
-        title: "Revisionssicher",
-        text: "Was geliefert wurde, bleibt mit Stand und Zeitpunkt nachvollziehbar.",
+        title: "Stunden je Funktion",
+        text: "Zeiteinträge halten fest, wer in welcher Funktion – etwa SIPO oder Sakra – eingesetzt war.",
       },
     ],
     bullets: [
-      "Strukturierte Leistungs- und Stundenrückmeldungen",
-      "Qualifikations- und Dokumentennachweise je Einsatz",
-      "X-Rechnung für öffentliche Auftraggeber",
-      "Revisionssichere Ablage aller Nachweise",
+      "Projektanlage aus DB-Leistungsanfragen per KI",
+      "Auftrags- und SAP-Nummer am Projekt",
+      "Stundennachweise mit Funktion und Fahrtzeit",
+      "Dokumente wie Lieferschein und Bestellschein am Projekt",
+      "Abrechnung je Projekt als PDF",
     ],
     challenges: [
       {
         problem:
-          "Die Rückmeldung wird im geforderten Aufbau von Hand erstellt. Jede Abweichung führt zu einer Nachforderung und verzögert die Freigabe.",
+          "Die Leistungsanfrage liegt im Lieferantenportal. Auftragsnummer, SAP-Nummer, Baustelle und Ansprechpartner werden von Hand ins eigene System übertragen.",
         solution:
-          "Leistungen und Stunden werden im vereinbarten Format zurückgemeldet, weil sie strukturiert im Projekt liegen und nicht erst aufbereitet werden.",
+          "Die Anfrage wird als Link oder PDF übergeben. Gleistrix liest die Angaben aus und füllt die Projektanlage vor; geprüft und gespeichert wird von Hand.",
       },
       {
         problem:
-          "Bei der Prüfung fehlt ein Qualifikationsnachweis zu einem einzelnen Einsatz. Die Leistung wurde erbracht, wird aber nicht anerkannt.",
+          "Für die Rückfrage des Auftraggebers zu einem Einsatz werden Stunden aus Zetteln und Tabellen zusammengesucht.",
         solution:
-          "Nachweise hängen am Einsatz und tragen ihre Gültigkeit. Was zum Prüfzeitpunkt nicht mehr gilt, fällt vor dem Einsatz auf.",
+          "Zeiteinträge hängen am Projekt, mit Funktion, Arbeits- und Fahrtzeit. Die Angaben zu einem Einsatz sind über das Projekt auffindbar.",
       },
       {
         problem:
-          "Was in welcher Fassung geliefert wurde, lässt sich Monate später nur noch aus Mailverläufen rekonstruieren.",
+          "Lieferscheine und Bestellscheine zu einem Auftrag liegen verstreut in Postfächern.",
         solution:
-          "Gelieferte Nachweise bleiben mit Stand und Zeitpunkt abgelegt und damit nachvollziehbar, auch lange nach dem Vorgang.",
+          "Dokumente werden am Projekt abgelegt und tragen einen Typ – so sind sie über den Auftrag auffindbar.",
       },
     ],
     steps: [
       {
-        title: "Anforderungen hinterlegen",
-        text: "Was an Nachweisen und Formaten erwartet wird, gilt für alle Einsätze des Auftrags.",
+        title: "Anfrage übernehmen",
+        text: "Leistungsanfrage aus dem DB-Lieferantenportal einlesen und die vorbefüllte Projektanlage prüfen.",
       },
       {
-        title: "Einsätze belegen",
-        text: "Qualifikationen und Dokumente werden je Einsatz geführt, nicht als allgemeine Personalakte daneben.",
+        title: "Einsätze planen",
+        text: "Personal nach Funktion und Fahrzeuge auf der Einsatztafel einteilen.",
       },
       {
-        title: "Leistungen rückmelden",
-        text: "Stunden und erbrachte Leistungen gehen im vereinbarten Aufbau zurück.",
+        title: "Stunden nachweisen",
+        text: "Zeiten mit Funktion und Fahrtzeit am Projekt erfassen und freigeben.",
       },
       {
-        title: "Abrechnen und ablegen",
-        text: "Für öffentliche Auftraggeber als X-Rechnung, mit revisionssicherer Ablage der Nachweise.",
+        title: "Abrechnen",
+        text: "Die Abrechnung des Projekts mit Auftrags- und SAP-Nummer als PDF ausgeben.",
       },
     ],
     faqs: [
       {
         question: "Was heißt hier Integration?",
         answer:
-          "Es geht nicht um eine technische Kopplung an ein System der Deutschen Bahn, sondern darum, dass Nachweise, Rückmeldungen und Rechnungen in der Form entstehen, die im Bahnumfeld erwartet wird.",
+          "Es gibt keine technische Kopplung an ein System der Deutschen Bahn. Gleistrix übernimmt Leistungsanfragen aus dem Lieferantenportal – als Link, als PDF oder als eingefügter Text – und hilft, Stunden, Dokumente und Abrechnung in der Form aufzubereiten, die im Bahnumfeld erwartet wird.",
       },
       {
-        question: "Wird die X-Rechnung unterstützt?",
+        question: "Welche Angaben werden aus der Leistungsanfrage übernommen?",
         answer:
-          "Ja. Geprüfte Leistungen und Stunden lassen sich als X-Rechnung ausgeben, wie sie öffentliche Auftraggeber verlangen.",
+          "Projektname, Auftraggeber, Baustelle, Auftrags- und SAP-Nummer, Ansprechpartner mit Kontaktdaten sowie Beginn und Ende. Die Angaben füllen die Projektanlage vor und werden vor dem Speichern geprüft.",
       },
       {
-        question: "Wie werden Nachweise je Einsatz geführt?",
+        question: "Wie werden Stunden je Einsatz nachgewiesen?",
         answer:
-          "Qualifikationen und Dokumente sind dem einzelnen Einsatz zugeordnet und nicht nur dem Mitarbeiter. Damit ist zu jeder Schicht belegbar, wer sie mit welchem gültigen Nachweis besetzt hat.",
-      },
-      {
-        question: "Wie lange bleiben die Nachweise nachvollziehbar?",
-        answer:
-          "Die Ablage ist revisionssicher angelegt: Was geliefert wurde, bleibt mit Stand und Zeitpunkt erhalten, statt durch spätere Änderungen überschrieben zu werden.",
+          "Jeder Zeiteintrag hängt am Projekt und hält Funktion, Arbeits- und Fahrtzeit fest. Daraus entstehen der monatliche Stundennachweis und die Abrechnung des Projekts.",
       },
     ],
   },
@@ -228,6 +234,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       { text: "Den Weg zur gestellten Rechnung beschreibt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
     ],
     title: "DATEV",
+    h1: "DATEV-Anbindung für Bahndienstleister",
     tagline: "Übergabe an Steuerberatung und Lohn",
     description:
       "Geprüfte Stunden, Belege und Rechnungen an DATEV-Prozesse übergeben – ohne Sammelmappe und ohne Rückfragen zum Monatsende.",
@@ -609,6 +616,7 @@ export const INTEGRATION_PAGES: CatalogEntry[] = [
       { text: "Wie Dokumente am Projekt abgelegt werden, zeigt", href: "/produkt/dokumentenmanagement", label: "das Dokumentenmanagement" },
     ],
     title: "Microsoft 365",
+    h1: "Microsoft 365 für Bahnprojekte: Outlook, OneDrive, SharePoint und Teams",
     tagline: "Postfach, Kalender und Dateien",
     description:
       "Mit Microsoft 365 arbeiten, ohne die Plattform zu verlassen – Termine, Nachrichten und Dokumente bleiben verbunden.",
@@ -862,6 +870,9 @@ export const INTEGRATION_CATALOG: Catalog = {
   menuNote: `${INTEGRATION_PAGES.length} Anbindungen · sauber verzahnt`,
   scopeHeading: "Was die Anbindung an {title} übernimmt",
   ctaHeading: "{title} anbinden?",
+  challengesHeading: "Was sich mit {title} ändert",
+  stepsHeading: "So arbeitest du mit {title}",
+  faqHeading: "Häufige Fragen zu {title}",
   overviewHref: "/integrationen",
   overviewLabel: "Alle Integrationen ansehen",
   entries: INTEGRATION_PAGES,

@@ -114,7 +114,7 @@ export default function SecurityIntegrations() {
           </h2>
           <p className="mt-3 text-base leading-relaxed text-slate-500">
             Gleistrix läuft auf zertifizierter Infrastruktur in deutschen
-            Rechenzentren – rechtssicher für Auftraggeber wie die Deutsche Bahn.
+            Rechenzentren – eine Grundlage für Auftraggeber wie die Deutsche Bahn.
           </p>
         </Reveal>
 

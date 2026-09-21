@@ -10,16 +10,23 @@ export const INDUSTRIES: CatalogEntry[] = [
   {
     slug: "gleisbausicherung-bauueberwachung",
     crossLinks: [
-      { text: "Wie Protokolle und Nachweise abgelegt werden, beschreibt", href: "/produkt/dokumentenmanagement", label: "Dokumentenmanagement für Bahnprojekte" },
-      { text: "Angebote auf Basis eines Leistungsverzeichnisses erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
-      { text: "Für die reine Personaldisposition ohne Bauüberwachung passt", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Wer vor allem Sicherungspersonal disponiert, findet die Schwerpunkte unter", href: "/branchen/sicherungsunternehmen", label: "Software für Sicherungsunternehmen" },
+      { text: "Wie Leistungsverzeichnisse eingelesen und geprüft werden, erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "Wie Unterlagen am Projekt abgelegt werden, beschreibt", href: "/produkt/dokumentenmanagement", label: "Dokumentenmanagement für Bahnprojekte" },
+      { text: "Kosten und Marge je Projekt zeigen", href: "/produkt/reports-auswertungen", label: "Reports und Auswertungen" },
     ],
     title: "Gleisbausicherung & Bauüberwachung",
-    tagline: "Sicherungsplanung und Nachweise",
+    // Abgrenzung zu /branchen/sicherungsunternehmen: dort steht die
+    // Personaldisposition im Mittelpunkt (wer steht wann wo), hier das
+    // Sicherungsprojekt als Ganzes – Leistungsverzeichnis, Nachunternehmer,
+    // Nachweise und Wirtschaftlichkeit. Zwei Suchintentionen, zwei Seiten.
+    h1: "Software für Gleisbausicherung und Bauüberwachung",
+    tagline: "Sicherungsprojekte, Nachunternehmer und Nachweise",
     description:
-      "Gleistrix ist aus der Gleisbausicherung entstanden – hier spielt die Plattform ihre Stärken am deutlichsten aus.",
+      "Für Unternehmen, die Sicherungsleistungen und Bauüberwachung als Projekt abwickeln: vom eingelesenen Leistungsverzeichnis über Nachunternehmer und Dokumente bis zur Abrechnung und Marge je Projekt.",
+    metaTitle: "Software für Gleisbausicherung & Bauüberwachung",
     metaDescription:
-      "Software für Gleisbausicherung und Bauüberwachung: qualifikationsbasierte Schichtplanung, Nachweise, Stundenzettel und Abrechnung – aus der Praxis entstanden.",
+      "Sicherungsprojekte und Bauüberwachung projektbezogen steuern: GAEB-Leistungsverzeichnisse, Nachunternehmer mit Nachweisen, Dokumente und Abrechnung je Projekt.",
     icon: ShieldCheck,
     group: "Sicherung & Überwachung",
     image: "/media/branchen/gleisbausicherung.webp",
@@ -29,280 +36,409 @@ export const INDUSTRIES: CatalogEntry[] = [
         text: "Die Plattform wurde entlang echter Sicherungsaufträge gebaut, nicht am Reißbrett.",
       },
       {
-        title: "Qualifikation entscheidet",
-        text: "Die Planung schlägt nur Personal vor, dessen Nachweise am Einsatztag gültig sind.",
+        title: "Projektakte statt Ordner",
+        text: "Auftrag, Dokumente, Lieferscheine, Bestellscheine und Stundennachweise hängen am Projekt.",
       },
       {
-        title: "Nachweise ohne Suchen",
-        text: "Stundenzettel, Protokolle und Dokumente hängen an Projekt und Schicht.",
+        title: "Marge je Projekt",
+        text: "Umsatz, Personal- und Nachunternehmerkosten stehen sich je Projekt gegenüber – auch während der Laufzeit.",
       },
     ],
     bullets: [
-      "Qualifikationsbasierte Schichtplanung, Abrechnung und Vergütung",
-      "Vereinfachte Auftragsverwaltung, Dienstplanvermittlung und Disposition",
-      "Angebotserstellung auch im GAEB-Format",
-      "Digitale Stundenzettel, Nachweise und Dokumente",
-      "Dashboard mit allen wichtigen Kennzahlen",
-      "Integrierte Kommunikation",
+      "Projekte mit Auftraggeber, Baustelle, Auftrags- und SAP-Nummer",
+      "GAEB-DA-XML-Import mit Schemaprüfung und Positionserkennung",
+      "Nachunternehmer mit eigenem Portal, Nachweisen und Tagessätzen",
+      "Bestellscheine mit digitaler Unterschrift",
+      "Dokumente nach Typ: Lieferschein, Stundennachweis, Rechnung",
+      "Projektkosten und Marge in der Finanzübersicht",
     ],
+    headings: {
+      challenges: "Wo Sicherungsprojekte Zeit und Marge verlieren",
+      steps: "So wickelst du ein Sicherungsprojekt mit Gleistrix ab",
+      faq: "Häufige Fragen zu Gleisbausicherung und Bauüberwachung",
+    },
     challenges: [
       {
         problem:
-          "Wer welche Schicht übernimmt, wird per Telefon und Nachricht abgestimmt. Der verbindliche Stand liegt am Ende bei einer Person.",
+          "Für jedes Angebot werden die Positionen des Leistungsverzeichnisses von Hand in eine Tabelle übertragen – mit Tippfehlern bei Mengen und Ordnungszahlen.",
         solution:
-          "Auftragsverwaltung, Dienstplan und Disposition liegen zusammen. Alle Beteiligten arbeiten auf demselben Stand, ohne ihn erst erfragen zu müssen.",
+          "GAEB-Dateien werden importiert und gegen das Schema geprüft, die Positionen erkannt. Kalkuliert wird am Original statt an einer Abschrift.",
       },
       {
         problem:
-          "Vor einer Prüfung werden Stundenzettel, Protokolle und Qualifikationsnachweise aus Ordnern und Postfächern zusammengetragen.",
+          "Nachunternehmer schicken Nachweise per Mail. Ob die Unterlagen einer Firma vollständig und noch gültig sind, prüft niemand systematisch.",
         solution:
-          "Nachweise und Dokumente hängen an Projekt und Schicht. Was zu einem Einsatz gehört, ist über den Einsatz auffindbar.",
+          "Nachunternehmer laden ihre Nachweise im Portal hoch. Gleistrix zeigt je Firma, ob ein Nachweis fehlt, bald abläuft oder abgelaufen ist.",
       },
       {
         problem:
-          "Positionen aus dem Leistungsverzeichnis werden für jedes Angebot von Hand in ein eigenes Dokument übertragen.",
+          "Ob ein Sicherungsprojekt Geld verdient hat, zeigt sich erst nach der letzten Rechnung – zum Gegensteuern zu spät.",
         solution:
-          "Angebote entstehen im GAEB-Format, sodass Positionen und Mengen nicht abgetippt werden müssen.",
+          "Personal-, Nachunternehmer- und weitere Kosten laufen je Projekt zusammen und stehen dem Umsatz gegenüber, solange das Projekt noch läuft.",
+      },
+    ],
+    details: [
+      {
+        heading: "Gleisbausicherung als Projektgeschäft",
+        paragraphs: [
+          "Ein Sicherungsauftrag besteht selten nur aus Schichten. Dazu gehören das Leistungsverzeichnis des Auftraggebers, eingesetzte Technik wie automatische Warnsysteme, Nachunternehmer, Bestellscheine, Lieferscheine und am Ende eine Abrechnung, die zu all dem passt.",
+          "Gleistrix legt diese Bestandteile an ein Projekt: Auftraggeber, Baustelle, Auftrags- und SAP-Nummer, Ansprechpartner und Laufzeit werden einmal erfasst. Ob ATWS im Einsatz ist, wie viele Anlagen und welche Meterlänge, steht ebenfalls am Projekt.",
+        ],
+      },
+      {
+        heading: "Bauüberwachung braucht Unterlagen am Vorgang",
+        paragraphs: [
+          "Wer Bauüberwachung leistet, muss jederzeit zeigen können, was vereinbart, geliefert und geleistet wurde. Unterlagen, die in Postfächern und Netzlaufwerken verteilt liegen, kosten genau in diesem Moment Zeit.",
+          "In Gleistrix hängen Dokumente am Projekt und tragen einen Typ – etwa Lieferschein, Stundennachweis, Bestellschein oder Rechnung. So findest du sie über das Projekt statt über den Dateinamen.",
+        ],
+      },
+      {
+        heading: "Nachunternehmer steuern ohne Mailverkehr",
+        paragraphs: [
+          "Nachunternehmer bekommen einen eigenen Portalzugang. Dort sehen sie ihre Projekte und Einsätze, unterschreiben Bestellscheine digital, laden Nachweise hoch und reichen Rechnungen ein.",
+          "Für jede Firma legst du fest, welche Nachweise sie vorlegen muss und in welchem Rhythmus sie zu erneuern sind. Tagessätze je Funktion – etwa für SIPO – sind am Nachunternehmer hinterlegt und bilden die Grundlage, um eingereichte Rechnungen zu prüfen.",
+        ],
       },
     ],
     steps: [
       {
-        title: "Auftrag erfassen",
-        text: "Auftraggeber, Strecke und Zeitraum werden einmal hinterlegt und gelten für alle Schichten des Auftrags.",
+        title: "Leistungsverzeichnis einlesen",
+        text: "Die GAEB-Datei des Auftraggebers wird importiert, geprüft und in Positionen zerlegt – ohne Abtippen.",
       },
       {
-        title: "Schichten besetzen",
-        text: "Die Planung schlägt nur Personal vor, dessen Nachweise am jeweiligen Einsatztag gültig sind.",
+        title: "Projekt und Beteiligte anlegen",
+        text: "Projekt mit Baustelle und Laufzeit anlegen, Nachunternehmer einladen und Bestellscheine zur Unterschrift bereitstellen.",
       },
       {
-        title: "Einsatz dokumentieren",
-        text: "Zeiten, Stundenzettel und Protokolle entstehen am Einsatz und bleiben dort verknüpft.",
+        title: "Einsatz begleiten",
+        text: "Personal und Technik auf der Einsatztafel planen, Zeiten erfassen und Unterlagen direkt am Projekt ablegen.",
       },
       {
         title: "Abrechnen und auswerten",
-        text: "Geprüfte Leistungen gehen in die Abrechnung, das Dashboard zeigt die Kennzahlen dazu.",
+        text: "Leistungen freigeben, Nachunternehmerrechnungen prüfen und die Marge des Projekts in der Finanzübersicht verfolgen.",
       },
     ],
     faqs: [
       {
-        question: "Was unterscheidet Gleistrix von einer allgemeinen Dispositionssoftware?",
+        question: "Für wen ist die Software für Gleisbausicherung und Bauüberwachung gedacht?",
         answer:
-          "Die Plattform ist entlang echter Sicherungsaufträge entstanden. Qualifikationen, Gültigkeiten und Nachweise sind deshalb keine nachträglich ergänzten Felder, sondern Teil der Planung selbst.",
+          "Für Unternehmen, die Sicherungsleistungen und Bauüberwachung projektbezogen erbringen und dabei mit Leistungsverzeichnissen, Nachunternehmern und Projektabrechnung arbeiten. Wer vor allem Sicherungspersonal disponiert, findet die passenden Funktionen auf der Seite Software für Sicherungsunternehmen.",
       },
       {
-        question: "Lassen sich Angebote im GAEB-Format erstellen?",
+        question: "Welche GAEB-Dateien verarbeitet Gleistrix?",
         answer:
-          "Ja. Die Angebotserstellung unterstützt das GAEB-Format, sodass Leistungsverzeichnisse nicht in ein separates Dokument übertragen werden müssen.",
+          "GAEB-DA-XML-Dateien zu Leistungsverzeichnis, Ausschreibung, Angebot und Rechnung. Beim Import wird die Datei gegen das Schema geprüft, die Positionen werden erkannt und jeder Import bleibt in der Historie nachvollziehbar.",
       },
       {
-        question: "Wie werden Nachweise für eine Prüfung bereitgestellt?",
+        question: "Wie werden Nachunternehmer eingebunden?",
         answer:
-          "Stundenzettel, Protokolle und Dokumente sind dem Projekt und der einzelnen Schicht zugeordnet. Die Zusammenstellung für eine Prüfung entsteht daraus, statt nachträglich rekonstruiert zu werden.",
+          "Über einen eigenen Portalzugang. Nachunternehmer sehen dort ihre Einsätze, unterschreiben Bestellscheine digital, laden Nachweise hoch und reichen Rechnungen ein. Fehlende oder ablaufende Nachweise zeigt Gleistrix je Firma an.",
       },
       {
-        question: "Lässt sich die Abstimmung mit dem Team abbilden?",
+        question: "Wo sehe ich, ob ein Projekt wirtschaftlich läuft?",
         answer:
-          "Ja. Die Kommunikation ist in die Plattform integriert, sodass Absprachen zu einem Einsatz nicht in einem getrennten Kanal liegen.",
+          "In der Finanzübersicht. Dort stehen je Projekt Soll- und Ist-Umsatz, Personal-, Nachunternehmer- und weitere Kosten sowie Ergebnis und Marge. Die Ansicht ist der Geschäftsführung vorbehalten.",
       },
     ],
   },
   {
     slug: "sicherungsunternehmen",
     crossLinks: [
-      { text: "Wie Schichten und Stundenzettel im Detail zusammenhängen, steht unter", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundenzettel" },
-      { text: "Die Plantafel dahinter beschreibt", href: "/produkt/projektplanung-disposition", label: "Projektplanung und Disposition" },
-      { text: "Was Auftraggeber im Bahnumfeld an Nachweisen erwarten, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
+      { text: "Wie SiPo-Einsätze nachvollziehbar dokumentiert werden, erklärt der Fachartikel", href: "/blog/sipo-einsaetze-rechtssicher-dokumentieren", label: "SiPo-Einsätze sauber dokumentieren" },
+      { text: "Die Einsatztafel im Detail zeigt", href: "/produkt/kalender-einsatzuebersicht", label: "Plantafel und Einsatzübersicht" },
+      { text: "Wie Zeiten, Funktionen und Zuschläge erfasst werden, steht unter", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundenzettel" },
+      { text: "Für Sicherungsprojekte mit Leistungsverzeichnis und Nachunternehmern passt", href: "/branchen/gleisbausicherung-bauueberwachung", label: "Software für Gleisbausicherung und Bauüberwachung" },
     ],
     title: "Sicherungsunternehmen",
-    tagline: "Regelbasierte Einsätze, lückenlose Doku",
+    h1: "Software für Sicherungsunternehmen: SiPo-Einsätze digital planen",
+    tagline: "SiPo- und SaKra-Einsätze digital disponieren",
     description:
-      "Einsätze qualifikations- und regelbasiert planen – mit lückenloser Dokumentation und prüffähigen Nachweisen.",
-    // Übernimmt Titel und Beschreibung der weitergeleiteten Landingpage
-    // /software-sicherungsunternehmen. Der abgeleitete Titel hieße sonst nur
-    // "Software für Sicherungsunternehmen" und verlöre "Gleisbausicherung".
-    metaTitle: "Software für Sicherungsunternehmen & Gleisbausicherung",
+      "Gleistrix plant Sicherungsposten, Sicherungsaufsichtskräfte und Bahnübergangsposten auf einer Einsatztafel, erkennt Doppelbelegungen und Abwesenheiten beim Zuweisen und führt die geleisteten Stunden bis in die Abrechnung.",
+    // Übernimmt das Keyword der weitergeleiteten Landingpage
+    // /software-sicherungsunternehmen und ergänzt die SiPo-Planung, nach der
+    // Disponenten tatsächlich suchen.
+    metaTitle: "Software für Sicherungsunternehmen & SiPo-Planung",
     metaDescription:
-      "Software für Sicherungsunternehmen: qualifikationsbasierte Disposition, Schichtplanung, Zeiterfassung, Nachweise und Abrechnung für die Gleisbausicherung.",
+      "SiPo- und SaKra-Einsätze digital disponieren. Gleistrix verbindet Qualifikationen, Schichtplanung, Nachweise und Abrechnung in einer Plattform.",
     icon: Network,
     group: "Sicherung & Überwachung",
     image: "/media/branchen/sicherungsunternehmen.webp",
     highlights: [
       {
-        title: "Regeln statt Erfahrungswissen",
-        text: "Besetzungsregeln liegen im System – nicht im Kopf einer einzelnen Person.",
+        title: "Nach Funktion eingesetzt",
+        text: "Jeder Mitarbeiter trägt seine Funktionen – SIPO, Sakra, BüP, HiBa, SAS oder HFE. Jeder Zeiteintrag hält fest, in welcher Rolle er eingesetzt war.",
       },
       {
-        title: "Prüffähig auf Knopfdruck",
-        text: "Jede Schicht ist mit Nachweis und Signatur hinterlegt und bleibt auffindbar.",
+        title: "Konflikte vor dem Einsatz",
+        text: "Doppelbelegungen, Urlaub, Krankmeldungen und Feiertage meldet die Einsatztafel beim Zuweisen – nicht erst am Einsatztag.",
       },
       {
-        title: "Mobil im Einsatz",
-        text: "Das Team meldet Zeiten und Vorkommnisse direkt vom Einsatzort.",
+        title: "Stunden bis zur Rechnung",
+        text: "Arbeitszeit, Fahrtzeit sowie Nacht- und Sonntagszuschläge laufen ohne Abtippen in Stundennachweis und Abrechnung.",
       },
     ],
     bullets: [
-      "Planung nach Qualifikationen (z. B. SiPo, SaKra, HIB)",
-      "Lückenlose Dokumentation inkl. Nachweisen und Signaturen",
-      "Mobile Zeiterfassung und prüffähige Stundenzettel",
-      "Standardisierte Exporte und optionale Schnittstellen",
-      "X-Rechnung und Compliance-Unterstützung",
+      "Funktionen je Mitarbeiter: SIPO, Sakra, BüP, HiBa, SAS, HFE, Bahnerder",
+      "ElBa-Kennung des Sicherungspersonals am Mitarbeiter",
+      "Einsatztafel mit Drag-and-drop und Konfliktprüfung",
+      "Abwesenheiten: Urlaub, Arbeitsunfähigkeit, Freistellung, Fortbildung",
+      "Zeiterfassung mit Funktion, Fahrtzeit und Zuschlägen",
+      "Monatlicher Stundennachweis per E-Mail an Mitarbeiter und Lohnbüro",
+      "Subunternehmen mit Portal, Nachweisen und Tagessätzen",
+      "ATWS-Einsatz, Anzahl und Meterlänge am Projekt",
     ],
+    headings: {
+      challenges: "Typische Engpässe bei der SiPo-Disposition",
+      steps: "So funktioniert die Einsatzplanung für Sicherungsunternehmen mit Gleistrix",
+      faq: "Häufige Fragen zur Software für Sicherungsunternehmen",
+    },
     challenges: [
       {
         problem:
-          "Eine Tauglichkeit läuft mitten im Einsatzzeitraum ab. Auffallen tut das, wenn der Posten schon auf der Strecke steht.",
+          "Der Wochenplan steht in einer Tabelle, Urlaube im Kalender, Krankmeldungen im Postfach. Wer kurzfristig ausfällt, fällt erst auf, wenn die Lücke schon da ist.",
         solution:
-          "Qualifikationen und ihre Gültigkeit liegen am Mitarbeiter. Wer für den geplanten Tag nicht mehr gültig ist, wird bei der Besetzung nicht vorgeschlagen.",
+          "Einsätze, Abwesenheiten und Feiertage liegen auf derselben Einsatztafel. Beim Zuweisen meldet Gleistrix, wenn jemand bereits eingeteilt, im Urlaub oder krankgemeldet ist.",
       },
       {
         problem:
-          "Der Auftraggeber fragt Nachweise zu einer Schicht von vor acht Wochen an. Die Suche geht durch Ordner, Fotos und drei Postfächer.",
+          "Ein Sicherungsposten steht für dieselbe Nacht an zwei Baustellen im Plan – aufgefallen ist es niemandem, weil die Pläne in getrennten Dateien lagen.",
         solution:
-          "Jede Schicht trägt ihre Nachweise und Signaturen bei sich und bleibt über das Projekt auffindbar – ohne Rekonstruktion aus Einzelteilen.",
+          "Alle Projekte greifen auf denselben Personalbestand zu. Doppelbelegungen erkennt die Einsatztafel projektübergreifend.",
       },
       {
         problem:
-          "Nacht- und Wochenendeinsätze stehen in einer Tabelle, die Verfügbarkeit der Posten im Kalender. Beides wird von Hand abgeglichen.",
+          "Am Monatsende werden Stundenzettel abgetippt, Zuschläge nachgerechnet und Stundennachweise einzeln verschickt.",
         solution:
-          "Schichten, Abwesenheiten und Verfügbarkeiten liegen in derselben Plantafel. Doppelbelegungen meldet Gleistrix beim Zuweisen, nicht am Einsatztag.",
+          "Zeiteinträge tragen Funktion, Fahrtzeit und Zuschläge. Der Stundennachweis geht monatlich per E-Mail an Mitarbeiter und Lohnbüro, die geprüften Stunden gehen in die Abrechnung.",
+      },
+    ],
+    details: [
+      {
+        heading: "Warum die Einsatzplanung im Sicherungsunternehmen so aufwendig ist",
+        paragraphs: [
+          "Sicherungsleistungen entstehen kurzfristig: Sperrpausen verschieben sich, Schichten liegen nachts und am Wochenende, und jede Baustelle braucht eine bestimmte Besetzung – Sicherungsposten, eine Sicherungsaufsicht, Bahnübergangsposten oder eine Helferin für die Handbedienung.",
+          "Solange dieser Plan in Tabellen, Messenger-Gruppen und Telefonaten entsteht, hängt er an der Person, die ihn im Kopf hat. Ausfälle, Doppelbelegungen und falsch zugeordnete Funktionen fallen dann oft erst an der Strecke auf.",
+        ],
+      },
+      {
+        heading: "Mitarbeiter und Funktionen verwalten",
+        paragraphs: [
+          "In der Mitarbeiterverwaltung stehen Kontaktdaten, Status und die Funktionen jedes Mitarbeiters: SIPO, Sakra, BüP, HiBa, SAS, HFE, Bahnerder oder Monteur/Bediener. Ein Mitarbeiter kann mehrere Funktionen tragen. Auch die Kennung des elektronischen Befähigungsausweises ElBa, der seit 2025 für Sicherungspersonal verbindlich ist, wird am Mitarbeiter geführt.",
+          "Urlaub, Arbeitsunfähigkeit, unbezahlte Freistellung und Fortbildungen werden als Abwesenheit mit Zeitraum erfasst. Sie erscheinen direkt in der Einsatztafel, sodass niemand verplant wird, der nicht verfügbar ist.",
+        ],
+      },
+      {
+        heading: "Einsätze und Schichten organisieren",
+        paragraphs: [
+          "Auf der Einsatztafel ziehst du Mitarbeiter per Drag-and-drop in die Einsätze der Projekte. Alle Projekte greifen auf denselben Personalbestand zu – deshalb erkennt Gleistrix eine Doppelbelegung auch dann, wenn die beiden Einsätze in unterschiedlichen Projekten liegen.",
+          "Konflikte mit Urlaub, Krankmeldung oder Feiertag zeigt die Einsatztafel beim Zuweisen an. Die Entscheidung bleibt bei der Disposition; sie trifft sie nur nicht mehr im Blindflug.",
+        ],
+      },
+      {
+        heading: "Einsatzinformationen bereitstellen",
+        paragraphs: [
+          "Der aktuelle Plan steht in der Einsatztafel für alle berechtigten Nutzer bereit – es gibt keine zweite Fassung, die per Mail verteilt werden müsste. Besprechungen und Termine lassen sich über die Microsoft-365-Anbindung in Outlook führen.",
+          "Subunternehmen sehen ihre Einsätze im eigenen Portal und unterschreiben Bestellscheine dort digital. Rückfragen, welcher Stand gilt, entfallen damit auf beiden Seiten.",
+        ],
+      },
+      {
+        heading: "Arbeitszeiten und Leistungsnachweise",
+        paragraphs: [
+          "Zu jedem Einsatz werden Arbeitszeit, Fahrtzeit und die Funktion erfasst, in der der Mitarbeiter eingesetzt war. Nacht- und Sonntagszuschläge berechnet Gleistrix aus den Zeiten, statt sie am Monatsende von Hand nachzurechnen.",
+          "Am Monatsende erhält jeder Mitarbeiter seinen Stundennachweis per E-Mail; weitere Empfänger wie das Lohnbüro lassen sich je Mitarbeiter hinterlegen. Die Einträge bleiben dem Projekt zugeordnet und sind darüber später auffindbar.",
+        ],
+      },
+      {
+        heading: "Von den Stunden in die Abrechnung",
+        paragraphs: [
+          "Geprüfte Stunden gehen in die Abrechnung des Projekts. Freigaben sind vor der Abrechnung sichtbar, die Abrechnung lässt sich als PDF ausgeben.",
+          "Rechnungen von Subunternehmen gehen im Portal ein und werden in Gleistrix geprüft und freigegeben. Buchungsdaten und Belege lassen sich über die DATEV-Anbindung an die Steuerberatung übergeben.",
+        ],
       },
     ],
     steps: [
       {
-        title: "Einsatz anlegen",
-        text: "Auftrag, Streckenabschnitt und Sperrpause werden einmal erfasst und gelten für alle Schichten darin.",
+        title: "Auftrag anlegen",
+        text: "Auftraggeber, Baustelle, Zeitraum und Ansprechpartner einmal erfassen. Eine Leistungsanfrage aus dem DB-Lieferantenportal kann das Formular auf Wunsch per KI vorbefüllen.",
       },
       {
-        title: "Nach Regeln besetzen",
-        text: "Pro Schicht steht fest, welche Qualifikationen gebraucht werden – SiPo, SaKra oder HIB. Vorgeschlagen wird nur, wer sie zum Einsatztag gültig besitzt.",
+        title: "Posten einteilen",
+        text: "SiPo, Sakra und BüP per Drag-and-drop auf die Einsatztafel ziehen. Doppelbelegungen, Urlaub und Krankmeldungen meldet das System sofort.",
       },
       {
-        title: "Vor Ort erfassen",
-        text: "Das Team meldet Zeiten und Vorkommnisse direkt vom Einsatzort, inklusive Signatur.",
+        title: "Stunden erfassen",
+        text: "Arbeitszeit, Fahrtzeit und Funktion je Einsatz festhalten. Nacht- und Sonntagszuschläge rechnet Gleistrix mit.",
       },
       {
         title: "Prüfen und abrechnen",
-        text: "Freigegebene Stunden gehen ohne erneute Eingabe in die Abrechnung, auf Wunsch als X-Rechnung.",
+        text: "Freigegebene Stunden gehen in die Projektabrechnung, der Stundennachweis per E-Mail an Mitarbeiter und Lohnbüro.",
       },
     ],
     faqs: [
       {
-        question: "Welche Qualifikationen lassen sich hinterlegen?",
+        question: "Welche Funktionen lassen sich für Sicherungspersonal hinterlegen?",
         answer:
-          "Die in der Gleisbausicherung üblichen Nachweise wie Sicherungsposten, Sicherungsaufsicht mit Kranausbildung oder Handbedienung von Bahnübergängen, jeweils mit Gültigkeitsdatum. Weitere Qualifikationen und Tauglichkeiten lassen sich ergänzen, weil die Liste je Unternehmen konfiguriert wird.",
+          "Gleistrix kennt die im Bahnumfeld üblichen Funktionen wie SIPO, Sakra, BüP, HiBa, SAS, HFE und Bahnerder. Ein Mitarbeiter kann mehrere Funktionen tragen; beim Zeiteintrag wird festgehalten, in welcher Funktion er eingesetzt war.",
       },
       {
-        question: "Was passiert, wenn eine Qualifikation während des Einsatzzeitraums abläuft?",
+        question: "Erkennt Gleistrix Doppelbelegungen und Abwesenheiten?",
         answer:
-          "Gleistrix prüft die Gültigkeit gegen den geplanten Einsatztag, nicht gegen das heutige Datum. Ein Posten, dessen Nachweis am Freitag ausläuft, taucht für den Montag danach nicht mehr als Vorschlag auf.",
+          "Ja. Die Einsatztafel prüft beim Zuweisen, ob der Mitarbeiter zur selben Zeit bereits eingeteilt ist, Urlaub hat, krankgemeldet ist oder ein Feiertag vorliegt, und zeigt den Konflikt an – auch über Projektgrenzen hinweg.",
       },
       {
-        question: "Wie kommen die Nachweise zum Auftraggeber?",
+        question: "Wie kommen die Stunden in die Abrechnung?",
         answer:
-          "Über standardisierte Exporte aus dem Projekt heraus. Weil Schicht, Zeiterfassung und Nachweis am selben Vorgang hängen, entsteht die Zusammenstellung aus dem laufenden Betrieb statt in einer Nachbearbeitung.",
+          "Zeiteinträge hängen am Projekt. Nach der Freigabe stehen sie der Projektabrechnung zur Verfügung. Der Stundennachweis wird monatlich per E-Mail an den Mitarbeiter und an weitere Empfänger wie das Lohnbüro verschickt.",
       },
       {
-        question: "Eignet sich das auch für kurzfristige Umplanungen?",
+        question: "Lassen sich Subunternehmen einbinden?",
         answer:
-          "Ja. Änderungen an einer Schicht sind sofort für Disposition und Trupp sichtbar, weil alle Beteiligten dieselbe Plantafel sehen. Es gibt keine zweite Fassung des Plans, die noch verteilt werden müsste.",
+          "Ja. Subunternehmen bekommen einen eigenen Portalzugang, sehen dort ihre Einsätze, laden Nachweise hoch, reichen Rechnungen ein und unterschreiben Bestellscheine digital. Fehlende oder ablaufende Nachweise zeigt Gleistrix je Firma an.",
+      },
+      {
+        question: "Kann Gleistrix Leistungsanfragen der Deutschen Bahn übernehmen?",
+        answer:
+          "Ja. Eine Leistungsanfrage aus dem DB-Lieferantenportal lässt sich als Link oder PDF übergeben. Gleistrix liest Auftraggeber, Baustelle, Auftrags- und SAP-Nummer, Ansprechpartner und Zeitraum aus und füllt damit die Projektanlage vor; geprüft und gespeichert wird von Hand.",
       },
     ],
   },
   {
     slug: "gleisbauunternehmen",
     crossLinks: [
-      { text: "Zweiwegefahrzeuge, Geräte und Prüffristen behandelt", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik disponieren" },
-      { text: "Leistungsverzeichnisse einlesen und zurückgeben erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
-      { text: "Deckungsbeiträge und Projektkennzahlen zeigt", href: "/produkt/reports-auswertungen", label: "Reports und Auswertungen" },
+      { text: "Fahrzeuge und Technik auf der Einsatztafel behandelt", href: "/produkt/fahrzeug-technik", label: "Fahrzeuge und Technik disponieren" },
+      { text: "Material, Lieferscheine und Prüftermine verwaltet", href: "/produkt/lagerverwaltung", label: "die Lagerverwaltung" },
+      { text: "Leistungsverzeichnisse einlesen und prüfen erklärt", href: "/integrationen/gaeb", label: "die GAEB-Schnittstelle" },
+      { text: "Kosten und Marge je Baustelle zeigen", href: "/produkt/reports-auswertungen", label: "Reports und Auswertungen" },
     ],
     title: "Gleisbauunternehmen",
-    tagline: "Baustellen, Sperrpausen und Geräte",
+    h1: "Gleisbau-Software für Baustellen, Ressourcen und Abrechnung",
+    tagline: "Trupps, Technik, Material und Abrechnung",
     description:
-      "Baustellen im Griff: Ressourcen, Sperrpausen, Geräte und Kosten transparent steuern – vom Angebot bis zur Schlussrechnung.",
+      "Gleistrix bündelt Trupps, Fahrzeuge, Technik und Material einer Gleisbaustelle in einem Projekt – vom eingelesenen Leistungsverzeichnis bis zur Abrechnung und zur Marge je Baustelle.",
+    metaTitle: "Gleisbau-Software für Planung & Abrechnung",
+    // Sperrpausen stehen bewusst nicht in der Beschreibung: Gleistrix plant
+    // Einsätze im Zeitfenster einer Sperrpause, führt Sperrpausen aber nicht
+    // als eigenes Objekt. Die Beschreibung verspricht nur, was es gibt.
     metaDescription:
-      "Software für Gleisbauunternehmen: Baustellen und Sperrpausen planen, Zweiwegefahrzeuge disponieren, nach LV und GAEB abrechnen, Deckungsbeiträge verfolgen.",
+      "Gleisbauprojekte digital steuern: Personal, Fahrzeuge, Technik, Material, Leistungsnachweise und Abrechnung in einer zentralen Software verwalten.",
     icon: HardHat,
     group: "Bau & Infrastruktur",
     image: "/media/branchen/gleisbauunternehmen.webp",
     highlights: [
       {
-        title: "Sperrpausen planbar",
-        text: "Knappe Zeitfenster werden mit Personal, Technik und Material zusammen geplant.",
+        title: "Eine Planung für Trupp und Technik",
+        text: "Mitarbeiter und Fahrzeuge werden auf derselben Einsatztafel disponiert. Doppelbelegungen meldet Gleistrix beim Zuweisen.",
       },
       {
-        title: "Technik disponiert",
-        text: "Zweiwegefahrzeuge und Geräte laufen in derselben Planung wie die Trupps.",
+        title: "Material, das ankommt",
+        text: "Bestände, Mindestmengen, Lieferscheine und Rückgaben laufen im Lager – auch mobil über die Lager-App.",
       },
       {
-        title: "Kosten im Blick",
-        text: "Leistungen nach LV und GAEB abrechnen und Deckungsbeiträge laufend sehen.",
+        title: "Kosten je Baustelle",
+        text: "Personal-, Nachunternehmer- und weitere Kosten stehen dem Umsatz je Projekt gegenüber.",
       },
     ],
     bullets: [
-      "Baustellen- und Sperrpausenplanung",
-      "Geräte- und Fahrzeugdisposition (z. B. Zweiwege-Technik)",
-      "Leistungsnachweise und Abrechnung nach LV/GAEB",
-      "Sicherheits- und Qualifikationsmanagement",
-      "Projekt- und Kostencontrolling über Reports",
+      "Projekte mit Baustelle, Auftrags- und SAP-Nummer und Laufzeit",
+      "Einsatztafel für Trupps und Fahrzeuge mit Konfliktprüfung",
+      "Fahrzeuge mit Kilometerstand, Schäden, Status und Tageskosten",
+      "Lager mit Beständen, Lieferscheinen, Wartungs- und TÜV-Terminen",
+      "GAEB-DA-XML-Import mit Positionserkennung",
+      "Projektabrechnung mit Freigaben und PDF-Ausgabe",
     ],
+    headings: {
+      challenges: "Wo Gleisbaustellen im Alltag hängen bleiben",
+      steps: "So wickelst du eine Gleisbaustelle mit Gleistrix ab",
+      faq: "Häufige Fragen zur Gleisbau-Software",
+    },
     challenges: [
       {
         problem:
-          "Die Sperrpause verschiebt sich um eine Woche. Personalplan, Gerätedisposition und Materialbestellung hängen an drei getrennten Stellen.",
+          "Trupp und Zweiwegebagger sind für dieselbe Schicht auf zwei Baustellen eingeplant – weil Personal- und Geräteplan getrennt geführt werden.",
         solution:
-          "Sperrpause und Bauabschnitt gehören zum Projekt. Wer und was im Zeitfenster eingeplant ist, verschiebt sich mit – in einer Planung statt in dreien.",
+          "Mitarbeiter und Fahrzeuge liegen auf derselben Einsatztafel. Ist ein Fahrzeug oder ein Mitarbeiter bereits verplant, meldet Gleistrix den Konflikt beim Zuweisen.",
       },
       {
         problem:
-          "Ein Zweiwegefahrzeug steht für zwei Baustellen gleichzeitig im Plan. Bemerkt wird das, wenn es an der falschen Stelle steht.",
+          "Material fehlt auf der Baustelle, weil niemand den Bestand kannte oder die Rückgabe vom letzten Projekt nie gebucht wurde.",
         solution:
-          "Fahrzeuge und Geräte laufen in derselben Planung wie die Trupps. Doppelbelegungen meldet Gleistrix beim Zuweisen.",
+          "Wareneingang, Ausgabe und Rückgabe werden im Lager gebucht – auch mobil per QR-Code. Mindestmengen und offene Rückgaben meldet Gleistrix.",
       },
       {
         problem:
-          "Ob ein Projekt gedeckt hat, zeigt sich erst nach der Schlussrechnung – dann ist für Gegenmaßnahmen kein Spielraum mehr.",
+          "Ob die Baustelle gedeckt hat, zeigt sich erst mit der Schlussrechnung.",
         solution:
-          "Leistungen, Stunden und Kosten laufen ins selbe Projekt. Der Deckungsbeitrag ist während der Bauzeit sichtbar, nicht erst danach.",
+          "Personal-, Nachunternehmer- und weitere Kosten laufen je Projekt zusammen und stehen dem Umsatz gegenüber, solange die Baustelle noch läuft.",
+      },
+    ],
+    details: [
+      {
+        heading: "Gleisbauprojekte vom Leistungsverzeichnis aus aufbauen",
+        paragraphs: [
+          "Viele Gleisbauaufträge beginnen mit einer GAEB-Datei. Gleistrix liest GAEB-DA-XML ein, prüft sie gegen das Schema und erkennt die Positionen des Leistungsverzeichnisses. Jeder Import bleibt mit Version und Datum nachvollziehbar.",
+          "Auf Wunsch wertet ein KI-Agent die Positionen aus und schlägt vor, welche Mitarbeiter, Fahrzeuge und Lagerartikel das Projekt voraussichtlich braucht. Das ersetzt keine Kalkulation, verkürzt aber den Weg vom LV zur ersten Planung.",
+        ],
+      },
+      {
+        heading: "Trupps, Fahrzeuge und Technik gemeinsam disponieren",
+        paragraphs: [
+          "Auf der Einsatztafel liegen Mitarbeiter und Fahrzeuge nebeneinander. Wer einen Trupp für eine Nacht- oder Wochenendschicht zusammenstellt, sieht beim Zuweisen, ob jemand schon verplant, im Urlaub oder krankgemeldet ist – und ob das Fahrzeug frei ist.",
+          "Am Fahrzeug stehen Kennzeichen, Kilometerstand, Schäden, Status und Tageskosten. Wird ein Fahrzeug einem Mitarbeiter oder Projekt direkt übergeben, ist das dokumentiert.",
+        ],
+      },
+      {
+        heading: "Material und Prüftermine im Lager",
+        paragraphs: [
+          "Im Lager werden Artikel mit Bestand und Mindestmenge geführt, Wareneingänge und Lieferscheine erfasst und Ausgaben an Baustellen gebucht. Die Lager-App funktioniert mobil mit QR-Code, damit gebucht wird, wo das Material bewegt wird.",
+          "Für Geräte und Technik lassen sich Wartungen wie TÜV, Prüfung, Kalibrierung oder Inspektion mit Fälligkeitsdatum planen und nach der Durchführung mit Ergebnis dokumentieren.",
+        ],
+      },
+      {
+        heading: "Abrechnung und Wirtschaftlichkeit je Baustelle",
+        paragraphs: [
+          "Erfasste Stunden werden geprüft und freigegeben und gehen dann in die Abrechnung des Projekts. Nachunternehmer reichen ihre Rechnungen im Portal ein, wo sie geprüft und freigegeben werden.",
+          "In der Finanzübersicht stehen je Projekt Soll- und Ist-Umsatz, Personal-, Nachunternehmer- und weitere Kosten sowie Ergebnis und Marge. So zeigt sich während der Bauzeit, ob eine Baustelle trägt.",
+        ],
       },
     ],
     steps: [
       {
-        title: "Angebot und Leistungsverzeichnis",
-        text: "Positionen und Mengen kommen über GAEB ins Projekt, statt für das Angebot abgetippt zu werden.",
+        title: "Leistungsverzeichnis einlesen",
+        text: "Die GAEB-Datei wird importiert und geprüft, die Positionen stehen im Projekt statt in einer Abschrift.",
       },
       {
-        title: "Baustelle und Sperrpause planen",
-        text: "Bauabschnitte und Zeitfenster werden hinterlegt und bilden den Rahmen für alle Schichten darin.",
+        title: "Baustelle planen",
+        text: "Trupps und Fahrzeuge für die Schichten der Baustelle einplanen – Konflikte meldet die Einsatztafel sofort.",
       },
       {
-        title: "Ressourcen zuweisen",
-        text: "Trupps, Zweiwegefahrzeuge, Geräte und Material werden gemeinsam eingeplant – mit Qualifikationsprüfung beim Personal.",
+        title: "Leistungen erfassen",
+        text: "Stunden, Material und Lieferscheine laufen während der Bauzeit am Projekt zusammen.",
       },
       {
-        title: "Nachweisen und abrechnen",
-        text: "Erbrachte Leistungen gehen nach LV in die Abrechnung, Reports zeigen Projektstatus und Kosten.",
+        title: "Abrechnen und auswerten",
+        text: "Freigegebene Leistungen gehen in die Abrechnung, die Finanzübersicht zeigt Kosten und Marge je Baustelle.",
       },
     ],
     faqs: [
       {
-        question: "Lassen sich Sperrpausen mit Personal und Technik zusammen planen?",
+        question: "Kann Gleistrix Leistungsverzeichnisse im GAEB-Format einlesen?",
         answer:
-          "Ja, das ist der Kern der Baustellenplanung. Das Zeitfenster gehört zum Projekt, und Personal, Fahrzeuge und Geräte werden direkt darin disponiert statt in getrennten Listen.",
+          "Ja. GAEB-DA-XML-Dateien werden importiert, gegen das Schema geprüft und in Positionen zerlegt. Jeder Import bleibt mit Version in der Historie nachvollziehbar.",
       },
       {
-        question: "Können Zweiwegefahrzeuge und Geräte mitgeplant werden?",
+        question: "Lassen sich Fahrzeuge und Zweiwegetechnik mitplanen?",
         answer:
-          "Ja. Fahrzeuge und Technik laufen in derselben Disposition wie die Trupps, inklusive Verfügbarkeiten und Prüffristen.",
+          "Ja. Fahrzeuge werden auf der Einsatztafel wie Personal disponiert und Projekten oder Mitarbeitern zugeordnet. Ist ein Fahrzeug bereits verplant, meldet Gleistrix den Konflikt beim Zuweisen.",
       },
       {
-        question: "Wie funktioniert die Abrechnung nach LV und GAEB?",
+        question: "Wie wird Material für die Baustelle verwaltet?",
         answer:
-          "Leistungsverzeichnisse lassen sich im GAEB-Format einlesen und wieder ausgeben. Erbrachte Leistungen werden gegen die Positionen abgerechnet, ohne die Mengen erneut zu erfassen.",
+          "Über die Lagerverwaltung mit Beständen, Mindestmengen, Wareneingang, Lieferscheinen und Inventur. Ausgaben und Rückgaben lassen sich mobil per QR-Code buchen, an offene Rückgaben erinnert Gleistrix.",
       },
       {
-        question: "Wann ist der Deckungsbeitrag eines Projekts sichtbar?",
+        question: "Sieht die Geschäftsführung, ob eine Baustelle wirtschaftlich läuft?",
         answer:
-          "Laufend. Weil Stunden, Leistungen und Kosten in dasselbe Projekt laufen, entsteht die Auswertung aus dem operativen Betrieb und nicht erst aus der Schlussrechnung.",
+          "Ja. Die Finanzübersicht stellt je Projekt Soll- und Ist-Umsatz den Personal-, Nachunternehmer- und weiteren Kosten gegenüber und weist Ergebnis und Marge aus.",
       },
     ],
   },
@@ -310,97 +446,99 @@ export const INDUSTRIES: CatalogEntry[] = [
     slug: "subunternehmen-db",
     crossLinks: [
       { text: "Welche Nachweise und Formate erwartet werden, steht unter", href: "/integrationen/deutsche-bahn", label: "Anforderungen der Deutschen Bahn" },
-      { text: "Die X-Rechnung und den Weg dorthin beschreibt", href: "/produkt/rechnungsstellung", label: "Rechnungsstellung für Bahndienstleister" },
-      { text: "Qualifikationen und ihre Gültigkeit verwaltet", href: "/produkt/mitarbeiterverwaltung", label: "die Mitarbeiterverwaltung" },
+      { text: "Den Weg von geprüften Stunden zur Rechnung beschreibt", href: "/produkt/rechnungsstellung", label: "Rechnungsstellung für Bahndienstleister" },
+      { text: "Funktionen und Abwesenheiten des Personals verwaltet", href: "/produkt/mitarbeiterverwaltung", label: "die Mitarbeiterverwaltung" },
     ],
     title: "Subunternehmen der DB",
+    h1: "Software für Subunternehmen der Deutschen Bahn",
     tagline: "Anforderungen erfüllen, Daten sauber liefern",
     description:
-      "Daten sauber liefern und Anforderungen erfüllen – mit strukturierten Nachweisen, Exporten und revisionssicherer Ablage.",
+      "Daten sauber liefern und Anforderungen erfüllen – von der Leistungsanfrage aus dem DB-Lieferantenportal über Stundennachweise bis zur Abrechnung je Projekt.",
     metaDescription:
-      "Software für Subunternehmen der DB: Nachweise vollständig halten, Leistungen und Stunden rückmelden, X-Rechnung stellen und revisionssicher ablegen.",
+      "Software für Subunternehmen der DB: Leistungsanfragen übernehmen, Einsätze planen, Stunden nachweisen und je Projekt abrechnen – Dokumente am Vorgang.",
     icon: Building2,
     group: "Bau & Infrastruktur",
     image: "/media/branchen/subunternehmen.webp",
     highlights: [
       {
-        title: "Formate, die passen",
-        text: "Exporte und Schnittstellen liefern das, was der Auftraggeber tatsächlich anfordert.",
+        title: "Leistungsanfrage übernommen",
+        text: "Eine Anfrage aus dem DB-Lieferantenportal füllt die Projektanlage auf Wunsch per KI vor.",
       },
       {
-        title: "Nachweise vollständig",
-        text: "Qualifikationen und Dokumente sind zum Prüfzeitpunkt vorhanden und gültig.",
+        title: "Nachweise am Vorgang",
+        text: "Stundennachweise, Lieferscheine und Dokumente hängen am Projekt und sind darüber auffindbar.",
       },
       {
-        title: "Status transparent",
-        text: "Freigaben und Rückmeldungen sind für beide Seiten nachvollziehbar.",
+        title: "Freigaben nachvollziehbar",
+        text: "Stunden werden vor der Abrechnung geprüft und freigegeben – offene Freigaben sind sichtbar.",
       },
     ],
     bullets: [
-      "Standardisierte Exporte und individuelle Schnittstellen",
-      "Qualifikations- und Dokumentennachweise",
-      "Leistungs- und Stundenrückmeldungen",
-      "X-Rechnung und revisionssichere Ablage",
-      "Transparente Status- und Freigabeprozesse",
+      "Projektanlage aus DB-Leistungsanfragen (Link oder PDF)",
+      "Auftrags- und SAP-Nummer am Projekt",
+      "Funktionen je Mitarbeiter, etwa SIPO, Sakra oder BüP",
+      "Monatliche Stundennachweise per E-Mail",
+      "Freigaben vor der Abrechnung, Ausgabe als PDF",
+      "Buchungsdaten und Belege über die DATEV-Anbindung",
     ],
     challenges: [
       {
         problem:
-          "Der Auftraggeber erwartet die Daten in einer bestimmten Struktur. Aufbereitet wird sie jedes Mal von Hand aus mehreren Quellen.",
+          "Die Leistungsanfrage kommt aus dem DB-Lieferantenportal. Auftragsnummer, SAP-Nummer, Baustelle und Ansprechpartner werden von Hand ins eigene System übertragen.",
         solution:
-          "Standardisierte Exporte liefern das angeforderte Format aus dem Projekt heraus; für wiederkehrende Übergaben lassen sich Schnittstellen einrichten.",
+          "Die Anfrage wird als Link oder PDF übergeben, Gleistrix liest die Angaben aus und füllt die Projektanlage vor. Geprüft und gespeichert wird von Hand.",
       },
       {
         problem:
-          "Zum Prüfzeitpunkt fehlt ein Qualifikationsnachweis. Der Einsatz wird nicht anerkannt, obwohl die Leistung erbracht wurde.",
+          "Am Monatsende fragt der Auftraggeber nach den Stunden eines Einsatzes. Die Zettel liegen im Fahrzeug, die Zuordnung zum Auftrag fehlt.",
         solution:
-          "Qualifikationen und Dokumente liegen mit ihrer Gültigkeit am Mitarbeiter. Was zum Prüfzeitpunkt nicht mehr gilt, fällt vorher auf – nicht danach.",
+          "Zeiteinträge hängen am Projekt mit Funktion und Fahrtzeit. Der Stundennachweis entsteht daraus und geht monatlich per E-Mail an Mitarbeiter und Lohnbüro.",
       },
       {
         problem:
-          "Rückmeldungen und Freigaben laufen über Mail. Was bereits bestätigt ist und was noch offen, weiß keine der beiden Seiten sicher.",
+          "Welche Stunden bereits geprüft sind und welche noch offen, steht in keiner Liste – abgerechnet wird trotzdem.",
         solution:
-          "Leistungs- und Stundenrückmeldungen tragen ihren Status im System. Freigaben sind für Auftraggeber und Auftragnehmer gleichermaßen nachvollziehbar.",
+          "Stunden werden vor der Abrechnung freigegeben. Offene Freigaben sind sichtbar, bevor die Abrechnung als PDF ausgegeben wird.",
       },
     ],
     steps: [
       {
-        title: "Auftrag und Anforderungen erfassen",
-        text: "Was der Auftraggeber an Nachweisen und Formaten erwartet, wird einmal hinterlegt und gilt für alle Einsätze darin.",
+        title: "Leistungsanfrage übernehmen",
+        text: "Die Anfrage aus dem DB-Lieferantenportal wird eingelesen und füllt Projektname, Auftrags- und SAP-Nummer, Baustelle und Zeitraum vor.",
       },
       {
-        title: "Nachweise aktuell halten",
-        text: "Qualifikationen und Dokumente liegen zentral mit Gültigkeitsdatum, statt vor jeder Prüfung eingesammelt zu werden.",
+        title: "Einsatz planen",
+        text: "Personal nach Funktion auf der Einsatztafel einteilen – Doppelbelegungen und Abwesenheiten meldet das System.",
       },
       {
-        title: "Leistungen rückmelden",
-        text: "Erbrachte Leistungen und Stunden gehen strukturiert zurück, mit nachvollziehbarem Freigabestatus.",
+        title: "Stunden nachweisen",
+        text: "Zeiten mit Funktion und Fahrtzeit am Projekt erfassen; der Stundennachweis geht monatlich per E-Mail raus.",
       },
       {
-        title: "Abrechnen und ablegen",
-        text: "Geprüfte Leistungen werden als X-Rechnung gestellt und revisionssicher abgelegt.",
+        title: "Freigeben und abrechnen",
+        text: "Geprüfte Stunden freigeben, die Abrechnung als PDF ausgeben und Buchungsdaten über DATEV übergeben.",
       },
     ],
     faqs: [
       {
-        question: "In welchen Formaten lassen sich Daten übergeben?",
+        question: "Kann eine Leistungsanfrage aus dem DB-Lieferantenportal übernommen werden?",
         answer:
-          "Über standardisierte Exporte aus dem Projekt, für Ausschreibung und Abrechnung unter anderem im GAEB-Format und als X-Rechnung. Für wiederkehrende Übergaben lassen sich zusätzlich Schnittstellen einrichten.",
+          "Ja. Die Anfrage lässt sich als Link oder als PDF übergeben. Gleistrix liest Projektname, Auftraggeber, Baustelle, Auftrags- und SAP-Nummer, Ansprechpartner und Zeitraum aus und füllt damit die Projektanlage vor. Ist die Seite hinter einem Login, kann der Text auch eingefügt werden.",
       },
       {
-        question: "Was passiert, wenn ein Nachweis abläuft?",
+        question: "Wie entstehen Stundennachweise für den Auftraggeber?",
         answer:
-          "Qualifikationen und Dokumente tragen ihr Gültigkeitsdatum. Die Einsatzplanung prüft es gegen den geplanten Tag, sodass ein abgelaufener Nachweis vor dem Einsatz auffällt und nicht bei der Prüfung.",
+          "Aus den Zeiteinträgen am Projekt. Sie tragen Funktion, Arbeitszeit und Fahrtzeit; Nacht- und Sonntagszuschläge werden berechnet. Der monatliche Stundennachweis geht per E-Mail an den Mitarbeiter und weitere hinterlegte Empfänger.",
       },
       {
         question: "Wie werden Freigaben nachvollziehbar?",
         answer:
-          "Rückmeldungen und Freigaben hängen am jeweiligen Vorgang und tragen ihren Status. Beide Seiten sehen denselben Stand, ohne ihn aus einem Mailverlauf rekonstruieren zu müssen.",
+          "Stunden werden vor der Abrechnung geprüft und freigegeben. Offene Freigaben sind in der Abrechnung sichtbar, sodass nichts abgerechnet wird, was noch nicht bestätigt ist.",
       },
       {
-        question: "Unterstützt Gleistrix die X-Rechnung?",
+        question: "In welchem Format wird abgerechnet?",
         answer:
-          "Ja. Geprüfte Leistungen und Stunden lassen sich ohne erneute Erfassung als X-Rechnung ausgeben und werden revisionssicher abgelegt.",
+          "Die Abrechnung eines Projekts lässt sich als PDF ausgeben. Buchungsdaten und Belege können über die DATEV-Anbindung an die Steuerberatung übergeben werden.",
       },
     ],
   },
@@ -408,15 +546,17 @@ export const INDUSTRIES: CatalogEntry[] = [
     slug: "auftragsbasierte-dienstleister",
     crossLinks: [
       { text: "Vom geprüften Stundenzettel zur Rechnung führt", href: "/produkt/rechnungsstellung", label: "die Rechnungsstellung" },
-      { text: "Die Übergabe an die Buchhaltung übernimmt", href: "/integrationen/lexoffice", label: "die lexoffice-Anbindung" },
+      { text: "Die Übergabe an die Steuerberatung übernimmt", href: "/integrationen/datev", label: "die DATEV-Anbindung" },
       { text: "Wie Zeiten am Einsatz erfasst und freigegeben werden, zeigt", href: "/produkt/zeiterfassung-stundenzettel", label: "Zeiterfassung und Stundenzettel" },
     ],
     title: "Auftragsbasierte Dienstleister",
-    tagline: "Vom Angebot bis zur Abrechnung",
+    h1: "Software für auftragsbasierte Bahndienstleister",
+    metaTitle: "Software für auftragsbasierte Bahndienstleister",
+    tagline: "Vom Auftrag bis zur Abrechnung",
     description:
-      "Von der Anfrage bis zur Abrechnung: Angebot, Auftrag, Schichtplanung, Zeiterfassung, Stundenzettel und Rechnung in einer Kette.",
+      "Von der Anfrage bis zur Abrechnung: Auftrag, Leistungen, Einsatzplanung, Zeiterfassung, Stundennachweis und Abrechnung in einer Kette.",
     metaDescription:
-      "Software für auftragsbasierte Dienstleister: Angebot, Auftrag, Einsatzplanung, Zeiterfassung und Rechnung in einer Kette – ohne Übertragen zwischen Werkzeugen.",
+      "Software für auftragsbasierte Dienstleister: Auftrag, Leistungen, Einsatzplanung, Zeiterfassung und Abrechnung in einer Kette – ohne Übertragen zwischen Werkzeugen.",
     icon: Briefcase,
     group: "Service & Dienstleistung",
     image: "/media/branchen/dienstleister.webp",
@@ -426,33 +566,33 @@ export const INDUSTRIES: CatalogEntry[] = [
         text: "Jeder Schritt übernimmt die Daten des vorherigen – kein Übertragen zwischen Werkzeugen.",
       },
       {
-        title: "Angebote schneller",
-        text: "Wiederkehrende Leistungen sind hinterlegt und stehen beim nächsten Angebot bereit.",
+        title: "Leistungen am Auftrag",
+        text: "Positionen mit Menge, Einheit und Preis stehen am Projekt – eingepflegt oder aus einer GAEB-Datei importiert.",
       },
       {
         title: "Lohn ohne Umweg",
-        text: "Freigegebene Stunden gehen direkt in Abrechnung und Lohnvorbereitung.",
+        text: "Der monatliche Stundennachweis geht per E-Mail an Mitarbeiter und Lohnbüro – aus derselben Erfassung wie die Abrechnung.",
       },
     ],
     bullets: [
-      "Flexible Auftragsverwaltung",
-      "Integrierte Angebotserstellung",
-      "Einsatzplanung und -steuerung",
-      "Automatisierte Lohnabrechnung",
-      "Effiziente Rechnungsstellung",
+      "Aufträge mit Leistungen, Positionen und Preisen",
+      "Leistungsverzeichnisse per GAEB-Import",
+      "Einsatzplanung mit Konfliktprüfung",
+      "Stundennachweise für die Lohnabrechnung",
+      "Abrechnung aus freigegebenen Stunden",
     ],
     challenges: [
       {
         problem:
-          "Das Angebot entsteht im Textprogramm, der Auftrag in einer Tabelle, die Stunden auf Papier. Dieselbe Angabe wird dreimal erfasst.",
+          "Der Auftrag steht in einer Tabelle, die Einsätze im Kalender, die Stunden auf Papier. Dieselbe Angabe wird dreimal erfasst.",
         solution:
-          "Jeder Schritt übernimmt die Daten des vorherigen. Aus dem Angebot wird der Auftrag, aus dem Einsatz die Stunden, aus den Stunden die Rechnung.",
+          "Jeder Schritt übernimmt die Daten des vorherigen. Aus dem Auftrag wird die Einsatzplanung, aus dem Einsatz die Stunden, aus den Stunden die Abrechnung.",
       },
       {
         problem:
-          "Leistungen, die in fast jedem Auftrag vorkommen, werden für jedes Angebot neu zusammengestellt und neu kalkuliert.",
+          "Die Positionen des Auftraggebers liegen als Datei im Postfach und werden für die Abrechnung von Hand abgeglichen.",
         solution:
-          "Wiederkehrende Leistungen sind hinterlegt und stehen beim nächsten Angebot bereit, statt jedes Mal rekonstruiert zu werden.",
+          "Leistungen und Positionen stehen am Projekt – aus einer GAEB-Datei importiert oder eingepflegt – und bilden die Grundlage für Soll-Umsatz und Abrechnung.",
       },
       {
         problem:
@@ -463,12 +603,12 @@ export const INDUSTRIES: CatalogEntry[] = [
     ],
     steps: [
       {
-        title: "Anfrage und Angebot",
-        text: "Hinterlegte Leistungen machen aus einer Anfrage ein Angebot, ohne Positionen neu zusammenzusuchen.",
+        title: "Auftrag anlegen",
+        text: "Projekt mit Leistungen und Positionen anlegen – eingepflegt, aus einer GAEB-Datei oder aus einer Leistungsanfrage übernommen.",
       },
       {
-        title: "Auftrag und Einsatzplanung",
-        text: "Aus dem angenommenen Angebot entsteht der Auftrag, aus dem Auftrag die Einsatzplanung.",
+        title: "Einsätze planen",
+        text: "Personal und Fahrzeuge auf der Einsatztafel einteilen; Konflikte meldet das System beim Zuweisen.",
       },
       {
         title: "Zeiten erfassen und freigeben",
@@ -476,14 +616,14 @@ export const INDUSTRIES: CatalogEntry[] = [
       },
       {
         title: "Abrechnen und Lohn vorbereiten",
-        text: "Freigegebene Stunden gehen ohne erneute Eingabe in Rechnungsstellung und Lohnvorbereitung.",
+        text: "Freigegebene Stunden gehen ohne erneute Eingabe in die Abrechnung, der Stundennachweis an das Lohnbüro.",
       },
     ],
     faqs: [
       {
-        question: "Lassen sich wiederkehrende Leistungen hinterlegen?",
+        question: "Wie kommen Leistungen und Positionen ins Projekt?",
         answer:
-          "Ja. Leistungen, die regelmäßig angeboten werden, sind hinterlegt und stehen bei der Angebotserstellung zur Auswahl. Das verkürzt vor allem den Weg von der Anfrage zum Angebot.",
+          "Sie lassen sich am Projekt einpflegen oder aus einer GAEB-Datei importieren. Jede Position trägt Nummer, Bezeichnung, Menge, Einheit und Preis und fließt in den Soll-Umsatz des Projekts ein.",
       },
       {
         question: "Müssen Stunden für Rechnung und Lohn getrennt erfasst werden?",
@@ -491,14 +631,14 @@ export const INDUSTRIES: CatalogEntry[] = [
           "Nein. Beide greifen auf dieselbe freigegebene Erfassung zu, sodass Abrechnung und Lohnvorbereitung nicht auseinanderlaufen können.",
       },
       {
-        question: "Wie hängen Angebot, Auftrag und Rechnung zusammen?",
+        question: "Wie hängen Auftrag, Einsatz und Abrechnung zusammen?",
         answer:
-          "Als durchgehende Kette: Das Angebot wird zum Auftrag, der Auftrag trägt die Einsätze, die Einsätze liefern die Stunden, und aus den geprüften Stunden entsteht die Rechnung – ohne Übertragen zwischen Werkzeugen.",
+          "Als durchgehende Kette: Der Auftrag trägt die Einsätze, die Einsätze liefern die Stunden, und aus den geprüften Stunden entsteht die Abrechnung – ohne Übertragen zwischen Werkzeugen.",
       },
       {
         question: "Eignet sich das auch für viele kleine Aufträge?",
         answer:
-          "Ja. Gerade dann zahlt sich die Kette aus, weil der Aufwand pro Auftrag vor allem in den Übergängen zwischen Angebot, Einsatz und Rechnung steckt und nicht in der Größe des einzelnen Auftrags.",
+          "Ja. Gerade dann zahlt sich die Kette aus, weil der Aufwand pro Auftrag vor allem in den Übergängen zwischen Auftrag, Einsatz und Abrechnung steckt und nicht in der Größe des einzelnen Auftrags.",
       },
     ],
   },
@@ -511,6 +651,12 @@ export const INDUSTRY_CATALOG: Catalog = {
   menuNote: `${INDUSTRIES.length} Branchen · passend zu deinem Alltag`,
   scopeHeading: "Was Gleistrix für {title} übernimmt",
   ctaHeading: "Gleistrix für {title} sehen?",
+  // Branchen sind keine Werkzeuge: "Was sich mit Sicherungsunternehmen
+  // ändert" wäre falsch. Die Vorlagen sind deshalb neutral formuliert, die
+  // Einträge setzen über `headings` fachliche Überschriften.
+  challengesHeading: "Typische Engpässe im Alltag – und wie Gleistrix sie löst",
+  stepsHeading: "So läuft die Arbeit mit Gleistrix ab",
+  faqHeading: "Häufige Fragen aus der Praxis",
   overviewHref: "/branchen",
   overviewLabel: "Alle Branchenlösungen ansehen",
   entries: INDUSTRIES,

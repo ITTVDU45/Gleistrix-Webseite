@@ -13,7 +13,7 @@ import CTASection from "@/components/sections/CTASection";
 import { pageMetadata } from "@/lib/seo-metadata";
 
 export const metadata = pageMetadata({
-  title: "ERP Plattform für Bahnbau: Planung, Zeiterfassung & Abrechnung",
+  title: "ERP-Plattform für Bahnbau – alle Module im Überblick",
   description:
     "Gleistrix bündelt Projektmanagement, Disposition, Mitarbeiter, Fahrzeuge, Zeiterfassung, Dokumente, Reports und Rechnungsstellung für Bahndienstleister.",
   path: "/produkt",
@@ -29,7 +29,7 @@ export default function ProduktPage() {
             Das All-in-One-ERP für <span className="text-gradient-accent">sichere Bahnprojekte</span>
           </>
         }
-        description="Von Angebots- und Projektmanagement bis Disposition, Stundenzettel, Lohn und X-Rechnung – effizient, transparent und prüffähig."
+        description="Von Projektmanagement und Disposition über Zeiterfassung und Stundennachweise bis zur Projektabrechnung – auf einem Datenstand, transparent und prüffähig."
         breadcrumbs={[{ label: "Startseite", href: "/" }, { label: "Plattform" }]}
         ctas={[
           { label: "Demo anfragen", href: "/demo-buchen" },

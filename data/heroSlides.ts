@@ -206,7 +206,7 @@ export const HERO_SLIDES: HeroSlide[] = [
     audience: "Gleistrix für Prüf-, Inspektions- und Gutachterunternehmen",
     audienceIcon: ClipboardCheck,
     message:
-      "Führt Inspektionen, Gutachten und Prüfprotokolle revisionssicher in einer Plattform.",
+      "Führt Inspektionen, Gutachten und Prüfprotokolle am Projekt in einer Plattform.",
     moduleId: "doku",
     image: "/mascots/fox-planung.webp",
     alt: "Gleistrix-Fuchs für Prüf-, Inspektions- und Gutachterunternehmen",
