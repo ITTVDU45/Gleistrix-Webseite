@@ -170,7 +170,17 @@ Lighthouse und Performance-Trace im lokalen Chrome gegen die Live-Seite, mobil e
 | `/` | 1,39 s | 0,00 | 100 / 100 / 100 |
 | `/branchen/sicherungsunternehmen` | 2,32 s | 0,00 | 100 / 100 / 100 |
 
-**Befund Katalog- und Übersichtsseiten:** 1,1 s der LCP-Zeit waren Render-Verzögerung. Der Seitenkopf steckte in `Reveal`, das serverseitig mit `opacity: 0` rendert; Chrome zählt unsichtbare Elemente nicht für den LCP. Zusätzlich lud das Hero-Bild ohne `fetchpriority="high"`. **Behoben** in `CatalogDetail` (23 Seiten) und `PageHero` (7 Übersichtsseiten), Hero-Bilder mit `fetchPriority="high"` (auch Blogartikel). Gegenmessung lokal mit Produktions-Build: Render-Verzögerung 157 ms statt 1.104 ms, LCP 0,77 s (lokaler Server, daher nicht direkt mit dem Live-Wert vergleichbar). Nach dem Deploy erneut live messen.
+**Befund Katalog- und Übersichtsseiten:** 1,1 s der LCP-Zeit waren Render-Verzögerung. Der Seitenkopf steckte in `Reveal`, das serverseitig mit `opacity: 0` rendert; Chrome zählt unsichtbare Elemente nicht für den LCP. Zusätzlich lud das Hero-Bild ohne `fetchpriority="high"`. **Behoben** in `CatalogDetail` (23 Seiten) und `PageHero` (7 Übersichtsseiten), Hero-Bilder mit `fetchPriority="high"` (auch Blogartikel). Gegenmessung lokal mit Produktions-Build: Render-Verzögerung 157 ms statt 1.104 ms, LCP 0,77 s (lokaler Server, daher nicht direkt mit dem Live-Wert vergleichbar).
+
+**Live nach dem Deploy (#42), gleiche Bedingungen:**
+
+| `/branchen/sicherungsunternehmen` | vorher | nachher |
+|---|---|---|
+| LCP | 2.321 ms | 1.386 ms |
+| Render-Verzögerung | 1.104 ms | 172 ms |
+| CLS | 0,00 | 0,00 |
+
+Der Hinweis auf fehlendes `fetchpriority="high"` ist verschwunden; Serverantwort und Bilddownload sind unverändert. Gemessen wurde diese eine Seite – die Änderung wirkt auf alle 23 Katalog- und 7 Übersichtsseiten.
 
 **Weitere Befunde:** Lighthouse „Agentic Browsing“ auf der Startseite: Folien im Modul-Karussell waren `<article role="group">` – jetzt `<div role="group">`. Übersichtsseiten: H1 an der Suchabsicht ausgerichtet („Branchensoftware für Gleisbau, Bahnsicherung und Bahndienstleister“ statt „Branchen, die auf Gleistrix vertrauen“; `/produkt` und `/integrationen` entsprechend).
 
