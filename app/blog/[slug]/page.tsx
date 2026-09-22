@@ -103,6 +103,7 @@ export default async function BlogArticlePage({ params }: { params: Promise<{ sl
               fill
               sizes="(min-width: 1024px) 896px, 100vw"
               priority
+              fetchPriority="high"
               unoptimized={!article.imageSrc}
               className="object-cover"
             />

@@ -24,7 +24,7 @@ export default function Page() {
         eyebrow="Branchen"
         title={
           <>
-            Branchen, die auf <span className="text-gradient-accent">Gleistrix</span> vertrauen
+            Branchensoftware für <span className="text-gradient-accent">Gleisbau, Bahnsicherung</span> und Bahndienstleister
           </>
         }
         description="Von Gleisbausicherung bis zu auftragsbasierten Services – Gleistrix passt sich deiner Realität an, nicht umgekehrt."

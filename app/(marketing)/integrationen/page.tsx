@@ -24,10 +24,10 @@ export default function Page() {
         eyebrow="Integrationen"
         title={
           <>
-            Verbunden mit dem, was <span className="text-gradient-accent">schon läuft</span>
+            Anbindungen an GAEB, DATEV und <span className="text-gradient-accent">Microsoft 365</span>
           </>
         }
-        description="Gleistrix ersetzt nicht die ganze Werkzeugkiste. Buchhaltung, Kalender und Ausschreibung bleiben – die Daten laufen nur nicht mehr getrennt."
+        description="Gleistrix ersetzt nicht die ganze Werkzeugkiste. Buchhaltung, Kalender und Ausschreibung bleiben – und Leistungsanfragen der Deutschen Bahn laufen direkt in die Projektanlage."
         breadcrumbs={[{ label: "Startseite", href: "/" }, { label: "Integrationen" }]}
         ctas={[
           { label: "Demo anfragen", href: "/demo-buchen" },

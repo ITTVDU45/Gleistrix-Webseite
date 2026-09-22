@@ -54,7 +54,12 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
           </nav>
 
           <div className="mt-7 grid min-w-0 items-center gap-8 sm:mt-8 sm:gap-10 md:grid-cols-2 md:gap-14">
-            <Reveal className="min-w-0">
+            {/* Kein Reveal über dem Falz: Reveal rendert serverseitig mit
+                opacity 0, und Chrome zählt unsichtbare Elemente nicht für den
+                LCP. Gemessen (Slow 4G, 4x CPU): 1,1 s Render-Verzögerung auf
+                /branchen/sicherungsunternehmen. Dieselbe Lösung wie im Hero der
+                Startseite. */}
+            <div className="min-w-0">
               <span className="inline-flex max-w-full items-center gap-2 rounded-full border border-brand-200/70 bg-brand-50/80 px-3 py-1 text-[11px] font-semibold tracking-wide text-brand-700 sm:px-3.5 sm:text-xs">
                 <Icon aria-hidden className="h-3.5 w-3.5 shrink-0" />
                 <span className="min-w-0">{catalog.singular}</span>
@@ -70,9 +75,9 @@ export default function CatalogDetail({ catalog, entry }: CatalogDetailProps) {
                   <Link href={catalog.overviewHref}>{catalog.overviewLabel}</Link>
                 </Button>
               </div>
-            </Reveal>
+            </div>
 
-            <Reveal delay={0.1} className="min-w-0"><CatalogMedia entry={entry} /></Reveal>
+            <div className="min-w-0"><CatalogMedia entry={entry} /></div>
           </div>
         </div>
       </section>
@@ -307,7 +312,7 @@ function CatalogMedia({ entry }: { entry: CatalogEntry }) {
     return (
       <div className="relative w-full min-w-0">
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-slate-900/8 bg-[#0B1220] shadow-soft sm:rounded-3xl">
-          <Image src={entry.image} alt={`${entry.title} in Gleistrix`} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" priority />
+          <Image src={entry.image} alt={`${entry.title} in Gleistrix`} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" priority fetchPriority="high" />
           <LoopVideo src={entry.video} />
         </div>
         {entry.mascot && (
@@ -328,7 +333,7 @@ function CatalogMedia({ entry }: { entry: CatalogEntry }) {
   if (entry.image) {
     return (
       <div className="relative aspect-[4/3] w-full min-w-0 overflow-hidden rounded-2xl border border-slate-900/8 bg-[#f8fafc] shadow-soft sm:rounded-3xl">
-        <Image src={entry.image} alt={entry.title} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" priority />
+        <Image src={entry.image} alt={entry.title} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" priority fetchPriority="high" />
       </div>
     );
   }
@@ -337,7 +342,7 @@ function CatalogMedia({ entry }: { entry: CatalogEntry }) {
     return (
       <div className="relative flex aspect-[4/3] w-full min-w-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-900/8 bg-white shadow-soft sm:rounded-3xl">
         <div aria-hidden className="absolute inset-0 bg-[radial-gradient(closest-side,rgba(51,98,255,0.10),transparent)]" />
-        <Image src={entry.logo.src} alt={entry.title} width={entry.logo.width} height={entry.logo.height} sizes="320px" className="relative max-h-20 w-auto max-w-[70%] object-contain sm:max-h-24 sm:max-w-[60%]" priority />
+        <Image src={entry.logo.src} alt={entry.title} width={entry.logo.width} height={entry.logo.height} sizes="320px" className="relative max-h-20 w-auto max-w-[70%] object-contain sm:max-h-24 sm:max-w-[60%]" priority fetchPriority="high" />
       </div>
     );
   }
