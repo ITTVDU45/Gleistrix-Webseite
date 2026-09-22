@@ -159,7 +159,20 @@ Beide Seiten verweisen aufeinander, und die FAQ der Gleisbausicherungsseite erkl
 | Interne Links | Keine Links ins Leere; Startseite → Branche → Modul → Fachartikel verknüpft | geprüft (`check:seo`) |
 | Bilder | LCP-Bild mit `priority`; bestehende Alt-Texte beibehalten | geprüft (Browser-Konsole) |
 | Mobile | 375 px ohne horizontales Scrollen, Hero lesbar | geprüft (Browser) |
-| Core Web Vitals | **Nicht gemessen.** Keine Werte behauptet | Empfehlung: PageSpeed Insights / CrUX |
+| Core Web Vitals | Labormessung am 22.09.2026, siehe 5.1. Felddaten (CrUX) liegen für gleistrix.de noch nicht vor | Labor gemessen; Felddaten ausstehend |
+
+### 5.1 Messungen (Nachtrag 22.09.2026)
+
+Lighthouse und Performance-Trace im lokalen Chrome gegen die Live-Seite, mobil emuliert (412 px, Slow 4G, CPU 4× gedrosselt). Laborwerte, keine Felddaten.
+
+| Seite | LCP | CLS | Lighthouse (Barrierefreiheit / Best Practices / SEO) |
+|---|---|---|---|
+| `/` | 1,39 s | 0,00 | 100 / 100 / 100 |
+| `/branchen/sicherungsunternehmen` | 2,32 s | 0,00 | 100 / 100 / 100 |
+
+**Befund Katalog- und Übersichtsseiten:** 1,1 s der LCP-Zeit waren Render-Verzögerung. Der Seitenkopf steckte in `Reveal`, das serverseitig mit `opacity: 0` rendert; Chrome zählt unsichtbare Elemente nicht für den LCP. Zusätzlich lud das Hero-Bild ohne `fetchpriority="high"`. **Behoben** in `CatalogDetail` (23 Seiten) und `PageHero` (7 Übersichtsseiten), Hero-Bilder mit `fetchPriority="high"` (auch Blogartikel). Gegenmessung lokal mit Produktions-Build: Render-Verzögerung 157 ms statt 1.104 ms, LCP 0,77 s (lokaler Server, daher nicht direkt mit dem Live-Wert vergleichbar). Nach dem Deploy erneut live messen.
+
+**Weitere Befunde:** Lighthouse „Agentic Browsing“ auf der Startseite: Folien im Modul-Karussell waren `<article role="group">` – jetzt `<div role="group">`. Übersichtsseiten: H1 an der Suchabsicht ausgerichtet („Branchensoftware für Gleisbau, Bahnsicherung und Bahndienstleister“ statt „Branchen, die auf Gleistrix vertrauen“; `/produkt` und `/integrationen` entsprechend).
 
 **Bewusst nicht geändert:** SoftwareApplication bleibt nur auf `/preise`. Auf anderen Seiten fehlte der Preis, und derselbe `@id`-Knoten mit und ohne `offers` wäre ein Widerspruch (Begründung steht in `app/layout.tsx`).
 
@@ -196,9 +209,9 @@ Beide Seiten verweisen aufeinander, und die FAQ der Gleisbausicherungsseite erkl
 ### Braucht externe Werkzeuge oder Zugänge
 
 7. **Weiterleitungskette** `http://gleistrix.de → https://gleistrix.de → https://www.gleistrix.de`: In Vercel `www.gleistrix.de` als Primärdomain setzen und die Apex-Domain direkt auf `https://www` umleiten lassen (ein Sprung).
-8. **Google Search Console:** Indexierungsstatus aller URLs, Sitemap neu einreichen, Suchanfragen je Landingpage auswerten – insbesondere, ob `/branchen/sicherungsunternehmen` und `/branchen/gleisbausicherung-bauueberwachung` unterschiedliche Anfragen bedienen.
+8. **Google Search Console:** Der hier verbundene Search-Console-Zugang enthält gleistrix.de nicht – Zugriff für die Property freigeben, dann lassen sich Suchanfragen und Indexierung auswerten. Indexierungsstatus aller URLs, Sitemap neu einreichen, Suchanfragen je Landingpage auswerten – insbesondere, ob `/branchen/sicherungsunternehmen` und `/branchen/gleisbausicherung-bauueberwachung` unterschiedliche Anfragen bedienen.
 9. **Rich Results Test** für Startseite, eine Branchen-, eine Modul- und eine Blogseite.
-10. **Core Web Vitals** mit PageSpeed Insights (mobil und Desktop) für Startseite, eine Branchenseite und einen Blogartikel; Felddaten aus CrUX, sobald vorhanden.
+10. **Core Web Vitals:** Labordaten liegen vor (5.1). Für PageSpeed Insights per API fehlt ein API-Schlüssel (anonymes Kontingent 0). Nach dem Deploy Startseite, eine Branchenseite und einen Blogartikel mobil und am Desktop erneut messen; Felddaten aus CrUX auswerten, sobald genug Besuche vorliegen.
 11. **Suchvolumen und Wettbewerb** für die Keyword-Cluster (Keyword Planner oder SEO-Tool) – die Zuordnung in Abschnitt 3 ist eine redaktionelle Arbeitshypothese.
 12. **Conversion-Tracking** für Demo-Anfragen (Analytics mit Einwilligung).
 13. **Produktseitig:** Gültigkeitsdaten für Mitarbeiter-Qualifikationen (inkl. Warnung) würden „Qualifikationsmanagement Bahn“ als eigenständige Landingpage tragen – heute fehlt dafür die Funktion.

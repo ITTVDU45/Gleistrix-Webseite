@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
-import Reveal from "./Reveal";
 
 type Breadcrumb = { label: string; href?: string };
 type CTA = { label: string; href: string; variant?: "primary" | "outline" };
@@ -40,7 +39,9 @@ export default function PageHero({ eyebrow, title, description, breadcrumbs, cta
           </nav>
         )}
 
-        <Reveal className="max-w-3xl">
+        {/* Kein Reveal: Die H1 ist hier meist das LCP-Element und stünde sonst
+            bis zur Hydration mit opacity 0 im HTML. */}
+        <div className="max-w-3xl">
           <span className="inline-flex max-w-full items-center rounded-full border border-brand-200/70 bg-brand-50/80 px-3 py-1 text-[11px] font-semibold leading-5 tracking-wide text-brand-700 sm:px-3.5 sm:text-xs">{eyebrow}</span>
           <h1 className="mt-4 text-[2rem] font-bold leading-[1.08] tracking-tight text-slate-900 min-[375px]:text-[2.2rem] sm:mt-5 sm:text-5xl md:text-[3.25rem] md:leading-[1.08]">{title}</h1>
           {description && <p className="mt-4 max-w-2xl text-[15px] leading-7 text-slate-500 sm:mt-5 sm:text-lg sm:leading-relaxed">{description}</p>}
@@ -57,7 +58,7 @@ export default function PageHero({ eyebrow, title, description, breadcrumbs, cta
               })}
             </div>
           )}
-        </Reveal>
+        </div>
 
         {children && <div className="mt-9 sm:mt-12 md:mt-16">{children}</div>}
       </div>

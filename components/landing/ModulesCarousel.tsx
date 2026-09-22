@@ -82,7 +82,7 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
         className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/60 focus-visible:ring-offset-4 focus-visible:ring-offset-[#f8fafc] sm:gap-5 [&::-webkit-scrollbar]:hidden"
       >
         {modules.map((module, index) => (
-          <article
+          <div
             key={module.id}
             data-slide
             role="group"
@@ -154,7 +154,7 @@ export default function ModulesCarousel({ modules }: { modules: LandingModule[] 
                 </div>
               )}
             </div>
-          </article>
+          </div>
         ))}
       </div>
 

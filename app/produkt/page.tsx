@@ -26,7 +26,7 @@ export default function ProduktPage() {
         eyebrow="Plattform"
         title={
           <>
-            Das All-in-One-ERP für <span className="text-gradient-accent">sichere Bahnprojekte</span>
+            Alle Module der <span className="text-gradient-accent">ERP-Plattform für den Bahnbau</span>
           </>
         }
         description="Von Projektmanagement und Disposition über Zeiterfassung und Stundennachweise bis zur Projektabrechnung – auf einem Datenstand, transparent und prüffähig."
