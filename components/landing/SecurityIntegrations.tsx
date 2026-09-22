@@ -1,12 +1,22 @@
 import Image from "next/image";
+import Link from "next/link";
+import { INTEGRATION_CATALOG } from "@/data/integration-pages";
 import { INTEGRATIONS, SECURITY_BADGES } from "@/data/integrations";
 import type { Integration } from "@/data/integrations";
 import { cn } from "@/lib/utils";
 import Reveal from "./Reveal";
 
-/** Zwei Reihen, die gegenläufig laufen */
-const ROW_A = INTEGRATIONS.slice(0, Math.ceil(INTEGRATIONS.length / 2));
-const ROW_B = INTEGRATIONS.slice(Math.ceil(INTEGRATIONS.length / 2));
+/**
+ * Nur Anbindungen mit Produktbeleg – dieselben, die Megamenü und
+ * /integrationen zeigen. Die Liste folgt dem Katalog, damit Logo-Leiste und
+ * Menü nicht auseinanderlaufen, wenn eine Anbindung dazukommt.
+ *
+ * Früher liefen hier alle 14 Logos als Endlosband. Mit vier Logos wäre die
+ * Wiederholung im Band sichtbar geworden; eine ruhige Reihe mit Links auf die
+ * Detailseiten trägt mehr.
+ */
+const LISTED = new Set(INTEGRATION_CATALOG.entries.map((entry) => entry.slug));
+const LOGOS = INTEGRATIONS.filter((item) => LISTED.has(item.id));
 
 function LogoItem({ item }: { item: Integration }) {
   if (!item.src) {
@@ -26,67 +36,16 @@ function LogoItem({ item }: { item: Integration }) {
       alt={item.label}
       width={item.width}
       height={item.height}
-      // Wird nie breiter als 128px dargestellt – ohne sizes lieferte Next.js
+      // Wird nie breiter als 144px dargestellt – ohne sizes lieferte Next.js
       // Varianten bis 3840px aus.
-      sizes="128px"
+      sizes="144px"
       className={cn(
-        "w-auto max-w-32 object-contain transition-transform duration-300 hover:scale-110",
+        "w-auto max-w-36 object-contain",
         // Randlose Dateien eine Stufe kleiner: ohne Weissraum liefen sie sonst
         // bis an die Kante ihres Platzes und wirkten angeschnitten.
-        item.tight ? "h-5 md:h-6" : "h-7 md:h-8",
+        item.tight ? "h-6 md:h-7" : "h-9 md:h-10",
       )}
     />
-  );
-}
-
-/**
- * Endlose Logo-Reihe.
- *
- * Aufbau: ein Wrapper mit exakt zwei identischen Hälften wandert um -50 %,
- * also um genau eine Hälfte – dadurch liegt am Ende des Durchlaufs die zweite
- * Hälfte pixelgenau auf der Startposition der ersten (nahtloser Loop).
- *
- * Damit rechts keine Lücke entsteht, muss jede Hälfte mindestens so breit sein
- * wie der Container (max. 1152 px). Sieben Logos ergeben ~890 px, deshalb wird
- * die Liste je Hälfte verdoppelt.
- */
-function MarqueeRow({
-  items,
-  reverse = false,
-}: {
-  items: Integration[];
-  reverse?: boolean;
-}) {
-  // 4 Gruppen = 2 Hälften à 2 Durchläufe. Ohne Bewegung bleibt nur die erste
-  // Gruppe stehen, damit die Logos dort nicht doppelt erscheinen.
-  const groups = [0, 1, 2, 3];
-
-  return (
-    <div className="group overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)] motion-reduce:[mask-image:none]">
-      <div
-        className={cn(
-          "flex w-max group-hover:[animation-play-state:paused]",
-          reverse ? "animate-marquee-reverse" : "animate-marquee",
-          "motion-reduce:w-full motion-reduce:flex-wrap motion-reduce:justify-center"
-        )}
-      >
-        {groups.map((group) => (
-          <div
-            key={group}
-            aria-hidden={group > 0}
-            className={cn(
-              "flex shrink-0 items-center gap-12 pr-12 md:gap-14 md:pr-14",
-              "motion-reduce:flex-wrap motion-reduce:justify-center motion-reduce:gap-x-10 motion-reduce:gap-y-6 motion-reduce:pr-0",
-              group > 0 && "motion-reduce:hidden"
-            )}
-          >
-            {items.map((item) => (
-              <LogoItem key={item.id} item={item} />
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -154,10 +113,19 @@ export default function SecurityIntegrations() {
           <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
             Angebunden an die Systeme, die ihr bereits nutzt
           </p>
-          <div className="space-y-8">
-            <MarqueeRow items={ROW_A} />
-            <MarqueeRow items={ROW_B} reverse />
-          </div>
+          <ul className="mx-auto grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+            {LOGOS.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={`/integrationen/${item.id}`}
+                  aria-label={`${item.label}: Anbindung ansehen`}
+                  className="flex h-20 items-center justify-center rounded-2xl border border-slate-900/6 bg-white/70 px-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-slate-900/10 hover:shadow-soft-sm focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20 md:h-24"
+                >
+                  <LogoItem item={item} />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </Reveal>
       </div>
     </section>
