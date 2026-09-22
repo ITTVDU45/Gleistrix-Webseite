@@ -17,10 +17,13 @@ type Finding = {
   label: string;
 };
 
+// Entspricht dem, was die LV-Auswertung im Produkt liefert: erkannte
+// Positionen, Hinweise auf fehlende Angaben und Ressourcenvorschläge. Die
+// Zahlen sind ein Beispiel – die Kopfzeile sagt das auch.
 const FINDINGS: Finding[] = [
   { value: 84, label: "Positionen erkannt" },
-  { value: 12, label: "sicherungsrelevante Leistungen markiert" },
-  { label: "Angebotsdaten zur Kalkulation übergeben" },
+  { value: 7, label: "Positionen ohne Mengenangabe markiert" },
+  { label: "Sicherungsposten und Zweiwegefahrzeug vorgeschlagen" },
 ];
 
 const LINE_DELAY = 0.45;
@@ -36,7 +39,7 @@ export default function AgentAnalysis() {
     <div ref={boxRef} className="rounded-2xl bg-white/10 p-4 ring-1 ring-white/15 backdrop-blur">
       <div className="flex items-center gap-2 text-xs font-semibold text-white">
         <Bot className="h-3.5 w-3.5" />
-        Analyse · Ausschreibung 2026-114
+        Beispielanalyse · LV 2026-114
       </div>
       <ul className="mt-3 space-y-1.5 text-[11px] text-brand-100">
         {FINDINGS.map((finding, index) => (

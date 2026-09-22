@@ -1,4 +1,4 @@
-import { FileSearch, FileText, Mail, Receipt, ShieldAlert } from "lucide-react";
+import { FileSearch, Inbox, LineChart, ScanText } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import MediaFrame from "@/components/media/MediaFrame";
 import AgentAnalysis from "./AgentAnalysis";
@@ -11,33 +11,36 @@ type Agent = {
   description: string;
 };
 
+/*
+ * Nur KI-Funktionen, die im Produkt tatsächlich laufen (Stand 2026-09-22):
+ * LV-Auswertung und Fragen an das LV (lib/gaeb/agent), Übernahme von
+ * DB-Leistungsanfragen (lib/services/leistungsanfrage), Beleg-Erfassung und
+ * Finanzbericht (lib/finance/ai). Dokumentations-, Mängel-, Ausschreibungs-
+ * und Abrechnungsagent standen hier früher – im Produkt sind sie Mock-Daten
+ * ohne Backend und werden erst wieder genannt, wenn es sie gibt.
+ */
 const FEATURED_AGENT: Agent = {
   icon: FileSearch,
   name: "LV-Agent",
   description:
-    "Liest Leistungsverzeichnisse, erkennt relevante Positionen und bereitet Angebotsdaten strukturiert für die Kalkulation vor – aus Stunden werden Minuten.",
+    "Wertet GAEB-Leistungsverzeichnisse aus: Zusammenfassung, Hinweise auf fehlende Mengen, Pauschal- und Nachtpositionen sowie Vorschläge für Personal, Fahrzeuge und Material. Fragen zum LV beantwortet er direkt.",
 };
 
 const AGENTS: Agent[] = [
   {
-    icon: FileText,
-    name: "Dokumentationsagent",
-    description: "Erstellt Projektberichte aus Fotos, Notizen und Tagesdaten – prüffähig formatiert.",
+    icon: Inbox,
+    name: "Leistungsanfragen übernehmen",
+    description: "Liest Anfragen aus dem DB-Lieferantenportal – als Link oder PDF – und füllt die Projektanlage mit Auftrags- und SAP-Nummer, Baustelle und Zeitraum vor.",
   },
   {
-    icon: ShieldAlert,
-    name: "Mängel-Agent",
-    description: "Erkennt und strukturiert Mängel im Lager oder Projekt und stößt die Nachverfolgung an.",
+    icon: ScanText,
+    name: "Belege erfassen",
+    description: "Erkennt in Rechnungen und Belegen als PDF oder Foto Betrag, Mehrwertsteuer, Rechnungsnummer und Fälligkeit und legt daraus eine Buchung an.",
   },
   {
-    icon: Mail,
-    name: "Ausschreibungsagent",
-    description: "Verarbeitet E-Mails vom Bieterportal und extrahiert relevante Auftragsdaten automatisch.",
-  },
-  {
-    icon: Receipt,
-    name: "Abrechnungsagent",
-    description: "Prüft abrechnungsrelevante Leistungen und Dokumente, bevor die Rechnung rausgeht.",
+    icon: LineChart,
+    name: "Finanzbericht",
+    description: "Fasst die Kennzahlen der Finanzübersicht zu einem Bericht zusammen: Lage, Auffälligkeiten und Hinweise – für die Geschäftsführung.",
   },
 ];
 
@@ -61,7 +64,7 @@ export default function AgentsSection() {
               KI-Agenten, die <span className="text-gradient-accent">operative Arbeit vorbereiten</span>
             </span>
           }
-          description="Keine Spielerei: Die Agenten übernehmen die zeitfressende Vorarbeit – dein Team entscheidet und gibt frei."
+          description="Keine Spielerei: KI liest Leistungsverzeichnisse, Leistungsanfragen und Belege – dein Team prüft, entscheidet und gibt frei."
         />
 
         <div className="mt-12 grid gap-5 md:mt-16 md:grid-cols-2 lg:grid-cols-3">
@@ -100,28 +103,29 @@ export default function AgentsSection() {
             );
           })}
 
-          {/* Bildkachel: zeigt den Arbeitsschritt, den die Agenten übernehmen.
-              Ohne sie besteht das Bento-Grid nur aus Icon-Karten. */}
+          {/* Hinweis-Karte: füllt neben der dritten Karte die zweite Reihe. */}
+          <Reveal delay={0.24} className="h-full">
+            <div className="flex h-full items-center rounded-3xl border border-dashed border-brand-300 bg-brand-50/40 p-6">
+              <p className="text-sm leading-relaxed text-brand-800">
+                <span className="font-semibold">Optional:</span> Die KI-Funktionen setzen einen
+                eingerichteten KI-Zugang voraus. Gleistrix funktioniert auch komplett ohne – und jedes
+                Ergebnis wird vor der Übernahme geprüft.
+              </p>
+            </div>
+          </Reveal>
+
+          {/* Bildkachel als eigene Zeile: Mit drei statt vier Karten bliebe
+              sie sonst neben einer Lücke stehen. */}
           <MediaFrame
             src="/media/start/ki-agenten.webp"
             video="/media/start/ki-agenten.mp4"
             alt="Der Gleistrix-Fuchs lässt Ausschreibungsunterlagen am Bildschirm auswerten"
             ratio="fill"
             caption="Vorarbeit, die sonst am Schreibtisch liegen bleibt"
-            delay={0.26}
-            sizes="(min-width: 1024px) 66vw, 100vw"
-            className="h-full lg:col-span-2"
+            delay={0.3}
+            sizes="(min-width: 1024px) 1200px, 100vw"
+            className="h-full md:col-span-2 lg:col-span-3"
           />
-
-          {/* Hinweis-Karte: Agenten sind optional */}
-          <Reveal delay={0.3} className="h-full">
-            <div className="flex h-full items-center rounded-3xl border border-dashed border-brand-300 bg-brand-50/40 p-6">
-              <p className="text-sm leading-relaxed text-brand-800">
-                <span className="font-semibold">Optional zuschaltbar:</span> Alle KI-Agenten lassen
-                sich pro Unternehmen aktivieren – Gleistrix funktioniert auch komplett ohne.
-              </p>
-            </div>
-          </Reveal>
         </div>
       </div>
     </section>
