@@ -27,7 +27,7 @@ export default function Page() {
             Verbunden mit dem, was <span className="text-gradient-accent">schon läuft</span>
           </>
         }
-        description="Gleistrix ersetzt nicht die ganze Werkzeugkiste. Buchhaltung, Kalender, Ausschreibung und Recruiting bleiben – die Daten laufen nur nicht mehr getrennt."
+        description="Gleistrix ersetzt nicht die ganze Werkzeugkiste. Buchhaltung, Kalender und Ausschreibung bleiben – die Daten laufen nur nicht mehr getrennt."
         breadcrumbs={[{ label: "Startseite", href: "/" }, { label: "Integrationen" }]}
         ctas={[
           { label: "Demo anfragen", href: "/demo-buchen" },

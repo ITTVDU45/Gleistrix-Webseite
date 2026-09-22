@@ -244,6 +244,10 @@ export const DEFAULT_PRICING: PricingConfig = {
       isActive: true,
     },
   ],
+  // Nur Anbindungen mit Produktbeleg (Stand 2026-09-22) – dieselben wie im
+  // Megamenü und auf /integrationen. sevdesk, Stripe, Cal.com, Calendly,
+  // Indeed, StepStone und Telegram standen hier früher; im Produkt gibt es
+  // sie nicht. Live gilt die veröffentlichte Fassung aus /admin/pakete.
   integrations: [
     {
       id: "gaeb",
@@ -278,69 +282,6 @@ export const DEFAULT_PRICING: PricingConfig = {
       height: 493,
     },
     {
-      id: "sevdesk",
-      title: "sevdesk",
-      category: "Finanzen",
-      description: "Rechnungs- und Buchhaltungsprozesse mit Gleistrix verzahnen.",
-      src: "/logos/sevdesk.svg",
-      width: 400,
-      height: 100,
-    },
-    {
-      id: "stripe",
-      title: "Stripe",
-      category: "Finanzen",
-      description: "Zahlungsinformationen für automatisierte Abläufe nutzbar machen.",
-      src: "/logos/stripe.png",
-      width: 500,
-      height: 209,
-    },
-    {
-      id: "cal-com",
-      title: "Cal.com",
-      category: "Zusammenarbeit",
-      description: "Termine und Verfügbarkeiten direkt in Abläufe einbinden.",
-      src: "/logos/cal-com.png",
-      width: 512,
-      height: 512,
-    },
-    {
-      id: "calendly",
-      title: "Calendly",
-      category: "Zusammenarbeit",
-      description: "Buchungslinks und Gesprächstermine automatisch übernehmen.",
-      src: "/logos/calendly.png",
-      width: 666,
-      height: 375,
-    },
-    {
-      id: "indeed",
-      title: "Indeed",
-      category: "Recruiting",
-      description: "Bewerber- und Recruitingprozesse mit Mitarbeiterabläufen verbinden.",
-      src: "/logos/indeed.png",
-      width: 1280,
-      height: 345,
-    },
-    {
-      id: "stepstone",
-      title: "StepStone",
-      category: "Recruiting",
-      description: "Stellenanzeigen und Bewerberdaten in definierte Workflows übergeben.",
-      src: "/logos/stepstone.png",
-      width: 1920,
-      height: 329,
-    },
-    {
-      id: "telegram",
-      title: "Telegram",
-      category: "Kommunikation",
-      description: "Benachrichtigungen und Einsatzinformationen gezielt ausspielen.",
-      src: "/logos/telegram.png",
-      width: 1280,
-      height: 1280,
-    },
-    {
       id: "custom-api",
       title: "Individuelle Schnittstelle",
       category: "Kommunikation",
@@ -354,7 +295,6 @@ export const DEFAULT_PRICING: PricingConfig = {
     "Projekt & Auftrag",
     "Finanzen",
     "Zusammenarbeit",
-    "Recruiting",
     "Kommunikation",
   ],
   texts: {
@@ -382,7 +322,7 @@ export const DEFAULT_PRICING: PricingConfig = {
       "Die einmalige Implementierung richtet sich nach deinem Projektvolumen und umfasst die gemeinsame Einführung in Gleistrix.",
     integrationsTitle: "Gleistrix passt in deine Systemlandschaft",
     integrationsDescription:
-      "Verbinde Projekt-, Finanz-, Recruiting- und Kommunikationssysteme. Den genauen Schnittstellenumfang stimmen wir im Einführungsprojekt ab.",
+      "GAEB, DATEV, Microsoft 365 und Leistungsanfragen der Deutschen Bahn sind angebunden. Weitere Systeme stimmen wir im Einführungsprojekt ab.",
   },
   updatedAt: "2026-01-01T00:00:00.000Z",
 };
