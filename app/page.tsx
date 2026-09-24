@@ -1,4 +1,5 @@
 import Hero from "@/components/landing/Hero";
+import FilmSection from "@/components/landing/FilmSection";
 import SecurityIntegrations from "@/components/landing/SecurityIntegrations";
 import CaseStudiesSection from "@/components/landing/CaseStudiesSection";
 import TrustBand from "@/components/landing/TrustBand";
@@ -37,6 +38,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageJsonLd(HOME_FAQS)) }}
       />
       <Hero />
+      <FilmSection />
       <SecurityIntegrations />
       <CaseStudiesSection />
       <TrustBand />
