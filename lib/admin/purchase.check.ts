@@ -26,7 +26,9 @@ registerHooks({
   },
 });
 
-const { addonPurchaseFor, istWirksam, monatsende, purchaseFor } = await import("./purchase.ts");
+const { addonPurchaseFor, istWirksam, monatsende, purchaseFor, zaehlendeKaeufe } = await import(
+  "./purchase.ts"
+);
 
 /** Zahlen bewusst krumm, damit ein vergessener Summand auffällt. */
 const config = {
@@ -265,4 +267,59 @@ assert.equal(
   false,
 );
 
-console.log("purchase.check: alle 22 Pruefungen bestanden");
+/* ------------------------------------------- Was in die Meldung eingeht */
+
+const jetzt = "2026-08-20T12:00:00.000Z";
+
+// 23. Ein Abgleich aus dem Modul-Tab nimmt einen OFFENEN Grundkauf nicht mit.
+// Vorher genügte ein Klick auf „Sperren": Der nur erfasste Kauf ging an die
+// App, wurde freigegeben, die Kaufbestätigung ging raus und die Demo-Befristung
+// fiel weg – alles ohne „Mandant an die App melden".
+assert.deepEqual(zaehlendeKaeufe([voll], jetzt), [], "Ein offener Grundkauf zählt beim Abgleich nicht");
+
+// 24. Der ausdrückliche Weg meldet ihn weiterhin – dafür ist er da.
+assert.deepEqual(zaehlendeKaeufe([voll], jetzt, { meldet: voll.id }), [voll]);
+
+// 25. Ein freigegebener Grundkauf zählt immer.
+const freigegeben = { ...voll, status: "freigegeben" as const, syncedAt: jetzt };
+assert.deepEqual(zaehlendeKaeufe([freigegeben], jetzt), [freigegeben]);
+
+// 26. Scheiterte ein SPÄTERER Lauf, bleibt der Kauf trotzdem gebucht: Die App
+// hat ihn schon einmal bestätigt (syncedAt). Fiele er heraus, meldete der
+// nächste Abgleich nur noch das Mandantenpaket – der Kunde verlöre bezahlte
+// Module, weil einmal die Leitung hakte.
+const spaeterGescheitert = { ...freigegeben, status: "fehlgeschlagen" as const };
+assert.deepEqual(zaehlendeKaeufe([spaeterGescheitert], jetzt), [spaeterGescheitert]);
+assert.deepEqual(
+  zaehlendeKaeufe([{ ...voll, status: "fehlgeschlagen" as const }], jetzt),
+  [],
+  "Ein nie gemeldeter Kauf zählt auch nach einem Fehlschlag nicht",
+);
+
+// 27. Zubuchungen zählen in beiden Wegen genau so lange, wie sie wirksam sind.
+assert.deepEqual(zaehlendeKaeufe([zubuchung, abbestellt], jetzt), [zubuchung, abbestellt]);
+assert.deepEqual(
+  zaehlendeKaeufe([abbestellt], "2026-09-01T00:00:00.000Z", { meldet: voll.id }),
+  [],
+);
+
+// 28. Ein offener Grundkauf zählt nur, wenn ER gemeldet wird. Vorher nahm
+// „Erneut melden" am alten, freigegebenen Grundkauf G1 den nur erfassten
+// Upgrade-Kauf G2 mit: Die App bekam G2, freigegeben wurde aber nur G1. Der
+// nächste Abgleich ließ G2 wieder weg, und die bezahlten Upgrade-Module
+// verschwanden. Gemeldet wird jetzt genau das, was danach als bestätigt gilt.
+const g1 = { ...freigegeben, id: "g1" };
+const g2 = { ...voll, id: "g2" };
+assert.deepEqual(
+  zaehlendeKaeufe([g2, g1], jetzt, { meldet: g1.id }),
+  [g1],
+  "Der offene Upgrade-Kauf geht nicht mit einer Meldung über einen anderen Kauf mit",
+);
+assert.deepEqual(zaehlendeKaeufe([g2, g1], jetzt, { meldet: g2.id }), [g2, g1]);
+assert.deepEqual(
+  zaehlendeKaeufe([zubuchung, g2, g1], jetzt, { meldet: zubuchung.id }),
+  [zubuchung, g1],
+  "Auch eine Zubuchung gibt keinen offenen Grundkauf nebenbei frei",
+);
+
+console.log("purchase.check: alle 28 Pruefungen bestanden");

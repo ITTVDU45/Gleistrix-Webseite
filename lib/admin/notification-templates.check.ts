@@ -14,6 +14,7 @@ import assert from "node:assert/strict";
 const {
   INVITE_FALLBACK_TEMPLATE,
   bodyToHtml,
+  companyUserRolesFor,
   renderNotification,
   renderPlaceholders,
   sampleValues,
@@ -180,5 +181,16 @@ for (const trigger of ["unternehmen.eingerichtet", "nutzer.eingeladen"] as const
 // gibt es nichts vorzugeben.
 assert.equal(triggerLinkTarget("unternehmen.gesperrt"), null, "Sperrmail behält ihr freies Ziel");
 assert.equal(triggerLinkTarget(null), null, "Ohne Auslöser gibt es keine Vorgabe");
+
+/* ------------------------------------------------------ Rollen je Mandant */
+
+// Die Rolle „Lager" arbeitet NUR in der Lagerverwaltung. Ohne gemeldetes
+// warehouse entstünde ein Konto, das sich anmeldet und nichts sieht.
+assert.ok(
+  !companyUserRolesFor(["basispaket", "billing"]).includes("lager"),
+  "Ohne warehouse wird die Rolle Lager nicht angeboten",
+);
+assert.ok(companyUserRolesFor(["basispaket", "warehouse"]).includes("lager"));
+assert.ok(companyUserRolesFor([]).includes("user"), "Die übrigen Rollen bleiben immer wählbar");
 
 console.log("notification-templates.check.ts: alle Prüfungen bestanden");

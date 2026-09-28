@@ -81,6 +81,42 @@ export function istWirksam(purchase: Purchase, jetzt: string): boolean {
 }
 
 /**
+ * Die Käufe, die in den Modulsatz eingehen – für die Meldung an die App und für
+ * jede Anzeige des Umfangs. Reihenfolge bleibt erhalten (neueste zuerst).
+ *
+ * Zubuchungen zählen, solange sie wirksam sind. Beim Grundkauf trennt
+ * `meldet` (die Kennung des Kaufs, der ausdrücklich gemeldet wird) die Wege:
+ * - „Mandant an die App melden" (Provisionierung, Kaufseite) meldet auch einen
+ *   OFFENEN Grundkauf – aber nur DIESEN, denn genau er wird danach als
+ *   freigegeben vermerkt. Ginge ein anderer offener Grundkauf mit, bekäme die
+ *   App ihn, ohne dass er als bestätigt gilt, und der nächste Abgleich nähme
+ *   ihn wieder weg: Die App spränge auf den alten Umfang zurück.
+ * - Jeder andere Abgleich (Modul-Tab, Stammdaten, Status, Paketwechsel) meldet
+ *   keinen Kauf und nimmt deshalb nur einen Grundkauf mit, den die App schon
+ *   bestätigt hat. Sonst gab ein Klick auf „Sperren" nebenbei einen nur
+ *   erfassten Kauf frei, verschickte die Kaufbestätigung und hob die
+ *   Demo-Befristung auf.
+ *
+ * „Schon bestätigt" heißt `freigegeben` ODER `syncedAt`: Scheitert ein späterer
+ * Lauf, steht der Kauf auf „fehlgeschlagen", ist in der App aber längst
+ * gebucht. Fiele er heraus, meldete der nächste Abgleich nur das
+ * Mandantenpaket, und der Kunde verlöre bezahlte Module.
+ */
+export function zaehlendeKaeufe(
+  purchases: Purchase[],
+  jetzt: string,
+  options: { meldet?: string | null } = {},
+): Purchase[] {
+  return purchases.filter((purchase) =>
+    purchase.kind === "paket"
+      ? purchase.id === options.meldet ||
+        purchase.status === "freigegeben" ||
+        Boolean(purchase.syncedAt)
+      : istWirksam(purchase, jetzt),
+  );
+}
+
+/**
  * Baut eine Zubuchung: Module, die ein Nutzer in der App selbst freigeschaltet
  * hat und die „on top" auf seinen Grundkauf kommen.
  *

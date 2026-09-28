@@ -26,26 +26,32 @@ registerHooks({
 });
 
 const { demoConfirmationIssue, registrationFor } = await import("./app-sync.ts");
+const { hasAppFunction, moduleAccess } = await import("./modules.ts");
 const { tenantFor } = await import("./tenant.ts");
 
 /**
  * Zwei Kataloge mit getrenntem Kennungsraum – der Kern der Verwechslung.
  * Preispakete tragen keine Unterstriche, Mandantenpakete schon; ein Treffer im
  * jeweils anderen Katalog ist strukturell unmöglich.
+ *
+ * Die Kennungen sind die echten des Website-Katalogs (data/pricing.ts): Die App
+ * übersetzt genau diese, ausgedachte hielten hier einen Vertrag fest, den es
+ * nicht gibt.
  */
 const pricing = {
-  packages: [{ id: "professional", name: "Professional" }],
+  packages: [{ id: "basispaket", name: "Basispaket" }],
   modules: [
-    { id: "einsatztafel", tier: "standard" },
-    { id: "zeiterfassung", tier: "standard" },
-    { id: "abrechnung", tier: "complex" },
+    { id: "operations-board", tier: "standard" },
+    { id: "vehicles", tier: "standard" },
+    { id: "billing", tier: "complex" },
+    { id: "warehouse", tier: "complex" },
   ],
 } as unknown as PricingConfig;
 
 const tenantPackage = {
   id: "pkg_professional",
   name: "Professional",
-  moduleIds: ["einsatztafel", "zeiterfassung"],
+  moduleIds: ["operations-board", "vehicles"],
 } as unknown as Package;
 
 const company = {
@@ -57,7 +63,7 @@ const company = {
   seats: 12,
   status: "provisioning",
   packageId: "pkg_professional",
-  extraModuleIds: ["abrechnung"],
+  extraModuleIds: ["billing"],
   blockedModuleIds: [],
   tenant: tenantFor("muster-bau"),
   provisioning: [],
@@ -78,28 +84,29 @@ assert.equal(
 );
 assert.equal(ohneKauf.paket.id, "pkg_professional");
 
-// 2. Gemeldet wird der volle Umfang: Paketmodule PLUS Einzelfreigaben.
-// Vorher waren es nur die Einzelfreigaben – die App bekam einen anderen
-// Modulsatz, als der Adminbereich für denselben Mandanten anzeigt.
+// 2. Gemeldet wird der volle Umfang: Grundumfang, Paketmodule PLUS
+// Einzelfreigaben. Vorher waren es nur die Einzelfreigaben – die App bekam einen
+// anderen Modulsatz, als der Adminbereich für denselben Mandanten anzeigt.
+// `basispaket` steht vorn: Die App schaltet darüber Dashboard, Projekte,
+// Zeiterfassung, Mitarbeiter und Statistiken frei – ohne die Kennung fehlten sie.
 assert.deepEqual(
-  [...ohneKauf.module].sort(),
-  ["abrechnung", "einsatztafel", "zeiterfassung"],
-  "Paketmodule und Einzelfreigaben gehören beide in die Meldung",
+  ohneKauf.module,
+  ["basispaket", "operations-board", "vehicles", "billing"],
+  "Grundumfang, Paketmodule und Einzelfreigaben gehören alle in die Meldung",
 );
 
 // 3. Eine Sperre zieht ab.
 const mitSperre = registrationFor({
-  company: { ...company, blockedModuleIds: ["zeiterfassung"] },
+  company: { ...company, blockedModuleIds: ["vehicles"] },
   purchases: [],
   pricing,
   tenantPackage,
 });
-assert.ok(
-  !mitSperre.module.includes("zeiterfassung"),
-  "Ein gesperrtes Modul darf nicht gemeldet werden",
-);
+assert.ok(!mitSperre.module.includes("vehicles"), "Ein gesperrtes Modul darf nicht gemeldet werden");
 
-// 4. Ohne zugewiesenes Paket bleibt das Feld leer, statt eine Kennung zu erfinden.
+// 4. Ohne zugewiesenes Paket bleibt das Feld leer, statt eine Kennung zu erfinden –
+// der Grundumfang geht trotzdem mit. Vorher kam hier eine leere Liste an, und
+// die App las sie als Zugangsstopp: Eine Demo ohne Paket war sofort gesperrt.
 const ohnePaket = registrationFor({
   company: { ...company, packageId: null, extraModuleIds: [] },
   purchases: [],
@@ -108,7 +115,7 @@ const ohnePaket = registrationFor({
 });
 assert.equal(ohnePaket.paket.id, "");
 assert.equal(ohnePaket.paket.name, "");
-assert.deepEqual(ohnePaket.module, []);
+assert.deepEqual(ohnePaket.module, ["basispaket"], "Der Grundumfang gehört zu jedem Mandanten");
 
 // 5. Benutzerzahl des Mandanten, solange es keinen Kauf gibt.
 assert.equal(ohneKauf.paket.benutzer, 12);
@@ -119,8 +126,8 @@ const purchase = {
   id: "pur_abc",
   kind: "paket",
   companyId: "cmp_muster",
-  packageId: "professional",
-  moduleIds: ["einsatztafel", "geloeschtes-modul"],
+  packageId: "basispaket",
+  moduleIds: ["operations-board", "geloeschtes-modul"],
   users: 25,
   capacityId: "cap_mittel",
   monthlyTotal: 289.9,
@@ -131,23 +138,46 @@ const purchase = {
 
 const mitKauf = registrationFor({ company, purchases: [purchase], pricing, tenantPackage });
 
-// 6. Der Kauf gewinnt: sein eingefrorener Stand, nicht der heutige des Mandanten.
-assert.equal(mitKauf.paket.id, "professional", "Der Kauf verweist auf die Preisliste");
-assert.equal(mitKauf.paket.name, "Professional");
+// 6. Der Kauf gewinnt bei Paket und Benutzerzahl: sein eingefrorener Stand,
+// nicht der heutige des Mandanten.
+assert.equal(mitKauf.paket.id, "basispaket", "Der Kauf verweist auf die Preisliste");
+assert.equal(mitKauf.paket.name, "Basispaket");
 assert.equal(mitKauf.paket.benutzer, 25, "Gebuchte Benutzerzahl schlägt die des Mandanten");
 
 // 7. Module aus dem Kauf, aber ohne Kennungen, die es im Katalog nicht mehr gibt –
 // die App würde sie ablehnen und im Protokoll stünde ein Fehler statt der Ursache.
-assert.deepEqual(
-  mitKauf.module,
-  ["einsatztafel"],
+assert.ok(
+  !mitKauf.module.includes("geloeschtes-modul"),
   "Eine inzwischen gelöschte Modulkennung darf nicht mitgeschickt werden",
 );
 
-// 8. Die Einzelfreigaben des Mandanten mischen sich NICHT in einen Kauf.
-assert.ok(
-  !mitKauf.module.includes("abrechnung"),
-  "Ein Kauf ist eingefroren und nimmt keine späteren Freigaben auf",
+// 8. BEWUSST UMGESCHRIEBEN: Früher stand hier „Ein Kauf ist eingefroren und
+// nimmt keine späteren Freigaben auf". Damit wirkte der Modul-Tab für jeden
+// Mandanten mit Kauf gar nicht – er zeigte „Einzeln freigegeben", und in der
+// App kam nichts an. Eingefroren bleiben Preis, Paket und Benutzerzahl; den
+// Modulumfang steuert der Superadmin über Freigaben und Sperren.
+assert.deepEqual(
+  mitKauf.module,
+  ["basispaket", "operations-board", "billing"],
+  "Einzelfreigaben wirken auch mit Kauf",
+);
+
+// 8a. Mit Kauf zählt dessen Umfang als Basis, nicht das Mandantenpaket: vehicles
+// steht nur im Mandantenpaket und darf nicht nebenbei mitkommen.
+assert.ok(!mitKauf.module.includes("vehicles"), "Mit Kauf wirkt das Mandantenpaket nicht");
+
+// 8b. Eine Sperre wirkt auch gegen den Kauf. Vorher blieb ein gesperrtes Modul
+// in der App sichtbar, sobald ein Kauf erfasst war.
+const sperreMitKauf = registrationFor({
+  company: { ...company, blockedModuleIds: ["operations-board"] },
+  purchases: [purchase],
+  pricing,
+  tenantPackage,
+});
+assert.deepEqual(
+  sperreMitKauf.module,
+  ["basispaket", "billing"],
+  "Ein gesperrtes Modul darf auch mit Kauf nicht gemeldet werden",
 );
 
 /* ----------------------------------------------------------- Rumpf selbst */
@@ -165,10 +195,9 @@ assert.ok(
 
 /* ------------------------------------------------------------- Die Sperre */
 
-// 10. Eine Sperre deaktiviert alle Module – auch mit Kauf. Der Adminbereich
-// sagt genau das zu („Eine Sperre deaktiviert sofort alle Module"). Läge die
-// Regel nur in effectiveModuleIds, hebelte ein Kauf sie aus: Der Kauf-Zweig
-// kommt an dieser Funktion vorbei.
+// 10. Eine Sperre deaktiviert alle Module – auch mit Kauf und auch den
+// Grundumfang. Der Adminbereich sagt genau das zu („Eine Sperre deaktiviert
+// sofort alle Module"), und die App liest die leere Liste als Zugangsstopp.
 const gesperrtMitKauf = registrationFor({
   company: { ...company, status: "suspended" } as Company,
   purchases: [purchase],
@@ -181,7 +210,7 @@ assert.deepEqual(
   "Ein gesperrter Mandant darf auch mit Kauf keine Module gemeldet bekommen",
 );
 
-// 11. Ohne Kauf gilt dasselbe – hier über effectiveModuleIds.
+// 11. Ohne Kauf gilt dasselbe.
 const gesperrtOhneKauf = registrationFor({
   company: { ...company, status: "suspended" } as Company,
   purchases: [],
@@ -200,7 +229,7 @@ const zubuchung = {
   packageId: "",
   capacityId: "",
   users: 0,
-  moduleIds: ["zeiterfassung"],
+  moduleIds: ["warehouse"],
   monthlyTotal: 39,
   implementationPrice: 0,
   status: "freigegeben",
@@ -218,14 +247,14 @@ const mitZubuchung = registrationFor({
   tenantPackage,
 });
 assert.deepEqual(
-  [...mitZubuchung.module].sort(),
-  ["einsatztafel", "zeiterfassung"],
+  mitZubuchung.module,
+  ["basispaket", "operations-board", "billing", "warehouse"],
   "Zubuchung kommt zum Grundumfang dazu, sie ersetzt ihn nicht",
 );
 
 // 13. Paket und Benutzerzahl bleiben die des Grundkaufs - eine Zubuchung
 // enthaelt dazu nichts und darf sie nicht auf 0 ziehen.
-assert.equal(mitZubuchung.paket.id, "professional", "Das Paket steht im Grundkauf");
+assert.equal(mitZubuchung.paket.id, "basispaket", "Das Paket steht im Grundkauf");
 assert.equal(mitZubuchung.paket.benutzer, 25, "Die Benutzerzahl steht im Grundkauf");
 
 // 14. Auch ohne Grundkauf zaehlt eine Zubuchung mit - dann zum Stand, den der
@@ -237,12 +266,26 @@ const nurZubuchung = registrationFor({
   tenantPackage,
 });
 assert.ok(
-  nurZubuchung.module.includes("zeiterfassung"),
+  nurZubuchung.module.includes("warehouse"),
   "Eine Zubuchung ohne Grundkauf darf nicht verschwinden",
 );
 assert.ok(
-  nurZubuchung.module.includes("einsatztafel"),
+  nurZubuchung.module.includes("operations-board"),
   "Der Paketumfang des Mandanten bleibt daneben bestehen",
+);
+
+// 14a. Eine Sperre filtert auch Zubuchungen. Vorher kamen sie NACH dem Abzug
+// der Sperren dazu – ein in der App zugebuchtes Modul liess sich im
+// Adminbereich auf keinem Weg sperren.
+const zubuchungGesperrt = registrationFor({
+  company: { ...company, blockedModuleIds: ["warehouse"] },
+  purchases: [zubuchung, purchase],
+  pricing,
+  tenantPackage,
+});
+assert.ok(
+  !zubuchungGesperrt.module.includes("warehouse"),
+  "Ein gesperrtes Modul darf auch als Zubuchung nicht gemeldet werden",
 );
 
 // 15. Ein gewoehnlicher Mandant traegt kein Ablaufdatum - aber ausdruecklich
@@ -309,4 +352,56 @@ assert.ok(demoConfirmationIssue("2026-08-23T10:00:00.000Z", null));
 assert.ok(demoConfirmationIssue("2026-08-23T10:00:00.000Z", "2026-09-23T10:00:00.000Z"));
 assert.ok(demoConfirmationIssue("2026-08-23T10:00:00.000Z", "unlesbar"));
 
-console.log("app-sync.check: alle 20 Pruefungen bestanden");
+/* ------------------------------------------ Zustand je Modul (Modul-Tab) */
+
+// 21. Die Anzeige liest DIESELBE Funktion wie die Meldung. Zwei Rechenwege
+// drifteten auseinander – genau so zeigte der Modul-Tab „Einzeln freigegeben",
+// während in der App nichts ankam.
+const zustand = moduleAccess({
+  company: { ...company, blockedModuleIds: ["vehicles"] },
+  pricing,
+  tenantPackage,
+  purchases: [zubuchung],
+});
+assert.equal(zustand.sourceOf("operations-board"), "package");
+assert.equal(zustand.sourceOf("vehicles"), "blocked", "Die Sperre steht über dem Paket");
+assert.equal(zustand.sourceOf("billing"), "extra");
+assert.equal(zustand.sourceOf("warehouse"), "addon");
+assert.equal(zustand.sourceOf("material"), "none");
+assert.deepEqual(
+  registrationFor({
+    company: { ...company, blockedModuleIds: ["vehicles"] },
+    purchases: [zubuchung],
+    pricing,
+    tenantPackage,
+  }).module,
+  ["basispaket", ...zustand.moduleIds],
+  "Zähler und Meldung müssen denselben Satz zeigen",
+);
+assert.ok(!zustand.moduleIds.includes("basispaket"), "Der Zähler zählt nur Katalogmodule");
+
+// 22. Mit Kauf heisst die Quelle „Kauf", und das Mandantenpaket wirkt nicht.
+const zustandMitKauf = moduleAccess({ company, pricing, tenantPackage, purchases: [purchase] });
+assert.equal(zustandMitKauf.sourceOf("operations-board"), "purchase");
+assert.equal(zustandMitKauf.sourceOf("vehicles"), "none");
+
+// 23. Ein gesperrter Mandant meldet nichts und zählt nichts – die Quelle bleibt
+// aber lesbar, damit die Knöpfe nach dem Entsperren stimmen.
+const zustandGesperrt = moduleAccess({
+  company: { ...company, status: "suspended" } as Company,
+  pricing,
+  tenantPackage,
+  purchases: [],
+});
+assert.deepEqual(zustandGesperrt.reported, []);
+assert.deepEqual(zustandGesperrt.moduleIds, []);
+assert.equal(zustandGesperrt.sourceOf("billing"), "extra");
+
+// 24. Vier Katalogmodule haben in der App noch keine Funktion. Der Modul-Tab
+// sagt das dazu – sonst hält der Superadmin eine Freigabe für wirkungslos kaputt.
+for (const id of ["qualifications", "employee-documents", "templates", "deadlines"]) {
+  assert.equal(hasAppFunction(id), false, `${id} hat in der App noch keine Funktion`);
+}
+assert.equal(hasAppFunction("warehouse"), true);
+
+console.log("app-sync.check: alle 24 Pruefungen bestanden");

@@ -13,7 +13,7 @@
 import type { Company, Package, Purchase } from "@/types/admin";
 import type { PricingConfig } from "@/types/pricing";
 
-import { effectiveModuleIds } from "./modules";
+import { moduleAccess } from "./modules";
 import { APP_URL } from "./tenant";
 
 /** Wie in der Gleistrix-App: 32 Zeichen = 128 Bit. */
@@ -138,8 +138,8 @@ export type TenantRegistration = {
  * Baut den Rumpf aus dem Mandanten zusammen.
  *
  * Paket, Benutzerzahl und Module kommen vom Aufrufer und nicht aus dem
- * Unternehmen: Bei einem Kauf gilt der eingefrorene Stand aus `purchases`, nicht
- * der heutige Stand der Preisliste.
+ * Unternehmen: Bei einem Kauf gelten Paket und Benutzerzahl zum Kaufzeitpunkt,
+ * nicht der heutige Stand der Preisliste.
  */
 function tenantRegistration(input: {
   company: Company;
@@ -165,9 +165,12 @@ function tenantRegistration(input: {
  * Entscheidet, was der App gemeldet wird – die ganze Regel an einer Stelle und
  * ohne Datenbank, damit sie prüfbar ist.
  *
- * Der Kauf hat Vorrang: sein eingefrorener Stand gilt, nicht die heutige
- * Preisliste. Ohne Kauf zählt der Mandant selbst, und zwar mit genau dem
- * Umfang, den der Adminbereich für ihn anzeigt.
+ * Paket und Benutzerzahl: Der Kauf hat Vorrang, sein eingefrorener Stand gilt,
+ * nicht die heutige Preisliste. Ohne Kauf zählt der Mandant selbst.
+ *
+ * Module: `moduleAccess` – dieselbe Funktion, mit der der Adminbereich den
+ * Modul-Tab und die Zähler zeigt. Freigaben und Sperren wirken damit auch mit
+ * Kauf, und der Grundumfang geht immer mit, außer bei einem gesperrten Mandanten.
  *
  * ACHTUNG BEI DEN PAKETEN: Es gibt zwei Kataloge mit eigenem Kennungsraum.
  * `purchase.packageId` verweist auf die Preisliste (pricing_packages),
@@ -178,7 +181,7 @@ function tenantRegistration(input: {
 export function registrationFor(input: {
   company: Company;
   /**
-   * Alle Käufe des Mandanten, neueste zuerst.
+   * Die zählenden Käufe des Mandanten, neueste zuerst (`zaehlendeKaeufe`).
    *
    * Käufe sind additiv: Der Grundkauf trägt Paket und Benutzerzahl, jede
    * Zubuchung legt Module „on top". Nur den neuesten zu melden entzöge dem
@@ -203,34 +206,11 @@ export function registrationFor(input: {
       }
     : { id: tenantPackage?.id ?? "", name: tenantPackage?.name ?? "" };
 
-  const known = new Set(pricing.modules.map((module) => module.id));
-
-  // Grundumfang plus jede Zubuchung. Ohne Grundkauf zählt der Stand, den der
-  // Adminbereich anzeigt – Zubuchungen kommen auch dann obendrauf.
-  const gebucht = [
-    ...new Set([
-      ...(grundkauf ? grundkauf.moduleIds : effectiveModuleIds(pricing, company, tenantPackage)),
-      ...purchases
-        .filter((purchase) => purchase.kind === "zubuchung")
-        .flatMap((purchase) => purchase.moduleIds),
-    ]),
-  ];
-
-  // Eine Sperre steht ÜBER dem Kauf. Der Adminbereich sagt zu, dass sie sofort
-  // alle Module deaktiviert – läge die Regel nur in effectiveModuleIds, hielte
-  // der Kauf-Zweig diese Zusage nicht, und ein gesperrter Mandant bekäme seinen
-  // vollen Umfang gemeldet. Der Kauf selbst bleibt unberührt: Er ist
-  // eingefroren, die Sperre ist ein Zugangsstopp.
-  // Unbekannte Kennungen fliegen raus: die App würde sie ohnehin ablehnen, und
-  // im Protokoll stünde dann ein Fehler statt der Ursache. Der Kauf behält sie –
-  // die Kaufseite zeigt sie als „Unbekanntes Modul".
-  const modules = company.status === "suspended" ? [] : gebucht.filter((id) => known.has(id));
-
   return tenantRegistration({
     company,
     paket,
     benutzer: grundkauf?.users ?? company.seats,
-    module: modules,
+    module: moduleAccess({ company, pricing, tenantPackage, purchases }).reported,
     // Ein Grundkauf hebt die Befristung auf – und zwar hier, nicht durch einen
     // zusätzlichen Handgriff im Adminbereich. Aus einer Demo wird ein Kunde,
     // indem er kauft; bliebe das Datum stehen, sperrte die App den bezahlten

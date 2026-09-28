@@ -156,6 +156,19 @@ export function isCompanyUserRole(value: string): value is CompanyUserRole {
   return (COMPANY_USER_ROLES as string[]).includes(value);
 }
 
+/**
+ * Rollen, die für einen Mandanten mit diesem gemeldeten Modulsatz sinnvoll sind.
+ *
+ * „Lager" arbeitet nur in der Lagerverwaltung. Ohne gemeldetes `warehouse`
+ * entstünde ein Konto, das sich anmeldet und nichts sieht – die App zeigt der
+ * Rolle dann keinen einzigen Bereich.
+ */
+export function companyUserRolesFor(reportedModuleIds: string[]): CompanyUserRole[] {
+  return COMPANY_USER_ROLES.filter(
+    (role) => role !== "lager" || reportedModuleIds.includes("warehouse"),
+  );
+}
+
 /* ----------------------------------------------------------------- Rendering */
 
 const PLACEHOLDER_PATTERN = /\{\{\s*([a-zA-Z]+)\s*\}\}/g;

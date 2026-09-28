@@ -1,6 +1,6 @@
 # Die Gegenstelle in app.gleistrix.de
 
-Stand: 06.08.2026 · Gegenstück zu `docs/umbau-mandantenfaehig.md`
+Stand: 06.08.2026, Modulsatz überarbeitet am 28.09.2026 · Gegenstück zu `docs/umbau-mandantenfaehig.md`
 Repo der App: `~/Desktop/Gleistrix/Gleistrix`
 
 Die Website-Seite ist fertig und getestet. Dieses Dokument beschreibt, was in
@@ -98,7 +98,7 @@ Der Endpunkt, den die Website beim Provisionierungsschritt `app-sync` aufruft.
 ```
 POST /api/internal/tenants
 Authorization: Bearer {SERVICE_SHARED_SECRET}
-Idempotency-Key: {Kauf-ID, z. B. pur_m1x2y3}
+Idempotency-Key: {Kauf-ID, z. B. pur_m1x2y3 – ohne Kauf die Unternehmens-ID}
 Content-Type: application/json
 ```
 
@@ -109,8 +109,9 @@ Content-Type: application/json
   "datenbank": "gleistrix_muster_bau",
   "bucket": "gleistrix-muster-bau",
   "erstbenutzer": { "email": "info@example.de", "name": "Max Mustermann" },
-  "paket": { "id": "professional", "name": "Professional", "benutzer": 14 },
-  "module": ["einsatztafel", "zeiterfassung"]
+  "paket": { "id": "basispaket", "name": "Basispaket", "benutzer": 14 },
+  "module": ["basispaket", "operations-board", "warehouse"],
+  "demoLaeuftAbAm": null
 }
 ```
 
@@ -136,15 +137,63 @@ Nach bereits erfolgter Passwortvergabe fehlt `einladungsLink` bewusst.
 4. **`200` ist Erfolg.** Die Website wertet jede 2xx als Erfolg. Wer nur `201`
    als gültig behandelt, produziert bei der ersten Wiederholung einen
    Fehlschlag im Protokoll, und der Admin wiederholt endlos.
-5. **`module` ist der vollständige Satz, kein Zuwachs.** Er enthält Grundkauf
-   plus alle Zubuchungen. Die App setzt den Modulsatz **absolut** — was nicht
-   drinsteht, ist nicht freigeschaltet. Bei einem gesperrten Mandanten kommt
-   eine leere Liste; das ist der Zugangsstopp und muss greifen.
+5. **`module` ist der vollständige Satz, kein Zuwachs.** Er enthält den
+   Grundumfang, Kauf- bzw. Paketumfang, alle Zubuchungen und Einzelfreigaben,
+   abzüglich gesperrter Module. Die App setzt den Modulsatz **absolut** — was
+   nicht drinsteht, ist nicht freigeschaltet. Bei einem gesperrten Mandanten
+   kommt eine leere Liste; das ist der Zugangsstopp und muss greifen. Details
+   im Abschnitt „Der Modulsatz" unten.
 6. **`paket.benutzer` ist das Kontingent**, nicht die Zahl vorhandener Konten.
 7. **Fehler als JSON `{ "error": "..." }`** mit passendem Statuscode. Die
    Website übernimmt diesen Text **wörtlich** ins Protokoll und zeigt ihn dem
    Superadmin. Formuliere ihn so, dass er dort weiterhilft — „Datenbank nicht
    erreichbar" statt „Internal Server Error".
+
+### Der Modulsatz
+
+Gebaut von `moduleAccess` in `lib/admin/modules.ts` — derselben Funktion, mit
+der der Adminbereich den Modul-Tab und die Zähler zeigt.
+
+- **`basispaket` steht immer vorn**, außer bei einem gesperrten Mandanten
+  (dann `[]`). Es ist auf der Website eine Paket-, keine Modulkennung, und
+  schaltet in der App Dashboard, Projekte, Zeiterfassung, Mitarbeiter und
+  Statistiken frei. Die App behandelt jeden nicht leeren Satz ohnehin so, als
+  stünde `basispaket` darin („Grundumfang implizit"): Ältere Stände der
+  Website schickten die Kennung nie.
+- **Danach Katalogmodule** aus `data/pricing.ts`: `material`, `absence`,
+  `vehicles`, `qualifications`, `employee-documents`, `clients`,
+  `subcontractors`, `deadlines`, `templates`, `operations-board`, `billing`,
+  `warehouse`, `finance`, `ai-agents`. Integrationen wie `gaeb` gehen nie mit.
+- **Basis** ist der Grundkauf, ohne ihn das Mandantenpaket. Dazu kommen
+  Zubuchungen und Einzelfreigaben. **Eine Sperre zieht von allem ab**, auch
+  vom Kauf und von Zubuchungen.
+- **Abgleich ≠ Meldung.** Nach einer Änderung im Adminbereich (Modul-Tab,
+  Stammdaten, Status, Paketwechsel) meldet die Website nur Käufe, die die App
+  schon bestätigt hat; ein nur erfasster Kauf wird erst mit „Mandant an die
+  App melden" wirksam.
+
+Wie die App die Kennungen übersetzt (APP `packages/shared/src/tenancy/moduleMap.ts`):
+
+| Website-Kennung | App-Module | Zusatzfunktion |
+| --- | --- | --- |
+| `basispaket` | dashboard, projekte, zeiterfassung, mitarbeiter, statistiken | – |
+| `operations-board` | plantafel | – |
+| `billing` | abrechnung | – |
+| `warehouse` | lager | – |
+| `vehicles` | fahrzeuge | – |
+| `subcontractors` | subunternehmen | – |
+| `ai-agents` | agenten | – |
+| `material` | – | material |
+| `absence` | – | abwesenheiten |
+| `finance` | – | finanzen |
+| `clients` | – | auftraggeber |
+| `qualifications`, `employee-documents`, `templates`, `deadlines` | – (noch keine Funktion in der App) | – |
+
+Zusatzfunktionen gelten nur je Mandant, nie je Benutzer. Die Rolle `lager`
+bietet die Website nur an, wenn `warehouse` gemeldet wird.
+
+Das Ergebnis jedes Abgleichs, auch „nicht gemeldet", steht am Unternehmen
+(`appSync`) und im Modul-Abschnitt der Unternehmensseite.
 
 ### Was der Endpunkt tun muss
 
@@ -261,8 +310,8 @@ Authorization: Bearer {SERVICE_SHARED_SECRET}
 Idempotency-Key: {eigene Vorgangskennung der App}
 
 { "kennung": "muster-bau",
-  "module": ["lagerverwaltung"],
-  "mengen": { "lagerverwaltung": 2000 } }
+  "module": ["warehouse"],
+  "mengen": { "warehouse": 2000 } }
 ```
 
 Antwort `201` mit `{ "kaufId": "pur_zub_…", "monatlich": 1079 }`; bei

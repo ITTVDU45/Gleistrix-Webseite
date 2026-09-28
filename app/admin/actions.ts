@@ -18,7 +18,7 @@ import {
   appSyncIssue,
 } from "@/lib/admin/app-sync";
 import { saveImageAsset } from "@/lib/admin/db/assets";
-import { effectiveModuleIds, getModule } from "@/lib/admin/modules";
+import { getModule, moduleAccess } from "@/lib/admin/modules";
 import {
   discardDraft,
   getDraftPricing,
@@ -378,16 +378,34 @@ export async function assignPackageAction(data: FormData): Promise<void> {
     if (!pkg || !pkg.isPublished) return;
   }
 
-  await updateCompany(companyId, (company) => ({ ...company, packageId }));
+  const updated = await updateCompany(companyId, (company) => ({ ...company, packageId }));
+
+  // Ohne Kauf bestimmt das Paket den Modulumfang. Ohne Abgleich erführe die App
+  // davon erst beim nächsten, ganz anderen Anlass.
+  await syncModulesIfProvisioned(updated);
   revalidateAdmin(companyId);
+}
+
+/** Hält das Ergebnis eines Abgleichs am Unternehmen fest – der Modul-Tab zeigt es. */
+async function recordAppSync(companyId: string, ok: boolean, message: string): Promise<void> {
+  await updateCompany(companyId, (current) => ({
+    ...current,
+    appSync: { at: new Date().toISOString(), ok, message },
+  }));
 }
 
 /**
  * Meldet den aktuellen Stand eines bereits provisionierten Mandanten an die App.
  *
- * Absichtlich still: Fehler landen im Serverprotokoll, nicht im Formular.
- * Der Superadmin sieht sie beim manuellen Wiederholen unter /admin/kaeufe
- * bzw. am Schritt „app-sync" der Provisionierung.
+ * Kein Formularfehler, aber auch nicht mehr still: Das Ergebnis steht am
+ * Unternehmen (`appSync`) und im Modul-Abschnitt der Unternehmensseite – auch
+ * wenn gar nicht gemeldet wurde. Vorher stand ein Fehlschlag nur im
+ * Serverprotokoll, und ein Mandant ohne Kauf hatte keinen Ort dafür.
+ *
+ * Ein Abgleich, keine Meldung: Er nimmt nur einen Grundkauf mit, den die App
+ * schon bestätigt hat, vermerkt nichts am Kauf und verschickt keine
+ * Kaufbestätigung (siehe `zaehlendeKaeufe`). Freigegeben wird ein Kauf nur über
+ * „Mandant an die App melden".
  *
  * Guard: Solange die App noch nicht provisioniert ist (`status === "provisioning"`),
  * wird nichts gesendet – ein Toggle darf keinen Mandanten anlegen, den der
@@ -395,20 +413,35 @@ export async function assignPackageAction(data: FormData): Promise<void> {
  */
 async function syncModulesIfProvisioned(company: Company | null): Promise<void> {
   if (!company) return;
-  if (company.status === "provisioning") return;
-  if (appSyncIssue()) return;
+
+  if (company.status === "provisioning") {
+    await recordAppSync(
+      company.id,
+      false,
+      "Nicht gemeldet: Der Mandant steht noch in der Provisionierung. Die Änderung ist gespeichert und geht mit dem Schritt „Mandant an die App melden“ an die App.",
+    );
+    return;
+  }
+
+  const issue = appSyncIssue();
+  if (issue) {
+    await recordAppSync(company.id, false, `Nicht gemeldet: ${APP_SYNC_ISSUE_TEXT[issue]}`);
+    return;
+  }
 
   try {
-    const outcome = await runAppSync(company);
+    const outcome = await runAppSync(company, { abgleich: true });
     if (!outcome.ok) {
       console.error(`App-Sync für ${company.slug} fehlgeschlagen: ${outcome.error}`);
     }
   } catch (error) {
     console.error(`App-Sync für ${company.slug} warf einen Fehler:`, error);
+    const reason = error instanceof Error ? error.message : "Unbekannter Fehler";
+    await recordAppSync(company.id, false, `Abgleich abgebrochen: ${reason}`);
   }
 }
 
-/** Modul freigeben, sperren oder auf den Paketstand zurücksetzen. */
+/** Modul freigeben, sperren oder Freigabe/Sperre zurücknehmen (`reset`). */
 export async function setModuleAccessAction(data: FormData): Promise<void> {
   const companyId = field(data, "companyId");
   const moduleId = field(data, "moduleId");
@@ -837,27 +870,18 @@ export async function releaseDemoAction(
     };
   }
 
-  // Ohne Module meldet die Website eine leere Modulliste, und die App liest sie
-  // als Zugangsstopp: Der Interessent bekäme eine Einladung in einen Mandanten,
-  // den er nicht öffnen kann.
-  const [pricing, tenantPackage, purchases] = await Promise.all([
-    getPublishedPricing(),
-    getPackage(company.packageId),
-    getPurchasesForCompany(companyId),
-  ]);
-
   // Ein Grundkauf hebt die Befristung auf (siehe registrationFor). Ohne diesen
   // Riegel meldete die Freigabe „freigeschaltet bis …", während in der App
   // nichts befristet wäre – eine Zusage, die niemand einlöst.
+  //
+  // Ein Paket braucht die Demo dagegen nicht mehr: Der Grundumfang geht immer
+  // mit (moduleAccess), die App bekommt also nie eine leere Liste – der frühere
+  // Riegel „kein Paket mit Modulen" schützte vor einem Zugangsstopp, den es
+  // nicht mehr gibt.
+  const purchases = await getPurchasesForCompany(companyId);
   if (purchases.some((purchase) => purchase.kind === "paket")) {
     return {
       error: `„${company.name}“ hat einen Grundkauf – dort greift keine Befristung mehr. Ein Demozugang ist nur für Mandanten ohne Kauf vorgesehen.`,
-    };
-  }
-
-  if (effectiveModuleIds(pricing, company, tenantPackage).length === 0) {
-    return {
-      error: `„${company.name}“ hat kein Paket mit Modulen – der Zugang wäre in der App sofort gesperrt. Bitte auf der Unternehmensseite ein Paket zuweisen.`,
     };
   }
 
@@ -942,13 +966,16 @@ export async function revokeDemoAction(data: FormData): Promise<void> {
     // Demomandanten der App, den es nicht mehr gibt.
     fehler = "Zu diesem Eintrag gibt es keinen Mandanten – Freigabe von vor der Umstellung.";
   } else if (
-    (await getPurchasesForCompany(access.companyId)).some(
-      (purchase) => purchase.kind === "paket",
-    )
+    zaehlendeKaeufe(
+      await getPurchasesForCompany(access.companyId),
+      new Date().toISOString(),
+    ).some((purchase) => purchase.kind === "paket")
   ) {
     // Ein Grundkauf hebt die Befristung auf – das Ende auf jetzt zu setzen
     // hätte hier also KEINE Wirkung. Das ehrlich zu melden ist wichtiger als
     // ein „widerrufen", nach dem sich der Kunde weiterhin anmelden kann.
+    // Gezählt wird wie im Abgleich unten: Ein nur ERFASSTER Grundkauf geht dort
+    // nicht mit, die Befristung greift also – und der Widerruf wirkt.
     fehler =
       "Dieser Mandant hat einen Grundkauf – die Befristung greift nicht mehr. Zum Sperren den Mandanten unter Unternehmen sperren.";
   } else {
@@ -960,7 +987,8 @@ export async function revokeDemoAction(data: FormData): Promise<void> {
     if (!beendet) {
       fehler = "Der Mandant wurde bereits aus dem Adminbereich entfernt.";
     } else {
-      const outcome = await runAppSync(beendet);
+      // Ein Abgleich: Hier endet eine Demo, es wird kein Kauf freigegeben.
+      const outcome = await runAppSync(beendet, { abgleich: true });
       if (!outcome.ok) fehler = outcome.error;
     }
   }
@@ -1739,7 +1767,7 @@ import {
   getPurchasesForCompany,
   updatePurchase,
 } from "@/lib/admin/store";
-import { istWirksam, purchaseFor } from "@/lib/admin/purchase";
+import { purchaseFor, zaehlendeKaeufe } from "@/lib/admin/purchase";
 import { formatPriceEUR } from "@/data/pricing";
 import { getPublishedPricing } from "@/lib/admin/pricing";
 import type { ProvisioningStepId, Purchase } from "@/types/admin";
@@ -1754,10 +1782,10 @@ type InvitationDelivery = { sent: boolean; note: string };
 /**
  * Meldet den Mandanten an die App.
  *
- * Gibt es einen Kauf, gilt dessen eingefrorener Stand – Paket, Module und
- * Benutzerzahl zum Kaufzeitpunkt, nicht der heutige Stand der Preisliste. Die
- * Kauf-ID ist zugleich der Idempotency-Key, damit eine Wiederholung nach einem
- * Fehlschlag keinen zweiten Mandanten erzeugt.
+ * Gibt es einen Kauf, gelten Paket und Benutzerzahl zum Kaufzeitpunkt, nicht
+ * der heutige Stand der Preisliste; den Modulumfang bestimmt `moduleAccess`
+ * samt Freigaben und Sperren. Die Kauf-ID ist zugleich der Idempotency-Key,
+ * damit eine Wiederholung nach einem Fehlschlag keinen zweiten Mandanten erzeugt.
  *
  * Scheitert der Aufruf, bleibt der Kauf erhalten: `status` geht auf
  * `fehlgeschlagen`, `syncError` hält die Meldung, und der Knopf unter
@@ -1863,7 +1891,16 @@ async function versendeErstzugang(
   return delivery;
 }
 
-async function runAppSync(company: Company, forPurchase?: Purchase): Promise<AppSyncOutcome> {
+/**
+ * `abgleich` trennt die beiden Wege (siehe `zaehlendeKaeufe`): Ein Abgleich nach
+ * einer Änderung im Adminbereich meldet nur schon bestätigte Käufe, vermerkt
+ * nichts am Kauf und verschickt keine Kaufbestätigung. Ohne `abgleich` ist es
+ * die ausdrückliche Meldung, die einen offenen Grundkauf freigibt.
+ */
+async function runAppSync(
+  company: Company,
+  options: { forPurchase?: Purchase; abgleich?: boolean } = {},
+): Promise<AppSyncOutcome> {
   const [purchases, pricing, tenantPackage] = await Promise.all([
     getPurchasesForCompany(company.id),
     getPublishedPricing(),
@@ -1872,17 +1909,20 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
 
   // Gemeldet wird IMMER der gesamte Stand des Mandanten – Grundkauf plus alle
   // Zubuchungen. `forPurchase` sagt nur, an welchem Kauf das Ergebnis vermerkt
-  // wird; ohne Angabe ist das der Grundkauf.
-  const purchase =
-    forPurchase ?? purchases.find((entry) => entry.kind === "paket") ?? purchases[0] ?? null;
+  // wird; ohne Angabe ist das der Grundkauf. Ein Abgleich vermerkt an keinem.
+  const purchase = options.abgleich
+    ? null
+    : (options.forPurchase ??
+      purchases.find((entry) => entry.kind === "paket") ??
+      purchases[0] ??
+      null);
 
   // Abbestellte Zubuchungen fallen nach ihrem Laufzeitende raus – bis dahin
-  // sind sie bezahlt und bleiben nutzbar. Der Grundkauf zählt immer mit; ohne
-  // ihn stünde ein Mandant ohne Paket da, bevor er überhaupt gemeldet wurde.
+  // sind sie bezahlt und bleiben nutzbar. Ein offener Grundkauf zählt nur, wenn
+  // er selbst der gemeldete Kauf ist: Nur an ihm wird der Erfolg vermerkt, und
+  // was die App bekommt, muss danach als bestätigt gelten (siehe `zaehlendeKaeufe`).
   const jetzt = new Date().toISOString();
-  const wirksam = purchases.filter(
-    (entry) => entry.kind === "paket" || istWirksam(entry, jetzt),
-  );
+  const wirksam = zaehlendeKaeufe(purchases, jetzt, { meldet: purchase?.id });
 
   const registration = registrationFor({
     company,
@@ -1891,19 +1931,35 @@ async function runAppSync(company: Company, forPurchase?: Purchase): Promise<App
     tenantPackage,
   });
 
-  const gemeldet = await registerTenant(registration, purchase?.id ?? company.id);
+  const gemeldet = await registerTenant(
+    registration,
+    purchase?.id ?? wirksam.find((entry) => entry.kind === "paket")?.id ?? company.id,
+  );
 
   // Ein befristeter Mandant gilt erst als gemeldet, wenn die App dasselbe Ende
   // quittiert. Eine ältere App wirft das Feld still weg und legt ihn
   // unbefristet an – die Meldung käme als Erfolg zurück, die Einladung ginge
   // raus, und der Demozugang liefe für immer. Die Prüfung steht VOR allem
   // Weiteren, damit weder der Kauf freigegeben noch eine Mail versendet wird.
+  // Verglichen wird mit dem GESENDETEN Ende, nicht mit dem am Mandanten: Ein
+  // Grundkauf meldet null, obwohl `demoExpiresAt` stehen bleibt – sonst galt
+  // jede Meldung einer gekauften Demo als gescheitert.
   const quittung = gemeldet.ok
-    ? demoConfirmationIssue(company.demoExpiresAt, gemeldet.demoLaeuftAbAm)
+    ? demoConfirmationIssue(registration.demoLaeuftAbAm, gemeldet.demoLaeuftAbAm)
     : null;
   const result: TenantSyncResult = quittung ? { ok: false, error: quittung } : gemeldet;
 
   const now = new Date().toISOString();
+
+  await recordAppSync(
+    company.id,
+    result.ok,
+    result.ok
+      ? registration.module.length === 0
+        ? "Leere Modulliste gemeldet – der Mandant ist in der App gesperrt."
+        : `Von der App bestätigt: ${registration.module.join(", ")}.`
+      : result.error,
+  );
 
   // Vor dem Schreiben festhalten: Nur der ÜBERGANG auf „freigegeben" ist die
   // Nachricht wert. Ein Wiederholungslauf nach einem Fehlschlag oder ein
@@ -2253,7 +2309,7 @@ export async function syncPurchaseAction(
 
   // Der angeklickte Kauf wird ausdrücklich durchgereicht: Ohne ihn nähme
   // runAppSync den neuesten des Unternehmens und meldete den falschen frei.
-  const outcome = await runAppSync(company, purchase);
+  const outcome = await runAppSync(company, { forPurchase: purchase });
 
   // Auch den Schritt im Protokoll nachziehen – sonst steht dort „fehlgeschlagen“,
   // während der Kauf längst freigegeben ist.
@@ -2282,6 +2338,7 @@ import {
 import {
   INVITE_FALLBACK_TEMPLATE,
   ROLE_LABEL,
+  companyUserRolesFor,
   isCompanyUserRole,
   isTrigger,
   triggerLinkTarget,
@@ -2373,6 +2430,25 @@ export async function inviteCompanyUserAction(
 
   if (company.contactEmail.trim().toLowerCase() === email) {
     return { error: "Diese Adresse gehört dem Erstbenutzer – seine Einladung steht weiter oben." };
+  }
+
+  // Dieselbe Regel wie die Auswahl im Dialog – hier gegen eine Absendung, die
+  // am Dialog vorbeigeht. Gemessen am Stand, den die App tatsächlich hat.
+  const [purchases, pricing, tenantPackage] = await Promise.all([
+    getPurchasesForCompany(company.id),
+    getPublishedPricing(),
+    getPackage(company.packageId),
+  ]);
+  const { reported } = moduleAccess({
+    company,
+    pricing,
+    tenantPackage,
+    purchases: zaehlendeKaeufe(purchases, new Date().toISOString()),
+  });
+  if (!companyUserRolesFor(reported).includes(role)) {
+    return {
+      error: `Die Rolle „${ROLE_LABEL[role]}“ braucht die Lagerverwaltung – sie ist für diesen Mandanten nicht freigegeben.`,
+    };
   }
 
   const existing = await listCompanyUsers(companyId);

@@ -12,7 +12,6 @@ import {
 import { EmptyState, formatDateTime } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import {
-  COMPANY_USER_ROLES,
   ROLE_HINT,
   ROLE_LABEL,
   type TemplateDraft,
@@ -28,6 +27,11 @@ type Props = {
   users: CompanyUser[];
   /** Erst nach erfolgreichem App-Abgleich lässt sich ein Nutzer anlegen. */
   canInvite: boolean;
+  /**
+   * Rollen, die zum gemeldeten Modulsatz passen (`companyUserRolesFor`).
+   * „Lager" fehlt ohne Lagerverwaltung – ein solches Konto sähe in der App nichts.
+   */
+  roles: CompanyUserRole[];
   disabledHint?: string;
   /**
    * Vorlage, mit der die Einladung tatsächlich verschickt wird.
@@ -47,6 +51,7 @@ export default function CompanyUsersPanel({
   contactName,
   users,
   canInvite,
+  roles,
   disabledHint,
   inviteTemplate,
 }: Props) {
@@ -58,7 +63,12 @@ export default function CompanyUsersPanel({
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<CompanyUserRole>("user");
+  const [chosenRole, setRole] = useState<CompanyUserRole>("user");
+  // Abgeleitet statt blind übernommen: Wird die Lagerverwaltung gesperrt,
+  // während die Wahl „Lager" noch im State steht, fehlt die passende <option>.
+  // Der Browser wählte dann still die erste („Superadmin") und schickte sie ab,
+  // während Hinweis und Mailvorschau weiter „Lager" zeigten.
+  const role = roles.includes(chosenRole) ? chosenRole : "user";
 
   // Nach erfolgreicher Einladung schliessen und die Felder leeren – sonst
   // stünde beim nächsten Öffnen der eben eingeladene Nutzer noch im Formular.
@@ -224,13 +234,19 @@ export default function CompanyUsersPanel({
                   onChange={(event) => setRole(event.target.value as CompanyUserRole)}
                   className={CONTROL_CLASS}
                 >
-                  {COMPANY_USER_ROLES.map((option) => (
+                  {roles.map((option) => (
                     <option key={option} value={option}>
                       {ROLE_LABEL[option]}
                     </option>
                   ))}
                 </select>
                 <p className="text-xs text-muted-foreground">{ROLE_HINT[role]}</p>
+                {roles.includes("lager") ? null : (
+                  <p className="text-xs text-muted-foreground">
+                    Die Rolle „Lager“ erscheint, sobald die Lagerverwaltung für diesen Mandanten
+                    freigegeben ist.
+                  </p>
+                )}
               </div>
 
               {state.error ? (

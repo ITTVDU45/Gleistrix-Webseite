@@ -25,11 +25,14 @@ import { Button } from "@/components/ui/button";
 import { formatPriceEUR } from "@/data/pricing";
 import {
   TIER_LABEL,
-  effectiveModuleIds,
+  hasAppFunction,
+  isEffective,
+  moduleAccess,
   moduleCatalog,
-  moduleGrantSource,
+  type ModuleSource,
 } from "@/lib/admin/modules";
 import { getDraftPricing, getPublishedPricing } from "@/lib/admin/pricing";
+import { zaehlendeKaeufe } from "@/lib/admin/purchase";
 import CompanyUsersPanel from "@/components/admin/CompanyUsersPanel";
 import NewPurchaseForm from "@/components/admin/NewPurchaseForm";
 import SendNotificationForm from "@/components/admin/SendNotificationForm";
@@ -48,7 +51,7 @@ import {
 import { mailConfigIssue } from "@/lib/admin/mail";
 import { MINIO_ISSUE_TEXT, minioIssue } from "@/lib/admin/provision/minio";
 import { MONGO_ADMIN_ISSUE_TEXT, mongoAdminIssue } from "@/lib/admin/provision/mongo";
-import { INVITE_FALLBACK_TEMPLATE } from "@/lib/admin/notification-templates";
+import { INVITE_FALLBACK_TEMPLATE, companyUserRolesFor } from "@/lib/admin/notification-templates";
 import {
   getCompany,
   getPackage,
@@ -66,6 +69,35 @@ type Props = { params: Promise<{ id: string }> };
 
 const CONTROL_CLASS =
   "h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50";
+
+const SOURCE_LABEL: Record<ModuleSource, string> = {
+  package: "Im Paket enthalten",
+  purchase: "Im Kauf enthalten",
+  addon: "Zubuchung aus der App",
+  extra: "Einzeln freigegeben",
+  blocked: "Gesperrt",
+  none: "Nicht freigegeben",
+};
+
+/** Ein Knopf im Modul-Tab – vier Stück je Zeile wären sonst viermal dasselbe Formular. */
+function ModuleAccessButton(props: {
+  companyId: string;
+  moduleId: string;
+  mode: "grant" | "block" | "reset";
+  label: string;
+  variant: "outline" | "ghost";
+}) {
+  return (
+    <form action={setModuleAccessAction}>
+      <input type="hidden" name="companyId" value={props.companyId} />
+      <input type="hidden" name="moduleId" value={props.moduleId} />
+      <input type="hidden" name="mode" value={props.mode} />
+      <Button type="submit" size="sm" variant={props.variant}>
+        {props.label}
+      </Button>
+    </form>
+  );
+}
 
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
@@ -134,8 +166,18 @@ export default async function CompanyDetailPage({ params }: Props) {
   const selectablePackages = store.packages.filter(
     (p) => p.isPublished || p.id === company.packageId,
   );
+  // Der Entwurf liefert nur die Liste, damit auch neue Module sichtbar sind.
+  // Zustand und Zähler rechnet dieselbe Funktion wie die Meldung an die App,
+  // mit denselben Eingaben: freigegebene Preisliste, zählende Käufe.
   const catalog = moduleCatalog(pricing);
-  const activeModules = effectiveModuleIds(pricing, company, pkg);
+  const zaehlend = zaehlendeKaeufe(purchases, new Date().toISOString());
+  const hasBasePurchase = zaehlend.some((purchase) => purchase.kind === "paket");
+  const access = moduleAccess({
+    company,
+    pricing: publishedPricing,
+    tenantPackage: pkg,
+    purchases: zaehlend,
+  });
   const isSuspended = company.status === "suspended";
   const isProvisioned = company.status !== "provisioning";
   const hasLoggedIn = tenantActivity?.ok ? tenantActivity.activity.hasLoggedIn : false;
@@ -274,9 +316,15 @@ export default async function CompanyDetailPage({ params }: Props) {
             </dl>
           ) : (
             <p className="mt-4 text-sm text-muted-foreground">
-              Ohne Paket sind nur einzeln freigegebene Module nutzbar.
+              Ohne Paket bekommt der Mandant den Grundumfang plus einzeln freigegebene Module.
             </p>
           )}
+          {hasBasePurchase ? (
+            <p className="mt-2 text-sm text-muted-foreground">
+              Es gibt einen von der App bestätigten Grundkauf: Dessen Umfang ist die Basis der
+              Module, das Paket wirkt darauf nicht.
+            </p>
+          ) : null}
         </Section>
       </div>
 
@@ -377,6 +425,7 @@ export default async function CompanyDetailPage({ params }: Props) {
           contactName={company.contactName}
           users={companyUsers}
           canInvite={appSyncDone}
+          roles={companyUserRolesFor(access.reported)}
           disabledHint={
             appSyncDone
               ? undefined
@@ -539,21 +588,35 @@ export default async function CompanyDetailPage({ params }: Props) {
       </Section>
 
       <Section
-        title={`Module (${activeModules.length} aktiv)`}
-        description="Paketumfang plus Einzelfreigaben, abzüglich gesperrter Module."
+        title={`Module (${access.moduleIds.length} gemeldet)`}
+        description="Die App bekommt immer den Grundumfang (Basispaket), dazu den Kauf- oder Paketumfang, Zubuchungen und Einzelfreigaben – abzüglich gesperrter Module. Eine Sperre gilt auch gegen Kauf und Zubuchung."
       >
+        {/* Ohne diese Zeile blieb jeder Klick hier stumm: Ob die App den neuen
+            Stand hat, stand nur im Serverprotokoll. */}
+        {company.appSync ? (
+          <p
+            role={company.appSync.ok ? undefined : "alert"}
+            className={
+              company.appSync.ok
+                ? "mb-4 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800 ring-1 ring-inset ring-emerald-600/20"
+                : "mb-4 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900 ring-1 ring-inset ring-amber-600/20"
+            }
+          >
+            <strong className="font-medium">
+              {company.appSync.ok ? "Mit der App abgeglichen" : "Nicht abgeglichen"}
+            </strong>{" "}
+            · {formatDateTime(company.appSync.at)} – {company.appSync.message}
+          </p>
+        ) : (
+          <p className="mb-4 text-sm text-muted-foreground">
+            Noch kein Abgleich mit der App protokolliert.
+          </p>
+        )}
+
         <ul className="grid gap-2 lg:grid-cols-2">
           {catalog.map((module) => {
-            const source = moduleGrantSource(module.id, company, pkg);
-            const isActive = activeModules.includes(module.id);
-            const label =
-              source === "package"
-                ? "Im Paket enthalten"
-                : source === "extra"
-                  ? "Einzeln freigegeben"
-                  : source === "blocked"
-                    ? "Gesperrt"
-                    : "Nicht freigegeben";
+            const source = access.sourceOf(module.id);
+            const isReported = access.moduleIds.includes(module.id);
 
             return (
               <li
@@ -568,41 +631,53 @@ export default async function CompanyDetailPage({ params }: Props) {
                     </span>
                   </div>
                   <p className="mt-0.5 text-xs text-muted-foreground">
-                    {label}
-                    {isActive ? "" : " · inaktiv"}
+                    {SOURCE_LABEL[source]}
+                    {/* Freigegeben, aber nicht gemeldet: Mandant gesperrt oder
+                        Modul noch nicht in der freigegebenen Preisliste. */}
+                    {isEffective(source) && !isReported ? " · inaktiv" : ""}
+                    {hasAppFunction(module.id) ? "" : " · in der App noch ohne Funktion"}
                   </p>
                 </div>
 
-                <div className="flex shrink-0 gap-1.5">
-                  {source !== "package" && source !== "extra" ? (
-                    <form action={setModuleAccessAction}>
-                      <input type="hidden" name="companyId" value={company.id} />
-                      <input type="hidden" name="moduleId" value={module.id} />
-                      <input type="hidden" name="mode" value="grant" />
-                      <Button type="submit" size="sm" variant="outline">
-                        Freigeben
-                      </Button>
-                    </form>
+                <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+                  {source === "none" ? (
+                    <ModuleAccessButton
+                      companyId={company.id}
+                      moduleId={module.id}
+                      mode="grant"
+                      label="Freigeben"
+                      variant="outline"
+                    />
+                  ) : null}
+                  {/* Auch neben Paket oder Kauf: Ein übriggebliebener Eintrag
+                      wirkte sonst nach einem Paketwechsel verdeckt weiter. */}
+                  {company.extraModuleIds.includes(module.id) ? (
+                    <ModuleAccessButton
+                      companyId={company.id}
+                      moduleId={module.id}
+                      mode="reset"
+                      label="Freigabe zurücknehmen"
+                      variant="ghost"
+                    />
                   ) : null}
                   {source === "blocked" ? (
-                    <form action={setModuleAccessAction}>
-                      <input type="hidden" name="companyId" value={company.id} />
-                      <input type="hidden" name="moduleId" value={module.id} />
-                      <input type="hidden" name="mode" value="reset" />
-                      <Button type="submit" size="sm" variant="outline">
-                        Entsperren
-                      </Button>
-                    </form>
-                  ) : (
-                    <form action={setModuleAccessAction}>
-                      <input type="hidden" name="companyId" value={company.id} />
-                      <input type="hidden" name="moduleId" value={module.id} />
-                      <input type="hidden" name="mode" value="block" />
-                      <Button type="submit" size="sm" variant="ghost">
-                        Sperren
-                      </Button>
-                    </form>
-                  )}
+                    <ModuleAccessButton
+                      companyId={company.id}
+                      moduleId={module.id}
+                      mode="reset"
+                      label="Entsperren"
+                      variant="outline"
+                    />
+                  ) : null}
+                  {isEffective(source) ? (
+                    <ModuleAccessButton
+                      companyId={company.id}
+                      moduleId={module.id}
+                      mode="block"
+                      label="Sperren"
+                      variant="ghost"
+                    />
+                  ) : null}
                 </div>
               </li>
             );

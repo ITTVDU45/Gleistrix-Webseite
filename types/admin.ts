@@ -83,9 +83,26 @@ export type Company = {
    * muss. Gesetzt heißt zugleich: dieser Mandant ist eine Demo.
    */
   demoExpiresAt?: string | null;
+  /**
+   * Ergebnis des letzten Abgleichs mit der App – auch „nicht gemeldet".
+   *
+   * Ohne das blieb ein Klick im Modul-Tab stumm: Ein Fehlschlag stand nur im
+   * Serverprotokoll, und ein Mandant ohne Kauf hatte gar keinen Ort dafür.
+   * Optional, weil Mandanten vor diesem Feld noch keinen Eintrag haben.
+   */
+  appSync?: AppSyncState;
   tenant: Tenant;
   provisioning: ProvisioningStep[];
   createdAt: string;
+};
+
+export type AppSyncState = {
+  /** ISO-Zeitpunkt des Versuchs. */
+  at: string;
+  /** Nur true, wenn die App den Stand bestätigt hat. */
+  ok: boolean;
+  /** Was gemeldet wurde, oder warum nicht – so, wie es im Adminbereich steht. */
+  message: string;
 };
 
 /**

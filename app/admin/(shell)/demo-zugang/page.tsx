@@ -19,8 +19,6 @@ import {
   MAX_DEMO_DAYS,
   appSyncIssue,
 } from "@/lib/admin/app-sync";
-import { effectiveModuleIds } from "@/lib/admin/modules";
-import { getPublishedPricing } from "@/lib/admin/pricing";
 import { readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Demo-Zugang" };
@@ -29,10 +27,7 @@ export default async function AdminDemoAccessPage() {
   // readStore statt getDemoAccess + getLeads: das Formular braucht zusätzlich
   // die angelegten Unternehmen und – für den Anlege-Dialog – die Pakete, und
   // readStore holt ohnehin alles parallel.
-  const [{ demoAccess, leads, companies, packages }, pricing] = await Promise.all([
-    readStore(),
-    getPublishedPricing(),
-  ]);
+  const { demoAccess, leads, companies, packages } = await readStore();
   const access = [...demoAccess].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const issue = appSyncIssue();
 
@@ -93,12 +88,6 @@ export default async function AdminDemoAccessPage() {
             contactName: company.contactName,
             contactEmail: company.contactEmail,
             demoExpiresAt: company.demoExpiresAt ?? null,
-            hasModules:
-              effectiveModuleIds(
-                pricing,
-                company,
-                packages.find((pkg) => pkg.id === company.packageId) ?? null,
-              ).length > 0,
           }))}
           packages={packages
             .filter((pkg) => pkg.isPublished)
