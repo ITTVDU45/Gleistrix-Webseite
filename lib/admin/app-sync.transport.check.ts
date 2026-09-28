@@ -80,8 +80,11 @@ const registration = {
   datenbank: "gleistrix_muster_bau",
   bucket: "gleistrix-muster-bau",
   erstbenutzer: { email: "info@example.test", name: "Max Mustermann" },
-  paket: { id: "professional", name: "Professional", benutzer: 14 },
-  module: ["einsatztafel"],
+  paket: { id: "basispaket", name: "Basispaket", benutzer: 14 },
+  // Echte Kennungen aus data/pricing.ts: `basispaket` (Grundumfang) steht immer
+  // vorn, danach Katalogmodule. Die App übersetzt genau diese – ausgedachte
+  // Kennungen hielten hier einen Vertrag fest, den keine Seite erfüllt.
+  module: ["basispaket", "operations-board", "warehouse"],
   // Kein Demomandant: Das Feld geht trotzdem mit, weil die App es absolut setzt.
   demoLaeuftAbAm: null,
 };
