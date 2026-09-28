@@ -24,8 +24,8 @@ import { addPurchase, getPurchase, readStore } from "@/lib/admin/store";
  *     Idempotency-Key: {Vorgangskennung der App}
  *
  *     { "kennung": "muster-bau",
- *       "module": ["lagerverwaltung"],
- *       "mengen": { "lagerverwaltung": 2000 } }
+ *       "module": ["warehouse"],
+ *       "mengen": { "warehouse": 2000 } }
  *
  * Antwort 201 mit `{ kaufId, monatlich }`, bei Wiederholung mit demselben
  * Schlüssel 200 und derselbe Rumpf.

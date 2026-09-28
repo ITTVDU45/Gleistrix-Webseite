@@ -136,8 +136,8 @@ Idempotency-Key: {Vorgangskennung der App}
 ```jsonc
 {
   "kennung": "mustermann-bau",
-  "module": ["lagerverwaltung"],
-  "mengen": { "lagerverwaltung": 2000 }   // nur bei Modulen mit Nutzungspreis
+  "module": ["warehouse"],
+  "mengen": { "warehouse": 2000 }   // nur bei Modulen mit Nutzungspreis
 }
 ```
 
