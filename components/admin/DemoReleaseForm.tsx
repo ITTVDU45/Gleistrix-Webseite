@@ -25,8 +25,6 @@ export type DemoCompany = {
   contactEmail: string;
   /** Läuft für diesen Mandanten schon eine Demo, steht hier ihr Ende. */
   demoExpiresAt?: string | null;
-  /** Ohne Module wäre der Zugang in der App sofort gesperrt. */
-  hasModules: boolean;
 };
 
 type Props = {
@@ -124,12 +122,6 @@ export default function DemoReleaseForm({
             {auswahl.length === 0 ? (
               <p className="text-xs text-muted-foreground">
                 Noch kein Unternehmen angelegt – über „+“ eines hinzufügen.
-              </p>
-            ) : null}
-            {company && !company.hasModules ? (
-              <p className="text-xs text-amber-800">
-                {company.name} hat kein Paket mit Modulen. Der Zugang wäre in der App sofort
-                gesperrt – bitte zuerst auf der Unternehmensseite ein Paket zuweisen.
               </p>
             ) : null}
             {company?.demoExpiresAt ? (
@@ -253,9 +245,6 @@ export default function DemoReleaseForm({
                 name: neu.name,
                 contactName: "",
                 contactEmail: neu.contactEmail,
-                // Ein frisch angelegter Mandant hat sein Paket aus dem Dialog;
-                // ob Module dranhängen, prüft die Action serverseitig.
-                hasModules: true,
               });
               setCompanyId(neu.id);
               newCompanyRef.current?.close();

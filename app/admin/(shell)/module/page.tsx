@@ -13,12 +13,13 @@ import { formatPriceEUR } from "@/data/pricing";
 import { getLandingModuleTexts, getLandingModules } from "@/lib/admin/landing-modules";
 import {
   TIER_LABEL,
-  effectiveModuleIds,
+  moduleAccess,
   moduleCatalog,
   type ModuleTier,
 } from "@/lib/admin/modules";
-import { getDraftPricing, suggestionList } from "@/lib/admin/pricing";
-import { readStore } from "@/lib/admin/store";
+import { getDraftPricing, getPublishedPricing, suggestionList } from "@/lib/admin/pricing";
+import { zaehlendeKaeufe } from "@/lib/admin/purchase";
+import { getPurchases, readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Module" };
 
@@ -68,9 +69,18 @@ function LandingMoveButtons({
 
 export default async function ModulesPage() {
   // Entwurfsstand, damit ein neu angelegtes Modul hier sofort auftaucht.
-  const [{ companies, packages }, pricing, landingModules, landingTexts] = await Promise.all([
+  const [
+    { companies, packages },
+    pricing,
+    publishedPricing,
+    purchases,
+    landingModules,
+    landingTexts,
+  ] = await Promise.all([
     readStore(),
     getDraftPricing(),
+    getPublishedPricing(),
+    getPurchases(),
     getLandingModules(),
     getLandingModuleTexts(),
   ]);
@@ -78,11 +88,22 @@ export default async function ModulesPage() {
   const packageById = new Map(packages.map((p) => [p.id, p]));
   const catalog = moduleCatalog(pricing);
 
-  // Wie viele Mandanten nutzen ein Modul tatsächlich – Sperren eingerechnet.
+  // Wie viele Mandanten ein Modul tatsächlich gemeldet bekommen – Käufe,
+  // Zubuchungen und Sperren eingerechnet, dieselbe Rechnung wie die Meldung.
+  const jetzt = new Date().toISOString();
   const activeCount = new Map<string, number>();
   for (const company of companies) {
-    const pkg = packageById.get(company.packageId ?? "") ?? null;
-    for (const moduleId of effectiveModuleIds(pricing, company, pkg)) {
+    const { moduleIds } = moduleAccess({
+      company,
+      pricing: publishedPricing,
+      tenantPackage: packageById.get(company.packageId ?? "") ?? null,
+      // ponytail: O(Mandanten × Käufe), wie in der Unternehmensliste.
+      purchases: zaehlendeKaeufe(
+        purchases.filter((purchase) => purchase.companyId === company.id),
+        jetzt,
+      ),
+    });
+    for (const moduleId of moduleIds) {
       activeCount.set(moduleId, (activeCount.get(moduleId) ?? 0) + 1);
     }
   }

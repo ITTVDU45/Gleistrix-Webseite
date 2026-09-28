@@ -10,9 +10,10 @@ import {
   formatDate,
   formatNumber,
 } from "@/components/admin/ui";
-import { effectiveModuleIds } from "@/lib/admin/modules";
-import { getDraftPricing } from "@/lib/admin/pricing";
-import { readStore } from "@/lib/admin/store";
+import { moduleAccess } from "@/lib/admin/modules";
+import { getPublishedPricing } from "@/lib/admin/pricing";
+import { zaehlendeKaeufe } from "@/lib/admin/purchase";
+import { getPurchases, readStore } from "@/lib/admin/store";
 
 export const metadata = { title: "Unternehmen" };
 
@@ -29,11 +30,14 @@ function nameKey(value: string): string {
 }
 
 export default async function CompaniesPage() {
-  // Entwurfsstand wie auf den übrigen Adminseiten: neu angelegte Module zählen sofort mit.
-  const [{ companies, packages, contacts, demoAccess }, pricing] = await Promise.all([
+  // Gezählt wird, was die App tatsächlich bekommt – dieselbe Rechnung wie die
+  // Meldung: freigegebene Preisliste, zählende Käufe (neueste zuerst).
+  const [{ companies, packages, contacts, demoAccess }, pricing, purchases] = await Promise.all([
     readStore(),
-    getDraftPricing(),
+    getPublishedPricing(),
+    getPurchases(),
   ]);
+  const jetzt = new Date().toISOString();
   const publishedPackages = packages.filter((p) => p.isPublished);
   const packageById = new Map(packages.map((p) => [p.id, p]));
 
@@ -113,7 +117,17 @@ export default async function CompaniesPage() {
               <tbody className="divide-y">
                 {companies.map((company) => {
                   const pkg = packageById.get(company.packageId ?? "") ?? null;
-                  const modules = effectiveModuleIds(pricing, company, pkg);
+                  // ponytail: Käufe je Mandant per filter, O(Mandanten × Käufe) –
+                  // bei einer Handvoll Käufe je Mandant egal; sonst vorab gruppieren.
+                  const { moduleIds: modules } = moduleAccess({
+                    company,
+                    pricing,
+                    tenantPackage: pkg,
+                    purchases: zaehlendeKaeufe(
+                      purchases.filter((purchase) => purchase.companyId === company.id),
+                      jetzt,
+                    ),
+                  });
                   const demos =
                     (demosByCompanyId.get(company.id) ?? 0) +
                     (demosByName.get(nameKey(company.name)) ??
