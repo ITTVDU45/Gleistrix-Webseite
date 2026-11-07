@@ -60,8 +60,36 @@ export function hasAppFunction(moduleId: string): boolean {
   return !WITHOUT_APP_FUNCTION.has(moduleId);
 }
 
+/**
+ * Module, die in der App nur zusammen mit einem anderen wirken.
+ *
+ * Die Wissensdatenbank liegt im KI-Chat: Ohne `ai-agents` führte der Mandant sie,
+ * sähe sie aber nirgends. Ihre Freigabe schaltet KI-Agenten deshalb mit, außer dort
+ * steht eine Sperre.
+ *
+ * ponytail: gilt auch für einen Kauf. Bevor die Wissensdatenbank auf die Preisseite
+ * kommt, muss ihr Preis KI-Agenten mittragen oder der Konfigurator sie mitbuchen.
+ */
+const REQUIRES: Record<string, string> = { "knowledge-base": "ai-agents" };
+
+export function requiredModule(moduleId: string): string | undefined {
+  return REQUIRES[moduleId];
+}
+
+/** Für 0 € im Verkauf verschenkte ein solches Modul das vorausgesetzte gleich mit. */
+export function blocksFreeSale(module: Pick<CatalogModule, "id" | "price">): boolean {
+  return module.price === 0 && requiredModule(module.id) !== undefined;
+}
+
 /** Woher ein Modul kommt – für die Anzeige auf der Unternehmensdetailseite. */
-export type ModuleSource = "package" | "purchase" | "addon" | "extra" | "blocked" | "none";
+export type ModuleSource =
+  | "package"
+  | "purchase"
+  | "addon"
+  | "extra"
+  | "required"
+  | "blocked"
+  | "none";
 
 /** Wirkt ein Modul mit dieser Quelle, solange der Mandant nicht gesperrt ist? */
 export function isEffective(source: ModuleSource): boolean {
@@ -86,9 +114,10 @@ export type ModuleAccess = {
  * Genau so zeigte der Modul-Tab „Einzeln freigegeben", während in der App
  * nichts ankam.
  *
- * Basis ist der Grundkauf, ohne ihn das Mandantenpaket. Dazu kommen Zubuchungen
- * und Einzelfreigaben; eine Sperre zieht von ALLEM ab, auch vom Kauf und von
- * Zubuchungen – sonst stünde ein gesperrtes Modul trotzdem in der App.
+ * Basis ist der Grundkauf, ohne ihn das Mandantenpaket. Dazu kommen Zubuchungen,
+ * Einzelfreigaben und was ein wirksames Modul voraussetzt (`REQUIRES`); eine Sperre
+ * zieht von ALLEM ab, auch vom Kauf und von Zubuchungen – sonst stünde ein
+ * gesperrtes Modul trotzdem in der App.
  * Eingefroren am Kauf bleiben Preis, Paket und Benutzerzahl, nicht der Umfang.
  *
  * Unbekannte Kennungen fallen heraus: Die App lehnte sie ab, und im Protokoll
@@ -111,12 +140,22 @@ export function moduleAccess(input: {
     purchases.filter((purchase) => purchase.kind === "zubuchung").flatMap((p) => p.moduleIds),
   );
 
-  const sourceOf = (moduleId: string): ModuleSource => {
+  const directSource = (moduleId: string): ModuleSource => {
     if (company.blockedModuleIds.includes(moduleId)) return "blocked";
     if (basis.has(moduleId)) return grundkauf ? "purchase" : "package";
     if (zubuchungen.has(moduleId)) return "addon";
     if (company.extraModuleIds.includes(moduleId)) return "extra";
     return "none";
+  };
+
+  const sourceOf = (moduleId: string): ModuleSource => {
+    const source = directSource(moduleId);
+    if (source !== "none") return source;
+
+    const neededByEffective = Object.keys(REQUIRES).some(
+      (id) => REQUIRES[id] === moduleId && isEffective(directSource(id)),
+    );
+    return neededByEffective ? "required" : "none";
   };
 
   if (company.status === "suspended") return { moduleIds: [], reported: [], sourceOf };

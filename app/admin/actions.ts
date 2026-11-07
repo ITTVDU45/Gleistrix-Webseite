@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { VISUAL_KEYS } from "@/data/landingModules";
-import { DEFAULT_PRICING } from "@/data/pricing";
+import { ALWAYS_IN_CATALOG, DEFAULT_PRICING } from "@/data/pricing";
 import { login, logout } from "@/lib/admin/auth";
 import {
   getLandingModules,
@@ -18,7 +18,7 @@ import {
   appSyncIssue,
 } from "@/lib/admin/app-sync";
 import { saveImageAsset } from "@/lib/admin/db/assets";
-import { getModule, moduleAccess } from "@/lib/admin/modules";
+import { blocksFreeSale, getModule, moduleAccess } from "@/lib/admin/modules";
 import {
   discardDraft,
   getDraftPricing,
@@ -1292,6 +1292,12 @@ export async function savePricingModuleAction(
     usage,
   };
 
+  if (next.isActive && blocksFreeSale(next)) {
+    return {
+      error: `„${title}“ schaltet ein weiteres Modul mit und darf nicht für 0 € aktiv sein. Erst einen Preis setzen.`,
+    };
+  }
+
   await updateDraft((current) => ({
     ...current,
     modules: existing
@@ -1307,8 +1313,11 @@ export async function togglePricingModuleActiveAction(data: FormData): Promise<v
 
   await updateDraft((config) => ({
     ...config,
+    // Der Knopf ist dafür gesperrt (pakete/addons/[id]); hier nur die zweite Sicherung.
     modules: config.modules.map((module) =>
-      module.id === moduleId ? { ...module, isActive: !module.isActive } : module,
+      module.id === moduleId && (module.isActive || !blocksFreeSale(module))
+        ? { ...module, isActive: !module.isActive }
+        : module,
     ),
   }));
   revalidateAdmin();
@@ -1323,6 +1332,13 @@ export async function deletePricingModuleAction(
   const config = await getDraftPricing();
   const target = getModule(config, moduleId);
   if (!target) return { error: "Unbekanntes Modul." };
+
+  // Käme beim nächsten Lesen zurück (migratePricing) – „gelöscht" wäre gelogen.
+  if (ALWAYS_IN_CATALOG.includes(moduleId)) {
+    return {
+      error: `„${target.title}“ muss für die Freigabe im Katalog bleiben und lässt sich nur archivieren.`,
+    };
+  }
 
   const usage = await moduleUsage(moduleId);
   if (isModuleInUse(usage)) {

@@ -8,7 +8,7 @@ import { NeutralBadge, TierBadge } from "@/components/admin/pricing/ui";
 import { EmptyState, Section } from "@/components/admin/ui";
 import { Button } from "@/components/ui/button";
 import { formatPriceEUR } from "@/data/pricing";
-import { getModule } from "@/lib/admin/modules";
+import { blocksFreeSale, getModule } from "@/lib/admin/modules";
 import {
   getDraftPricing,
   isModuleInUse,
@@ -155,10 +155,20 @@ export default async function AddonDetailPage({ params }: Props) {
         <div className="flex flex-wrap items-start gap-3">
           <form action={togglePricingModuleActiveAction}>
             <input type="hidden" name="moduleId" value={addon.id} />
-            <Button type="submit" size="sm" variant="outline">
+            <Button
+              type="submit"
+              size="sm"
+              variant="outline"
+              disabled={!addon.isActive && blocksFreeSale(addon)}
+            >
               {addon.isActive ? "Archivieren" : "Reaktivieren"}
             </Button>
           </form>
+          {!addon.isActive && blocksFreeSale(addon) ? (
+            <p className="self-center text-sm text-muted-foreground">
+              Schaltet ein weiteres Modul mit – erst einen Preis setzen.
+            </p>
+          ) : null}
 
           <DeleteModuleForm moduleId={addon.id} redirectTo="/admin/pakete" />
         </div>

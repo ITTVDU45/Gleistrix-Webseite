@@ -163,7 +163,14 @@ der der Adminbereich den Modul-Tab und die Zähler zeigt.
 - **Danach Katalogmodule** aus `data/pricing.ts`: `material`, `absence`,
   `vehicles`, `qualifications`, `employee-documents`, `clients`,
   `subcontractors`, `deadlines`, `templates`, `operations-board`, `billing`,
-  `warehouse`, `finance`, `ai-agents`. Integrationen wie `gaeb` gehen nie mit.
+  `warehouse`, `finance`, `ai-agents`, `knowledge-base`. Integrationen wie `gaeb`
+  gehen nie mit.
+- **`ai-agents` und `knowledge-base` stehen immer im Katalog.** Fehlen sie im
+  gespeicherten Stand, ergänzt `migratePricing` sie inaktiv: freigebbar, aber
+  nicht auf der Preisseite.
+- **`knowledge-base` schaltet `ai-agents` mit**, weil sie in der App im KI-Chat
+  liegt. Eine Sperre von `ai-agents` gewinnt; dann führt die App die
+  Wissensdatenbank, zeigt sie aber nicht.
 - **Basis** ist der Grundkauf, ohne ihn das Mandantenpaket. Dazu kommen
   Zubuchungen und Einzelfreigaben. **Eine Sperre zieht von allem ab**, auch
   vom Kauf und von Zubuchungen.
@@ -187,6 +194,7 @@ Wie die App die Kennungen übersetzt (APP `packages/shared/src/tenancy/moduleMap
 | `absence` | – | abwesenheiten |
 | `finance` | – | finanzen |
 | `clients` | – | auftraggeber |
+| `knowledge-base` | – (liegt in agenten) | wissen |
 | `qualifications`, `employee-documents`, `templates`, `deadlines` | – (noch keine Funktion in der App) | – |
 
 Zusatzfunktionen gelten nur je Mandant, nie je Benutzer. Die Rolle `lager`
