@@ -26,8 +26,9 @@ registerHooks({
 });
 
 const { demoConfirmationIssue, registrationFor } = await import("./app-sync.ts");
-const { hasAppFunction, moduleAccess } = await import("./modules.ts");
+const { blocksFreeSale, hasAppFunction, moduleAccess, requiredModule } = await import("./modules.ts");
 const { tenantFor } = await import("./tenant.ts");
+const { DEFAULT_PRICING, migratePricing } = await import("../../data/pricing.ts");
 
 /**
  * Zwei Kataloge mit getrenntem Kennungsraum – der Kern der Verwechslung.
@@ -404,4 +405,124 @@ for (const id of ["qualifications", "employee-documents", "templates", "deadline
 }
 assert.equal(hasAppFunction("warehouse"), true);
 
-console.log("app-sync.check: alle 24 Pruefungen bestanden");
+/* -------------------------------------------- KI-Agenten und Wissensdatenbank */
+
+const kiKatalog = {
+  ...pricing,
+  modules: [...pricing.modules, { id: "ai-agents", tier: "ai" }, { id: "knowledge-base", tier: "ai" }],
+} as unknown as PricingConfig;
+
+const kiZugang = (extraModuleIds: string[], blockedModuleIds: string[] = []) =>
+  moduleAccess({
+    company: { ...company, extraModuleIds, blockedModuleIds } as Company,
+    pricing: kiKatalog,
+    tenantPackage,
+    purchases: [],
+  });
+
+// 25. Die Wissensdatenbank liegt in der App im KI-Chat: Ohne `ai-agents` führte
+// der Mandant sie, sähe sie aber nirgends – bei „abgeglichen" im Protokoll.
+const nurWissen = kiZugang(["knowledge-base"]);
+assert.ok(nurWissen.reported.includes("knowledge-base"));
+assert.ok(nurWissen.reported.includes("ai-agents"));
+assert.equal(nurWissen.sourceOf("ai-agents"), "required");
+assert.equal(requiredModule("knowledge-base"), "ai-agents");
+
+// 26. Eine Sperre gilt auch hier: Wer KI-Agenten gesperrt hat, bekommt sie nicht
+// durch die Hintertür zurück.
+const kiGesperrt = kiZugang(["knowledge-base"], ["ai-agents"]);
+assert.equal(kiGesperrt.sourceOf("ai-agents"), "blocked");
+assert.ok(!kiGesperrt.reported.includes("ai-agents"));
+assert.ok(kiGesperrt.reported.includes("knowledge-base"));
+
+// 27. KI-Agenten allein ziehen die Wissensdatenbank nicht mit: Sie ist eine
+// eigene Position, und ohne sie bleibt der Chat wie bisher.
+const nurKi = kiZugang(["ai-agents"]);
+assert.ok(nurKi.reported.includes("ai-agents"));
+assert.equal(nurKi.sourceOf("ai-agents"), "extra");
+assert.equal(nurKi.sourceOf("knowledge-base"), "none");
+assert.ok(!nurKi.reported.includes("knowledge-base"));
+
+// 28. Eine eigene Freigabe bleibt als solche sichtbar, sonst zeigte der Modul-Tab
+// keinen Knopf zum Zurücknehmen.
+assert.equal(kiZugang(["ai-agents", "knowledge-base"]).sourceOf("ai-agents"), "extra");
+
+// 29. Eine gesperrte Wissensdatenbank schaltet nichts mit, und ohne jede Freigabe
+// kommt keins von beiden an.
+const wissenGesperrt = kiZugang(["knowledge-base"], ["knowledge-base"]);
+assert.equal(wissenGesperrt.sourceOf("ai-agents"), "none");
+assert.ok(!wissenGesperrt.reported.includes("ai-agents"));
+assert.equal(kiZugang([]).sourceOf("ai-agents"), "none");
+
+// 30. Ein gesperrter Mandant meldet weiter nichts.
+assert.deepEqual(
+  moduleAccess({
+    company: { ...company, status: "suspended", extraModuleIds: ["knowledge-base"] } as Company,
+    pricing: kiKatalog,
+    tenantPackage,
+    purchases: [],
+  }).reported,
+  [],
+);
+
+/* --------------------------------------- Gespeicherter Katalog ohne das Modul */
+
+// Der Katalog liegt als Stand in der Datenbank: Ein Eintrag in DEFAULT_PRICING käme
+// dort nie an, und moduleAccess würfe die Freigabe still weg.
+const gespeichert = {
+  ...DEFAULT_PRICING,
+  modules: DEFAULT_PRICING.modules.filter(
+    (module) => module.id !== "knowledge-base" && module.id !== "ai-agents",
+  ),
+};
+
+// 31. Beide kommen als inaktiv dazu: freigebbar, aber nicht auf der Preisseite.
+const nachgezogen = migratePricing(gespeichert);
+for (const id of ["ai-agents", "knowledge-base"]) {
+  const eintrag = nachgezogen.modules.find((module) => module.id === id);
+  assert.ok(eintrag, `${id} fehlt im nachgezogenen Katalog`);
+  assert.equal(eintrag.isActive, false, `${id} darf nicht ungefragt verkauft werden`);
+}
+assert.equal(nachgezogen.modules.length, gespeichert.modules.length + 2);
+
+// 32. Was der Admin gepflegt hat, bleibt: kein Doppel, kein überschriebener Preis.
+const gepflegt = migratePricing({
+  ...DEFAULT_PRICING,
+  modules: [
+    { ...DEFAULT_PRICING.modules[0] },
+    { id: "ai-agents", tier: "ai", title: "Eigener Titel", price: 99, isActive: true, features: [] },
+    { id: "knowledge-base", tier: "ai", title: "Wissen", price: 40, isActive: true, features: [] },
+  ],
+});
+assert.equal(gepflegt.modules.length, 3);
+assert.equal(gepflegt.modules.find((module) => module.id === "ai-agents")?.price, 99);
+assert.equal(gepflegt.modules.find((module) => module.id === "knowledge-base")?.isActive, true);
+
+// 33. Der ganze Weg: alter Stand aus der Datenbank, Freigabe, Meldung an die App.
+const gemeldet = registrationFor({
+  company: {
+    ...company,
+    status: "active",
+    extraModuleIds: ["knowledge-base"],
+    blockedModuleIds: [],
+  } as Company,
+  purchases: [],
+  pricing: migratePricing(gespeichert),
+  tenantPackage,
+});
+assert.ok(gemeldet.module.includes("knowledge-base"));
+assert.ok(gemeldet.module.includes("ai-agents"));
+
+// 34. Der Auslieferungszustand verkauft die Wissensdatenbank nicht ungefragt, die
+// App kennt die Kennung aber: Der Modul-Tab sagt nicht „noch ohne Funktion".
+const auslieferung = DEFAULT_PRICING.modules.find((module) => module.id === "knowledge-base");
+assert.equal(auslieferung?.isActive, false);
+assert.equal(auslieferung?.tier, "ai");
+assert.equal(hasAppFunction("knowledge-base"), true);
+
+// 35. Für 0 € aktiviert, verschenkte die Wissensdatenbank KI-Agenten gleich mit.
+assert.equal(blocksFreeSale({ id: "knowledge-base", price: 0 }), true);
+assert.equal(blocksFreeSale({ id: "knowledge-base", price: 30 }), false);
+assert.equal(blocksFreeSale({ id: "ai-agents", price: 0 }), false);
+
+console.log("app-sync.check: alle 35 Pruefungen bestanden");

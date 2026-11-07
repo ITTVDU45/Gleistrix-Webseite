@@ -243,6 +243,24 @@ export const DEFAULT_PRICING: PricingConfig = {
       iconKey: "bot",
       isActive: true,
     },
+    {
+      id: "knowledge-base",
+      tier: "ai",
+      title: "Wissensdatenbank",
+      description:
+        "Eigene Dokumente, Texte und Links hinterlegen – der KI-Chat antwortet daraus mit Quellen.",
+      // Noch nicht im Verkauf, nur per Freigabe im Modul-Tab. Vor dem Aktivieren den
+      // Preis setzen: Die Freigabe schaltet KI-Agenten mit (lib/admin/modules.ts).
+      price: 0,
+      features: [
+        "PDF, Word, Excel, Text und Links als Quellen",
+        "Scans und Fotos per Texterkennung lesen",
+        "Antworten im KI-Chat mit klickbaren Quellen",
+      ],
+      extras: [],
+      iconKey: "file-archive",
+      isActive: false,
+    },
   ],
   // Nur Anbindungen mit Produktbeleg (Stand 2026-09-22) – dieselben wie im
   // Megamenü und auf /integrationen. sevdesk, Stripe, Cal.com, Calendly,
@@ -449,6 +467,29 @@ type LegacyConfig = Omit<PricingConfig, "packages" | "extraUserPrice" | "texts">
 };
 
 /**
+ * Module, die der Adminbereich immer freigeben können muss.
+ *
+ * Der Katalog liegt als gespeicherter Stand in der Datenbank, ein neuer Eintrag in
+ * DEFAULT_PRICING käme dort nie an. `moduleAccess` würfe die Freigabe dann still weg,
+ * bei „abgeglichen" im Protokoll. Fehlt eines, kommt es deshalb hier dazu, und zwar
+ * inaktiv: freigebbar, aber nicht auf der Preisseite.
+ */
+export const ALWAYS_IN_CATALOG = ["ai-agents", "knowledge-base"];
+
+function withAlwaysInCatalog(config: PricingConfig): PricingConfig {
+  const missing = DEFAULT_PRICING.modules.filter(
+    (module) =>
+      ALWAYS_IN_CATALOG.includes(module.id) &&
+      !config.modules.some((entry) => entry.id === module.id),
+  );
+
+  return {
+    ...config,
+    modules: [...config.modules, ...missing.map((module) => ({ ...module, isActive: false }))],
+  };
+}
+
+/**
  * Bringt einen gespeicherten Stand auf das aktuelle Schema.
  *
  * Version 1 kannte genau ein Basispaket und trug die Implementierungskosten an
@@ -463,10 +504,10 @@ export function migratePricing(stored: unknown): PricingConfig {
   if (Array.isArray((raw as Partial<PricingConfig>).packages)) {
     const config = stored as PricingConfig;
     // `extras` kam später dazu – ältere Dokumente haben das Feld nicht.
-    return {
+    return withAlwaysInCatalog({
       ...config,
       modules: config.modules.map((module) => ({ ...module, extras: module.extras ?? [] })),
-    };
+    });
   }
 
   // Ohne die Annotation wird der Typ zur Union beider Array-Typen und der
@@ -489,7 +530,7 @@ export function migratePricing(stored: unknown): PricingConfig {
 
   const { basePackageTitle, basePackageDescription, ...texts } = raw.texts ?? {};
 
-  return {
+  return withAlwaysInCatalog({
     ...DEFAULT_PRICING,
     ...(stored as Partial<PricingConfig>),
     version: 2,
@@ -508,5 +549,5 @@ export function migratePricing(stored: unknown): PricingConfig {
     extraUserPrice: base.extraUserPrice,
     capacities: capacities.map(({ implementationPrice: _dropped, ...capacity }) => capacity),
     texts: { ...DEFAULT_PRICING.texts, ...texts },
-  };
+  });
 }

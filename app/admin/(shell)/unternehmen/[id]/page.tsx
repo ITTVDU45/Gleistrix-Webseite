@@ -29,6 +29,8 @@ import {
   isEffective,
   moduleAccess,
   moduleCatalog,
+  moduleTitle,
+  requiredModule,
   type ModuleSource,
 } from "@/lib/admin/modules";
 import { getDraftPricing, getPublishedPricing } from "@/lib/admin/pricing";
@@ -75,6 +77,7 @@ const SOURCE_LABEL: Record<ModuleSource, string> = {
   purchase: "Im Kauf enthalten",
   addon: "Zubuchung aus der App",
   extra: "Einzeln freigegeben",
+  required: "Mit der Wissensdatenbank freigegeben",
   blocked: "Gesperrt",
   none: "Nicht freigegeben",
 };
@@ -589,7 +592,7 @@ export default async function CompanyDetailPage({ params }: Props) {
 
       <Section
         title={`Module (${access.moduleIds.length} gemeldet)`}
-        description="Die App bekommt immer den Grundumfang (Basispaket), dazu den Kauf- oder Paketumfang, Zubuchungen und Einzelfreigaben – abzüglich gesperrter Module. Eine Sperre gilt auch gegen Kauf und Zubuchung."
+        description="Die App bekommt immer den Grundumfang (Basispaket), dazu den Kauf- oder Paketumfang, Zubuchungen und Einzelfreigaben – abzüglich gesperrter Module. Eine Sperre gilt auch gegen Kauf und Zubuchung. Die Wissensdatenbank schaltet KI-Agenten mit."
       >
         {/* Ohne diese Zeile blieb jeder Klick hier stumm: Ob die App den neuen
             Stand hat, stand nur im Serverprotokoll. */}
@@ -617,13 +620,16 @@ export default async function CompanyDetailPage({ params }: Props) {
           {catalog.map((module) => {
             const source = access.sourceOf(module.id);
             const isReported = access.moduleIds.includes(module.id);
+            const required = requiredModule(module.id);
 
             return (
               <li
                 key={module.id}
-                className="flex items-start justify-between gap-3 rounded-lg border px-3.5 py-3"
+                className="flex flex-wrap items-start justify-between gap-3 rounded-lg border px-3.5 py-3"
               >
-                <div className="min-w-0">
+                {/* Mit zwei Knöpfen brach der Titel sonst Buchstabe für Buchstabe um. Über die Basis,
+                    nicht min-w: globals setzt `.flex > *` auf min-width 0 und gewinnt gegen Utilities. */}
+                <div className="grow basis-40">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-sm font-medium">{module.title}</span>
                     <span className="rounded bg-muted px-1.5 py-0.5 text-[11px] text-muted-foreground">
@@ -636,10 +642,14 @@ export default async function CompanyDetailPage({ params }: Props) {
                         Modul noch nicht in der freigegebenen Preisliste. */}
                     {isEffective(source) && !isReported ? " · inaktiv" : ""}
                     {hasAppFunction(module.id) ? "" : " · in der App noch ohne Funktion"}
+                    {/* Gemeldet, aber wirkungslos: Das vorausgesetzte Modul ist gesperrt. */}
+                    {isReported && required && !access.moduleIds.includes(required)
+                      ? ` · wirkt in der App erst mit ${moduleTitle(pricing, required)}`
+                      : ""}
                   </p>
                 </div>
 
-                <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
+                <div className="ml-auto flex shrink-0 flex-wrap justify-end gap-1.5">
                   {source === "none" ? (
                     <ModuleAccessButton
                       companyId={company.id}
